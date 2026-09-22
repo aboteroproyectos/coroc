@@ -1,0 +1,19 @@
+node_modules/
+/packages/core/dist/
+/services/api/dist/
+coverage/
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+# Flutter
+apps/coroc_app/.dart_tool/
+apps/coroc_app/build/
+apps/coroc_app/.flutter-plugins
+apps/coroc_app/.flutter-plugins-dependencies
+apps/coroc_app/**/*.g.dart
+apps/coroc_app/**/*.freezed.dart
+apps/coroc_app/lib/l10n/gen/
+apps/coroc_app/ios/Pods/
+apps/coroc_app/macos/Pods/

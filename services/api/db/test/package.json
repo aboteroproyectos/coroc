@@ -1,0 +1,8 @@
+{
+  "name": "@coroc/db-tests",
+  "private": true,
+  "type": "module",
+  "description": "Pruebas del esquema COROC en PostgreSQL 16 embebido: RLS, inmutabilidad y antiduplicado.",
+  "scripts": { "test": "node rls-test.mjs ../schema.sql" },
+  "dependencies": { "embedded-postgres": "16.14.0-beta.17", "pg": "^8.13.0" }
+}

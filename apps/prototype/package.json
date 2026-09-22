@@ -1,0 +1,23 @@
+{
+  "name": "@coroc/prototype",
+  "version": "0.1.0",
+  "description": "COROC en un solo archivo HTML (Fase 0)",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "e2e": "node tools/e2e.mjs",
+    "verify": "node tools/verify.mjs",
+    "verify:ocr": "node tools/verify-ocr.mjs",
+    "samples": "node tools/samples.mjs",
+    "i18n": "python3 tools/i18n_src.py"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/montserrat": "^5.3.0",
+    "jspdf": "^2.5.2",
+    "jszip": "^3.10.1",
+    "qrcode-generator": "^1.4.4"
+  },
+  "private": true
+}

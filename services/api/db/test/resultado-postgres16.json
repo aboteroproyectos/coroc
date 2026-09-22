@@ -1,0 +1,92 @@
+[
+ {
+  "name": "schema.sql se aplica sin errores",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "Consecutivos por empresa (next_number)",
+  "pass": true,
+  "detail": "C000001 CT-000001"
+ },
+ {
+  "name": "CA-17 Empresa A solo ve sus clientes",
+  "pass": true,
+  "detail": "[{\"first_name\":\"María\"}]"
+ },
+ {
+  "name": "CA-17 Empresa B solo ve sus clientes",
+  "pass": true,
+  "detail": "[{\"first_name\":\"João\"}]"
+ },
+ {
+  "name": "Sin empresa en la sesión no se ve nada",
+  "pass": true,
+  "detail": "0"
+ },
+ {
+  "name": "CA-17 A no puede escribir en B",
+  "pass": true,
+  "detail": "new row violates row-level security policy for table \"clients\""
+ },
+ {
+  "name": "CA-17 A no puede modificar filas de B",
+  "pass": true,
+  "detail": "rowCount=0"
+ },
+ {
+  "name": "Libro inmutable (UPDATE)",
+  "pass": true,
+  "detail": "La tabla ledger_entries es inmutable: registre un reverso o ajuste con motivo"
+ },
+ {
+  "name": "Libro inmutable (DELETE)",
+  "pass": true,
+  "detail": "permission denied for table ledger_entries"
+ },
+ {
+  "name": "Reverso exige motivo",
+  "pass": true,
+  "detail": "new row for relation \"ledger_entries\" violates check constraint \"ledger_entries_check1\""
+ },
+ {
+  "name": "Un pago solo se reversa una vez",
+  "pass": true,
+  "detail": "duplicate key value violates unique constraint \"ledger_single_reversal_uq\""
+ },
+ {
+  "name": "Saldo derivado del libro (vista con RLS)",
+  "pass": true,
+  "detail": "{\"p\":\"150000\",\"b\":\"870000\"}"
+ },
+ {
+  "name": "La vista de saldos respeta RLS",
+  "pass": true,
+  "detail": "0"
+ },
+ {
+  "name": "CA-07 comprobante no se aplica dos veces (índice único)",
+  "pass": true,
+  "detail": "duplicate key value violates unique constraint \"intake_logical_applied_uq\""
+ },
+ {
+  "name": "Un duplicado puede registrarse como evento no aplicado",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "Topes de tasa sin vigencias solapadas",
+  "pass": true,
+  "detail": "conflicting key value violates exclusion constraint \"rate_caps_tenant_id_country_daterange_excl\""
+ },
+ {
+  "name": "Capital + interés = cuota",
+  "pass": true,
+  "detail": "new row for relation \"installments\" violates check constraint \"installments_check\""
+ },
+ {
+  "name": "Bitácora inmutable",
+  "pass": true,
+  "detail": "La tabla audit_log es inmutable: registre un reverso o ajuste con motivo"
+ }
+]

@@ -1,0 +1,25 @@
+{
+  "name": "@coroc/core",
+  "version": "0.1.0",
+  "description": "Núcleo de negocio de COROC: motor financiero, reglas de contacto, identificación de remitentes y lectura de comprobantes.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "bundle:browser": "esbuild src/index.ts --bundle --format=iife --global-name=CorocCore --minify --target=es2020 --outfile=dist/coroc-core.browser.js",
+    "test": "vitest run",
+    "coverage": "vitest run --coverage",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "decimal.js": "^10.4.3",
+    "libphonenumber-js": "^1.11.0"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^3.2.4",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.6.0",
+    "vitest": "^3.2.4"
+  }
+}

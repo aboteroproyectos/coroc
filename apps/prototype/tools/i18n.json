@@ -1,0 +1,2706 @@
+{
+"% diario": {
+"pt-BR": "% diário",
+"en": "% per day"
+},
+"% diario sobre lo vencido": {
+"pt-BR": "% diário sobre o valor vencido",
+"en": "% per day on the overdue amount"
+},
+", identificado(a) con documento {d},": {
+"pt-BR": ", portador(a) do documento {d},",
+"en": ", holder of ID document {d},"
+},
+"1 a 7 días": {
+"pt-BR": "1 a 7 dias",
+"en": "1 to 7 days"
+},
+"8 a 30 días": {
+"pt-BR": "8 a 30 dias",
+"en": "8 to 30 days"
+},
+"ANULADO": {
+"pt-BR": "CANCELADO",
+"en": "VOID"
+},
+"Acción": {
+"pt-BR": "Ação",
+"en": "Action"
+},
+"Aceptar": {
+"pt-BR": "Aceitar",
+"en": "OK"
+},
+"Acreedor": {
+"pt-BR": "Credor",
+"en": "Lender"
+},
+"Activar": {
+"pt-BR": "Ativar",
+"en": "Activate"
+},
+"Activas": {
+"pt-BR": "Ativas",
+"en": "On"
+},
+"Activo": {
+"pt-BR": "Ativo",
+"en": "Active"
+},
+"Administrador": {
+"pt-BR": "Administrador",
+"en": "Administrator"
+},
+"Agregar cuenta": {
+"pt-BR": "Adicionar conta",
+"en": "Add account"
+},
+"Agregar documento": {
+"pt-BR": "Adicionar documento",
+"en": "Add document"
+},
+"Agregar usuario": {
+"pt-BR": "Adicionar usuário",
+"en": "Add user"
+},
+"Al día": {
+"pt-BR": "Em dia",
+"en": "Current"
+},
+"Al guardar, COROC genera el plan de pagos en PDF, crea la carpeta del cliente y, si hay autorización, deja listo el mensaje de bienvenida.": {
+"pt-BR": "Ao salvar, o COROC gera o plano de pagamento em PDF, cria a pasta do cliente e, se houver autorização, deixa pronta a mensagem de boas-vindas.",
+"en": "On save, COROC generates the payment plan PDF, creates the client folder and, if authorized, prepares the welcome message."
+},
+"Alcance de esta versión": {
+"pt-BR": "Escopo desta versão",
+"en": "Scope of this version"
+},
+"Algo salió mal": {
+"pt-BR": "Algo deu errado",
+"en": "Something went wrong"
+},
+"Antigüedad máxima de un comprobante (días)": {
+"pt-BR": "Idade máxima de um comprovante (dias)",
+"en": "Maximum receipt age (days)"
+},
+"Aparecen en recibos, estados de cuenta y paz y salvo.": {
+"pt-BR": "Aparecem nos recibos, extratos e termos de quitação.",
+"en": "They appear on receipts, statements and payoff letters."
+},
+"Apariencia": {
+"pt-BR": "Aparência",
+"en": "Appearance"
+},
+"Apellidos": {
+"pt-BR": "Sobrenomes",
+"en": "Last name"
+},
+"Aplicado": {
+"pt-BR": "Aplicado",
+"en": "Applied"
+},
+"Aplicar reglas de contacto de la Ley 2300 de 2023 (horarios, un contacto de cobranza por día, un canal por semana).": {
+"pt-BR": "Aplicar as regras de contato da Lei 2300 de 2023 da Colômbia (horários, um contato de cobrança por dia, um canal por semana).",
+"en": "Apply the contact rules of Colombian Law 2300 of 2023 (time windows, one collection contact per day, one channel per week)."
+},
+"Aprobación previa: todo pasa por la bandeja": {
+"pt-BR": "Aprovação prévia: tudo passa pela caixa de validação",
+"en": "Prior approval: everything goes through the review inbox"
+},
+"Aprobado": {
+"pt-BR": "Aprovado",
+"en": "Approved"
+},
+"Aprobar y registrar": {
+"pt-BR": "Aprovar e registrar",
+"en": "Approve and post"
+},
+"Archivo .coroc": {
+"pt-BR": "Arquivo .coroc",
+"en": ".coroc file"
+},
+"Arrastre aquí imágenes o PDF, o": {
+"pt-BR": "Arraste aqui imagens ou PDF, ou",
+"en": "Drag images or PDFs here, or"
+},
+"Arrástrelos a la Bandeja (indicando, si lo sabe, el número de WhatsApp que lo envió), súbalos desde la ficha del cliente o déjelos en la carpeta COROC › _Entrada o en la subcarpeta «02 Comprobantes recibidos» del cliente y pulse «Revisar carpeta COROC». COROC lee el valor, la fecha, quién paga y quién recibe.": {
+"pt-BR": "Arraste-os para a Caixa de validação (indicando, se souber, o número de WhatsApp que enviou), envie-os pela ficha do cliente ou deixe-os na pasta COROC › _Entrada ou na subpasta «02 Comprovantes recebidos» do cliente e clique em «Verificar pasta COROC». O COROC lê o valor, a data, quem paga e quem recebe.",
+"en": "Drag them into the Review inbox (entering, if you know it, the WhatsApp number that sent them), upload them from the client record, or drop them in COROC › _Inbox or in the client's «02 Received receipts» subfolder and click «Scan COROC folder». COROC reads the amount, the date, the payer and the payee."
+},
+"Atrás": {
+"pt-BR": "Voltar",
+"en": "Back"
+},
+"Auditor": {
+"pt-BR": "Auditor",
+"en": "Auditor"
+},
+"Automático": {
+"pt-BR": "Automático",
+"en": "Automatic"
+},
+"Automático con auditoría (recomendado)": {
+"pt-BR": "Automático com auditoria (recomendado)",
+"en": "Automatic with audit (recommended)"
+},
+"Autoriza mensajes por WhatsApp": {
+"pt-BR": "Autoriza mensagens por WhatsApp",
+"en": "Consents to WhatsApp messages"
+},
+"Autoriza mensajes por correo": {
+"pt-BR": "Autoriza mensagens por e-mail",
+"en": "Consents to email messages"
+},
+"Autorización (opt-in) de cada cliente, ya registrada en COROC.": {
+"pt-BR": "Autorização (opt-in) de cada cliente, já registrada no COROC.",
+"en": "Opt-in from each client, already recorded in COROC."
+},
+"Ayuda": {
+"pt-BR": "Ajuda",
+"en": "Help"
+},
+"Aún no hay clientes. Cree el primero en menos de un minuto.": {
+"pt-BR": "Ainda não há clientes. Cadastre o primeiro em menos de um minuto.",
+"en": "No clients yet. Create the first one in under a minute."
+},
+"Aún no hay cuentas. Sin ellas, todo comprobante irá a revisión.": {
+"pt-BR": "Ainda não há contas. Sem elas, todo comprovante irá para revisão.",
+"en": "No accounts yet. Without them, every receipt goes to review."
+},
+"Aún no hay pagos.": {
+"pt-BR": "Ainda não há pagamentos.",
+"en": "No payments yet."
+},
+"Bandeja": {
+"pt-BR": "Validação",
+"en": "Inbox"
+},
+"Bandeja de validación": {
+"pt-BR": "Caixa de validação",
+"en": "Review inbox"
+},
+"Bienvenida y plan de pagos": {
+"pt-BR": "Boas-vindas e plano de pagamento",
+"en": "Welcome and payment plan"
+},
+"Bitácora de auditoría": {
+"pt-BR": "Registro de auditoria",
+"en": "Audit log"
+},
+"Bitácora de mensajes y cumplimiento": {
+"pt-BR": "Registro de mensagens e conformidade",
+"en": "Message and compliance log"
+},
+"Bloqueado por las reglas de contacto": {
+"pt-BR": "Bloqueado pelas regras de contato",
+"en": "Blocked by the contact rules"
+},
+"Bloqueo automático por inactividad (minutos)": {
+"pt-BR": "Bloqueio automático por inatividade (minutos)",
+"en": "Auto-lock after inactivity (minutes)"
+},
+"Borra definitivamente toda la información de este dispositivo. Cree un respaldo antes.": {
+"pt-BR": "Apaga definitivamente todas as informações deste dispositivo. Faça um backup antes.",
+"en": "Permanently erases all information on this device. Create a backup first."
+},
+"Borra los datos de demostración y deja COROC listo para empezar.": {
+"pt-BR": "Apaga os dados de demonstração e deixa o COROC pronto para começar.",
+"en": "Erases the demo data and leaves COROC ready to start."
+},
+"Botón «Nuevo cliente» (tecla N). Paso 1: datos personales; el número de WhatsApp es la llave para reconocer quién envía cada comprobante. Paso 2: condiciones con vista previa en vivo del plan, tasa efectiva anual y control del tope legal. Paso 3: autorizaciones de mensajes y de datos personales.": {
+"pt-BR": "Botão «Novo cliente» (tecla N). Passo 1: dados pessoais; o número de WhatsApp é a chave para reconhecer quem envia cada comprovante. Passo 2: condições com prévia ao vivo do plano, taxa efetiva anual e controle do teto legal. Passo 3: autorizações de mensagens e de dados pessoais.",
+"en": "«New client» button (key N). Step 1: personal details; the WhatsApp number is the key to recognize who sends each receipt. Step 2: terms with a live preview of the plan, effective annual rate and legal cap check. Step 3: messaging and personal-data consents."
+},
+"Brasil": {
+"pt-BR": "Brasil",
+"en": "Brazil"
+},
+"Buenas noches": {
+"pt-BR": "Boa noite",
+"en": "Good evening"
+},
+"Buenas tardes": {
+"pt-BR": "Boa tarde",
+"en": "Good afternoon"
+},
+"Buenos días": {
+"pt-BR": "Bom dia",
+"en": "Good morning"
+},
+"Buscar cliente, contrato o teléfono": {
+"pt-BR": "Buscar cliente, contrato ou telefone",
+"en": "Search client, contract or phone"
+},
+"COMPROBANTE": {
+"pt-BR": "COMPROVANTE",
+"en": "RECEIPT_IN"
+},
+"COROC abre WhatsApp con el mensaje escrito para cada cliente; usted confirma el envío. Los recibos se comparten como PDF desde la hoja de compartir del sistema.": {
+"pt-BR": "O COROC abre o WhatsApp com a mensagem escrita para cada cliente; você confirma o envio. Os recibos são compartilhados como PDF pela folha de compartilhamento do sistema.",
+"en": "COROC opens WhatsApp with the message written for each client; you confirm the send. Receipts are shared as PDFs from the system share sheet."
+},
+"COROC abre su aplicación de correo con el asunto y el mensaje listos, y descarga el PDF para adjuntarlo. Con el servidor COROC el envío es directo desde su dominio.": {
+"pt-BR": "O COROC abre seu aplicativo de e-mail com o assunto e a mensagem prontos e baixa o PDF para anexar. Com o servidor COROC o envio é direto do seu domínio.",
+"en": "COROC opens your email app with the subject and message ready and downloads the PDF to attach. With the COROC server, sending is direct from your domain."
+},
+"COROC calcula la tasa efectiva anual real con la TIR de los flujos y no guarda préstamos por encima del tope registrado.": {
+"pt-BR": "O COROC calcula a taxa efetiva anual real com a TIR dos fluxos e não salva empréstimos acima do teto registrado.",
+"en": "COROC computes the real effective annual rate with the IRR of the cash flows and does not save loans above the registered cap."
+},
+"COROC guarda cada documento en COROC › [cliente] › [contrato] › [tipo].": {
+"pt-BR": "O COROC salva cada documento em COROC › [cliente] › [contrato] › [tipo].",
+"en": "COROC saves each document in COROC › [client] › [contract] › [type]."
+},
+"COROC lee cada comprobante, identifica al cliente y registra el pago. Aquí usted supervisa y corrige.": {
+"pt-BR": "O COROC lê cada comprovante, identifica o cliente e registra o pagamento. Aqui você supervisiona e corrige.",
+"en": "COROC reads each receipt, identifies the client and posts the payment. Here you supervise and correct."
+},
+"COROC lee el comprobante, identifica el valor, la fecha y los nombres, y lo registra o lo deja en la bandeja para su revisión.": {
+"pt-BR": "O COROC lê o comprovante, identifica o valor, a data e os nomes, e o registra ou o deixa na caixa de validação para revisão.",
+"en": "COROC reads the receipt, identifies the amount, date and names, and posts it or leaves it in the inbox for review."
+},
+"COROC necesita su permiso de nuevo para guardar en la carpeta COROC de este equipo.": {
+"pt-BR": "O COROC precisa da sua permissão novamente para salvar na pasta COROC deste computador.",
+"en": "COROC needs your permission again to save to the COROC folder on this computer."
+},
+"COROC necesita su permiso para crear en este equipo una carpeta llamada COROC. Allí guardará, en una subcarpeta por cliente, los comprobantes recibidos, los recibos emitidos, los planes de pago y los estados de cuenta.": {
+"pt-BR": "O COROC precisa da sua permissão para criar neste computador uma pasta chamada COROC. Nela salvará, em uma subpasta por cliente, os comprovantes recebidos, os recibos emitidos, os planos de pagamento e os extratos.",
+"en": "COROC needs your permission to create a folder named COROC on this computer. It will save there, in one subfolder per client, the receipts received, the receipts issued, the payment plans and the statements."
+},
+"COROC verifica que cada comprobante haya sido pagado a una de estas cuentas antes de registrarlo solo.": {
+"pt-BR": "O COROC verifica se cada comprovante foi pago a uma destas contas antes de registrá-lo automaticamente.",
+"en": "COROC checks that each receipt was paid into one of these accounts before posting it on its own."
+},
+"Cada mensaje con su decisión de las reglas de contacto.": {
+"pt-BR": "Cada mensagem com a decisão das regras de contato.",
+"en": "Each message with its contact-rule decision."
+},
+"Cada pago genera un recibo PDF con número consecutivo, cuotas pactadas, valor pagado, cuota pagada, cuotas restantes, acumulado y nuevo saldo, más un código de verificación. Un reverso no borra el recibo: lo marca como ANULADO. Al terminar de pagar se emite el paz y salvo.": {
+"pt-BR": "Cada pagamento gera um recibo PDF com número sequencial, parcelas contratadas, valor pago, parcela paga, parcelas restantes, acumulado e novo saldo, além de um código de verificação. Um estorno não apaga o recibo: marca-o como CANCELADO. Ao quitar o empréstimo, é emitido o termo de quitação.",
+"en": "Each payment produces a PDF receipt with a sequential number, agreed installments, amount paid, installment paid, installments remaining, total paid to date and new balance, plus a verification code. A reversal does not delete the receipt: it marks it VOID. When the loan is paid off, a payoff letter is issued."
+},
+"Cambiar tema": {
+"pt-BR": "Mudar tema",
+"en": "Change theme"
+},
+"Cambiar ubicación": {
+"pt-BR": "Mudar local",
+"en": "Change location"
+},
+"Canal": {
+"pt-BR": "Canal",
+"en": "Channel"
+},
+"Canales autorizados": {
+"pt-BR": "Canais autorizados",
+"en": "Authorized channels"
+},
+"Canales y consentimientos": {
+"pt-BR": "Canais e consentimentos",
+"en": "Channels and consents"
+},
+"Cancelar": {
+"pt-BR": "Cancelar",
+"en": "Cancel"
+},
+"Capital": {
+"pt-BR": "Capital",
+"en": "Principal"
+},
+"Capital invertido": {
+"pt-BR": "Capital investido",
+"en": "Capital invested"
+},
+"Capital prestado": {
+"pt-BR": "Capital emprestado",
+"en": "Loan principal"
+},
+"Capital, intereses pactados y mora": {
+"pt-BR": "Capital, juros contratados e multa",
+"en": "Principal, agreed interest and late fees"
+},
+"Caracteres": {
+"pt-BR": "Caracteres",
+"en": "Characters"
+},
+"Carga manual": {
+"pt-BR": "Envio manual",
+"en": "Manual upload"
+},
+"Cargar datos de demostración para explorar (se marcan como DEMO y se pueden borrar).": {
+"pt-BR": "Carregar dados de demonstração para explorar (marcados como DEMO e podem ser apagados).",
+"en": "Load demo data to explore (marked DEMO and can be erased)."
+},
+"Carpeta COROC": {
+"pt-BR": "Pasta COROC",
+"en": "COROC folder"
+},
+"Carpeta conectada": {
+"pt-BR": "Pasta conectada",
+"en": "Folder connected"
+},
+"Cartera por estado": {
+"pt-BR": "Carteira por situação",
+"en": "Portfolio by status"
+},
+"Cartera total": {
+"pt-BR": "Carteira total",
+"en": "Total portfolio"
+},
+"Cartera vencida agrupada en 1–7, 8–30 y más de 30 días.": {
+"pt-BR": "Carteira vencida agrupada em 1–7, 8–30 e mais de 30 dias.",
+"en": "Overdue portfolio grouped into 1–7, 8–30 and over 30 days."
+},
+"Cartera, recaudo, comprobantes y recibos en un solo lugar, con la precisión de un sistema contable.": {
+"pt-BR": "Carteira, recebimentos, comprovantes e recibos em um só lugar, com a precisão de um sistema contábil.",
+"en": "Portfolio, collections, receipts and statements in one place, with the precision of an accounting system."
+},
+"Cerrar": {
+"pt-BR": "Fechar",
+"en": "Close"
+},
+"Cerrar sesión": {
+"pt-BR": "Sair",
+"en": "Sign out"
+},
+"Ciudad": {
+"pt-BR": "Cidade",
+"en": "City"
+},
+"Cliente": {
+"pt-BR": "Cliente",
+"en": "Client"
+},
+"Cliente actualizado.": {
+"pt-BR": "Cliente atualizado.",
+"en": "Client updated."
+},
+"Cliente no encontrado o sin acceso.": {
+"pt-BR": "Cliente não encontrado ou sem acesso.",
+"en": "Client not found or no access."
+},
+"Cliente sin identificar": {
+"pt-BR": "Cliente não identificado",
+"en": "Unidentified client"
+},
+"Cliente {n} creado con el contrato {c}.": {
+"pt-BR": "Cliente {n} cadastrado com o contrato {c}.",
+"en": "Client {n} created with contract {c}."
+},
+"Clientes": {
+"pt-BR": "Clientes",
+"en": "Clients"
+},
+"Cláusula firmada en el contrato": {
+"pt-BR": "Cláusula assinada no contrato",
+"en": "Clause signed in the contract"
+},
+"Cobrador": {
+"pt-BR": "Cobrador",
+"en": "Collector"
+},
+"Cobrador asignado": {
+"pt-BR": "Cobrador responsável",
+"en": "Assigned collector"
+},
+"Cobrador: ve solo sus clientes asignados, registra pagos y valida comprobantes; no puede reversar. Auditor: solo lectura.": {
+"pt-BR": "Cobrador: vê apenas seus clientes, registra pagamentos e valida comprovantes; não pode estornar. Auditor: somente leitura.",
+"en": "Collector: sees only assigned clients, posts payments and validates receipts; cannot reverse. Auditor: read-only."
+},
+"Cobros de hoy": {
+"pt-BR": "Cobranças de hoje",
+"en": "Today's collections"
+},
+"Codeudor (nombre)": {
+"pt-BR": "Coobrigado (nome)",
+"en": "Co-signer (name)"
+},
+"Codeudor (teléfono)": {
+"pt-BR": "Coobrigado (telefone)",
+"en": "Co-signer (phone)"
+},
+"Colombia": {
+"pt-BR": "Colômbia",
+"en": "Colombia"
+},
+"Compartir": {
+"pt-BR": "Compartilhar",
+"en": "Share"
+},
+"Complete capital, tasa y número de cuotas para ver el plan de pagos.": {
+"pt-BR": "Informe capital, taxa e número de parcelas para ver o plano de pagamento.",
+"en": "Enter principal, rate and number of installments to see the payment plan."
+},
+"Complete capital, tasa y número de cuotas.": {
+"pt-BR": "Informe capital, taxa e número de parcelas.",
+"en": "Enter principal, rate and number of installments."
+},
+"Complete todos los campos.": {
+"pt-BR": "Preencha todos os campos.",
+"en": "Fill in all fields."
+},
+"Comprobante": {
+"pt-BR": "Comprovante",
+"en": "Receipt"
+},
+"Comprobante en la bandeja para su revisión.": {
+"pt-BR": "Comprovante na caixa de validação para revisão.",
+"en": "Receipt in the inbox for review."
+},
+"Comprobante leído y pago registrado automáticamente.": {
+"pt-BR": "Comprovante lido e pagamento registrado automaticamente.",
+"en": "Receipt read and payment posted automatically."
+},
+"Comprobante recibido.": {
+"pt-BR": "Comprovante recebido.",
+"en": "Receipt received."
+},
+"Comprobante sin cliente identificado: revíselo en la bandeja.": {
+"pt-BR": "Comprovante sem cliente identificado: revise-o na caixa de validação.",
+"en": "Receipt with no identified client: review it in the inbox."
+},
+"Con datos de {n}.": {
+"pt-BR": "Com dados de {n}.",
+"en": "Using data from {n}."
+},
+"Con el número o el correo, COROC identifica al cliente automáticamente. Sin ellos, lo sugiere por el nombre del pagador y el valor.": {
+"pt-BR": "Com o número ou o e-mail, o COROC identifica o cliente automaticamente. Sem eles, sugere pelo nome do pagador e pelo valor.",
+"en": "With the number or email, COROC identifies the client automatically. Without them, it suggests one by payer name and amount."
+},
+"Con este número COROC identifica quién envía cada comprobante.": {
+"pt-BR": "Com este número o COROC identifica quem envia cada comprovante.",
+"en": "COROC uses this number to identify who sends each receipt."
+},
+"Condiciones": {
+"pt-BR": "Condições",
+"en": "Terms"
+},
+"Condiciones del préstamo": {
+"pt-BR": "Condições do empréstimo",
+"en": "Loan terms"
+},
+"Condonada": {
+"pt-BR": "Perdoada",
+"en": "Waived"
+},
+"Configuración": {
+"pt-BR": "Configurações",
+"en": "Settings"
+},
+"Configuración guardada.": {
+"pt-BR": "Configurações salvas.",
+"en": "Settings saved."
+},
+"Configure COROC": {
+"pt-BR": "Configure o COROC",
+"en": "Set up COROC"
+},
+"Confirmar": {
+"pt-BR": "Confirmar",
+"en": "Confirm"
+},
+"Confirmar contraseña": {
+"pt-BR": "Confirmar senha",
+"en": "Confirm password"
+},
+"Consignación": {
+"pt-BR": "Depósito",
+"en": "Bank deposit"
+},
+"Contenido no permitido: {x}": {
+"pt-BR": "Conteúdo não permitido: {x}",
+"en": "Content not allowed: {x}"
+},
+"Continuar": {
+"pt-BR": "Continuar",
+"en": "Continue"
+},
+"Contraseña": {
+"pt-BR": "Senha",
+"en": "Password"
+},
+"Contraseña actual": {
+"pt-BR": "Senha atual",
+"en": "Current password"
+},
+"Contraseña actualizada.": {
+"pt-BR": "Senha atualizada.",
+"en": "Password updated."
+},
+"Contraseña del respaldo": {
+"pt-BR": "Senha do backup",
+"en": "Backup password"
+},
+"Contraseña incorrecta o archivo dañado.": {
+"pt-BR": "Senha incorreta ou arquivo danificado.",
+"en": "Wrong password or damaged file."
+},
+"Contraseña inicial": {
+"pt-BR": "Senha inicial",
+"en": "Initial password"
+},
+"Contraseña nueva": {
+"pt-BR": "Nova senha",
+"en": "New password"
+},
+"Contraseña nueva para {u}": {
+"pt-BR": "Nova senha para {u}",
+"en": "New password for {u}"
+},
+"Contraseñas": {
+"pt-BR": "Senhas",
+"en": "Passwords"
+},
+"Contrato": {
+"pt-BR": "Contrato",
+"en": "Contract"
+},
+"Correo": {
+"pt-BR": "E-mail",
+"en": "Email"
+},
+"Correo electrónico": {
+"pt-BR": "E-mail",
+"en": "Email"
+},
+"Correo que lo envió (opcional)": {
+"pt-BR": "E-mail que enviou (opcional)",
+"en": "Sender email (optional)"
+},
+"Corte": {
+"pt-BR": "Posição em",
+"en": "As of"
+},
+"Creado": {
+"pt-BR": "Criado",
+"en": "Created"
+},
+"Crear cuenta de propietario": {
+"pt-BR": "Criar conta de proprietário",
+"en": "Create owner account"
+},
+"Crear préstamo": {
+"pt-BR": "Criar empréstimo",
+"en": "Create loan"
+},
+"Crear respaldo": {
+"pt-BR": "Criar backup",
+"en": "Create backup"
+},
+"Crear un cliente": {
+"pt-BR": "Cadastrar um cliente",
+"en": "Creating a client"
+},
+"Crear y descargar": {
+"pt-BR": "Criar e baixar",
+"en": "Create and download"
+},
+"Cree un cliente para ver la vista previa con datos reales.": {
+"pt-BR": "Cadastre um cliente para ver a prévia com dados reais.",
+"en": "Create a client to preview with real data."
+},
+"Cuadro de inversión y pagos": {
+"pt-BR": "Quadro de investimento e pagamentos",
+"en": "Investment and payment table"
+},
+"Cuadro_de_pagos": {
+"pt-BR": "Quadro_de_pagamentos",
+"en": "Payment_table"
+},
+"Cuenta de WhatsApp Business Platform verificada y número dedicado.": {
+"pt-BR": "Conta verificada da WhatsApp Business Platform e número dedicado.",
+"en": "Verified WhatsApp Business Platform account and a dedicated number."
+},
+"Cuentas receptoras": {
+"pt-BR": "Contas recebedoras",
+"en": "Receiving accounts"
+},
+"Cumplimiento": {
+"pt-BR": "Conformidade",
+"en": "Compliance"
+},
+"Cumplimiento y supervisión": {
+"pt-BR": "Conformidade e supervisão",
+"en": "Compliance and supervision"
+},
+"Cuota": {
+"pt-BR": "Parcela",
+"en": "Installment"
+},
+"Cuota fija (francés)": {
+"pt-BR": "Parcela fixa (Price)",
+"en": "Fixed installment (amortizing)"
+},
+"Cuota vencida": {
+"pt-BR": "Parcela vencida",
+"en": "Overdue installment"
+},
+"Cuota {n}": {
+"pt-BR": "Parcela {n}",
+"en": "Installment {n}"
+},
+"Cuotas": {
+"pt-BR": "Parcelas",
+"en": "Installments"
+},
+"Cuotas por cobrar en las próximas 8 semanas.": {
+"pt-BR": "Parcelas a receber nas próximas 8 semanas.",
+"en": "Installments to collect over the next 8 weeks."
+},
+"Cuotas restantes": {
+"pt-BR": "Parcelas restantes",
+"en": "Installments remaining"
+},
+"Cuándo registra solo y cuándo le pregunta": {
+"pt-BR": "Quando registra sozinho e quando pergunta",
+"en": "When it posts on its own and when it asks"
+},
+"Código": {
+"pt-BR": "Código",
+"en": "Code"
+},
+"Cómo llegan los comprobantes": {
+"pt-BR": "Como chegam os comprovantes",
+"en": "How receipts arrive"
+},
+"Cómo trabaja COROC": {
+"pt-BR": "Como o COROC trabalha",
+"en": "How COROC works"
+},
+"DEMO": {
+"pt-BR": "DEMO",
+"en": "DEMO"
+},
+"Dashboard": {
+"pt-BR": "Painel",
+"en": "Dashboard"
+},
+"Datos de la empresa": {
+"pt-BR": "Dados da empresa",
+"en": "Company details"
+},
+"Datos personales": {
+"pt-BR": "Dados pessoais",
+"en": "Personal details"
+},
+"Decisiones documentadas": {
+"pt-BR": "Decisões documentadas",
+"en": "Documented decisions"
+},
+"Decisión": {
+"pt-BR": "Decisão",
+"en": "Decision"
+},
+"Defina una contraseña para cifrar el respaldo. Sin ella no se podrá restaurar: guárdela en un lugar seguro.": {
+"pt-BR": "Defina uma senha para criptografar o backup. Sem ela não será possível restaurar: guarde-a em lugar seguro.",
+"en": "Set a password to encrypt the backup. Without it the backup cannot be restored: keep it somewhere safe."
+},
+"Desactivadas": {
+"pt-BR": "Desativadas",
+"en": "Off"
+},
+"Desactivar": {
+"pt-BR": "Desativar",
+"en": "Deactivate"
+},
+"Descargar": {
+"pt-BR": "Baixar",
+"en": "Download"
+},
+"Descargar carpeta COROC (.zip)": {
+"pt-BR": "Baixar pasta COROC (.zip)",
+"en": "Download COROC folder (.zip)"
+},
+"Descartar": {
+"pt-BR": "Descartar",
+"en": "Discard"
+},
+"Desde": {
+"pt-BR": "De",
+"en": "From"
+},
+"Desembolso": {
+"pt-BR": "Desembolso",
+"en": "Disbursement"
+},
+"Desembolsos, pagos y reversos para la contabilidad.": {
+"pt-BR": "Desembolsos, pagamentos e estornos para a contabilidade.",
+"en": "Disbursements, payments and reversals for accounting."
+},
+"Detalle": {
+"pt-BR": "Detalhe",
+"en": "Detail"
+},
+"Deudor": {
+"pt-BR": "Devedor",
+"en": "Borrower"
+},
+"Diaria": {
+"pt-BR": "Diária",
+"en": "Daily"
+},
+"Dirección": {
+"pt-BR": "Endereço",
+"en": "Address"
+},
+"Doble control de duplicados": {
+"pt-BR": "Controle duplo de duplicados",
+"en": "Double duplicate check"
+},
+"Documento de identidad": {
+"pt-BR": "Documento de identidade",
+"en": "ID document"
+},
+"Documento generado por COROC": {
+"pt-BR": "Documento gerado pelo COROC",
+"en": "Document generated by COROC"
+},
+"Documentos": {
+"pt-BR": "Documentos",
+"en": "Documents"
+},
+"Duplicado": {
+"pt-BR": "Duplicado",
+"en": "Duplicate"
+},
+"Día de cobro del mes": {
+"pt-BR": "Dia de cobrança do mês",
+"en": "Collection day of the month"
+},
+"Días de cobro": {
+"pt-BR": "Dias de cobrança",
+"en": "Collection days"
+},
+"Días de cobro por defecto (diaria)": {
+"pt-BR": "Dias de cobrança padrão (diária)",
+"en": "Default collection days (daily)"
+},
+"Días de gracia": {
+"pt-BR": "Dias de carência",
+"en": "Grace days"
+},
+"Días de mora": {
+"pt-BR": "Dias de atraso",
+"en": "Days past due"
+},
+"Días de mora · saldo por recibir": {
+"pt-BR": "Dias de atraso · saldo a receber",
+"en": "Days past due · balance receivable"
+},
+"ESTADO_DE_CUENTA": {
+"pt-BR": "EXTRATO",
+"en": "STATEMENT"
+},
+"Edad (días)": {
+"pt-BR": "Faixa (dias)",
+"en": "Age (days)"
+},
+"Editar": {
+"pt-BR": "Editar",
+"en": "Edit"
+},
+"Editar cliente": {
+"pt-BR": "Editar cliente",
+"en": "Edit client"
+},
+"Efectivo": {
+"pt-BR": "Dinheiro",
+"en": "Cash"
+},
+"El archivo no es un respaldo de COROC.": {
+"pt-BR": "O arquivo não é um backup do COROC.",
+"en": "The file is not a COROC backup."
+},
+"El botón de respaldo crea un único archivo .coroc cifrado con AES-256 que contiene toda la información y todos los documentos. La restauración verifica la huella de cada archivo antes de reemplazar nada.": {
+"pt-BR": "O botão de backup cria um único arquivo .coroc criptografado com AES-256 com todas as informações e todos os documentos. A restauração verifica a impressão digital de cada arquivo antes de substituir qualquer coisa.",
+"en": "The backup button creates a single .coroc file encrypted with AES-256 containing all information and all documents. Restoring verifies each file's fingerprint before replacing anything."
+},
+"El cliente autorizó el tratamiento de sus datos personales (Ley 1581 de 2012 / LGPD).": {
+"pt-BR": "O cliente autorizou o tratamento de seus dados pessoais (LGPD / Lei 1581 de 2012 da Colômbia).",
+"en": "The client authorized the processing of their personal data (Colombian Law 1581 of 2012 / LGPD)."
+},
+"El cliente no tiene autorizado ningún canal de mensajes.": {
+"pt-BR": "O cliente não autorizou nenhum canal de mensagens.",
+"en": "The client has not authorized any messaging channel."
+},
+"El cliente no tiene canales autorizados; comparta el recibo manualmente si lo desea.": {
+"pt-BR": "O cliente não tem canais autorizados; compartilhe o recibo manualmente, se desejar.",
+"en": "The client has no authorized channels; share the receipt manually if you wish."
+},
+"El comprobante es demasiado antiguo": {
+"pt-BR": "O comprovante é antigo demais",
+"en": "The receipt is too old"
+},
+"El comprobante no muestra el pagador; se asume el cliente remitente": {
+"pt-BR": "O comprovante não mostra o pagador; assume-se o cliente remetente",
+"en": "The receipt does not show the payer; the sending client is assumed"
+},
+"El correo no es válido.": {
+"pt-BR": "O e-mail não é válido.",
+"en": "The email is not valid."
+},
+"El deudor ya conoce su cuota diaria; enviar un mensaje cada día sería un contacto excesivo. Se puede activar.": {
+"pt-BR": "O devedor já conhece sua parcela diária; enviar uma mensagem por dia seria contato excessivo. Pode ser ativado.",
+"en": "The borrower already knows the daily installment; a message every day would be excessive contact. It can be turned on."
+},
+"El envío y la descarga automática desde WhatsApp funcionan con el servidor COROC y la API oficial de Meta. La política de WhatsApp Business restringe el uso para cobranza de deudas y préstamos; antes de activarlo se requiere:": {
+"pt-BR": "O envio e o download automático pelo WhatsApp funcionam com o servidor COROC e a API oficial da Meta. A política do WhatsApp Business restringe o uso para cobrança de dívidas e empréstimos; antes de ativar, é necessário:",
+"en": "Automatic sending and downloading from WhatsApp work with the COROC server and the official Meta API. The WhatsApp Business policy restricts use for debt collection and lending; before turning it on you need:"
+},
+"El mensaje de agradecimiento está listo para enviarse.": {
+"pt-BR": "A mensagem de agradecimento está pronta para envio.",
+"en": "The thank-you message is ready to send."
+},
+"El número de WhatsApp no es válido.": {
+"pt-BR": "O número de WhatsApp não é válido.",
+"en": "The WhatsApp number is not valid."
+},
+"El número de contacto principal no es válido.": {
+"pt-BR": "O número de contato principal não é válido.",
+"en": "The main contact number is not valid."
+},
+"El número secundario no es válido.": {
+"pt-BR": "O número secundário não é válido.",
+"en": "The secondary number is not valid."
+},
+"El pagador no coincide con el cliente (pago de tercero)": {
+"pt-BR": "O pagador não coincide com o cliente (pagamento de terceiro)",
+"en": "The payer does not match the client (third-party payment)"
+},
+"El pago no se hizo a tus cuentas": {
+"pt-BR": "O pagamento não foi feito para suas contas",
+"en": "The payment was not made to your accounts"
+},
+"El plazo para revertir con un toque ya venció; use el reverso formal.": {
+"pt-BR": "O prazo para desfazer com um toque venceu; use o estorno formal.",
+"en": "The one-tap undo window has expired; use a formal reversal."
+},
+"El recibo quedó guardado en el repositorio de {n}.": {
+"pt-BR": "O recibo foi salvo no repositório de {n}.",
+"en": "The receipt was saved in the repository of {n}."
+},
+"El teléfono del codeudor no es válido.": {
+"pt-BR": "O telefone do coobrigado não é válido.",
+"en": "The co-signer's phone is not valid."
+},
+"El umbral debe estar entre 80 y 100.": {
+"pt-BR": "O limite deve estar entre 80 e 100.",
+"en": "The threshold must be between 80 and 100."
+},
+"El usuario debe tener de 3 a 32 caracteres: letras, números, punto o guion.": {
+"pt-BR": "O usuário deve ter de 3 a 32 caracteres: letras, números, ponto ou hífen.",
+"en": "The username must be 3 to 32 characters: letters, numbers, dot or hyphen."
+},
+"El valor del pago debe ser mayor que cero.": {
+"pt-BR": "O valor do pagamento deve ser maior que zero.",
+"en": "The payment amount must be greater than zero."
+},
+"Elija el archivo de respaldo.": {
+"pt-BR": "Escolha o arquivo de backup.",
+"en": "Choose the backup file."
+},
+"Eliminar todo": {
+"pt-BR": "Apagar tudo",
+"en": "Erase everything"
+},
+"Eliminar todos los datos": {
+"pt-BR": "Apagar todos os dados",
+"en": "Erase all data"
+},
+"Empresa": {
+"pt-BR": "Empresa",
+"en": "Company"
+},
+"En Chrome o Edge de escritorio COROC le pide permiso una vez y crea la carpeta COROC con una subcarpeta por cliente y por contrato. En otros navegadores descargue la carpeta completa como ZIP desde Configuración › Carpeta COROC.": {
+"pt-BR": "No Chrome ou Edge para computador, o COROC pede permissão uma vez e cria a pasta COROC com uma subpasta por cliente e por contrato. Em outros navegadores, baixe a pasta completa em ZIP em Configurações › Pasta COROC.",
+"en": "In desktop Chrome or Edge, COROC asks for permission once and creates the COROC folder with one subfolder per client and per contract. In other browsers, download the whole folder as a ZIP from Settings › COROC folder."
+},
+"En Colombia: tasa de usura vigente certificada por la Superintendencia Financiera.": {
+"pt-BR": "Na Colômbia: taxa de usura vigente certificada pela Superintendência Financeira.",
+"en": "In Colombia: the current usury rate certified by the Financial Superintendence."
+},
+"En esta versión local se usa PBKDF2-SHA256 con 310.000 iteraciones (disponible en todos los navegadores); en el servidor se usará Argon2id.": {
+"pt-BR": "Nesta versão local usa-se PBKDF2-SHA256 com 310.000 iterações (disponível em todos os navegadores); no servidor será usado Argon2id.",
+"en": "This local version uses PBKDF2-SHA256 with 310,000 iterations (available in every browser); the server will use Argon2id."
+},
+"En modo asistido COROC escribe cada mensaje y abre WhatsApp o el correo con el texto listo; usted confirma. Las reglas de contacto se aplican solas: lunes a viernes de 7:00 a. m. a 7:00 p. m., sábados de 8:00 a. m. a 3:00 p. m., nunca domingos ni festivos, un contacto de cobranza por día y un solo canal por semana. Lo que cae fuera de franja se reprograma.": {
+"pt-BR": "No modo assistido o COROC escreve cada mensagem e abre o WhatsApp ou o e-mail com o texto pronto; você confirma. As regras de contato são aplicadas sozinhas: segunda a sexta das 7h às 19h, sábados das 8h às 15h, nunca domingos nem feriados, um contato de cobrança por dia e um só canal por semana. O que cai fora do horário é reprogramado.",
+"en": "In assisted mode COROC writes each message and opens WhatsApp or email with the text ready; you confirm. Contact rules apply automatically: Monday to Friday 7:00 a.m. to 7:00 p.m., Saturdays 8:00 a.m. to 3:00 p.m., never Sundays or holidays, one collection contact per day and a single channel per week. Anything outside the window is rescheduled."
+},
+"En mora": {
+"pt-BR": "Em atraso",
+"en": "Past due"
+},
+"Entidad": {
+"pt-BR": "Instituição",
+"en": "Institution"
+},
+"Enviado": {
+"pt-BR": "Enviado",
+"en": "Sent"
+},
+"Enviar": {
+"pt-BR": "Enviar",
+"en": "Send"
+},
+"Enviar al cliente": {
+"pt-BR": "Enviar ao cliente",
+"en": "Send to client"
+},
+"Enviar este mensaje automáticamente": {
+"pt-BR": "Enviar esta mensagem automaticamente",
+"en": "Send this message automatically"
+},
+"Enviar recibos y paz y salvo de inmediato, aun fuera de la franja horaria (transaccionales).": {
+"pt-BR": "Enviar recibos e termos de quitação imediatamente, mesmo fora do horário (transacionais).",
+"en": "Send receipts and payoff letters immediately, even outside the time window (transactional)."
+},
+"Enviar recordatorio": {
+"pt-BR": "Enviar lembrete",
+"en": "Send reminder"
+},
+"Enviar siguiente": {
+"pt-BR": "Enviar próxima",
+"en": "Send next"
+},
+"Esa contraseña es demasiado común.": {
+"pt-BR": "Essa senha é comum demais.",
+"en": "That password is too common."
+},
+"Escriba «{x}» para confirmar": {
+"pt-BR": "Digite «{x}» para confirmar",
+"en": "Type «{x}» to confirm"
+},
+"Ese número de contrato ya existe.": {
+"pt-BR": "Esse número de contrato já existe.",
+"en": "That contract number already exists."
+},
+"Ese pago ya fue reversado.": {
+"pt-BR": "Esse pagamento já foi estornado.",
+"en": "That payment was already reversed."
+},
+"Ese usuario ya existe.": {
+"pt-BR": "Esse usuário já existe.",
+"en": "That username already exists."
+},
+"Esperado para hoy": {
+"pt-BR": "Previsto para hoje",
+"en": "Expected today"
+},
+"Esta acción no se puede deshacer.": {
+"pt-BR": "Esta ação não pode ser desfeita.",
+"en": "This cannot be undone."
+},
+"Esta versión funciona completa en el navegador y guarda la información en este equipo; proteja el acceso al computador y cree respaldos cifrados con frecuencia. La recepción automática desde WhatsApp, el enlace personal de carga para el deudor, el envío directo de correos y la sincronización entre dispositivos requieren el servidor COROC (fases 3 y 4 del plan).": {
+"pt-BR": "Esta versão funciona completa no navegador e guarda as informações neste computador; proteja o acesso ao computador e crie backups criptografados com frequência. O recebimento automático pelo WhatsApp, o link pessoal de envio para o devedor, o envio direto de e-mails e a sincronização entre dispositivos exigem o servidor COROC (fases 3 e 4 do plano).",
+"en": "This version runs fully in the browser and stores information on this computer; protect access to the computer and create encrypted backups often. Automatic intake from WhatsApp, the borrower's personal upload link, direct email sending and cross-device sync require the COROC server (phases 3 and 4 of the plan)."
+},
+"Estado": {
+"pt-BR": "Situação",
+"en": "Status"
+},
+"Estado de cuenta": {
+"pt-BR": "Extrato",
+"en": "Statement"
+},
+"Estados Unidos": {
+"pt-BR": "Estados Unidos",
+"en": "United States"
+},
+"Este cliente no tiene préstamos.": {
+"pt-BR": "Este cliente não tem empréstimos.",
+"en": "This client has no loans."
+},
+"Este comprobante ya estaba registrado (duplicado).": {
+"pt-BR": "Este comprovante já estava registrado (duplicado).",
+"en": "This receipt was already posted (duplicate)."
+},
+"Este comprobante ya fue registrado (duplicado).": {
+"pt-BR": "Este comprovante já foi registrado (duplicado).",
+"en": "This receipt has already been posted (duplicate)."
+},
+"Este comprobante ya había sido registrado. No se aplicó de nuevo.": {
+"pt-BR": "Este comprovante já havia sido registrado. Não foi aplicado de novo.",
+"en": "This receipt had already been posted. It was not applied again."
+},
+"Este navegador no permite acceso a carpetas": {
+"pt-BR": "Este navegador não permite acesso a pastas",
+"en": "This browser does not allow folder access"
+},
+"Este préstamo ya está pagado.": {
+"pt-BR": "Este empréstimo já está quitado.",
+"en": "This loan is already paid off."
+},
+"Evento": {
+"pt-BR": "Evento",
+"en": "Event"
+},
+"Evidencia": {
+"pt-BR": "Evidência",
+"en": "Evidence"
+},
+"Evita errores de redondeo. Las tasas se calculan con decimales de 40 dígitos y el resultado se redondea mitad hacia arriba.": {
+"pt-BR": "Evita erros de arredondamento. As taxas são calculadas com decimais de 40 dígitos e o resultado é arredondado meio para cima.",
+"en": "Avoids rounding errors. Rates are computed with 40-digit decimals and the result is rounded half up."
+},
+"Excluir festivos": {
+"pt-BR": "Excluir feriados",
+"en": "Skip holidays"
+},
+"Excluir festivos por defecto": {
+"pt-BR": "Excluir feriados por padrão",
+"en": "Skip holidays by default"
+},
+"Falta un dato obligatorio": {
+"pt-BR": "Falta um dado obrigatório",
+"en": "A required field is missing"
+},
+"Fecha": {
+"pt-BR": "Data",
+"en": "Date"
+},
+"Fecha de desembolso": {
+"pt-BR": "Data do desembolso",
+"en": "Disbursement date"
+},
+"Fecha de pago": {
+"pt-BR": "Data de pagamento",
+"en": "Payment date"
+},
+"Fecha del pago": {
+"pt-BR": "Data do pagamento",
+"en": "Payment date"
+},
+"Filtrar": {
+"pt-BR": "Filtrar",
+"en": "Filter"
+},
+"Finalizado": {
+"pt-BR": "Quitado",
+"en": "Paid off"
+},
+"Finalizados": {
+"pt-BR": "Quitados",
+"en": "Paid off"
+},
+"Forma de pago": {
+"pt-BR": "Forma de pagamento",
+"en": "Payment frequency"
+},
+"Formulario de autorización": {
+"pt-BR": "Formulário de autorização",
+"en": "Authorization form"
+},
+"Frecuencia": {
+"pt-BR": "Frequência",
+"en": "Frequency"
+},
+"Guardar": {
+"pt-BR": "Salvar",
+"en": "Save"
+},
+"Guardar cambios": {
+"pt-BR": "Salvar alterações",
+"en": "Save changes"
+},
+"Guardar plantilla": {
+"pt-BR": "Salvar modelo",
+"en": "Save template"
+},
+"Guardar y generar plan": {
+"pt-BR": "Salvar e gerar plano",
+"en": "Save and generate plan"
+},
+"Guía de uso y decisiones tomadas en el diseño de COROC.": {
+"pt-BR": "Guia de uso e decisões tomadas no design do COROC.",
+"en": "User guide and the decisions made in designing COROC."
+},
+"Hasta": {
+"pt-BR": "Até",
+"en": "To"
+},
+"Historial": {
+"pt-BR": "Histórico",
+"en": "History"
+},
+"Histórico": {
+"pt-BR": "Histórico",
+"en": "All-time"
+},
+"Hora de los recordatorios": {
+"pt-BR": "Hora dos lembretes",
+"en": "Reminder time"
+},
+"Horas para revertir con un toque": {
+"pt-BR": "Horas para desfazer com um toque",
+"en": "Hours for one-tap undo"
+},
+"Huella SHA-256 del archivo y huella lógica (referencia, valor, fecha y entidad).": {
+"pt-BR": "Impressão digital SHA-256 do arquivo e impressão lógica (referência, valor, data e instituição).",
+"en": "SHA-256 file fingerprint plus a logical fingerprint (reference, amount, date and institution)."
+},
+"Idioma": {
+"pt-BR": "Idioma",
+"en": "Language"
+},
+"Idioma de la empresa (carpetas e informes)": {
+"pt-BR": "Idioma da empresa (pastas e relatórios)",
+"en": "Company language (folders and reports)"
+},
+"Idioma de mensajes y documentos": {
+"pt-BR": "Idioma das mensagens e documentos",
+"en": "Language for messages and documents"
+},
+"Inactivo": {
+"pt-BR": "Inativo",
+"en": "Inactive"
+},
+"Incluye pagos de cuotas vencidas": {
+"pt-BR": "Inclui pagamentos de parcelas vencidas",
+"en": "Includes payments of overdue installments"
+},
+"Indicadores principales": {
+"pt-BR": "Indicadores principais",
+"en": "Key indicators"
+},
+"Indique el motivo del reverso.": {
+"pt-BR": "Informe o motivo do estorno.",
+"en": "Enter the reason for the reversal."
+},
+"Indique la fecha del pago.": {
+"pt-BR": "Informe a data do pagamento.",
+"en": "Enter the payment date."
+},
+"Informe desconocido": {
+"pt-BR": "Relatório desconhecido",
+"en": "Unknown report"
+},
+"Informes": {
+"pt-BR": "Relatórios",
+"en": "Reports"
+},
+"Ingresar": {
+"pt-BR": "Entrar",
+"en": "Sign in"
+},
+"Ingrese el nombre de la empresa.": {
+"pt-BR": "Informe o nome da empresa.",
+"en": "Enter the company name."
+},
+"Ingrese el nombre.": {
+"pt-BR": "Informe o nome.",
+"en": "Enter the first name."
+},
+"Ingrese el titular.": {
+"pt-BR": "Informe o titular.",
+"en": "Enter the account holder."
+},
+"Ingrese los apellidos.": {
+"pt-BR": "Informe os sobrenomes.",
+"en": "Enter the last name."
+},
+"Ingrese una tasa válida.": {
+"pt-BR": "Informe uma taxa válida.",
+"en": "Enter a valid rate."
+},
+"Integridad fallida en {n} archivos. No se restauró nada.": {
+"pt-BR": "Falha de integridade em {n} arquivos. Nada foi restaurado.",
+"en": "Integrity check failed on {n} files. Nothing was restored."
+},
+"Integridad verificada": {
+"pt-BR": "Integridade verificada",
+"en": "Integrity verified"
+},
+"Intereses pactados": {
+"pt-BR": "Juros contratados",
+"en": "Agreed interest"
+},
+"Interés": {
+"pt-BR": "Juros",
+"en": "Interest"
+},
+"Interés simple fijo": {
+"pt-BR": "Juros simples fixos",
+"en": "Flat simple interest"
+},
+"Interés sobre el total (%)": {
+"pt-BR": "Juros sobre o total (%)",
+"en": "Interest on the total (%)"
+},
+"La contraseña actual no es correcta.": {
+"pt-BR": "A senha atual não está correta.",
+"en": "The current password is incorrect."
+},
+"La contraseña debe tener al menos 12 caracteres.": {
+"pt-BR": "A senha deve ter pelo menos 12 caracteres.",
+"en": "The password must be at least 12 characters."
+},
+"La contraseña del respaldo debe tener al menos 10 caracteres.": {
+"pt-BR": "A senha do backup deve ter pelo menos 10 caracteres.",
+"en": "The backup password must be at least 10 characters."
+},
+"La fecha del comprobante es futura": {
+"pt-BR": "A data do comprovante é futura",
+"en": "The receipt date is in the future"
+},
+"La fecha es anterior al desembolso": {
+"pt-BR": "A data é anterior ao desembolso",
+"en": "The date is before the disbursement"
+},
+"La fecha inicial es posterior a la final.": {
+"pt-BR": "A data inicial é posterior à final.",
+"en": "The start date is after the end date."
+},
+"La moneda no coincide con la del préstamo": {
+"pt-BR": "A moeda não coincide com a do empréstimo",
+"en": "The currency does not match the loan"
+},
+"La mora diaria equivale a una tasa anual superior al tope legal.": {
+"pt-BR": "A multa diária equivale a uma taxa anual acima do teto legal.",
+"en": "The daily late fee equals an annual rate above the legal cap."
+},
+"La política de WhatsApp Business restringe la cobranza de deudas; COROC no usa automatizaciones no oficiales. El modo automático con la API oficial queda para el servidor, sujeto a aprobación de Meta.": {
+"pt-BR": "A política do WhatsApp Business restringe a cobrança de dívidas; o COROC não usa automações não oficiais. O modo automático com a API oficial fica para o servidor, sujeito à aprovação da Meta.",
+"en": "The WhatsApp Business policy restricts debt collection; COROC does not use unofficial automation. Automatic mode with the official API is left to the server, subject to Meta approval."
+},
+"La suma de las cuotas siempre es exactamente el total pactado.": {
+"pt-BR": "A soma das parcelas é sempre exatamente o total contratado.",
+"en": "The installments always add up exactly to the agreed total."
+},
+"La tasa de usura registrada venció el {d}. Actualícela con la certificada para el período vigente.": {
+"pt-BR": "A taxa de usura registrada venceu em {d}. Atualize-a com a certificada para o período vigente.",
+"en": "The registered usury rate expired on {d}. Update it with the certified rate for the current period."
+},
+"La tasa efectiva anual ({ea}) supera el tope legal configurado ({cap}). Tasa máxima que cumple: {max} %.": {
+"pt-BR": "A taxa efetiva anual ({ea}) supera o teto legal configurado ({cap}). Taxa máxima permitida: {max} %.",
+"en": "The effective annual rate ({ea}) exceeds the configured legal cap ({cap}). Maximum compliant rate: {max}%."
+},
+"La tasa supera el tope legal configurado.": {
+"pt-BR": "A taxa supera o teto legal configurado.",
+"en": "The rate exceeds the configured legal cap."
+},
+"La última cuota absorbe la diferencia de redondeo": {
+"pt-BR": "A última parcela absorve a diferença de arredondamento",
+"en": "The last installment absorbs the rounding difference"
+},
+"Las contraseñas no coinciden.": {
+"pt-BR": "As senhas não coincidem.",
+"en": "The passwords do not match."
+},
+"Las reglas de contacto no permiten enviarlo ahora: {r}": {
+"pt-BR": "As regras de contato não permitem enviar agora: {r}",
+"en": "The contact rules do not allow sending it now: {r}"
+},
+"Lectura con baja confianza": {
+"pt-BR": "Leitura com baixa confiança",
+"en": "Low-confidence reading"
+},
+"Lenguaje intimidante o amenazas": {
+"pt-BR": "Linguagem intimidadora ou ameaças",
+"en": "Intimidating language or threats"
+},
+"Ley 2300 de 2023: lunes a viernes de 7:00 a. m. a 7:00 p. m., sábados de 8:00 a. m. a 3:00 p. m., nunca domingos ni festivos; un contacto de cobranza por día; un solo canal por semana; nunca a referencias.": {
+"pt-BR": "Lei 2300 de 2023 (Colômbia): segunda a sexta das 7h às 19h, sábados das 8h às 15h, nunca domingos nem feriados; um contato de cobrança por dia; um só canal por semana; nunca referências.",
+"en": "Colombian Law 2300 of 2023: Monday to Friday 7:00 a.m. to 7:00 p.m., Saturdays 8:00 a.m. to 3:00 p.m., never Sundays or holidays; one collection contact per day; a single channel per week; never references."
+},
+"Leyendo": {
+"pt-BR": "Lendo",
+"en": "Reading"
+},
+"Leyendo {f}…": {
+"pt-BR": "Lendo {f}…",
+"en": "Reading {f}…"
+},
+"Libro de movimientos": {
+"pt-BR": "Livro de movimentos",
+"en": "Ledger"
+},
+"Listo para enviar": {
+"pt-BR": "Pronto para enviar",
+"en": "Ready to send"
+},
+"Llamar": {
+"pt-BR": "Ligar",
+"en": "Call"
+},
+"Los saldos se derivan del libro de movimientos": {
+"pt-BR": "Os saldos derivam do livro de movimentos",
+"en": "Balances are derived from the ledger"
+},
+"Marfil (claro)": {
+"pt-BR": "Marfim (claro)",
+"en": "Ivory (light)"
+},
+"Medianoche (oscuro)": {
+"pt-BR": "Meia-noite (escuro)",
+"en": "Midnight (dark)"
+},
+"Medio": {
+"pt-BR": "Meio",
+"en": "Method"
+},
+"Medio de pago esperado": {
+"pt-BR": "Meio de pagamento esperado",
+"en": "Expected payment method"
+},
+"Menciones a terceros": {
+"pt-BR": "Menções a terceiros",
+"en": "Mentions of third parties"
+},
+"Mensaje": {
+"pt-BR": "Mensagem",
+"en": "Message"
+},
+"Mensaje de aceptación del cliente": {
+"pt-BR": "Mensagem de aceite do cliente",
+"en": "Acceptance message from the client"
+},
+"Mensaje programado por las reglas de contacto: {r}": {
+"pt-BR": "Mensagem programada pelas regras de contato: {r}",
+"en": "Message scheduled by the contact rules: {r}"
+},
+"Mensajería": {
+"pt-BR": "Mensagens",
+"en": "Messaging"
+},
+"Mensajería y Ley 2300": {
+"pt-BR": "Mensagens e Lei 2300",
+"en": "Messaging and Law 2300"
+},
+"Mensajes": {
+"pt-BR": "Mensagens",
+"en": "Messages"
+},
+"Mensual": {
+"pt-BR": "Mensal",
+"en": "Monthly"
+},
+"Modo asistido: COROC redacta y programa cada mensaje respetando las reglas de contacto; usted solo confirma el envío.": {
+"pt-BR": "Modo assistido: o COROC redige e programa cada mensagem respeitando as regras de contato; você só confirma o envio.",
+"en": "Assisted mode: COROC drafts and schedules each message within the contact rules; you just confirm the send."
+},
+"Montos en enteros de la unidad mínima de la moneda": {
+"pt-BR": "Valores em inteiros da menor unidade da moeda",
+"en": "Amounts as integers of the smallest currency unit"
+},
+"Mora": {
+"pt-BR": "Multa",
+"en": "Late fee"
+},
+"Mora por edades": {
+"pt-BR": "Atraso por faixas",
+"en": "Aging report"
+},
+"Mostrar más": {
+"pt-BR": "Mostrar mais",
+"en": "Show more"
+},
+"Motivo": {
+"pt-BR": "Motivo",
+"en": "Reason"
+},
+"Motivo del reverso (queda en la bitácora)": {
+"pt-BR": "Motivo do estorno (fica no registro)",
+"en": "Reason for the reversal (kept in the log)"
+},
+"Movimiento": {
+"pt-BR": "Movimento",
+"en": "Entry"
+},
+"Movimiento no encontrado.": {
+"pt-BR": "Movimento não encontrado.",
+"en": "Entry not found."
+},
+"Más": {
+"pt-BR": "Mais",
+"en": "More"
+},
+"Más de 30 días": {
+"pt-BR": "Mais de 30 dias",
+"en": "Over 30 days"
+},
+"Método": {
+"pt-BR": "Método",
+"en": "Method"
+},
+"Método de cálculo": {
+"pt-BR": "Método de cálculo",
+"en": "Calculation method"
+},
+"Mínimo 12 caracteres, con letras y números.": {
+"pt-BR": "Mínimo de 12 caracteres, com letras e números.",
+"en": "At least 12 characters, with letters and numbers."
+},
+"N.º": {
+"pt-BR": "Nº",
+"en": "No."
+},
+"NIT / ID": {
+"pt-BR": "CNPJ / ID",
+"en": "Tax ID"
+},
+"Nada por revisar. COROC registró todo lo que pudo leer con certeza.": {
+"pt-BR": "Nada para revisar. O COROC registrou tudo o que pôde ler com certeza.",
+"en": "Nothing to review. COROC posted everything it could read with certainty."
+},
+"Navegación principal": {
+"pt-BR": "Navegação principal",
+"en": "Main navigation"
+},
+"Ningún cliente coincide con el filtro.": {
+"pt-BR": "Nenhum cliente corresponde ao filtro.",
+"en": "No client matches the filter."
+},
+"Ningún pago se edita ni se borra; las correcciones son reversos con motivo.": {
+"pt-BR": "Nenhum pagamento é editado nem apagado; as correções são estornos com motivo.",
+"en": "No payment is edited or deleted; corrections are reversals with a reason."
+},
+"No es comprobante": {
+"pt-BR": "Não é comprovante",
+"en": "Not a receipt"
+},
+"No es un comprobante de pago (guardar en «Otros documentos»)": {
+"pt-BR": "Não é um comprovante de pagamento (salvar em «Outros documentos»)",
+"en": "Not a payment receipt (save in «Other documents»)"
+},
+"No hay archivos nuevos en la carpeta COROC.": {
+"pt-BR": "Não há arquivos novos na pasta COROC.",
+"en": "No new files in the COROC folder."
+},
+"No hay cuotas pendientes para hoy.": {
+"pt-BR": "Não há parcelas pendentes para hoje.",
+"en": "No installments due today."
+},
+"No hay mensajes pendientes por enviar.": {
+"pt-BR": "Não há mensagens pendentes de envio.",
+"en": "No messages waiting to be sent."
+},
+"No hay tope legal de tasa configurado. Regístrelo en Configuración › Cumplimiento.": {
+"pt-BR": "Não há teto legal de taxa configurado. Registre-o em Configurações › Conformidade.",
+"en": "No legal rate cap is configured. Register it in Settings › Compliance."
+},
+"No parece un comprobante de pago": {
+"pt-BR": "Não parece um comprovante de pagamento",
+"en": "Does not look like a payment receipt"
+},
+"No se pudo cargar el lector de documentos (¿sin conexión?).": {
+"pt-BR": "Não foi possível carregar o leitor de documentos (sem conexão?).",
+"en": "Could not load the document reader (offline?)."
+},
+"No se pudo iniciar COROC": {
+"pt-BR": "Não foi possível iniciar o COROC",
+"en": "COROC could not start"
+},
+"No se pudo leer el documento automáticamente; digite los datos": {
+"pt-BR": "Não foi possível ler o documento automaticamente; digite os dados",
+"en": "The document could not be read automatically; enter the data"
+},
+"No se puede cambiar cuando ya existen préstamos.": {
+"pt-BR": "Não pode ser alterado quando já existem empréstimos.",
+"en": "Cannot be changed once loans exist."
+},
+"No se usan herramientas no oficiales que automaticen WhatsApp Web: violan los términos de WhatsApp y exponen su número a bloqueo permanente.": {
+"pt-BR": "Não são usadas ferramentas não oficiais que automatizam o WhatsApp Web: violam os termos do WhatsApp e expõem seu número a bloqueio permanente.",
+"en": "No unofficial tools that automate WhatsApp Web are used: they violate WhatsApp's terms and expose your number to a permanent ban."
+},
+"Nombre": {
+"pt-BR": "Nome",
+"en": "Name"
+},
+"Nombre de la empresa": {
+"pt-BR": "Nome da empresa",
+"en": "Company name"
+},
+"Nombre de quien paga": {
+"pt-BR": "Nome de quem paga",
+"en": "Payer name"
+},
+"Nombre de quien recibe": {
+"pt-BR": "Nome de quem recebe",
+"en": "Payee name"
+},
+"Nombre(s)": {
+"pt-BR": "Nome(s)",
+"en": "First name"
+},
+"Nota": {
+"pt-BR": "Nota",
+"en": "Note"
+},
+"Notas": {
+"pt-BR": "Notas",
+"en": "Notes"
+},
+"Nueva contraseña": {
+"pt-BR": "Nova senha",
+"en": "New password"
+},
+"Nuevo cliente": {
+"pt-BR": "Novo cliente",
+"en": "New client"
+},
+"Nuevo mensaje": {
+"pt-BR": "Nova mensagem",
+"en": "New message"
+},
+"Nuevo préstamo": {
+"pt-BR": "Novo empréstimo",
+"en": "New loan"
+},
+"Nuevo préstamo para {n}": {
+"pt-BR": "Novo empréstimo para {n}",
+"en": "New loan for {n}"
+},
+"Nuevo saldo": {
+"pt-BR": "Novo saldo",
+"en": "New balance"
+},
+"Número de WhatsApp que lo envió (opcional)": {
+"pt-BR": "Número de WhatsApp que enviou (opcional)",
+"en": "WhatsApp number that sent it (optional)"
+},
+"Número de contacto principal (WhatsApp)": {
+"pt-BR": "Número de contato principal (WhatsApp)",
+"en": "Main contact number (WhatsApp)"
+},
+"Número de contrato": {
+"pt-BR": "Número do contrato",
+"en": "Contract number"
+},
+"Número secundario": {
+"pt-BR": "Número secundário",
+"en": "Secondary number"
+},
+"Orden de aplicación de pagos": {
+"pt-BR": "Ordem de aplicação dos pagamentos",
+"en": "Payment application order"
+},
+"Otro": {
+"pt-BR": "Outro",
+"en": "Other"
+},
+"PAZ_Y_SALVO": {
+"pt-BR": "TERMO_DE_QUITACAO",
+"en": "PAYOFF_LETTER"
+},
+"Pagada": {
+"pt-BR": "Paga",
+"en": "Paid"
+},
+"Pagado": {
+"pt-BR": "Pago",
+"en": "Paid"
+},
+"Pagador inferido": {
+"pt-BR": "Pagador inferido",
+"en": "Inferred payer"
+},
+"Pago": {
+"pt-BR": "Pagamento",
+"en": "Payment"
+},
+"Pago de {x} registrado. Recibo {r} emitido.": {
+"pt-BR": "Pagamento de {x} registrado. Recibo {r} emitido.",
+"en": "Payment of {x} posted. Receipt {r} issued."
+},
+"Pago recibido y recibo": {
+"pt-BR": "Pagamento recebido e recibo",
+"en": "Payment received and receipt"
+},
+"Pago registrado": {
+"pt-BR": "Pagamento registrado",
+"en": "Payment posted"
+},
+"Pago registrado y recibo emitido.": {
+"pt-BR": "Pagamento registrado e recibo emitido.",
+"en": "Payment posted and receipt issued."
+},
+"Pago reversado. El recibo quedó marcado como ANULADO.": {
+"pt-BR": "Pagamento estornado. O recibo foi marcado como CANCELADO.",
+"en": "Payment reversed. The receipt is now marked VOID."
+},
+"Pagos recibidos": {
+"pt-BR": "Pagamentos recebidos",
+"en": "Payments received"
+},
+"Pagos recibidos entre dos fechas, con recibo y medio.": {
+"pt-BR": "Pagamentos recebidos entre duas datas, com recibo e meio.",
+"en": "Payments received between two dates, with receipt and method."
+},
+"Parcial": {
+"pt-BR": "Parcial",
+"en": "Partial"
+},
+"Paso {a} de {b}": {
+"pt-BR": "Passo {a} de {b}",
+"en": "Step {a} of {b}"
+},
+"Paz y salvo": {
+"pt-BR": "Termo de quitação",
+"en": "Payoff letter"
+},
+"País de operación": {
+"pt-BR": "País de operação",
+"en": "Country of operation"
+},
+"Pendiente": {
+"pt-BR": "Pendente",
+"en": "Pending"
+},
+"Pendiente para hoy: {x}": {
+"pt-BR": "Pendente para hoje: {x}",
+"en": "Still due today: {x}"
+},
+"Permitir": {
+"pt-BR": "Permitir",
+"en": "Allow"
+},
+"Permitir y crear carpeta": {
+"pt-BR": "Permitir e criar pasta",
+"en": "Allow and create folder"
+},
+"Plan de pagos PDF": {
+"pt-BR": "Plano de pagamento PDF",
+"en": "Payment plan PDF"
+},
+"Plan de pagos definido al crear el préstamo": {
+"pt-BR": "Plano de pagamento definido na criação do empréstimo",
+"en": "Payment plan set when the loan was created"
+},
+"Plan de pagos y cuadro de inversión": {
+"pt-BR": "Plano de pagamento e quadro de investimento",
+"en": "Payment plan and investment table"
+},
+"Plan_de_pagos": {
+"pt-BR": "Plano_de_pagamento",
+"en": "Payment_plan"
+},
+"Plantilla": {
+"pt-BR": "Modelo",
+"en": "Template"
+},
+"Plantilla guardada.": {
+"pt-BR": "Modelo salvo.",
+"en": "Template saved."
+},
+"Plantillas aprobadas por Meta (categoría utilidad).": {
+"pt-BR": "Modelos aprovados pela Meta (categoria utilidade).",
+"en": "Templates approved by Meta (utility category)."
+},
+"Por revisar": {
+"pt-BR": "A revisar",
+"en": "To review"
+},
+"Posible alteración del documento": {
+"pt-BR": "Possível alteração do documento",
+"en": "Possible document tampering"
+},
+"Posible cliente duplicado": {
+"pt-BR": "Possível cliente duplicado",
+"en": "Possible duplicate client"
+},
+"Prefijo de cliente": {
+"pt-BR": "Prefixo de cliente",
+"en": "Client prefix"
+},
+"Prefijo de contrato": {
+"pt-BR": "Prefixo de contrato",
+"en": "Contract prefix"
+},
+"Prefijo de recibo": {
+"pt-BR": "Prefixo de recibo",
+"en": "Receipt prefix"
+},
+"Preguntar la causa del incumplimiento": {
+"pt-BR": "Perguntar a causa do inadimplemento",
+"en": "Asking why the debtor has not paid"
+},
+"Primer uso": {
+"pt-BR": "Primeiro uso",
+"en": "First use"
+},
+"Primera cuota (opcional)": {
+"pt-BR": "Primeira parcela (opcional)",
+"en": "First installment (optional)"
+},
+"Primero la mora, luego las cuotas de la más antigua a la más reciente; el excedente queda como saldo a favor.": {
+"pt-BR": "Primeiro a multa, depois as parcelas da mais antiga à mais recente; o excedente fica como saldo a favor.",
+"en": "Late fees first, then installments from oldest to newest; any excess becomes a credit balance."
+},
+"Programado para": {
+"pt-BR": "Programado para",
+"en": "Scheduled for"
+},
+"Programado por las reglas de contacto": {
+"pt-BR": "Programado pelas regras de contato",
+"en": "Scheduled by the contact rules"
+},
+"Propietario": {
+"pt-BR": "Proprietário",
+"en": "Owner"
+},
+"Propietario: todo. Administrador: todo excepto restaurar respaldos. Cobrador: solo sus clientes; registra pagos y valida comprobantes. Auditor: solo lectura. La sesión se bloquea sola tras unos minutos sin uso.": {
+"pt-BR": "Proprietário: tudo. Administrador: tudo exceto restaurar backups. Cobrador: apenas seus clientes; registra pagamentos e valida comprovantes. Auditor: somente leitura. A sessão é bloqueada sozinha após alguns minutos sem uso.",
+"en": "Owner: everything. Administrator: everything except restoring backups. Collector: only their clients; posts payments and validates receipts. Auditor: read-only. The session locks itself after a few idle minutes."
+},
+"Proyección de flujo de caja": {
+"pt-BR": "Projeção de fluxo de caixa",
+"en": "Cash-flow forecast"
+},
+"Préstamo": {
+"pt-BR": "Empréstimo",
+"en": "Loan"
+},
+"Préstamo {c} creado.": {
+"pt-BR": "Empréstimo {c} criado.",
+"en": "Loan {c} created."
+},
+"Préstamos": {
+"pt-BR": "Empréstimos",
+"en": "Loans"
+},
+"Préstamos finalizados y utilidad": {
+"pt-BR": "Empréstimos quitados e lucro",
+"en": "Paid-off loans and profit"
+},
+"Préstamos pagados en su totalidad y la utilidad obtenida.": {
+"pt-BR": "Empréstimos totalmente quitados e o lucro obtido.",
+"en": "Loans paid in full and the profit earned."
+},
+"Próxima cuota": {
+"pt-BR": "Próxima parcela",
+"en": "Next installment"
+},
+"Próximas 8 semanas": {
+"pt-BR": "Próximas 8 semanas",
+"en": "Next 8 weeks"
+},
+"Próximas cuotas": {
+"pt-BR": "Próximas parcelas",
+"en": "Upcoming installments"
+},
+"Página {a} de {b}": {
+"pt-BR": "Página {a} de {b}",
+"en": "Page {a} of {b}"
+},
+"Quitar": {
+"pt-BR": "Remover",
+"en": "Remove"
+},
+"Quién hizo qué y cuándo.": {
+"pt-BR": "Quem fez o quê e quando.",
+"en": "Who did what and when."
+},
+"RECIBO": {
+"pt-BR": "RECIBO",
+"en": "RECEIPT"
+},
+"Recaudado": {
+"pt-BR": "Recebido",
+"en": "Collected"
+},
+"Recaudado hoy": {
+"pt-BR": "Recebido hoje",
+"en": "Collected today"
+},
+"Recaudo de hoy": {
+"pt-BR": "Recebimento de hoje",
+"en": "Today's collections"
+},
+"Recaudo de los últimos 30 días": {
+"pt-BR": "Recebimentos dos últimos 30 dias",
+"en": "Collections over the last 30 days"
+},
+"Recaudo diario de los últimos 30 días": {
+"pt-BR": "Recebimento diário dos últimos 30 dias",
+"en": "Daily collections over the last 30 days"
+},
+"Recaudo por período": {
+"pt-BR": "Recebimentos por período",
+"en": "Collections by period"
+},
+"Rechazado": {
+"pt-BR": "Rejeitado",
+"en": "Rejected"
+},
+"Rechazar": {
+"pt-BR": "Rejeitar",
+"en": "Reject"
+},
+"Rechazar comprobante": {
+"pt-BR": "Rejeitar comprovante",
+"en": "Reject receipt"
+},
+"Recibir comprobantes": {
+"pt-BR": "Receber comprovantes",
+"en": "Receive receipts"
+},
+"Recibo": {
+"pt-BR": "Recibo",
+"en": "Receipt"
+},
+"Recibo emitido": {
+"pt-BR": "Recibo emitido",
+"en": "Receipt issued"
+},
+"Recibos y documentos": {
+"pt-BR": "Recibos e documentos",
+"en": "Receipts and documents"
+},
+"Recordatorio de cuota": {
+"pt-BR": "Lembrete de parcela",
+"en": "Installment reminder"
+},
+"Recordatorios de préstamos diarios desactivados por defecto": {
+"pt-BR": "Lembretes de empréstimos diários desativados por padrão",
+"en": "Reminders for daily loans off by default"
+},
+"Recordatorios también para préstamos de pago diario.": {
+"pt-BR": "Lembretes também para empréstimos de pagamento diário.",
+"en": "Reminders also for daily-payment loans."
+},
+"Redondeo de cuotas": {
+"pt-BR": "Arredondamento das parcelas",
+"en": "Installment rounding"
+},
+"Reemplaza toda la información actual por la del respaldo, después de verificar su integridad.": {
+"pt-BR": "Substitui todas as informações atuais pelas do backup, após verificar sua integridade.",
+"en": "Replaces all current information with the backup, after verifying its integrity."
+},
+"Referencia": {
+"pt-BR": "Referência",
+"en": "Reference"
+},
+"Registra solo cuando identifica al cliente sin duda, la lectura supera el umbral de confianza, el pago se hizo a una de sus cuentas receptoras, la fecha es válida y el comprobante no está repetido. En cualquier otro caso lo deja en la Bandeja con la alerta que explica por qué. Un registro automático se revierte con un toque durante el plazo configurado.": {
+"pt-BR": "Registra sozinho quando identifica o cliente sem dúvida, a leitura supera o limite de confiança, o pagamento foi feito a uma de suas contas recebedoras, a data é válida e o comprovante não está repetido. Em qualquer outro caso, deixa-o na Caixa de validação com o alerta que explica o motivo. Um registro automático é desfeito com um toque durante o prazo configurado.",
+"en": "It posts on its own when it identifies the client beyond doubt, the reading clears the confidence threshold, the payment went to one of your receiving accounts, the date is valid and the receipt is not repeated. Otherwise it leaves it in the Inbox with an alert explaining why. An automatic posting can be undone with one tap during the configured window."
+},
+"Registrado": {
+"pt-BR": "Registrado",
+"en": "Recorded"
+},
+"Registrado automáticamente": {
+"pt-BR": "Registrado automaticamente",
+"en": "Posted automatically"
+},
+"Registrar pago": {
+"pt-BR": "Registrar pagamento",
+"en": "Post payment"
+},
+"Registrar pago · {c}": {
+"pt-BR": "Registrar pagamento · {c}",
+"en": "Post payment · {c}"
+},
+"Registrar y emitir recibo": {
+"pt-BR": "Registrar e emitir recibo",
+"en": "Post and issue receipt"
+},
+"Registras una vez. COROC hace el resto y tú supervisas.": {
+"pt-BR": "Você cadastra uma vez. O COROC faz o resto e você supervisiona.",
+"en": "You enter it once. COROC does the rest while you supervise."
+},
+"Registro de pagos leídos de comprobantes": {
+"pt-BR": "Registro de pagamentos lidos de comprovantes",
+"en": "Posting of payments read from receipts"
+},
+"Registro revertido. El comprobante volvió a revisión.": {
+"pt-BR": "Registro desfeito. O comprovante voltou para revisão.",
+"en": "Posting undone. The receipt is back in review."
+},
+"Reglas de contacto": {
+"pt-BR": "Regras de contato",
+"en": "Contact rules"
+},
+"Reglas de contacto por defecto": {
+"pt-BR": "Regras de contato padrão",
+"en": "Default contact rules"
+},
+"Repositorio del cliente en COROC": {
+"pt-BR": "Repositório do cliente no COROC",
+"en": "Client repository in COROC"
+},
+"Requerido por WhatsApp y por la ley de datos personales antes de cualquier mensaje.": {
+"pt-BR": "Exigido pelo WhatsApp e pela lei de dados pessoais antes de qualquer mensagem.",
+"en": "Required by WhatsApp and by data-protection law before any message."
+},
+"Requiere servidor": {
+"pt-BR": "Requer servidor",
+"en": "Requires server"
+},
+"Respaldo": {
+"pt-BR": "Backup",
+"en": "Backup"
+},
+"Respaldo cifrado": {
+"pt-BR": "Backup criptografado",
+"en": "Encrypted backup"
+},
+"Respaldo creado: {f}": {
+"pt-BR": "Backup criado: {f}",
+"en": "Backup created: {f}"
+},
+"Restaurar": {
+"pt-BR": "Restaurar",
+"en": "Restore"
+},
+"Restaurar ahora": {
+"pt-BR": "Restaurar agora",
+"en": "Restore now"
+},
+"Restaurar respaldo": {
+"pt-BR": "Restaurar backup",
+"en": "Restore backup"
+},
+"Restaurar texto original": {
+"pt-BR": "Restaurar texto original",
+"en": "Restore original text"
+},
+"Restaurar…": {
+"pt-BR": "Restaurar…",
+"en": "Restore…"
+},
+"Resumen": {
+"pt-BR": "Resumo",
+"en": "Summary"
+},
+"Reversado": {
+"pt-BR": "Estornado",
+"en": "Reversed"
+},
+"Reversar": {
+"pt-BR": "Estornar",
+"en": "Reverse"
+},
+"Reversar pago": {
+"pt-BR": "Estornar pagamento",
+"en": "Reverse payment"
+},
+"Reversión de registro automático desde la bandeja": {
+"pt-BR": "Desfazer registro automático pela caixa de validação",
+"en": "Undo of an automatic posting from the inbox"
+},
+"Reverso": {
+"pt-BR": "Estorno",
+"en": "Reversal"
+},
+"Revertir registro automático": {
+"pt-BR": "Desfazer registro automático",
+"en": "Undo automatic posting"
+},
+"Revisar carpeta COROC": {
+"pt-BR": "Verificar pasta COROC",
+"en": "Scan COROC folder"
+},
+"Revisión legal de que su caso de uso es admisible para Meta.": {
+"pt-BR": "Revisão jurídica de que seu caso de uso é admissível para a Meta.",
+"en": "A legal review that your use case is acceptable to Meta."
+},
+"Rol": {
+"pt-BR": "Função",
+"en": "Role"
+},
+"Saldo": {
+"pt-BR": "Saldo",
+"en": "Balance"
+},
+"Saldo a favor: {x}": {
+"pt-BR": "Saldo a favor: {x}",
+"en": "Credit balance: {x}"
+},
+"Saldo actual": {
+"pt-BR": "Saldo atual",
+"en": "Current balance"
+},
+"Saldo pendiente": {
+"pt-BR": "Saldo pendente",
+"en": "Outstanding balance"
+},
+"Saldo por pagar": {
+"pt-BR": "Saldo a pagar",
+"en": "Balance due"
+},
+"Se aplica el preset de Colombia (Ley 2300 de 2023) también a los mensajes transaccionales, salvo que el propietario habilite su envío inmediato.": {
+"pt-BR": "Aplica-se o preset da Colômbia (Lei 2300 de 2023) também às mensagens transacionais, salvo se o proprietário habilitar o envio imediato.",
+"en": "The Colombia preset (Law 2300 of 2023) also applies to transactional messages unless the owner enables immediate sending."
+},
+"Se descargan y, si la carpeta está conectada, se guardan en COROC › _Informes.": {
+"pt-BR": "São baixados e, se a pasta estiver conectada, salvos em COROC › _Relatórios.",
+"en": "They download and, if the folder is connected, are saved to COROC › _Reports."
+},
+"Se expide en {ciudad}, el {fecha}.": {
+"pt-BR": "Emitido em {ciudad}, em {fecha}.",
+"en": "Issued in {ciudad} on {fecha}."
+},
+"Se necesita su permiso de nuevo": {
+"pt-BR": "Sua permissão é necessária novamente",
+"en": "Your permission is needed again"
+},
+"Se restaurarán {a} clientes, {b} préstamos y {c} documentos de «{e}», respaldo del {d}.": {
+"pt-BR": "Serão restaurados {a} clientes, {b} empréstimos e {c} documentos de «{e}», backup de {d}.",
+"en": "{a} clients, {b} loans and {c} documents from «{e}» will be restored (backup of {d})."
+},
+"Se usa para recibos, estados de cuenta y paz y salvo.": {
+"pt-BR": "Usado para recibos, extratos e termos de quitação.",
+"en": "Used for receipts, statements and payoff letters."
+},
+"Seguridad": {
+"pt-BR": "Segurança",
+"en": "Security"
+},
+"Seleccione al menos un día de cobro.": {
+"pt-BR": "Selecione pelo menos um dia de cobrança.",
+"en": "Select at least one collection day."
+},
+"Seleccione el cliente y el préstamo.": {
+"pt-BR": "Selecione o cliente e o empréstimo.",
+"en": "Select the client and the loan."
+},
+"Seleccione…": {
+"pt-BR": "Selecione…",
+"en": "Select…"
+},
+"Semana": {
+"pt-BR": "Semana",
+"en": "Week"
+},
+"Semanal": {
+"pt-BR": "Semanal",
+"en": "Weekly"
+},
+"Sesión bloqueada por inactividad.": {
+"pt-BR": "Sessão bloqueada por inatividade.",
+"en": "Session locked after inactivity."
+},
+"Si el comprobante no muestra quién paga (algunas billeteras no lo imprimen) y el remitente está verificado, se asume el cliente y queda una alerta no bloqueante.": {
+"pt-BR": "Se o comprovante não mostra quem paga (algumas carteiras não imprimem) e o remetente está verificado, assume-se o cliente e fica um alerta não bloqueante.",
+"en": "If the receipt does not show the payer (some wallets omit it) and the sender is verified, the client is assumed and a non-blocking alert is recorded."
+},
+"Sin asignar": {
+"pt-BR": "Sem atribuição",
+"en": "Unassigned"
+},
+"Sin autorización de mensajes: COROC no enviará mensajes a este cliente.": {
+"pt-BR": "Sem autorização de mensagens: o COROC não enviará mensagens a este cliente.",
+"en": "No messaging consent: COROC will not message this client."
+},
+"Sin cartera vencida.": {
+"pt-BR": "Sem carteira vencida.",
+"en": "No overdue portfolio."
+},
+"Sin conectar": {
+"pt-BR": "Não conectada",
+"en": "Not connected"
+},
+"Sin cuotas pendientes.": {
+"pt-BR": "Sem parcelas pendentes.",
+"en": "No pending installments."
+},
+"Sin documentos": {
+"pt-BR": "Sem documentos",
+"en": "No documents"
+},
+"Sin elementos.": {
+"pt-BR": "Sem itens.",
+"en": "No items."
+},
+"Sin mensajes.": {
+"pt-BR": "Sem mensagens.",
+"en": "No messages."
+},
+"Sin mora": {
+"pt-BR": "Sem multa",
+"en": "No late fee"
+},
+"Sin resultados": {
+"pt-BR": "Sem resultados",
+"en": "No results"
+},
+"Sincronizado con la carpeta COROC › {f}": {
+"pt-BR": "Sincronizado com a pasta COROC › {f}",
+"en": "Synced with COROC folder › {f}"
+},
+"Sincronizar ahora": {
+"pt-BR": "Sincronizar agora",
+"en": "Sync now"
+},
+"Solicitar datos sensibles (tarjeta, cuenta o identificación)": {
+"pt-BR": "Solicitar dados sensíveis (cartão, conta ou identidade)",
+"en": "Requesting sensitive data (card, account or ID)"
+},
+"Soporte": {
+"pt-BR": "Comprovante",
+"en": "Proof"
+},
+"Su nombre": {
+"pt-BR": "Seu nome",
+"en": "Your name"
+},
+"Subir comprobante": {
+"pt-BR": "Enviar comprovante",
+"en": "Upload receipt"
+},
+"Subir comprobante o documento": {
+"pt-BR": "Enviar comprovante ou documento",
+"en": "Upload receipt or document"
+},
+"Sugerencia: elija «Documentos». COROC crea allí la carpeta COROC.": {
+"pt-BR": "Sugestão: escolha «Documentos». O COROC cria ali a pasta COROC.",
+"en": "Tip: choose «Documents». COROC creates the COROC folder there."
+},
+"Sugeridos": {
+"pt-BR": "Sugeridos",
+"en": "Suggested"
+},
+"Tasa efectiva anual": {
+"pt-BR": "Taxa efetiva anual",
+"en": "Effective annual rate"
+},
+"Tasa máxima permitida en su jurisdicción.": {
+"pt-BR": "Taxa máxima permitida em sua jurisdição.",
+"en": "Maximum rate allowed in your jurisdiction."
+},
+"Tasa pactada": {
+"pt-BR": "Taxa contratada",
+"en": "Agreed rate"
+},
+"Tasa por período (%)": {
+"pt-BR": "Taxa por período (%)",
+"en": "Rate per period (%)"
+},
+"Teléfono": {
+"pt-BR": "Telefone",
+"en": "Phone"
+},
+"Tema": {
+"pt-BR": "Tema",
+"en": "Theme"
+},
+"Terminar": {
+"pt-BR": "Concluir",
+"en": "Finish"
+},
+"Texto leído del documento": {
+"pt-BR": "Texto lido do documento",
+"en": "Text read from the document"
+},
+"Tipo": {
+"pt-BR": "Tipo",
+"en": "Type"
+},
+"Titular": {
+"pt-BR": "Titular",
+"en": "Account holder"
+},
+"Toda la información actual será reemplazada.": {
+"pt-BR": "Todas as informações atuais serão substituídas.",
+"en": "All current information will be replaced."
+},
+"Todas las frecuencias": {
+"pt-BR": "Todas as frequências",
+"en": "All frequencies"
+},
+"Todos": {
+"pt-BR": "Todos",
+"en": "All"
+},
+"Todos los préstamos con capital, recaudo, saldo, próxima cuota y días de mora.": {
+"pt-BR": "Todos os empréstimos com capital, recebido, saldo, próxima parcela e dias de atraso.",
+"en": "All loans with principal, collected, balance, next installment and days past due."
+},
+"Tope legal de tasa (efectiva anual, %)": {
+"pt-BR": "Teto legal de taxa (efetiva anual, %)",
+"en": "Legal rate cap (effective annual, %)"
+},
+"Tope legal de tasa obligatorio": {
+"pt-BR": "Teto legal de taxa obrigatório",
+"en": "Mandatory legal rate cap"
+},
+"Total": {
+"pt-BR": "Total",
+"en": "Total"
+},
+"Total a pagar": {
+"pt-BR": "Total a pagar",
+"en": "Total payable"
+},
+"Total a recibir": {
+"pt-BR": "Total a receber",
+"en": "Total receivable"
+},
+"Total de clientes": {
+"pt-BR": "Total de clientes",
+"en": "Total clients"
+},
+"Total de cuotas": {
+"pt-BR": "Total de parcelas",
+"en": "Number of installments"
+},
+"Total pactado": {
+"pt-BR": "Total contratado",
+"en": "Agreed total"
+},
+"Total por recibir": {
+"pt-BR": "Total a receber",
+"en": "Total receivable"
+},
+"Total prestado": {
+"pt-BR": "Total emprestado",
+"en": "Total lent"
+},
+"Transferencia": {
+"pt-BR": "Transferência",
+"en": "Transfer"
+},
+"Transferencia, efectivo, billetera…": {
+"pt-BR": "Transferência, dinheiro, carteira digital…",
+"en": "Transfer, cash, wallet…"
+},
+"Tras 5 intentos fallidos la cuenta se bloquea 15 minutos. La sesión se bloquea sola tras unos minutos sin uso.": {
+"pt-BR": "Após 5 tentativas falhas a conta é bloqueada por 15 minutos. A sessão é bloqueada sozinha após alguns minutos sem uso.",
+"en": "After 5 failed attempts the account locks for 15 minutes. The session locks itself after a few idle minutes."
+},
+"Umbral de confianza para registrar solo (%)": {
+"pt-BR": "Limite de confiança para registrar sozinho (%)",
+"en": "Confidence threshold for automatic posting (%)"
+},
+"Un solo archivo cifrado con toda la información: clientes, préstamos, pagos, mensajes, bitácora y todos los documentos recibidos y generados.": {
+"pt-BR": "Um único arquivo criptografado com todas as informações: clientes, empréstimos, pagamentos, mensagens, registro e todos os documentos recebidos e gerados.",
+"en": "A single encrypted file with everything: clients, loans, payments, messages, log and every document received and generated."
+},
+"Use Chrome o Edge en el computador para guardar directo en la carpeta. Mientras tanto, los archivos quedan en COROC y puede descargar la carpeta completa como ZIP.": {
+"pt-BR": "Use Chrome ou Edge no computador para salvar direto na pasta. Enquanto isso, os arquivos ficam no COROC e você pode baixar a pasta completa em ZIP.",
+"en": "Use Chrome or Edge on a computer to save straight to the folder. Meanwhile, files stay in COROC and you can download the whole folder as a ZIP."
+},
+"Use letras y números.": {
+"pt-BR": "Use letras e números.",
+"en": "Use letters and numbers."
+},
+"Usted registra al cliente y las condiciones del préstamo una sola vez. COROC genera el plan de pagos, crea la carpeta del cliente, prepara los mensajes, lee los comprobantes que llegan, registra los pagos, emite el recibo «Gracias por tu pago» y actualiza el cuadro de inversión y el dashboard. Todo queda en la bitácora y usted puede revertirlo.": {
+"pt-BR": "Você cadastra o cliente e as condições do empréstimo uma única vez. O COROC gera o plano de pagamento, cria a pasta do cliente, prepara as mensagens, lê os comprovantes que chegam, registra os pagamentos, emite o recibo «Obrigado pelo seu pagamento» e atualiza o quadro de investimento e o painel. Tudo fica no registro e você pode desfazer.",
+"en": "You enter the client and the loan terms once. COROC generates the payment plan, creates the client folder, prepares the messages, reads incoming receipts, posts the payments, issues the «Thank you for your payment» receipt and updates the investment table and the dashboard. Everything is logged and you can undo it."
+},
+"Usuario": {
+"pt-BR": "Usuário",
+"en": "Username"
+},
+"Usuario o contraseña incorrectos.": {
+"pt-BR": "Usuário ou senha incorretos.",
+"en": "Incorrect username or password."
+},
+"Usuarios y roles": {
+"pt-BR": "Usuários e funções",
+"en": "Users and roles"
+},
+"Utilidad": {
+"pt-BR": "Lucro",
+"en": "Profit"
+},
+"Utilidad realizada": {
+"pt-BR": "Lucro realizado",
+"en": "Realized profit"
+},
+"Utilidad total": {
+"pt-BR": "Lucro total",
+"en": "Total profit"
+},
+"Valor": {
+"pt-BR": "Valor",
+"en": "Amount"
+},
+"Valor de la cuota": {
+"pt-BR": "Valor da parcela",
+"en": "Installment amount"
+},
+"Valor esperado": {
+"pt-BR": "Valor esperado",
+"en": "Expected amount"
+},
+"Valor fijo por día": {
+"pt-BR": "Valor fixo por dia",
+"en": "Fixed amount per day"
+},
+"Valor no válido": {
+"pt-BR": "Valor inválido",
+"en": "Invalid amount"
+},
+"Valor pagado": {
+"pt-BR": "Valor pago",
+"en": "Amount paid"
+},
+"Valor por día": {
+"pt-BR": "Valor por dia",
+"en": "Amount per day"
+},
+"Variables": {
+"pt-BR": "Variáveis",
+"en": "Variables"
+},
+"Vence": {
+"pt-BR": "Vence",
+"en": "Due"
+},
+"Vencen hoy": {
+"pt-BR": "Vencem hoje",
+"en": "Due today"
+},
+"Vencida": {
+"pt-BR": "Vencida",
+"en": "Overdue"
+},
+"Vencidas": {
+"pt-BR": "Vencidas",
+"en": "Overdue"
+},
+"Vencido": {
+"pt-BR": "Vencido",
+"en": "Overdue"
+},
+"Vencido no incluido": {
+"pt-BR": "Vencido não incluído",
+"en": "Overdue not included"
+},
+"Ver cobros de hoy": {
+"pt-BR": "Ver cobranças de hoje",
+"en": "See today's collections"
+},
+"Ver comprobante": {
+"pt-BR": "Ver comprovante",
+"en": "View receipt"
+},
+"Ver recibo": {
+"pt-BR": "Ver recibo",
+"en": "View receipt"
+},
+"Ver todos": {
+"pt-BR": "Ver todos",
+"en": "See all"
+},
+"Verificar respaldo": {
+"pt-BR": "Verificar backup",
+"en": "Verify backup"
+},
+"Vigente desde": {
+"pt-BR": "Vigente desde",
+"en": "Valid from"
+},
+"Vigente hasta": {
+"pt-BR": "Vigente até",
+"en": "Valid until"
+},
+"Vista previa": {
+"pt-BR": "Prévia",
+"en": "Preview"
+},
+"Vista previa del plan de pagos": {
+"pt-BR": "Prévia do plano de pagamento",
+"en": "Payment plan preview"
+},
+"Volver a clientes": {
+"pt-BR": "Voltar aos clientes",
+"en": "Back to clients"
+},
+"WhatsApp en modo asistido": {
+"pt-BR": "WhatsApp em modo assistido",
+"en": "WhatsApp in assisted mode"
+},
+"WhatsApp · modo asistido": {
+"pt-BR": "WhatsApp · modo assistido",
+"en": "WhatsApp · assisted mode"
+},
+"WhatsApp · modo automático (Cloud API)": {
+"pt-BR": "WhatsApp · modo automático (Cloud API)",
+"en": "WhatsApp · automatic mode (Cloud API)"
+},
+"Ya existe {n} ({c}) con el mismo número o documento. ¿Desea continuar de todos modos?": {
+"pt-BR": "Já existe {n} ({c}) com o mesmo número ou documento. Deseja continuar mesmo assim?",
+"en": "{n} ({c}) already exists with the same number or document. Continue anyway?"
+},
+"ZIP con manifiesto de huellas SHA-256 dentro de un sobre AES-256-GCM con clave derivada por PBKDF2.": {
+"pt-BR": "ZIP com manifesto de impressões SHA-256 dentro de um envelope AES-256-GCM com chave derivada por PBKDF2.",
+"en": "A ZIP with a SHA-256 fingerprint manifest inside an AES-256-GCM envelope with a PBKDF2-derived key."
+},
+"Zona horaria": {
+"pt-BR": "Fuso horário",
+"en": "Time zone"
+},
+"adjunto en PDF": {
+"pt-BR": "anexo em PDF",
+"en": "attached as PDF"
+},
+"automático": {
+"pt-BR": "automático",
+"en": "automatic"
+},
+"de hoy": {
+"pt-BR": "de hoje",
+"en": "of today"
+},
+"diaria": {
+"pt-BR": "diária",
+"en": "daily"
+},
+"elija archivos": {
+"pt-BR": "escolha arquivos",
+"en": "choose files"
+},
+"esta semana ya se contactó por otro canal": {
+"pt-BR": "nesta semana já houve contato por outro canal",
+"en": "already contacted through another channel this week"
+},
+"festivo": {
+"pt-BR": "feriado",
+"en": "holiday"
+},
+"fuera de la franja permitida": {
+"pt-BR": "fora do horário permitido",
+"en": "outside the allowed window"
+},
+"horario autorizado por el deudor": {
+"pt-BR": "horário autorizado pelo devedor",
+"en": "schedule authorized by the borrower"
+},
+"mensual": {
+"pt-BR": "mensal",
+"en": "monthly"
+},
+"mora": {
+"pt-BR": "multa",
+"en": "late fee"
+},
+"mora configurada": {
+"pt-BR": "multa configurada",
+"en": "late fee configured"
+},
+"pagado": {
+"pt-BR": "pago",
+"en": "paid"
+},
+"por período": {
+"pt-BR": "por período",
+"en": "per period"
+},
+"registrado automáticamente": {
+"pt-BR": "registrado automaticamente",
+"en": "posted automatically"
+},
+"reversado": {
+"pt-BR": "estornado",
+"en": "reversed"
+},
+"semanal": {
+"pt-BR": "semanal",
+"en": "weekly"
+},
+"transaccional de envío inmediato": {
+"pt-BR": "transacional de envio imediato",
+"en": "transactional, sent immediately"
+},
+"ya hubo un contacto de cobranza hoy": {
+"pt-BR": "já houve um contato de cobrança hoje",
+"en": "there was already a collection contact today"
+},
+"{empresa} certifica que {cliente}{id} pagó en su totalidad la obligación del contrato {contrato}, por un valor total de {total}, y se encuentra a paz y salvo por todo concepto relacionado con dicho contrato.": {
+"pt-BR": "{empresa} declara que {cliente}{id} quitou integralmente a obrigação do contrato {contrato}, no valor total de {total}, nada mais havendo a cobrar em relação ao referido contrato.",
+"en": "{empresa} certifies that {cliente}{id} has paid in full the obligation under contract {contrato}, for a total of {total}, and owes nothing further in connection with that contract."
+},
+"{n} cuotas {f} de {v} · {m} · tasa {r} · desembolso {d}": {
+"pt-BR": "{n} parcelas {f} de {v} · {m} · taxa {r} · desembolso {d}",
+"en": "{n} {f} installments of {v} · {m} · rate {r} · disbursed {d}"
+},
+"{n} cuotas {f} de {v}. Total a pagar {t}.": {
+"pt-BR": "{n} parcelas {f} de {v}. Total a pagar {t}.",
+"en": "{n} {f} installments of {v}. Total payable {t}."
+},
+"Última cuota": {
+"pt-BR": "Última parcela",
+"en": "Last installment"
+},
+"Último ingreso": {
+"pt-BR": "Último acesso",
+"en": "Last sign-in"
+},
+"Últimos 4 dígitos": {
+"pt-BR": "Últimos 4 dígitos",
+"en": "Last 4 digits"
+},
+"Últimos pagos": {
+"pt-BR": "Últimos pagamentos",
+"en": "Recent payments"
+},
+"Aprobados": {
+"pt-BR": "Aprovados",
+"en": "Approved"
+},
+"Bloqueados por regla": {
+"pt-BR": "Bloqueados por regra",
+"en": "Blocked by rule"
+},
+"Canales": {
+"pt-BR": "Canais",
+"en": "Channels"
+},
+"Duplicados y descartados": {
+"pt-BR": "Duplicados e descartados",
+"en": "Duplicates and discarded"
+},
+"Enviados": {
+"pt-BR": "Enviados",
+"en": "Sent"
+},
+"Plantillas": {
+"pt-BR": "Modelos",
+"en": "Templates"
+},
+"Por enviar ahora": {
+"pt-BR": "Para enviar agora",
+"en": "To send now"
+},
+"Programados": {
+"pt-BR": "Programados",
+"en": "Scheduled"
+},
+"Registrados automáticamente": {
+"pt-BR": "Registrados automaticamente",
+"en": "Posted automatically"
+},
+"Nombres de carpeta sin tildes": {
+"pt-BR": "Nomes de pasta sem acentos",
+"en": "Folder names without accents"
+},
+"Las carpetas y archivos usan el nombre del cliente sin tildes ni eñes («Maria Jose Perez Gomez - C000001») para que funcionen igual en Windows, macOS, celulares, archivos ZIP y sincronizadores en la nube. En la aplicación y en los documentos el nombre se muestra completo.": {
+"pt-BR": "As pastas e arquivos usam o nome do cliente sem acentos («Maria Jose Perez Gomez - C000001») para funcionar igual no Windows, macOS, celulares, arquivos ZIP e sincronizadores em nuvem. No aplicativo e nos documentos o nome aparece completo.",
+"en": "Folders and files use the client name without accents («Maria Jose Perez Gomez - C000001») so they work the same on Windows, macOS, phones, ZIP files and cloud sync tools. In the app and on documents the full name is shown."
+},
+"Formato de dinero": {
+"pt-BR": "Formato de valores",
+"en": "Money format"
+},
+"En pantalla cada moneda usa su formato nativo sin importar el idioma; los documentos para el deudor usan su idioma e indican la moneda.": {
+"pt-BR": "Na tela cada moeda usa seu formato nativo, independentemente do idioma; os documentos para o devedor usam o idioma dele e indicam a moeda.",
+"en": "On screen each currency uses its native format regardless of the language; documents for the debtor use the debtor's language and state the currency."
+},
+"Fechas sin rótulo en los comprobantes": {
+"pt-BR": "Datas sem rótulo nos comprovantes",
+"en": "Unlabeled dates on receipts"
+},
+"Si el comprobante muestra una sola fecha completa con año, se acepta aunque no tenga rótulo; una fecha relativa («hoy») siempre pasa a revisión.": {
+"pt-BR": "Se o comprovante mostra uma única data completa com ano, ela é aceita mesmo sem rótulo; uma data relativa («hoje») sempre vai para revisão.",
+"en": "If the receipt shows a single full date with a year, it is accepted even without a label; a relative date (\"today\") always goes to review."
+},
+"Duplicados también contra la bandeja": {
+"pt-BR": "Duplicados também contra a caixa de validação",
+"en": "Duplicates also checked against the inbox"
+},
+"Un comprobante que llega de nuevo mientras el primero espera revisión se marca como duplicado.": {
+"pt-BR": "Um comprovante que chega de novo enquanto o primeiro aguarda revisão é marcado como duplicado.",
+"en": "A receipt that arrives again while the first one awaits review is marked as a duplicate."
+},
+"Guardar {phone} como número secundario de {name}": {
+"pt-BR": "Salvar {phone} como número secundário de {name}",
+"en": "Save {phone} as the secondary number of {name}"
+},
+"Reemplazar el número secundario de {name} por {phone}": {
+"pt-BR": "Substituir o número secundário de {name} por {phone}",
+"en": "Replace the secondary number of {name} with {phone}"
+},
+"Cartera": {
+"pt-BR": "Carteira",
+"en": "Portfolio"
+},
+"Recaudo": {
+"pt-BR": "Recebimentos",
+"en": "Collections"
+},
+"Mora_por_edades": {
+"pt-BR": "Atraso_por_faixas",
+"en": "Aging"
+},
+"Prestamos_finalizados": {
+"pt-BR": "Emprestimos_quitados",
+"en": "Paid_off_loans"
+},
+"Flujo_de_caja": {
+"pt-BR": "Fluxo_de_caixa",
+"en": "Cash_flow"
+},
+"Libro_de_movimientos": {
+"pt-BR": "Livro_de_movimentos",
+"en": "Ledger"
+},
+"Bitacora_de_mensajes": {
+"pt-BR": "Registro_de_mensagens",
+"en": "Message_log"
+},
+"Bitacora_de_auditoria": {
+"pt-BR": "Registro_de_auditoria",
+"en": "Audit_log"
+},
+"Registro manual": {
+"pt-BR": "Registro manual",
+"en": "Manual entry"
+},
+"Cobranza": {
+"pt-BR": "Cobrança",
+"en": "Collection"
+},
+"Transaccional": {
+"pt-BR": "Transacional",
+"en": "Transactional"
+},
+"Cuota fija": {
+"pt-BR": "Parcela fixa",
+"en": "Fixed installment"
+},
+"Cuenta bloqueada por seguridad. Intente de nuevo en {n} minuto.||Cuenta bloqueada por seguridad. Intente de nuevo en {n} minutos.": {
+"pt-BR": "Conta bloqueada por segurança. Tente novamente em {n} minuto.||Conta bloqueada por segurança. Tente novamente em {n} minutos.",
+"en": "Account locked for security. Try again in {n} minute.||Account locked for security. Try again in {n} minutes."
+},
+"{n} alerta||{n} alertas": {
+"pt-BR": "{n} alerta||{n} alertas",
+"en": "{n} alert||{n} alerts"
+},
+"{n} archivo nuevo procesado desde la carpeta COROC.||{n} archivos nuevos procesados desde la carpeta COROC.": {
+"pt-BR": "{n} arquivo novo processado da pasta COROC.||{n} arquivos novos processados da pasta COROC.",
+"en": "{n} new file processed from the COROC folder.||{n} new files processed from the COROC folder."
+},
+"{n} cliente||{n} clientes": {
+"pt-BR": "{n} cliente||{n} clientes",
+"en": "{n} client||{n} clients"
+},
+"{n} comprobante por revisar||{n} comprobantes por revisar": {
+"pt-BR": "{n} comprovante a revisar||{n} comprovantes a revisar",
+"en": "{n} receipt to review||{n} receipts to review"
+},
+"{n} cuota||{n} cuotas": {
+"pt-BR": "{n} parcela||{n} parcelas",
+"en": "{n} installment||{n} installments"
+},
+"{n} documento copiado.||{n} documentos copiados.": {
+"pt-BR": "{n} documento copiado.||{n} documentos copiados.",
+"en": "{n} document copied.||{n} documents copied."
+},
+"{n} documento pendiente por copiar.||{n} documentos pendientes por copiar.": {
+"pt-BR": "{n} documento pendente de cópia.||{n} documentos pendentes de cópia.",
+"en": "{n} document waiting to be copied.||{n} documents waiting to be copied."
+},
+"{n} día de mora||{n} días de mora": {
+"pt-BR": "{n} dia de atraso||{n} dias de atraso",
+"en": "{n} day past due||{n} days past due"
+},
+"{n} mensaje por enviar||{n} mensajes por enviar": {
+"pt-BR": "{n} mensagem a enviar||{n} mensagens a enviar",
+"en": "{n} message to send||{n} messages to send"
+},
+"{n} préstamo en mora||{n} préstamos en mora": {
+"pt-BR": "{n} empréstimo em atraso||{n} empréstimos em atraso",
+"en": "{n} loan past due||{n} loans past due"
+},
+"{n} préstamo||{n} préstamos": {
+"pt-BR": "{n} empréstimo||{n} empréstimos",
+"en": "{n} loan||{n} loans"
+},
+"{n} registrado||{n} registrados": {
+"pt-BR": "{n} cadastrado||{n} cadastrados",
+"en": "{n} registered||{n} registered"
+}
+}
