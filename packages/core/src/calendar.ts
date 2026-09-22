@@ -1,4 +1,4 @@
-import holidaysData from './holidays.json';
+import holidaysData from './holidays.json' with { type: 'json' };
 
 /** Fechas civiles en formato ISO `YYYY-MM-DD`, sin zona horaria (se interpretan en la zona de la empresa). */
 export type IsoDate = string;

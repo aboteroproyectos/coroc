@@ -1,5 +1,5 @@
-import { Decimal, roundToUnit } from './money';
-import { daysBetween, type IsoDate } from './calendar';
+import { Decimal, roundToUnit } from './money.js';
+import { daysBetween, type IsoDate } from './calendar.js';
 
 export type InstallmentStatus = 'pending' | 'partial' | 'paid' | 'overdue' | 'waived';
 
@@ -49,50 +49,63 @@ export function statusOf(i: InstallmentState, today: IsoDate): InstallmentStatus
  * 3) excedente = saldo a favor.
  */
 export function allocatePayment(installments: InstallmentState[], amount: number): AllocationResult {
-  if (!Number.isSafeInteger(amount) || amount <= 0) throw new RangeError('El pago debe ser un entero positivo en unidades mínimas.');
   const after = installments.map((i) => ({ ...i })).sort((a, b) => a.number - b.number);
-  const lines = new Map<number, AllocationLine>();
-  const line = (n: number) => {
-    let l = lines.get(n);
-    if (!l) {
-      l = { number: n, toLateFee: 0, toInstallment: 0, completed: false, partial: false };
-      lines.set(n, l);
+  const r = allocateInPlace(after, amount);
+  return { ...r, after };
+}
+
+/**
+ * Misma regla que `allocatePayment`, pero modifica `sorted` (ordenado por número) sin copiarlo. La usa la
+ * reconstrucción del libro, que aplica miles de pagos seguidos (§21: 50.000 préstamos en segundos).
+ * `from` es la primera cuota que puede tener saldo; se devuelve la siguiente para el próximo pago.
+ */
+export function allocateInPlace(sorted: InstallmentState[], amount: number, from = 0): Omit<AllocationResult, 'after'> & { nextFrom: number } {
+  if (!Number.isSafeInteger(amount) || amount <= 0) throw new RangeError('El pago debe ser un entero positivo en unidades mínimas.');
+  const lines: AllocationLine[] = [];
+  const touched = new Map<number, { line: AllocationLine; paidBefore: number }>();
+  const line = (i: InstallmentState) => {
+    let t = touched.get(i.number);
+    if (!t) {
+      t = { line: { number: i.number, toLateFee: 0, toInstallment: 0, completed: false, partial: false }, paidBefore: i.paid };
+      touched.set(i.number, t);
+      lines.push(t.line);
     }
-    return l;
+    return t.line;
   };
   let remaining = amount;
-
-  for (const i of after) {
-    if (remaining === 0) break;
+  // 1) Mora causada, de la cuota más antigua a la más reciente (solo existe en cuotas vencidas).
+  for (let k = 0; k < sorted.length && remaining > 0; k++) {
+    const i = sorted[k]!;
     const due = feeOutstanding(i);
     if (due <= 0) continue;
     const take = Math.min(due, remaining);
+    const l = line(i);
     i.lateFeePaid = (i.lateFeePaid ?? 0) + take;
-    line(i.number).toLateFee += take;
+    l.toLateFee += take;
     remaining -= take;
   }
-  for (const i of after) {
-    if (remaining === 0) break;
+  // 2) Cuotas en orden cronológico; las anteriores a `from` ya están pagadas o condonadas.
+  let k = from;
+  while (k < sorted.length && outstanding(sorted[k]!) === 0) k++;
+  for (; k < sorted.length && remaining > 0; k++) {
+    const i = sorted[k]!;
     const due = outstanding(i);
     if (due <= 0) continue;
     const take = Math.min(due, remaining);
+    const l = line(i); // antes de sumar: conserva lo pagado previamente para marcar «completa»
     i.paid += take;
-    const l = line(i.number);
     l.toInstallment += take;
     remaining -= take;
   }
-  for (const l of lines.values()) {
-    const i = after.find((x) => x.number === l.number)!;
-    const before = installments.find((x) => x.number === l.number)!;
-    l.completed = i.paid >= i.amount && before.paid < before.amount;
-    l.partial = l.toInstallment > 0 && i.paid < i.amount;
+  let nextFrom = from;
+  while (nextFrom < sorted.length && outstanding(sorted[nextFrom]!) === 0) nextFrom++;
+  for (const [n, t] of touched) {
+    const i = sorted.find((x) => x.number === n)!;
+    t.line.completed = i.paid >= i.amount && t.paidBefore < i.amount;
+    t.line.partial = t.line.toInstallment > 0 && i.paid < i.amount;
   }
-  return {
-    lines: [...lines.values()].sort((a, b) => a.number - b.number),
-    applied: amount - remaining,
-    surplus: remaining,
-    after,
-  };
+  lines.sort((a, b) => a.number - b.number);
+  return { lines, applied: amount - remaining, surplus: remaining, nextFrom };
 }
 
 export interface LoanSummary {

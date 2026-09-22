@@ -1,0 +1,48 @@
+{
+  "name": "@coroc/api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "API de COROC (NestJS + PostgreSQL 16 con RLS)",
+  "type": "module",
+  "license": "UNLICENSED",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/main.js",
+    "dev": "node --watch dist/main.js",
+    "migrate": "node dist/db/migrate.js",
+    "tenant:create": "node dist/scripts/tenant-create.js",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint:i18n": "node scripts/check-i18n.mjs"
+  },
+  "dependencies": {
+    "@coroc/core": "*",
+    "@nestjs/common": "^12.0.4",
+    "@nestjs/core": "^12.0.4",
+    "@nestjs/platform-express": "^12.0.4",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "argon2": "^0.45.1",
+    "bullmq": "^6.3.8",
+    "helmet": "^8.3.0",
+    "ioredis": "^6.0.0",
+    "jose": "^6.2.12",
+    "pg": "^8.23.0",
+    "pino": "^10.3.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@swc/core": "^1.16.2",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.15.0",
+    "@types/supertest": "^6.0.3",
+    "supertest": "^7.3.0",
+    "typescript": "~6.0.3",
+    "unplugin-swc": "^2.0.0",
+    "vitest": "^5.0.1"
+  }
+}

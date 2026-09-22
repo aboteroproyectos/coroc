@@ -1,6 +1,6 @@
-import { Decimal } from './money';
-import { daysBetween, type IsoDate } from './calendar';
-import { buildSchedule, type LoanTerms, type Schedule } from './schedule';
+import { Decimal } from './money.js';
+import { daysBetween, type IsoDate } from './calendar.js';
+import { buildSchedule, type LoanTerms, type Schedule } from './schedule.js';
 
 export interface CashFlow {
   date: IsoDate;

@@ -1,7 +1,7 @@
 import { parsePhoneNumberFromString, type CountryCode as PhoneCountry } from 'libphonenumber-js/min';
-import { nameSimilarity, stripAccents } from './text';
-import { daysBetween, type IsoDate } from './calendar';
-import type { Currency } from './money';
+import { nameSimilarity, stripAccents } from './text.js';
+import { daysBetween, type IsoDate } from './calendar.js';
+import type { Currency } from './money.js';
 
 /* ───────────────────────── Teléfonos ───────────────────────── */
 

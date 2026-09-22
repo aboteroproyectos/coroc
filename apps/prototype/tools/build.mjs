@@ -2,11 +2,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
+import { execSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
-const sharp = require('/home/claude/.npm-global/lib/node_modules/sharp');
-const root = path.resolve('.');
-const brand = path.resolve('../../brand');
+const sharp = require('sharp');
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(HERE, '..');
+process.chdir(root);
+const brand = path.resolve(root, '../../brand');
 const read = (p, enc = 'utf8') => fs.readFileSync(p, enc);
 const b64 = (p) => fs.readFileSync(p).toString('base64');
 
@@ -48,7 +52,10 @@ const vendor = [
   read('node_modules/jszip/dist/jszip.min.js'),
   read('node_modules/qrcode-generator/qrcode.js'),
 ].join('\n;\n');
-const core = read('../../packages/core/dist/coroc-core.browser.js');
+// El núcleo se empaqueta para el navegador desde @coroc/core (mismo código que usa la API).
+const coreBundle = path.resolve(root, '../../packages/core/dist/coroc-core.browser.js');
+if (!fs.existsSync(coreBundle)) execSync('npm run bundle:browser -w @coroc/core', { cwd: path.resolve(root, '../..'), stdio: 'inherit' });
+const core = fs.readFileSync(coreBundle, 'utf8');
 
 // 5) Aplicación
 const srcFiles = fs.readdirSync('src').filter((f) => f.endsWith('.js')).sort();
