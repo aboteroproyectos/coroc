@@ -675,6 +675,38 @@ paths:
               schema: { $ref: '#/components/schemas/PaymentResult' }
         '409': { $ref: '#/components/responses/Problem' }
         '422': { $ref: '#/components/responses/Problem' }
+  /loans/{id}/payments/preview:
+    post:
+      tags: [payments]
+      operationId: previewPayment
+      summary: Vista previa de la cobertura exacta de un pago, sin registrarlo
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, date]
+              properties:
+                amount: { $ref: '#/components/schemas/Minor' }
+                date: { type: string, format: date }
+      responses:
+        '200':
+          description: Resultado que tendría el pago
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lines: { type: array, items: { $ref: '#/components/schemas/AllocationLine' } }
+                  coverage: { type: string }
+                  previousBalance: { $ref: '#/components/schemas/Minor' }
+                  newBalance: { $ref: '#/components/schemas/Minor' }
+                  remainingInstallments: { type: integer }
+                  surplus: { $ref: '#/components/schemas/Minor' }
+                  loanClosed: { type: boolean }
+        '4XX': { $ref: '#/components/responses/Problem' }
   /loans/{id}/payments/{entryId}/reversal:
     post:
       tags: [payments]

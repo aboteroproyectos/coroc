@@ -113,6 +113,14 @@ export class LoansController {
     return this.payments.post(a, id, b);
   }
 
+  @Post(':id/payments/preview')
+  @HttpCode(200)
+  @Requires('payments.register')
+  @Op('previewPayment')
+  previewPayment(@Auth() a: AuthContext, @Param('id') id: string, @Body() b: { amount: number; date: string }, @Req() req: Request) {
+    return this.payments.preview(a, id, b, pickLang(a.lang, req.headers['accept-language']));
+  }
+
   @Post(':id/payments/:entryId/reversal')
   @Requires('payments.reverse')
   @Op('reversePayment')

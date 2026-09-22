@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { buildReceiptData, type AllocationLine } from '@coroc/core';
+import { buildReceiptData, describeCoverage, type AllocationLine } from '@coroc/core';
+import type { Lang } from '../common/i18n.js';
 import { AuditService } from '../audit/audit.service.js';
 import { sha256hex } from '../auth/crypto.js';
 import { AccessService } from '../common/access.js';
@@ -163,6 +164,32 @@ export class PaymentsService {
     this.bus.publish({ type: 'payment.reversed', tenantId: auth.tenantId, clientId: out.client.id, collectorId: out.client.collector_id, data: { loanId, entryId } });
     this.bus.publish({ type: 'dashboard.changed', tenantId: auth.tenantId, clientId: out.client.id, collectorId: out.client.collector_id, data: {} });
     return out.body;
+  }
+
+  /** Vista previa exacta de lo que cubriría un pago (§14), sin registrar nada: la app la muestra antes de confirmar. */
+  async preview(auth: AuthContext, loanId: string, input: { amount: number; date: string }, lang: Lang) {
+    const tenant = await this.tenants.get(auth.tenantId);
+    const today = this.clock.today(tenant.timezone);
+    return this.db.tx(this.ctx(auth), async (tx) => {
+      const l = await this.state.load(tx, loanId);
+      if (!l) return this.access.deny(tx, auth, 'loan', loanId);
+      if (!Number.isSafeInteger(input.amount) || input.amount <= 0) throw new Problem(422, 'PAYMENT_INVALID_AMOUNT', {}, [{ field: 'amount', message: 'minimum' }]);
+      if (input.date > today || input.date < l.loan.disbursement_date) throw new Problem(422, 'PAYMENT_DATE_INVALID', {}, [{ field: 'date', message: 'other' }]);
+      const before = this.state.replay(l, today);
+      if (before.summary.balance === 0) throw new Problem(409, 'LOAN_ALREADY_PAID');
+      const probe = { ...l, ledger: [...l.ledger, { id: 'preview', type: 'payment', entry_date: input.date, recorded_at: new Date('9999-12-31T23:59:59.999Z'), amount: input.amount, reversed_by: null } as LedgerRow] };
+      const after = this.state.replay(probe, today);
+      const alloc = after.allocations.get('preview')!;
+      return {
+        lines: alloc.lines,
+        coverage: describeCoverage(alloc.lines, l.loan.currency, lang),
+        previousBalance: before.summary.balance,
+        newBalance: after.summary.balance,
+        remainingInstallments: after.summary.remainingInstallments,
+        surplus: alloc.surplus,
+        loanClosed: after.summary.balance === 0,
+      };
+    });
   }
 
   /** Recibos del préstamo (datos del recibo; el PDF se genera en la Fase 2). */

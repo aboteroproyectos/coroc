@@ -115,6 +115,14 @@ describe('Pagos, recibo, reverso y dashboard (CA-05, CA-06, CA-18)', () => {
     expect(r.body.receipt.verificationCode).toMatch(/^[0-9A-F]{16}$/);
   });
 
+  it('vista previa del pago: la misma cobertura que tendrá el recibo, sin registrar nada', async () => {
+    const r = await t.http().post(`/v1/loans/${loanId}/payments/preview`).set(auth(token)).set('Accept-Language', 'en').send({ amount: 150_000, date: '2026-10-09' }).expect(200);
+    expectContract('previewPayment', 200, r.body);
+    expect(r.body).toMatchObject({ coverage: 'Installments 2 and 3 (paid in full) · Installment 4 (partial payment COP 30,000)', newBalance: 990_000, remainingInstallments: 17 });
+    const ledger = await t.http().get(`/v1/loans/${loanId}/ledger`).set(auth(token)).expect(200);
+    expect(ledger.body.filter((e: { type: string }) => e.type === 'payment')).toHaveLength(1);
+  });
+
   it('CA-06 pago de $ 150.000: cuotas 2 y 3 y abono de $ 30.000 a la 4; 17 restantes; saldo $ 990.000', async () => {
     const r = await t.http().post(`/v1/loans/${loanId}/payments`).set(auth(token)).set('Idempotency-Key', 'pago-ca06-0001').send({ amount: 150_000, date: '2026-10-09', method: 'Efectivo', cash: true }).expect(201);
     expect(r.body.receipt).toMatchObject({
