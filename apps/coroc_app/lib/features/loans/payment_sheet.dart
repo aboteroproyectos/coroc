@@ -14,6 +14,7 @@ import '../../design/theme.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/brand.dart';
 import '../../design/widgets/common.dart';
+import '../documents/documents.dart';
 import '../dashboard/dashboard_page.dart';
 import 'loan_providers.dart';
 
@@ -175,6 +176,8 @@ class _PaymentFormState extends ConsumerState<PaymentForm> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           ReceiptSummary(receipt: _result!.receipt, surplus: _result!.surplus),
           const SizedBox(height: CorocSpace.lg),
+          _ReceiptPdfButton(loanId: widget.loanId, entryId: _result!.entry.id),
+          const SizedBox(height: CorocSpace.sm),
           GoldButton(label: l.actionDone, onPressed: () => Navigator.of(context).pop(_result), expand: true),
         ]),
       );
@@ -239,7 +242,7 @@ class _PaymentFormState extends ConsumerState<PaymentForm> {
   }
 }
 
-/// Resumen del recibo «Gracias por tu pago» (§15). El PDF con el mismo contenido se emite en la Fase 2.
+/// Resumen del recibo «Gracias por tu pago» (§15). El PDF con el mismo contenido se genera en el servidor segundos después.
 class ReceiptSummary extends StatelessWidget {
   const ReceiptSummary({super.key, required this.receipt, this.surplus = 0});
   final ReceiptData receipt;
@@ -304,6 +307,35 @@ class _Big extends StatelessWidget {
           child: Text(value, style: t.headlineMedium?.copyWith(fontFamily: 'Inter', fontWeight: FontWeight.w400, color: gold ? (dark ? CorocColors.gold300 : CorocColors.gold800) : null)),
         ),
       ]),
+    );
+  }
+}
+
+/// Abre el PDF del recibo (§15) cuando el servidor termina de generarlo, para verlo o compartirlo con el deudor.
+class _ReceiptPdfButton extends ConsumerStatefulWidget {
+  const _ReceiptPdfButton({required this.loanId, required this.entryId});
+  final String loanId;
+  final String entryId;
+  @override
+  ConsumerState<_ReceiptPdfButton> createState() => _ReceiptPdfButtonState();
+}
+
+class _ReceiptPdfButtonState extends ConsumerState<_ReceiptPdfButton> {
+  late final Future<String?> _doc = waitForReceiptPdf(ref, widget.loanId, widget.entryId);
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return FutureBuilder<String?>(
+      future: _doc,
+      builder: (context, snap) {
+        if (snap.connectionState != ConnectionState.done) {
+          return OutlinedButton.icon(onPressed: null, icon: const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)), label: Text(l.receiptPdfPreparing));
+        }
+        final id = snap.data;
+        if (id == null) return Text(l.receiptPdfPending, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodySmall);
+        return OutlinedButton.icon(onPressed: () => openDocument(context, id), icon: const Icon(Icons.picture_as_pdf_outlined), label: Text(l.receiptOpenPdf));
+      },
     );
   }
 }

@@ -1666,5 +1666,643 @@
   "helpShortcutsBody": "En computador: Ctrl + K (⌘ + K en Mac) abre la búsqueda de clientes y Ctrl + N (⌘ + N) inicia un cliente nuevo. Tab recorre los campos y Enter confirma los diálogos.",
   "@helpShortcutsBody": {
     "description": "Tema"
+  },
+  "actionClose": "Cerrar",
+  "@actionClose": {
+    "description": "Acción: cerrar"
+  },
+  "actionContinue": "Continuar",
+  "@actionContinue": {
+    "description": "Acción: continuar"
+  },
+  "actionNo": "No",
+  "@actionNo": {
+    "description": "Respuesta: no"
+  },
+  "actionYes": "Sí",
+  "@actionYes": {
+    "description": "Respuesta: sí"
+  },
+  "actionSaveAs": "Guardar como…",
+  "@actionSaveAs": {
+    "description": "Acción: guardar en otra ubicación"
+  },
+  "actionShare": "Compartir",
+  "@actionShare": {
+    "description": "Acción: compartir"
+  },
+  "navReports": "Informes",
+  "@navReports": {
+    "description": "Menú: informes"
+  },
+  "tabDocuments": "Documentos",
+  "@tabDocuments": {
+    "description": "Pestaña de la ficha: repositorio del cliente"
+  },
+  "docKindSchedule": "Contrato y plan de pagos",
+  "@docKindSchedule": {
+    "description": "Tipo de documento"
+  },
+  "docKindReceiptIn": "Comprobante recibido",
+  "@docKindReceiptIn": {
+    "description": "Tipo de documento"
+  },
+  "docKindReceiptOut": "Recibo",
+  "@docKindReceiptOut": {
+    "description": "Tipo de documento"
+  },
+  "docKindStatement": "Estado de cuenta",
+  "@docKindStatement": {
+    "description": "Tipo de documento"
+  },
+  "docKindPayoff": "Paz y salvo",
+  "@docKindPayoff": {
+    "description": "Tipo de documento"
+  },
+  "docKindReport": "Informe",
+  "@docKindReport": {
+    "description": "Tipo de documento"
+  },
+  "docKindOther": "Otro documento",
+  "@docKindOther": {
+    "description": "Tipo de documento"
+  },
+  "docAll": "Todos",
+  "@docAll": {
+    "description": "Filtro: todos los tipos"
+  },
+  "docSearch": "Buscar en los documentos",
+  "@docSearch": {
+    "description": "Campo de búsqueda del repositorio"
+  },
+  "docUpload": "Subir documento",
+  "@docUpload": {
+    "description": "Acción: cargar un archivo al repositorio"
+  },
+  "docUploadTypes": "PDF o imagen",
+  "@docUploadTypes": {
+    "description": "Tipos de archivo del selector"
+  },
+  "docUploadOtherHelp": "Queda en «05 Otros documentos» del contrato.",
+  "@docUploadOtherHelp": {
+    "description": "Ayuda al cargar otro documento"
+  },
+  "docUploadReceiptHelp": "Queda en «02 Comprobantes recibidos». La lectura automática llega en la Fase 3; mientras tanto, registre el pago a mano.",
+  "@docUploadReceiptHelp": {
+    "description": "Ayuda al cargar un comprobante"
+  },
+  "docUploading": "Subiendo…",
+  "@docUploading": {
+    "description": "Estado: subiendo un archivo"
+  },
+  "docUploaded": "Documento guardado: {name}",
+  "@docUploaded": {
+    "description": "Aviso tras cargar un documento",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "docName": "Nombre",
+  "@docName": {
+    "description": "Campo: nombre visible del documento"
+  },
+  "docRequestStatement": "Estado de cuenta",
+  "@docRequestStatement": {
+    "description": "Acción: generar el estado de cuenta en PDF"
+  },
+  "docGenerating": "Generando el PDF…",
+  "@docGenerating": {
+    "description": "Estado: generando un documento"
+  },
+  "docTaskFailed": "No se pudo generar el documento. Intente de nuevo en unos minutos.",
+  "@docTaskFailed": {
+    "description": "Error al generar un documento"
+  },
+  "docEmpty": "Aún no hay documentos",
+  "@docEmpty": {
+    "description": "Repositorio vacío"
+  },
+  "docEmptyHelp": "El contrato, los recibos y los estados de cuenta aparecen aquí solos.",
+  "@docEmptyHelp": {
+    "description": "Ayuda del repositorio vacío"
+  },
+  "docViewer": "Documento",
+  "@docViewer": {
+    "description": "Título del visor"
+  },
+  "docVersions": "Versiones",
+  "@docVersions": {
+    "description": "Historial de versiones del documento"
+  },
+  "docVersionN": "Versión {n}",
+  "@docVersionN": {
+    "description": "Número de versión",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "docCurrent": "vigente",
+  "@docCurrent": {
+    "description": "Marca de la versión vigente"
+  },
+  "docInfo": "Detalles",
+  "@docInfo": {
+    "description": "Acción: ver detalles del documento"
+  },
+  "docType": "Tipo",
+  "@docType": {
+    "description": "Etiqueta: tipo de documento"
+  },
+  "docCreated": "Creado",
+  "@docCreated": {
+    "description": "Etiqueta: fecha de creación"
+  },
+  "docSize": "Tamaño",
+  "@docSize": {
+    "description": "Etiqueta: tamaño del archivo"
+  },
+  "docVersion": "Versión",
+  "@docVersion": {
+    "description": "Etiqueta: versión"
+  },
+  "docFolderPath": "En la carpeta COROC",
+  "@docFolderPath": {
+    "description": "Etiqueta: ruta del archivo"
+  },
+  "docFingerprint": "Huella SHA-256",
+  "@docFingerprint": {
+    "description": "Etiqueta: huella del archivo"
+  },
+  "docTags": "Etiquetas",
+  "@docTags": {
+    "description": "Campo: etiquetas"
+  },
+  "docTagsHelp": "Separadas por comas",
+  "@docTagsHelp": {
+    "description": "Ayuda del campo etiquetas"
+  },
+  "docNoPreview": "Este tipo de archivo no tiene vista previa. Compártalo o guárdelo para abrirlo.",
+  "@docNoPreview": {
+    "description": "Archivo sin vista previa"
+  },
+  "docSaved": "Guardado en {path}",
+  "@docSaved": {
+    "description": "Aviso tras guardar un archivo",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptOpenPdf": "Ver recibo PDF",
+  "@receiptOpenPdf": {
+    "description": "Acción: abrir el PDF del recibo"
+  },
+  "receiptPdfPreparing": "Preparando el PDF…",
+  "@receiptPdfPreparing": {
+    "description": "Estado: el PDF del recibo se está generando"
+  },
+  "receiptPdfPending": "El PDF del recibo estará listo en unos segundos en la pestaña Documentos.",
+  "@receiptPdfPending": {
+    "description": "El PDF del recibo aún no está listo"
+  },
+  "reportsSubtitle": "En PDF, XLSX o CSV y en el idioma que elija. Quedan en la carpeta _Informes.",
+  "@reportsSubtitle": {
+    "description": "Subtítulo de Informes"
+  },
+  "reportFilters": "Filtros",
+  "@reportFilters": {
+    "description": "Título: filtros de los informes"
+  },
+  "reportFrom": "Desde",
+  "@reportFrom": {
+    "description": "Campo: fecha inicial"
+  },
+  "reportTo": "Hasta",
+  "@reportTo": {
+    "description": "Campo: fecha final"
+  },
+  "reportCurrency": "Moneda",
+  "@reportCurrency": {
+    "description": "Campo: moneda del informe"
+  },
+  "reportCollector": "Cobrador",
+  "@reportCollector": {
+    "description": "Campo: filtrar por cobrador"
+  },
+  "reportAllCollectors": "Todos",
+  "@reportAllCollectors": {
+    "description": "Opción: todos los cobradores"
+  },
+  "reportUsesPeriod": "Usa el período de los filtros",
+  "@reportUsesPeriod": {
+    "description": "Nota: el informe usa las fechas"
+  },
+  "reportGenerating": "Generando… {progress} %",
+  "@reportGenerating": {
+    "description": "Avance de un informe",
+    "placeholders": {
+      "progress": {
+        "type": "int"
+      }
+    }
+  },
+  "reportRecent": "Informes recientes",
+  "@reportRecent": {
+    "description": "Título: últimos informes generados"
+  },
+  "reportNoneYet": "Aún no ha generado informes.",
+  "@reportNoneYet": {
+    "description": "Lista vacía de informes"
+  },
+  "reportPortfolio": "Cartera total",
+  "@reportPortfolio": {
+    "description": "Informe"
+  },
+  "reportPortfolioBody": "Préstamos activos con capital, recaudo, saldo, próxima cuota y días de mora.",
+  "@reportPortfolioBody": {
+    "description": "Descripción del informe"
+  },
+  "reportPortfolioByCollector": "Cartera por cobrador",
+  "@reportPortfolioByCollector": {
+    "description": "Informe"
+  },
+  "reportPortfolioByCollectorBody": "La misma cartera agrupada por el cobrador asignado.",
+  "@reportPortfolioByCollectorBody": {
+    "description": "Descripción del informe"
+  },
+  "reportCollections": "Recaudo por período",
+  "@reportCollections": {
+    "description": "Informe"
+  },
+  "reportCollectionsBody": "Pagos recibidos entre dos fechas, con recibo, medio y reversos.",
+  "@reportCollectionsBody": {
+    "description": "Descripción del informe"
+  },
+  "reportAging": "Mora por edades",
+  "@reportAging": {
+    "description": "Informe"
+  },
+  "reportAgingBody": "Cartera vencida en 1–7, 8–30 y más de 30 días.",
+  "@reportAgingBody": {
+    "description": "Descripción del informe"
+  },
+  "reportClosed": "Préstamos finalizados y utilidad",
+  "@reportClosed": {
+    "description": "Informe"
+  },
+  "reportClosedBody": "Préstamos pagados en su totalidad y la utilidad obtenida.",
+  "@reportClosedBody": {
+    "description": "Descripción del informe"
+  },
+  "reportCashflow": "Proyección de flujo de caja",
+  "@reportCashflow": {
+    "description": "Informe"
+  },
+  "reportCashflowBody": "Lo que falta por cobrar en las próximas 8 semanas.",
+  "@reportCashflowBody": {
+    "description": "Descripción del informe"
+  },
+  "reportLedger": "Libro de movimientos",
+  "@reportLedger": {
+    "description": "Informe"
+  },
+  "reportLedgerBody": "Desembolsos, pagos y reversos para la contabilidad.",
+  "@reportLedgerBody": {
+    "description": "Descripción del informe"
+  },
+  "reportMessages": "Bitácora de mensajes y cumplimiento",
+  "@reportMessages": {
+    "description": "Informe"
+  },
+  "reportMessagesBody": "Cada mensaje con la decisión de las reglas de contacto (se llena desde la Fase 4).",
+  "@reportMessagesBody": {
+    "description": "Descripción del informe"
+  },
+  "folderTitle": "Carpeta COROC",
+  "@folderTitle": {
+    "description": "Sección de Configuración"
+  },
+  "folderExplain": "Copia en este equipo de todos los documentos: una carpeta por cliente y, dentro, una por contrato con sus cinco subcarpetas. La nube sigue siendo la fuente de verdad.",
+  "@folderExplain": {
+    "description": "Explicación de la carpeta COROC"
+  },
+  "folderAskTitle": "¿Crear la carpeta COROC en este equipo?",
+  "@folderAskTitle": {
+    "description": "Pregunta del primer uso"
+  },
+  "folderAskBody": "COROC guardará aquí una copia de los contratos, planes de pagos, recibos, estados de cuenta, paz y salvos, informes y respaldos, ordenada por cliente. Se actualiza sola mientras la app está abierta. Si prefiere no hacerlo, todo sigue disponible en la nube y puede activarla después en Configuración.",
+  "@folderAskBody": {
+    "description": "Explicación del primer uso"
+  },
+  "folderAskDesktop": "Le sugerimos Documentos. Puede elegir otra ubicación.",
+  "@folderAskDesktop": {
+    "description": "Detalle en escritorio"
+  },
+  "folderAskAndroid": "Elija dónde crearla (le sugerimos Documentos). COROC solo tendrá acceso a esa carpeta.",
+  "@folderAskAndroid": {
+    "description": "Detalle en Android"
+  },
+  "folderAskIos": "La verá en Archivos › En mi iPhone › COROC.",
+  "@folderAskIos": {
+    "description": "Detalle en iOS"
+  },
+  "folderAskCreate": "Crear carpeta COROC",
+  "@folderAskCreate": {
+    "description": "Acción: crear la carpeta"
+  },
+  "folderAskLater": "Ahora no",
+  "@folderAskLater": {
+    "description": "Acción: posponer"
+  },
+  "folderPickerMessage": "Elija dónde crear la carpeta COROC",
+  "@folderPickerMessage": {
+    "description": "Mensaje del selector de carpetas"
+  },
+  "folderPickerPrompt": "Usar esta ubicación",
+  "@folderPickerPrompt": {
+    "description": "Botón del selector de carpetas"
+  },
+  "folderConnected": "Carpeta COROC lista. Copiando los documentos…",
+  "@folderConnected": {
+    "description": "Aviso tras conectar la carpeta"
+  },
+  "folderReady": "Conectada",
+  "@folderReady": {
+    "description": "Estado de la carpeta"
+  },
+  "folderSyncing": "Actualizando…",
+  "@folderSyncing": {
+    "description": "Estado de la carpeta"
+  },
+  "folderNeedsPermission": "Sin permiso de acceso",
+  "@folderNeedsPermission": {
+    "description": "Estado de la carpeta"
+  },
+  "folderNotConfigured": "No configurada en este equipo",
+  "@folderNotConfigured": {
+    "description": "Estado de la carpeta"
+  },
+  "folderLocation": "Ubicación",
+  "@folderLocation": {
+    "description": "Etiqueta: ruta de la carpeta"
+  },
+  "folderLastSync": "Última actualización",
+  "@folderLastSync": {
+    "description": "Etiqueta: última sincronización"
+  },
+  "folderLastResult": "Cambios",
+  "@folderLastResult": {
+    "description": "Etiqueta: resultado de la sincronización"
+  },
+  "folderResult": "{written} copiados · {removed} retirados",
+  "@folderResult": {
+    "description": "Resumen de la sincronización",
+    "placeholders": {
+      "written": {
+        "type": "int"
+      },
+      "removed": {
+        "type": "int"
+      }
+    }
+  },
+  "folderSyncNow": "Actualizar ahora",
+  "@folderSyncNow": {
+    "description": "Acción: sincronizar"
+  },
+  "folderChange": "Cambiar ubicación",
+  "@folderChange": {
+    "description": "Acción: elegir otra carpeta"
+  },
+  "folderDisconnect": "Dejar de usar en este equipo",
+  "@folderDisconnect": {
+    "description": "Acción: desconectar la carpeta"
+  },
+  "folderReauthorize": "Dar permiso de nuevo",
+  "@folderReauthorize": {
+    "description": "Acción: volver a autorizar"
+  },
+  "folderUntrackedTitle": "Archivos nuevos en la carpeta: {count}",
+  "@folderUntrackedTitle": {
+    "description": "Archivos agregados a mano",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "folderUntrackedHelp": "Estos archivos se agregaron a mano a la carpeta de un cliente. Impórtelos para que queden en el repositorio.",
+  "@folderUntrackedHelp": {
+    "description": "Ayuda de importación"
+  },
+  "folderImport": "Importar",
+  "@folderImport": {
+    "description": "Acción: importar un archivo"
+  },
+  "backupTitle": "Respaldo",
+  "@backupTitle": {
+    "description": "Sección de Configuración"
+  },
+  "backupExplain": "Un archivo .coroc cifrado con su contraseña, con todos los datos y documentos de la empresa. Guárdelo fuera de este equipo.",
+  "@backupExplain": {
+    "description": "Explicación del respaldo"
+  },
+  "backupCreate": "Crear respaldo",
+  "@backupCreate": {
+    "description": "Acción: crear respaldo"
+  },
+  "backupCreateExplain": "Elija una contraseña. Sin ella no se puede abrir el respaldo: COROC no la guarda y no la puede recuperar.",
+  "@backupCreateExplain": {
+    "description": "Advertencia al crear un respaldo"
+  },
+  "backupPassword": "Contraseña del respaldo",
+  "@backupPassword": {
+    "description": "Campo: contraseña del respaldo"
+  },
+  "backupPasswordConfirm": "Repita la contraseña",
+  "@backupPasswordConfirm": {
+    "description": "Campo: confirmación"
+  },
+  "backupPasswordHelp": "Mínimo 10 caracteres",
+  "@backupPasswordHelp": {
+    "description": "Ayuda del campo contraseña"
+  },
+  "backupPasswordShort": "La contraseña debe tener al menos 10 caracteres.",
+  "@backupPasswordShort": {
+    "description": "Error de validación"
+  },
+  "backupPasswordMismatch": "Las contraseñas no coinciden.",
+  "@backupPasswordMismatch": {
+    "description": "Error de validación"
+  },
+  "backupStarted": "Generando el respaldo. Puede seguir trabajando.",
+  "@backupStarted": {
+    "description": "Aviso al iniciar el respaldo"
+  },
+  "backupNone": "Aún no hay respaldos.",
+  "@backupNone": {
+    "description": "Lista vacía de respaldos"
+  },
+  "backupDone": "Listo",
+  "@backupDone": {
+    "description": "Estado del respaldo"
+  },
+  "backupFailed": "Falló",
+  "@backupFailed": {
+    "description": "Estado del respaldo"
+  },
+  "backupCancelled": "Cancelado",
+  "@backupCancelled": {
+    "description": "Estado del respaldo"
+  },
+  "backupRunning": "En curso · {progress} %",
+  "@backupRunning": {
+    "description": "Estado del respaldo con avance",
+    "placeholders": {
+      "progress": {
+        "type": "int"
+      }
+    }
+  },
+  "backupCounts": "{clients} clientes · {loans} préstamos · {documents} documentos",
+  "@backupCounts": {
+    "description": "Contenido del respaldo",
+    "placeholders": {
+      "clients": {
+        "type": "int"
+      },
+      "loans": {
+        "type": "int"
+      },
+      "documents": {
+        "type": "int"
+      }
+    }
+  },
+  "backupDownload": "Descargar",
+  "@backupDownload": {
+    "description": "Acción: descargar el respaldo"
+  },
+  "backupAlsoSave": "El respaldo ya está en la carpeta _Respaldos. ¿Guardar también una copia en otra ubicación (por ejemplo, un disco externo)?",
+  "@backupAlsoSave": {
+    "description": "Pregunta tras descargar"
+  },
+  "restoreTitle": "Restaurar un respaldo",
+  "@restoreTitle": {
+    "description": "Sección de Configuración"
+  },
+  "restoreExplain": "Reemplaza todos los datos y documentos de la empresa por los del respaldo. Primero se verifica y se muestra un resumen; nada cambia hasta que usted confirme.",
+  "@restoreExplain": {
+    "description": "Explicación de la restauración"
+  },
+  "restoreStart": "Elegir archivo .coroc",
+  "@restoreStart": {
+    "description": "Acción: elegir el respaldo"
+  },
+  "restoreFileType": "Respaldo de COROC",
+  "@restoreFileType": {
+    "description": "Tipo de archivo del selector"
+  },
+  "restoreUploading": "Subiendo el respaldo… {progress} %",
+  "@restoreUploading": {
+    "description": "Avance de la carga",
+    "placeholders": {
+      "progress": {
+        "type": "int"
+      }
+    }
+  },
+  "restorePasswordTitle": "Contraseña del respaldo",
+  "@restorePasswordTitle": {
+    "description": "Título: pedir la contraseña"
+  },
+  "restoreConfirmTitle": "Confirme la restauración",
+  "@restoreConfirmTitle": {
+    "description": "Título: confirmación"
+  },
+  "restoreSummary": "Se restaurarán {clients} clientes, {loans} préstamos y {documents} documentos.",
+  "@restoreSummary": {
+    "description": "Resumen de la simulación",
+    "placeholders": {
+      "clients": {
+        "type": "int"
+      },
+      "loans": {
+        "type": "int"
+      },
+      "documents": {
+        "type": "int"
+      }
+    }
+  },
+  "restoreFrom": "Empresa del respaldo",
+  "@restoreFrom": {
+    "description": "Etiqueta"
+  },
+  "restoreCreatedAt": "Fecha del respaldo",
+  "@restoreCreatedAt": {
+    "description": "Etiqueta"
+  },
+  "restoreWarning": "Todos los datos actuales de «{company}» se reemplazarán. Escriba el nombre de la empresa para confirmar.",
+  "@restoreWarning": {
+    "description": "Advertencia de la restauración",
+    "placeholders": {
+      "company": {
+        "type": "String"
+      }
+    }
+  },
+  "restoreTypeName": "Nombre de la empresa",
+  "@restoreTypeName": {
+    "description": "Campo de confirmación"
+  },
+  "restoreApply": "Restaurar",
+  "@restoreApply": {
+    "description": "Acción: aplicar la restauración"
+  },
+  "restoreDoneTitle": "Restauración completa",
+  "@restoreDoneTitle": {
+    "description": "Título tras restaurar"
+  },
+  "restoreDoneBody": "Los datos y documentos del respaldo ya están en la empresa. Si otros usuarios tenían la app abierta, verán los cambios al actualizar.",
+  "@restoreDoneBody": {
+    "description": "Mensaje tras restaurar"
+  },
+  "helpDocumentsTitle": "Documentos y recibos en PDF",
+  "@helpDocumentsTitle": {
+    "description": "Tema de Ayuda"
+  },
+  "helpDocumentsBody": "COROC genera solo, en el idioma del cliente: el contrato y plan de pagos al crear el préstamo (con una versión nueva cada vez que cambia), el recibo «Gracias por tu pago» con su código QR de verificación después de cada pago, el estado de cuenta cada mes y al cerrar el préstamo, y el paz y salvo cuando el saldo llega a cero. Un reverso nunca borra el recibo: se emite su versión sellada ANULADO. Los documentos nunca se sobrescriben; en Detalles verá sus versiones y su huella SHA-256. Todos los archivos se guardan cifrados en el servidor y se abren con enlaces que vencen en minutos.",
+  "@helpDocumentsBody": {
+    "description": "Texto de Ayuda"
+  },
+  "helpFolderTitle": "Carpeta COROC",
+  "@helpFolderTitle": {
+    "description": "Tema de Ayuda"
+  },
+  "helpFolderBody": "La carpeta COROC es una copia en su equipo de todo el repositorio: una carpeta por cliente («Nombre Apellidos - Código», sin tildes para que funcione en todos los sistemas y nubes) y, dentro, una por contrato con «01 Contrato y plan de pagos», «02 Comprobantes recibidos», «03 Recibos emitidos», «04 Estados de cuenta» y «05 Otros documentos». Además están _Sin asignar, _Entrada, _Informes y _Respaldos. Se actualiza sola mientras la app está abierta y, si un cliente cambia de nombre, su carpeta se renombra sin perder archivos. COROC nunca borra archivos que usted haya puesto; en el escritorio le ofrece importarlos. En Android usa solo la carpeta que usted elija; en iOS la verá en Archivos.",
+  "@helpFolderBody": {
+    "description": "Texto de Ayuda"
+  },
+  "helpReportsTitle": "Informes",
+  "@helpReportsTitle": {
+    "description": "Tema de Ayuda"
+  },
+  "helpReportsBody": "En Informes genera la cartera total o por cobrador, el recaudo por período, la mora por edades, los préstamos finalizados y su utilidad, la proyección de flujo de caja, el libro de movimientos y la bitácora de mensajes, en PDF, XLSX o CSV y en español, portugués o inglés. Cada informe lleva la fecha de corte y los filtros y usa una sola moneda: COROC nunca suma monedas distintas. Quedan guardados en _Informes. El Cobrador no genera informes globales.",
+  "@helpReportsBody": {
+    "description": "Texto de Ayuda"
+  },
+  "helpBackupTitle": "Respaldo y restauración",
+  "@helpBackupTitle": {
+    "description": "Tema de Ayuda"
+  },
+  "helpBackupBody": "«Crear respaldo» genera un archivo .coroc con todos los datos y documentos de la empresa, cifrado con AES-256 y la contraseña que usted elija (COROC no la guarda). Incluye un manifiesto con la huella SHA-256 de cada archivo. Se genera en el servidor mientras usted sigue trabajando, se puede cancelar y la descarga se reanuda si se corta; queda en _Respaldos y puede guardarlo en otra ubicación. Solo el Propietario restaura: COROC verifica la integridad y la versión, muestra cuánto se restaurará y pide escribir el nombre de la empresa. La restauración es atómica: si algo falla, no cambia nada. Los usuarios del respaldo deben activar de nuevo el segundo factor.",
+  "@helpBackupBody": {
+    "description": "Texto de Ayuda"
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
@@ -101,6 +102,81 @@ class ApiClient {
   }
 
   Future<bool> refreshNow() => _refresh();
+
+  /// Dirección completa de una ruta relativa a la base de la API (p. ej. un enlace firmado `/files/…`).
+  Uri fileUri(String path) => Uri.parse('$baseUrl$path');
+
+  /// Descarga un enlace firmado a un archivo local. Si la conexión se corta, continúa desde donde quedó con `Range`
+  /// (§19: descargas reanudables) hasta 5 veces. No envía la sesión: el enlace firmado es la autorización.
+  Future<File> download(String path, File target, {void Function(int received, int total)? onProgress, int attempts = 5}) async {
+    await target.parent.create(recursive: true);
+    var received = await target.exists() ? await target.length() : 0;
+    var total = -1;
+    for (var attempt = 1; ; attempt++) {
+      final req = http.Request('GET', fileUri(path));
+      if (received > 0) req.headers['Range'] = 'bytes=$received-';
+      try {
+        final res = await _http.send(req).timeout(const Duration(seconds: 60));
+        if (res.statusCode == 416 && received > 0) return target;
+        if (res.statusCode != 200 && res.statusCode != 206) {
+          throw ApiException.fromBody(res.statusCode, await res.stream.bytesToString());
+        }
+        if (res.statusCode == 200) received = 0;
+        final range = res.headers['content-range'];
+        total = range != null ? int.parse(range.split('/').last) : (res.contentLength ?? -1) + received;
+        final sink = target.openWrite(mode: received > 0 ? FileMode.append : FileMode.write);
+        try {
+          await for (final chunk in res.stream.timeout(const Duration(seconds: 60))) {
+            sink.add(chunk);
+            received += chunk.length;
+            onProgress?.call(received, total);
+          }
+        } finally {
+          await sink.close();
+        }
+        if (total < 0 || received >= total) return target;
+      } on ApiException {
+        rethrow;
+      } on Exception {
+        if (attempt >= attempts) throw ApiException.network();
+        await Future<void>.delayed(Duration(seconds: attempt * 2));
+      }
+    }
+  }
+
+  /// Descarga en memoria (documentos pequeños para el visor).
+  Future<List<int>> downloadBytes(String path) async {
+    final res = await _http.get(fileUri(path)).timeout(const Duration(seconds: 60));
+    if (res.statusCode != 200) throw ApiException.fromBody(res.statusCode, utf8.decode(res.bodyBytes));
+    return res.bodyBytes;
+  }
+
+  /// Envía un archivo por flujo (`application/octet-stream`), con avance. `open` se vuelve a llamar si hay que reintentar
+  /// tras renovar la sesión.
+  Future<dynamic> upload(String path, {required Stream<List<int>> Function() open, required int length, Map<String, Object?>? query, void Function(int sent, int total)? onProgress, bool retry = true}) async {
+    final req = http.StreamedRequest('POST', uri(path, query))
+      ..headers.addAll(await _headers())
+      ..headers['Content-Type'] = 'application/octet-stream'
+      ..contentLength = length;
+    var sent = 0;
+    unawaited(open().listen((chunk) {
+      req.sink.add(chunk);
+      sent += chunk.length;
+      onProgress?.call(sent, length);
+    }, onDone: req.sink.close, onError: (Object e) => req.sink.addError(e), cancelOnError: true).asFuture<void>().catchError((_) {}));
+    http.Response res;
+    try {
+      res = await http.Response.fromStream(await _http.send(req).timeout(const Duration(minutes: 30)));
+    } on TimeoutException {
+      throw ApiException.network();
+    } on http.ClientException {
+      throw ApiException.network();
+    }
+    final text = utf8.decode(res.bodyBytes);
+    if (res.statusCode == 401 && retry && await _refresh()) return upload(path, open: open, length: length, query: query, onProgress: onProgress, retry: false);
+    if (res.statusCode >= 400) throw ApiException.fromBody(res.statusCode, text);
+    return text.isEmpty ? null : jsonDecode(text);
+  }
 
   /// Server-Sent Events (§17): el dashboard se actualiza en tiempo real al registrar un pago.
   Stream<ServerEvent> events() async* {

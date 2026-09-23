@@ -131,6 +131,17 @@ class AuthController extends Notifier<AuthState> {
     if (s is SignedIn) state = SignedIn(s.session.copyWith(user: user), locked: s.locked);
   }
 
+  /// Relee los datos de la empresa (p. ej. después de una restauración, §19, que puede cambiar su nombre).
+  Future<void> refreshCompany() async {
+    final s = state;
+    if (s is! SignedIn) return;
+    final c = await ref.read(apiProvider).company();
+    state = SignedIn(
+      s.session.copyWith(company: s.session.company.copyWith(name: c.name, currency: c.currency, country: c.country, timezone: c.timezone, lang: c.lang)),
+      locked: s.locked,
+    );
+  }
+
   /// Nombre legible del equipo para la lista de sesiones abiertas (sin datos personales).
   String _deviceName() => 'COROC · ${Platform.operatingSystem}';
 }
