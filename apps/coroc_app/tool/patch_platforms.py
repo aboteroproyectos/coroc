@@ -80,6 +80,44 @@ class MainActivity : FlutterFragmentActivity() {{
 for g in ('android/app/build.gradle.kts', 'android/app/build.gradle'):
     edit(g, lambda t: re.sub(r'minSdk(Version)?(\s*=\s*|\s+)(flutter\.minSdkVersion|\d+)', lambda m: f'minSdk{m.group(1) or ""}{m.group(2)}26', t))
 
+# Firma de publicación (ADR-059): con android/key.properties (lo escribe el flujo de publicación a partir de los
+# secretos) se firma con la clave de subida de Google Play; sin él, como en la CI de cada cambio, con la de depuración.
+SIGNING_IMPORTS = """import java.io.FileInputStream
+import java.util.Properties
+"""
+# Después del bloque plugins {}: Gradle no admite otras sentencias antes de él.
+SIGNING_PROPS = """val corocKeystore = Properties().apply {
+    val f = rootProject.file("key.properties")
+    if (f.exists()) FileInputStream(f).use { load(it) }
+}
+
+android {"""
+SIGNING_CONFIG = """    signingConfigs {
+        create("release") {
+            if (corocKeystore.containsKey("storeFile")) {
+                storeFile = file(corocKeystore.getProperty("storeFile"))
+                storePassword = corocKeystore.getProperty("storePassword")
+                keyAlias = corocKeystore.getProperty("keyAlias")
+                keyPassword = corocKeystore.getProperty("keyPassword")
+            }
+        }
+    }
+
+    buildTypes {"""
+
+
+def signing(t):
+    if 'corocKeystore' in t:
+        return t
+    t = SIGNING_IMPORTS + '\n' + t
+    t = t.replace('android {', SIGNING_PROPS, 1)
+    t = t.replace('    buildTypes {', SIGNING_CONFIG, 1)
+    return re.sub(r'signingConfig = signingConfigs\.getByName\("debug"\)',
+                  'signingConfig = if (corocKeystore.containsKey("storeFile")) signingConfigs.getByName("release") else signingConfigs.getByName("debug")', t, count=1)
+
+
+edit('android/app/build.gradle.kts', signing)
+
 # ─── iOS ───
 plist('ios/Runner/Info.plist', {
     'CFBundleDisplayName': 'COROC',

@@ -1,0 +1,252 @@
+name: Publicación
+
+# Compila, firma y publica COROC en las cuatro plataformas (§3, §20.4; ADR-059).
+# Se ejecuta con una etiqueta v* o a mano. Cada plataforma firma y publica solo si sus secretos existen; sin ellos
+# (cuentas de tienda y certificados pendientes, P-2) compila igual, sin firma, y lo avisa en el resumen.
+#
+# Secretos (Configuración › Secrets and variables › Actions):
+#   Android: ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD;
+#            PLAY_SERVICE_ACCOUNT_JSON para subir a la pista interna de Google Play.
+#   Apple:   APPLE_CERTIFICATE_P12_BASE64 (Apple Distribution), APPLE_CERTIFICATE_PASSWORD,
+#            APPLE_PROVISIONING_PROFILE_BASE64 (App Store), APPLE_TEAM_ID,
+#            APPSTORE_API_KEY_ID, APPSTORE_API_ISSUER_ID, APPSTORE_API_KEY_P8 (App Store Connect),
+#            MACOS_DEVELOPER_ID_P12_BASE64, MACOS_DEVELOPER_ID_PASSWORD (Developer ID Application, para el DMG).
+#   Windows: WINDOWS_CERTIFICATE_PFX_BASE64, WINDOWS_CERTIFICATE_PASSWORD, WINDOWS_PUBLISHER (CN=… del certificado).
+#   Todas:   COROC_API_URL (dirección pública de la API que usará la app, p. ej. https://api.coroc.app/v1).
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  COROC_API_URL: ${{ secrets.COROC_API_URL }}
+
+jobs:
+  android:
+    name: Android · App Bundle y APK
+    runs-on: ubuntu-latest
+    env:
+      HAS_KEY: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+      HAS_PLAY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: ./.github/actions/flutter-setup
+      - name: Clave de subida de Google Play
+        if: env.HAS_KEY == 'true'
+        working-directory: apps/coroc_app/android
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > upload-keystore.jks
+          {
+            echo "storeFile=$PWD/upload-keystore.jks"
+            echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
+            echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}"
+            echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}"
+          } > key.properties
+      - name: Compilar
+        working-directory: apps/coroc_app
+        run: |
+          API="${COROC_API_URL:-https://api.coroc.app/v1}"
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//; s/+.*//')
+          flutter build appbundle --release --dart-define=COROC_API="$API" --dart-define=COROC_VERSION="$VERSION"
+          flutter build apk --release --dart-define=COROC_API="$API" --dart-define=COROC_VERSION="$VERSION"
+      - name: Verificar la firma
+        if: env.HAS_KEY == 'true'
+        working-directory: apps/coroc_app
+        run: |
+          "$ANDROID_HOME"/build-tools/*/apksigner verify --print-certs build/app/outputs/flutter-apk/app-release.apk | head -5
+          rm -f android/key.properties android/upload-keystore.jks
+      - name: Sin clave de firma
+        if: env.HAS_KEY != 'true'
+        run: echo "::warning::Android compilado con la clave de depuración; faltan los secretos ANDROID_KEYSTORE_* (P-2)."
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coroc-android
+          path: |
+            apps/coroc_app/build/app/outputs/bundle/release/app-release.aab
+            apps/coroc_app/build/app/outputs/flutter-apk/app-release.apk
+      - name: Subir a Google Play (pista interna, borrador)
+        if: env.HAS_KEY == 'true' && env.HAS_PLAY == 'true'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: co.coroc.coroc
+          releaseFiles: apps/coroc_app/build/app/outputs/bundle/release/app-release.aab
+          track: internal
+          status: draft
+
+  ios:
+    name: iOS · App Store
+    runs-on: macos-latest
+    env:
+      HAS_CERT: ${{ secrets.APPLE_CERTIFICATE_P12_BASE64 != '' && secrets.APPLE_PROVISIONING_PROFILE_BASE64 != '' }}
+      HAS_ASC: ${{ secrets.APPSTORE_API_KEY_P8 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/flutter-setup
+      - name: Certificado y perfil de distribución
+        if: env.HAS_CERT == 'true'
+        run: |
+          KEYCHAIN=$RUNNER_TEMP/coroc.keychain-db
+          KC_PASS=$(openssl rand -base64 24)
+          echo "${{ secrets.APPLE_CERTIFICATE_P12_BASE64 }}" | base64 -d > $RUNNER_TEMP/dist.p12
+          security create-keychain -p "$KC_PASS" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KC_PASS" "$KEYCHAIN"
+          security import $RUNNER_TEMP/dist.p12 -P "${{ secrets.APPLE_CERTIFICATE_PASSWORD }}" -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KC_PASS" "$KEYCHAIN"
+          security list-keychain -d user -s "$KEYCHAIN"
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}" | base64 -d > ~/Library/MobileDevice/Provisioning\ Profiles/coroc.mobileprovision
+          PROFILE_UUID=$(security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/coroc.mobileprovision | plutil -extract UUID raw -)
+          cat > $RUNNER_TEMP/ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>teamID</key><string>${{ secrets.APPLE_TEAM_ID }}</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>provisioningProfiles</key><dict><key>co.coroc.coroc</key><string>$PROFILE_UUID</string></dict>
+          </dict></plist>
+          EOF
+      - name: Compilar y firmar el IPA
+        if: env.HAS_CERT == 'true'
+        working-directory: apps/coroc_app
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//; s/+.*//')
+          flutter build ipa --release --export-options-plist=$RUNNER_TEMP/ExportOptions.plist \
+            --dart-define=COROC_API="${COROC_API_URL:-https://api.coroc.app/v1}" --dart-define=COROC_VERSION="$VERSION"
+      - name: Compilar sin firma
+        if: env.HAS_CERT != 'true'
+        working-directory: apps/coroc_app
+        run: |
+          flutter build ios --release --no-codesign
+          echo "::warning::iOS compilado sin firma; faltan los secretos APPLE_* (P-2)."
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coroc-ios
+          path: |
+            apps/coroc_app/build/ios/ipa/*.ipa
+          if-no-files-found: ignore
+      - name: Subir a App Store Connect (TestFlight)
+        if: env.HAS_CERT == 'true' && env.HAS_ASC == 'true'
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "${{ secrets.APPSTORE_API_KEY_P8 }}" > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APPSTORE_API_KEY_ID }}.p8
+          xcrun altool --upload-app --type ios -f apps/coroc_app/build/ios/ipa/*.ipa \
+            --apiKey "${{ secrets.APPSTORE_API_KEY_ID }}" --apiIssuer "${{ secrets.APPSTORE_API_ISSUER_ID }}"
+
+  macos:
+    name: macOS · DMG firmado y notarizado
+    runs-on: macos-latest
+    env:
+      HAS_DEVID: ${{ secrets.MACOS_DEVELOPER_ID_P12_BASE64 != '' }}
+      HAS_ASC: ${{ secrets.APPSTORE_API_KEY_P8 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/flutter-setup
+      - name: Compilar
+        working-directory: apps/coroc_app
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//; s/+.*//')
+          flutter build macos --release --dart-define=COROC_API="${COROC_API_URL:-https://api.coroc.app/v1}" --dart-define=COROC_VERSION="$VERSION"
+      - name: Firmar con Developer ID
+        if: env.HAS_DEVID == 'true'
+        run: |
+          KEYCHAIN=$RUNNER_TEMP/coroc.keychain-db
+          KC_PASS=$(openssl rand -base64 24)
+          echo "${{ secrets.MACOS_DEVELOPER_ID_P12_BASE64 }}" | base64 -d > $RUNNER_TEMP/devid.p12
+          security create-keychain -p "$KC_PASS" "$KEYCHAIN"
+          security unlock-keychain -p "$KC_PASS" "$KEYCHAIN"
+          security import $RUNNER_TEMP/devid.p12 -P "${{ secrets.MACOS_DEVELOPER_ID_PASSWORD }}" -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KC_PASS" "$KEYCHAIN"
+          security list-keychain -d user -s "$KEYCHAIN"
+          APP=$(ls -d apps/coroc_app/build/macos/Build/Products/Release/*.app)
+          IDENTITY=$(security find-identity -v -p codesigning "$KEYCHAIN" | grep "Developer ID Application" | head -1 | sed -E 's/.*"(.*)"/\1/')
+          codesign --force --deep --options runtime --timestamp \
+            --entitlements apps/coroc_app/macos/Runner/Release.entitlements --sign "$IDENTITY" "$APP"
+          codesign --verify --deep --strict --verbose=2 "$APP"
+      - name: DMG
+        run: |
+          APP=$(ls -d apps/coroc_app/build/macos/Build/Products/Release/*.app)
+          mkdir -p dmg && cp -R "$APP" dmg/ && ln -s /Applications dmg/Applications
+          hdiutil create -volname COROC -srcfolder dmg -ov -format UDZO COROC.dmg
+      - name: Notarizar y grapar
+        if: env.HAS_DEVID == 'true' && env.HAS_ASC == 'true'
+        run: |
+          echo "${{ secrets.APPSTORE_API_KEY_P8 }}" > $RUNNER_TEMP/AuthKey.p8
+          xcrun notarytool submit COROC.dmg --wait \
+            --key $RUNNER_TEMP/AuthKey.p8 --key-id "${{ secrets.APPSTORE_API_KEY_ID }}" --issuer "${{ secrets.APPSTORE_API_ISSUER_ID }}"
+          xcrun stapler staple COROC.dmg
+          spctl --assess --type open --context context:primary-signature -v COROC.dmg
+      - name: Sin Developer ID
+        if: env.HAS_DEVID != 'true'
+        run: echo "::warning::DMG sin firma ni notarización; faltan los secretos MACOS_DEVELOPER_ID_* (P-2)."
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coroc-macos
+          path: COROC.dmg
+
+  windows:
+    name: Windows · MSIX firmado
+    runs-on: windows-latest
+    env:
+      HAS_CERT: ${{ secrets.WINDOWS_CERTIFICATE_PFX_BASE64 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/flutter-setup
+      - name: Compilar
+        shell: bash
+        working-directory: apps/coroc_app
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//; s/+.*//')
+          flutter build windows --release --dart-define=COROC_API="${COROC_API_URL:-https://api.coroc.app/v1}" --dart-define=COROC_VERSION="$VERSION"
+      - name: MSIX firmado
+        if: env.HAS_CERT == 'true'
+        shell: bash
+        working-directory: apps/coroc_app
+        run: |
+          echo "${{ secrets.WINDOWS_CERTIFICATE_PFX_BASE64 }}" | base64 -d > "$RUNNER_TEMP/coroc.pfx"
+          dart run msix:create --build-windows false --certificate-path "$RUNNER_TEMP/coroc.pfx" \
+            --certificate-password "${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}" --publisher "${{ secrets.WINDOWS_PUBLISHER }}"
+          rm -f "$RUNNER_TEMP/coroc.pfx"
+      - name: MSIX para Microsoft Store (lo firma la tienda)
+        if: env.HAS_CERT != 'true'
+        shell: bash
+        working-directory: apps/coroc_app
+        run: |
+          dart run msix:create --build-windows false --store
+          echo "::warning::MSIX sin firma propia (solo válido para subir a Microsoft Store); faltan los secretos WINDOWS_CERTIFICATE_* (P-2)."
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coroc-windows
+          path: apps/coroc_app/build/windows/x64/runner/Release/*.msix
+
+  resumen:
+    name: Versión en GitHub
+    needs: [android, ios, macos, windows]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+      - name: Publicar los instaladores en la versión
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: |
+            dist/coroc-android/**/*.apk
+            dist/coroc-macos/*.dmg
+            dist/coroc-windows/*.msix
