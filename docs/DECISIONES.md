@@ -187,3 +187,56 @@ Regla 3 del prompt maestro: toda decisión no especificada se toma con criterio 
 La sincronización corre al abrir la app, cada 2 minutos y con cada evento `document.created`. Lleva un índice `.coroc-sync.json` con la huella de cada archivo. En escritorio, los archivos que el usuario pone en la carpeta de un cliente se pueden subir al repositorio. Los nombres siguen §16.3 sin tildes (ADR-013), en el idioma de la empresa.
 
 **Consecuencias:** si el usuario no da permiso, COROC sigue funcionando con la nube. Borrar un archivo de la carpeta no lo borra del servidor: vuelve en la siguiente sincronización.
+
+## Fase 3
+
+### ADR-037 · Lectura local con Tesseract; IA opcional verificada por reglas
+**Contexto:** §4.5 propone OCR en la nube (Document AI, Textract o Azure) y una IA con visión para extraer los campos. Ambos requieren contratos y acuerdos de tratamiento de datos (S-6) que aún no existen. **Decisión:**
+- Los PDF con capa de texto se leen con pdf.js.
+- Las imágenes y los PDF escaneados se leen con Tesseract 5 en el servidor (español, portugués e inglés, con detección de orientación), con un hilo por proceso para que varias lecturas no se bloqueen entre sí.
+- El lector por reglas de `@coroc/core` extrae siempre los campos.
+- Con `COROC_EXTRACTION=claude`, la IA con visión de Anthropic (salida JSON validada con un esquema) es la principal y las reglas la verifican (ADR-017). Si discrepan en valor o fecha, esos campos bajan de confianza y el comprobante va a revisión. Si la IA no responde, se sigue con las reglas.
+- El texto del comprobante se pasa a la IA como datos, nunca como instrucciones.
+- Las palabras leídas conservan su posición, para resaltar cada campo sobre la imagen en la Bandeja.
+
+**Consecuencias:** COROC lee comprobantes sin depender de un proveedor externo, y la IA se activa con una variable de entorno cuando haya contrato. Los proveedores de OCR en la nube quedan como adaptadores futuros.
+
+### ADR-038 · Huella lógica sin la entidad cuando hay referencia
+**Contexto:** el mismo pago puede llegar como captura de WhatsApp (donde el OCR no siempre lee el logo del banco) y como PDF por correo (donde sí). Con la entidad dentro de la huella, CA-07 registraba el pago dos veces. **Decisión:** con referencia, la huella lógica es referencia + valor + fecha. Sin referencia, sigue siendo valor + fecha + hora + entidad + pagador. La huella se compara contra lo aplicado y contra lo que espera revisión (ADR-020). En la base, dos índices únicos parciales impiden dos aplicaciones del mismo comprobante aunque lleguen a la vez. **Consecuencias:** un reenvío en otro formato queda DUPLICADO. Dos pagos distintos con la misma referencia, el mismo valor y la misma fecha en bancos distintos se confundirían, un caso que no se considera realista.
+
+### ADR-039 · El pago automático y el estado del comprobante en la misma transacción
+**Decisión:** la tarea de lectura corre en la bandeja de salida (ADR-032). Cuando decide aplicar, registra el pago con `PaymentsService.postTx` dentro de la transacción que actualiza el comprobante, con un punto de guardado:
+- si el pago no se puede registrar (fecha fuera de rango, préstamo pagado, otro igual al mismo tiempo), se deshace solo ese paso y el comprobante va a revisión;
+- después de 5 intentos fallidos, el comprobante queda en la Bandeja con la alerta «No se pudo leer el archivo».
+
+**Consecuencias:** nunca queda un pago sin su comprobante, ni un comprobante «aplicado» sin su pago (§14: todo o nada).
+
+### ADR-040 · Portal del deudor sin JavaScript y enlace con token cifrado
+**Decisión:** el portal (`/v1/public/upload/{token}`) es una página generada por el servidor:
+- **Página:** sin JavaScript ni recursos externos (política de seguridad `default-src 'none'`), con la marca, en el idioma del deudor y con selector de idioma.
+- **Contenido:** el nombre del deudor, el contrato, el saldo, la próxima cuota y el plan, sin apellidos ni documentos.
+- **Formulario:** se envía y responde con Post/Redirect/Get.
+- **Token:** de 24 bytes al azar. Se busca por su hash y se guarda cifrado con `COROC_DATA_KEY`, para poder mostrarlo otra vez y usarlo en los mensajes de la Fase 4. Rotarlo invalida el anterior; vence en 365 días (`COROC_UPLOAD_LINK_DAYS`).
+- **Límites de envío:** 20 archivos por enlace por hora y 60 por dirección IP.
+
+**Consecuencias:** funciona en cualquier celular, incluso con navegadores antiguos, y un enlace filtrado se desactiva con un toque.
+
+### ADR-041 · Canales entrantes: WhatsApp Cloud API y correo de Postmark
+**Decisión:**
+- **WhatsApp:** el webhook verifica la firma `X-Hub-Signature-256` con el secreto de la app de Meta. Reconoce la empresa por el número que recibió el mensaje (tabla `whatsapp_accounts`, con el token cifrado) y descarga el medio antes de responder, porque su URL caduca en minutos. Es idempotente por el identificador del mensaje.
+- **Correo:** llega al webhook en el formato JSON de Postmark, con un secreto en la URL o por autenticación básica. La empresa se reconoce por la dirección `pagos-<empresa>@<COROC_INBOUND_EMAIL_DOMAIN>`, y los adjuntos que no son imagen ni PDF se ignoran.
+- **Límites de esta fase:** los mensajes de texto y los estados de entrega de WhatsApp llegan en la Fase 4, con la mensajería.
+
+**Consecuencias:** CA-07 y CA-08 se verifican con el canal real. SendGrid o SES se conectan con un adaptador que produzca el mismo JSON.
+
+### ADR-042 · «Compartir con COROC» con un plugin propio y la escena de iOS
+**Contexto:** en iOS, una extensión para compartir exige un destino aparte en Xcode, grupos de apps y su propio perfil de firma. La firma para tiendas está pendiente (P-2). **Decisión:**
+- **Plugin:** `coroc_share`, dentro del repositorio.
+- **Android:** filtros `ACTION_SEND` y `ACTION_SEND_MULTIPLE` para imágenes y PDF, agregados por `patch_platforms.py`.
+- **iOS:** COROC declara los tipos de documento imagen y PDF, así que aparece al compartir o abrir esos archivos. El plugin recibe el archivo por el ciclo de vida de la escena (`addSceneDelegate`, en frío o con la app abierta), lo copia a la caché y la app lo envía a la Bandeja por el canal `share`.
+- **Escritorio:** se usa la carpeta vigilada o el botón «Subir comprobante».
+
+**Consecuencias:** funciona sin extensiones ni firma adicional. La extensión para compartir de iOS, con vista previa dentro de la hoja, queda para la fase de publicación.
+
+### ADR-043 · Carpeta vigilada en escritorio
+**Decisión:** en Windows y macOS, la carpeta COROC se vigila con el sistema de archivos y además se revisa cada 2 minutos. Las imágenes y PDF nuevos en `_Entrada` o en la carpeta de un cliente, que no hayan cambiado en los últimos 10 segundos, se suben a la Bandeja por el canal `folder`. Si estaban en la carpeta de un cliente, ese cliente queda identificado. El original se retira: la copia con el nombre estándar vuelve con la sincronización. Los demás archivos se siguen ofreciendo para importar como documentos. La vigilancia se puede apagar en Configuración. **Consecuencias:** en la oficina basta con guardar el comprobante en la carpeta. En los teléfonos la carpeta sigue siendo solo de llegada (ADR-036).
