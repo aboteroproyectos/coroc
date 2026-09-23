@@ -131,6 +131,54 @@
     "INTERNAL": {
       "title": "Error interno",
       "detail": "Ocurrió un error inesperado. El equipo técnico fue notificado."
+    },
+    "FILE_TOO_LARGE": {
+      "title": "Archivo muy grande",
+      "detail": "El archivo supera el máximo de {mb} MB."
+    },
+    "FILE_TYPE_NOT_ALLOWED": {
+      "title": "Tipo de archivo no admitido",
+      "detail": "Suba un PDF o una imagen JPG, PNG, WEBP o HEIC."
+    },
+    "LINK_EXPIRED": {
+      "title": "Enlace vencido",
+      "detail": "Este enlace ya no es válido. Ábralo de nuevo desde COROC."
+    },
+    "BACKUP_IN_PROGRESS": {
+      "title": "Respaldo en curso",
+      "detail": "Ya se está generando un respaldo. Espere a que termine o cancélelo."
+    },
+    "BACKUP_NOT_READY": {
+      "title": "Respaldo no disponible",
+      "detail": "El respaldo aún no está listo para descargar."
+    },
+    "BACKUP_NOT_COROC": {
+      "title": "Archivo no válido",
+      "detail": "El archivo no es un respaldo de COROC."
+    },
+    "BACKUP_FORMAT_UNSUPPORTED": {
+      "title": "Respaldo de la app local",
+      "detail": "Este respaldo es de la app local de la Fase 0 y tiene otro formato. No se puede restaurar en el servidor."
+    },
+    "BACKUP_TOO_NEW": {
+      "title": "Respaldo de una versión más nueva",
+      "detail": "El respaldo es de una versión más reciente de COROC ({version}). Actualice el servidor antes de restaurarlo."
+    },
+    "BACKUP_PASSWORD_OR_DAMAGED": {
+      "title": "No se pudo abrir el respaldo",
+      "detail": "La contraseña es incorrecta o el archivo está dañado. No se cambió nada."
+    },
+    "BACKUP_INTEGRITY": {
+      "title": "Integridad fallida",
+      "detail": "{n} elementos no coinciden con su huella SHA-256. No se restauró nada."
+    },
+    "RESTORE_CONFIRM_NAME": {
+      "title": "Confirme el nombre de la empresa",
+      "detail": "Escriba el nombre exacto de la empresa para confirmar que reemplaza todos sus datos."
+    },
+    "RESTORE_ALREADY_APPLIED": {
+      "title": "Restauración ya aplicada",
+      "detail": "Este respaldo ya se restauró. Súbalo de nuevo si quiere repetir la restauración."
     }
   },
   "terms": {
@@ -154,5 +202,196 @@
     "maximum": "Valor demasiado alto",
     "additionalProperties": "Campo no reconocido",
     "other": "Valor no válido"
+  },
+  "doc": {
+    "common": {
+      "generatedBy": "Documento generado por COROC",
+      "page": "Página {a} de {b}",
+      "taxId": "NIT / ID",
+      "cutoff": "Corte",
+      "contract": "Contrato",
+      "client": "Cliente",
+      "code": "Código",
+      "none": "—",
+      "total": "Total",
+      "filters": "Filtros",
+      "allCollectors": "Todos los cobradores",
+      "collector": "Cobrador",
+      "currency": "Moneda",
+      "period": "Período",
+      "unassigned": "Sin cobrador"
+    },
+    "freq": {
+      "daily": "diaria",
+      "weekly": "semanal",
+      "monthly": "mensual"
+    },
+    "freqPl": {
+      "daily": "diarias",
+      "weekly": "semanales",
+      "monthly": "mensuales"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "partial": "Parcial",
+      "paid": "Pagada",
+      "overdue": "Vencida",
+      "waived": "Condonada"
+    },
+    "loanStatus": {
+      "current": "Al día",
+      "overdue": "En mora",
+      "closed": "Finalizado"
+    },
+    "plan": {
+      "title": "Contrato y plan de pagos",
+      "principal": "Capital prestado",
+      "interest": "Intereses pactados",
+      "total": "Total a pagar",
+      "installments": "Cuotas",
+      "installmentsValue": "{n} cuotas {freq}",
+      "method": "Método",
+      "methodSimple": "Interés simple fijo",
+      "methodFrench": "Cuota fija (francés)",
+      "rate": "Tasa pactada",
+      "ratePerPeriod": "{rate} por período",
+      "rateOnTotal": "{rate} sobre el capital",
+      "ea": "Tasa efectiva anual",
+      "disbursement": "Desembolso",
+      "firstDue": "Primera cuota",
+      "paid": "Recaudado",
+      "balance": "Saldo pendiente",
+      "remaining": "Cuotas restantes",
+      "dpd": "Días de mora",
+      "lateFee": "Mora",
+      "lateFeePercent": "{value} diario sobre la cuota vencida, después de {days} días de gracia",
+      "lateFeeFixed": "{value} por día de atraso, después de {days} días de gracia",
+      "noLateFee": "Sin cargos por mora",
+      "schedule": "Plan de pagos",
+      "colNumber": "N.º",
+      "colDue": "Vence",
+      "colAmount": "Cuota",
+      "colPrincipal": "Capital",
+      "colInterest": "Interés",
+      "colPaid": "Pagado",
+      "colPaidOn": "Fecha de pago",
+      "colStatus": "Estado",
+      "colBalance": "Saldo",
+      "clause": "{cliente} se obliga a pagar a {empresa} la suma de {total} en {n} cuotas {freq}, en las fechas y por los valores del plan de pagos. Cada pago se aplica primero a la mora causada y después a las cuotas en orden, empezando por la vencida más antigua. El valor pagado de más se abona a las cuotas siguientes.",
+      "debtor": "Deudor",
+      "creditor": "Acreedor",
+      "version": "Versión {n} · actualizada el {fecha}"
+    },
+    "statement": {
+      "title": "Estado de cuenta",
+      "agreed": "Total pactado",
+      "paid": "Recaudado",
+      "balance": "Saldo por pagar",
+      "remaining": "Cuotas restantes",
+      "next": "Próxima cuota",
+      "dpd": "Días de mora",
+      "lateFees": "Mora pendiente",
+      "surplus": "Saldo a favor",
+      "overdue": "Vencido",
+      "payments": "Pagos recibidos",
+      "pendingInstallments": "Cuotas por pagar",
+      "colDate": "Fecha",
+      "colReceipt": "Recibo",
+      "colMethod": "Medio",
+      "colReference": "Referencia",
+      "colAmount": "Valor",
+      "colState": "Estado",
+      "applied": "Aplicado",
+      "reversed": "Reversado",
+      "noPayments": "Aún no hay pagos registrados.",
+      "allPaid": "No hay cuotas pendientes.",
+      "cash": "Efectivo",
+      "manual": "Registro manual"
+    },
+    "payoff": {
+      "title": "Paz y salvo",
+      "body": "{empresa} certifica que {cliente}{id} pagó en su totalidad la obligación del contrato {contrato}, por un valor total de {total}, y se encuentra a paz y salvo por todo concepto relacionado con dicho contrato.",
+      "idPart": ", identificado(a) con {tipo} {numero},",
+      "lastPayment": "Fecha del último pago: {fecha}.",
+      "issued": "Se expide en {ciudad}, el {fecha}.",
+      "signature": "Firma autorizada"
+    },
+    "report": {
+      "portfolio": "Cartera total",
+      "portfolioByCollector": "Cartera por cobrador",
+      "collections": "Recaudo por período",
+      "aging": "Mora por edades",
+      "closed": "Préstamos finalizados y utilidad",
+      "cashflow": "Proyección de flujo de caja",
+      "ledger": "Libro de movimientos",
+      "messages": "Bitácora de mensajes y de cumplimiento",
+      "statement": "Estado de cuenta por préstamo",
+      "loans": "Préstamos: {n}",
+      "colClient": "Cliente",
+      "colCode": "Código",
+      "colContract": "Contrato",
+      "colCollector": "Cobrador",
+      "colFrequency": "Frecuencia",
+      "colPrincipal": "Capital",
+      "colTotal": "Total pactado",
+      "colPaid": "Recaudado",
+      "colBalance": "Saldo",
+      "colRemaining": "Cuotas restantes",
+      "colNext": "Próxima cuota",
+      "colDpd": "Días de mora",
+      "colStatus": "Estado",
+      "colDate": "Fecha",
+      "colReceipt": "Recibo",
+      "colMethod": "Medio",
+      "colAmount": "Valor",
+      "colBucket": "Edad (días)",
+      "colProfit": "Utilidad",
+      "colClosedAt": "Finalizado",
+      "colWeek": "Semana",
+      "colFrom": "Desde",
+      "colTo": "Hasta",
+      "colCount": "Cuotas",
+      "colExpected": "Valor esperado",
+      "colRecorded": "Registrado",
+      "colType": "Movimiento",
+      "colReference": "Referencia",
+      "colReason": "Motivo",
+      "colUser": "Usuario",
+      "colEvent": "Evento",
+      "colKind": "Tipo",
+      "colChannel": "Canal",
+      "colDecision": "Decisión",
+      "colScheduled": "Programado para",
+      "colSent": "Enviado",
+      "colCurrency": "Moneda",
+      "entry": {
+        "disbursement": "Desembolso",
+        "payment": "Pago",
+        "late_fee": "Cargo por mora",
+        "waiver": "Condonación",
+        "reversal": "Reverso",
+        "adjustment": "Ajuste",
+        "credit_balance": "Saldo a favor"
+      },
+      "totalBalance": "Saldo total {total}",
+      "totalCollected": "Recaudado {total}",
+      "totalProfit": "Utilidad total {total}",
+      "overdueExcluded": "Vencido a la fecha, no incluido: {total}",
+      "nextWeeks": "Próximas {n} semanas",
+      "empty": "No hay datos para los filtros elegidos.",
+      "byCurrency": "Montos en {currency}",
+      "kindCollection": "Cobranza",
+      "kindTransactional": "Transaccional"
+    }
+  },
+  "verify": {
+    "title": "Verificación de recibo",
+    "valid": "Recibo auténtico emitido por COROC.",
+    "voided": "Este recibo fue ANULADO por un reverso del pago.",
+    "invalid": "No encontramos un recibo con este código.",
+    "company": "Empresa",
+    "number": "Recibo N.º",
+    "date": "Fecha del pago",
+    "amount": "Valor pagado"
   }
 }

@@ -75,6 +75,9 @@ plist('ios/Runner/Info.plist', {
     'CFBundleLocalizations': ['es', 'pt-BR', 'en'],
     'CFBundleDevelopmentRegion': 'es',
     'ITSAppUsesNonExemptEncryption': False,
+    # Carpeta COROC visible en Archivos › En mi iPhone › COROC (§16.2, ADR-036).
+    'UIFileSharingEnabled': True,
+    'LSSupportsOpeningDocumentsInPlace': True,
 })
 
 
@@ -95,7 +98,12 @@ edit('ios/Podfile', podfile('ios', '16.0'))
 # ─── macOS ───
 plist('macos/Runner/Info.plist', {'CFBundleLocalizations': ['es', 'pt-BR', 'en'], 'CFBundleDevelopmentRegion': 'es'})
 for f in ('macos/Runner/DebugProfile.entitlements', 'macos/Runner/Release.entitlements'):
-    plist(f, {'com.apple.security.network.client': True})
+    # Red; carpeta COROC elegida por el usuario con marcador de seguridad persistente (§16.2); guardar copias.
+    plist(f, {
+        'com.apple.security.network.client': True,
+        'com.apple.security.files.user-selected.read-write': True,
+        'com.apple.security.files.bookmarks.app-scope': True,
+    })
 edit('macos/Runner.xcodeproj/project.pbxproj', deployment('MACOSX_DEPLOYMENT_TARGET', '13.0'))
 edit('macos/Podfile', podfile('osx', '13.0'))
 edit('macos/Runner/Configs/AppInfo.xcconfig', lambda t: re.sub(r'^PRODUCT_NAME = .*$', 'PRODUCT_NAME = COROC', t, flags=re.M))

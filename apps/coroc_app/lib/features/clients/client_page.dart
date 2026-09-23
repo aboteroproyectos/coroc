@@ -13,12 +13,13 @@ import '../../design/widgets/brand.dart';
 import '../../design/widgets/common.dart';
 import '../../design/widgets/labels.dart';
 import '../dashboard/dashboard_page.dart';
+import '../documents/documents.dart';
 import '../loans/loan_providers.dart';
 import '../loans/payment_sheet.dart';
 import '../shell/app_shell.dart';
 import 'client_form.dart';
 
-/// Ficha del cliente (§5.7-7): Resumen · Cuadro de inversión y pagos · Historial.
+/// Ficha del cliente (§5.7-7): Resumen · Cuadro de inversión y pagos · Documentos · Historial.
 class ClientPage extends ConsumerStatefulWidget {
   const ClientPage({super.key, required this.clientId});
   final String clientId;
@@ -40,7 +41,7 @@ class _ClientPageState extends ConsumerState<ClientPage> {
           final loans = c.loans;
           final loan = loans.where((x) => x.id == _loanId).firstOrNull ?? loans.where((x) => x.status == 'active').firstOrNull ?? loans.firstOrNull;
           return DefaultTabController(
-            length: 3,
+            length: 4,
             child: NestedScrollView(
               headerSliverBuilder: (context, _) => [
                 SliverToBoxAdapter(child: _Header(client: c, loan: loan, onSelectLoan: (id) => setState(() => _loanId = id))),
@@ -51,6 +52,7 @@ class _ClientPageState extends ConsumerState<ClientPage> {
                   : TabBarView(children: [
                       _SummaryTab(client: c, loan: loan),
                       _ScheduleTab(loan: loan),
+                      DocumentsTab(client: c, loan: loan),
                       _HistoryTab(loan: loan),
                     ]),
             ),
@@ -74,7 +76,7 @@ class _TabsDelegate extends SliverPersistentHeaderDelegate {
       child: TabBar(
         isScrollable: true,
         tabAlignment: TabAlignment.start,
-        tabs: [Tab(text: l.tabSummary), Tab(text: l.tabSchedule), Tab(text: l.tabHistory)],
+        tabs: [Tab(text: l.tabSummary), Tab(text: l.tabSchedule), Tab(text: l.tabDocuments), Tab(text: l.tabHistory)],
       ),
     );
   }
@@ -346,6 +348,20 @@ class _HistoryTab extends ConsumerWidget {
                 ].join(' · ')),
                 trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                   Text(Money.format(e.amount, loan.terms.currency), style: t.titleSmall?.copyWith(fontFamily: 'Inter', decoration: e.reversedBy != null ? TextDecoration.lineThrough : null)),
+                  if (e.type == 'payment' && (e.receiptNumber ?? '').isNotEmpty)
+                    IconButton(
+                      tooltip: l.receiptOpenPdf,
+                      icon: const Icon(Icons.picture_as_pdf_outlined),
+                      onPressed: () async {
+                        final id = await waitForReceiptPdf(ref, loan.id, e.id, timeout: const Duration(seconds: 20));
+                        if (!context.mounted) return;
+                        if (id == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.receiptPdfPending)));
+                        } else {
+                          await openDocument(context, id);
+                        }
+                      },
+                    ),
                   if (canReverse && e.type == 'payment' && e.reversedBy == null)
                     IconButton(tooltip: l.actionReverse, icon: const Icon(Icons.undo), onPressed: () => _reverse(context, ref, e)),
                 ]),

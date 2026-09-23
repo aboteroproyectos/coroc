@@ -48,6 +48,9 @@ services:
       # La API solo conoce su propio usuario (sin BYPASSRLS); la clave del dueño queda en «migrate».
       DATABASE_URL: postgres://coroc_api:${COROC_API_DB_PASSWORD:-coroc-api-local}@db:5432/coroc
       REDIS_URL: redis://redis:6379
+      # Archivos cifrados (§4.2, ADR-031). Para S3 o R2: COROC_STORAGE=s3 y COROC_S3_* en .env.
+      COROC_STORAGE_DIR: /var/lib/coroc/objects
+    volumes: [objects:/var/lib/coroc/objects]
     ports: ["${COROC_API_PORT:-3000}:3000"]
     healthcheck: { test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"], interval: 15s, retries: 5 }
     depends_on: { migrate: { condition: service_completed_successfully }, redis: { condition: service_started } }
@@ -67,5 +70,6 @@ services:
 
 volumes:
   db: {}
+  objects: {}
   redis: {}
   caddy: {}

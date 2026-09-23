@@ -7,7 +7,7 @@ typedef Json = Map<String, dynamic>;
 
 List<T> _list<T>(Object? raw, T Function(Json) f) => (raw as List<dynamic>).cast<Json>().map(f).toList();
 
-/// Operaciones de la API usadas por la app en la Fase 1. Cada método corresponde a una operación del contrato OpenAPI.
+/// Operaciones de la API usadas por la app (fases 1 y 2). Cada método corresponde a una operación del contrato OpenAPI.
 class CorocApi {
   CorocApi(this.client);
   final ApiClient client;
@@ -90,4 +90,34 @@ class CorocApi {
   Future<Dashboard> dashboard({String? currency, int days = 30}) async => Dashboard.fromJson(await client.get('/dashboard', query: {'currency': currency, 'days': days}) as Json);
   Future<TodayCollections> today() async => TodayCollections.fromJson(await client.get('/collections/today') as Json);
   Stream<ServerEvent> events() => client.events();
+
+  // ─── Documentos y carpeta COROC (§15, §16) ───
+  Future<DocumentPage> documents({String? clientId, String? loanId, String? kind, String? q, String? tag, bool includeSuperseded = false, String? cursor, int limit = 100}) async =>
+      DocumentPage.fromJson(await client.get('/documents', query: {
+        'clientId': clientId, 'loanId': loanId, 'kind': kind, 'q': q, 'tag': tag, 'includeSuperseded': includeSuperseded ? true : null, 'cursor': cursor, 'limit': limit,
+      }) as Json);
+  Future<CorocDocument> document(String id) async => CorocDocument.fromJson(await client.get('/documents/$id') as Json);
+  Future<CorocDocument> setDocumentTags(String id, List<String> tags) async => CorocDocument.fromJson(await client.patch('/documents/$id', body: {'tags': tags}) as Json);
+  Future<FileLink> documentLink(String id) async => FileLink.fromJson(await client.post('/documents/$id/link') as Json);
+  Future<CorocDocument> uploadDocument(String clientId, {required Stream<List<int>> Function() open, required int length, String? loanId, String kind = 'other', String? name, List<String> tags = const []}) async =>
+      CorocDocument.fromJson(await client.upload('/clients/$clientId/documents', open: open, length: length, query: {'loanId': loanId, 'kind': kind, 'name': name, 'tags': tags.isEmpty ? null : tags.join(',')}) as Json);
+  Future<TaskInfo> requestStatement(String loanId) async => TaskInfo.fromJson(await client.post('/loans/$loanId/statements') as Json);
+  Future<TaskInfo> task(String id) async => TaskInfo.fromJson(await client.get('/tasks/$id') as Json);
+  Future<FolderManifest> folderManifest({String? since, String? after}) async => FolderManifest.fromJson(await client.get('/folder/manifest', query: {'since': since, 'after': after}) as Json);
+
+  // ─── Informes (§18) ───
+  Future<TaskInfo> requestReport({required String type, required String format, String? lang, String? from, String? to, String? collectorId, String? currency}) async =>
+      TaskInfo.fromJson(await client.post('/reports', body: {'type': type, 'format': format, 'lang': ?lang, 'from': ?from, 'to': ?to, 'collectorId': ?collectorId, 'currency': ?currency}) as Json);
+
+  // ─── Respaldo y restauración (§19) ───
+  Future<List<BackupInfo>> backups() async => _list(await client.get('/backups'), BackupInfo.fromJson);
+  Future<BackupInfo> backup(String id) async => BackupInfo.fromJson(await client.get('/backups/$id') as Json);
+  Future<BackupInfo> createBackup(String password) async => BackupInfo.fromJson(await client.post('/backups', body: {'password': password}) as Json);
+  Future<BackupInfo> cancelBackup(String id) async => BackupInfo.fromJson(await client.post('/backups/$id/cancel') as Json);
+  Future<FileLink> backupLink(String id) async => FileLink.fromJson(await client.post('/backups/$id/link') as Json);
+  Future<RestoreInfo> uploadRestore({required Stream<List<int>> Function() open, required int length, void Function(int, int)? onProgress}) async =>
+      RestoreInfo.fromJson(await client.upload('/restores', open: open, length: length, onProgress: onProgress) as Json);
+  Future<RestoreInfo> verifyRestore(String id, String password) async => RestoreInfo.fromJson(await client.post('/restores/$id/verify', body: {'password': password}) as Json);
+  Future<RestoreInfo> applyRestore(String id, String password, String confirmName) async =>
+      RestoreInfo.fromJson(await client.post('/restores/$id/apply', body: {'password': password, 'confirmName': confirmName}) as Json);
 }

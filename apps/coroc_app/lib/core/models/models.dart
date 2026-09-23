@@ -1,4 +1,4 @@
-// Modelos de la API (contrato OpenAPI 0.2.0). Montos en unidades mínimas de la moneda (int), fechas civiles como texto.
+// Modelos de la API (contrato OpenAPI 0.3.0). Montos en unidades mínimas de la moneda (int), fechas civiles como texto.
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'models.freezed.dart';
@@ -386,7 +386,15 @@ abstract class PaymentPreview with _$PaymentPreview {
 
 @freezed
 abstract class ReceiptRecord with _$ReceiptRecord {
-  const factory ReceiptRecord({required String number, required String entryId, @Default(false) bool voided, required String createdAt, required ReceiptData data}) = _ReceiptRecord;
+  const factory ReceiptRecord({
+    required String number,
+    required String entryId,
+    @Default(false) bool voided,
+    required String createdAt,
+    required ReceiptData data,
+    String? documentId,
+    String? voidDocumentId,
+  }) = _ReceiptRecord;
   factory ReceiptRecord.fromJson(Map<String, dynamic> json) => _$ReceiptRecordFromJson(json);
 }
 
@@ -470,4 +478,131 @@ abstract class TodayCollections with _$TodayCollections {
 abstract class RateCap with _$RateCap {
   const factory RateCap({required String id, required String country, required double effectiveAnnual, required String validFrom, required String validTo, required String source}) = _RateCap;
   factory RateCap.fromJson(Map<String, dynamic> json) => _$RateCapFromJson(json);
+}
+
+// ─────────────────────────── Fase 2 · Documentos (§15, §16, §18, §19) ───────────────────────────
+
+/// Documento del repositorio (§16.1). Nunca se sobrescribe: las versiones nuevas reemplazan a las anteriores.
+@freezed
+abstract class CorocDocument with _$CorocDocument {
+  const CorocDocument._();
+  const factory CorocDocument({
+    required String id,
+    String? clientId,
+    String? loanId,
+    String? contract,
+    required String kind,
+    required String name,
+    required String fileName,
+    required String folderPath,
+    required String mime,
+    required int size,
+    required String sha256,
+    @Default(1) int version,
+    @Default(false) bool superseded,
+    @Default('system') String source,
+    @Default(<String>[]) List<String> tags,
+    String? lang,
+    @Default(<String, dynamic>{}) Map<String, dynamic> meta,
+    required String createdAt,
+    required String updatedAt,
+    @Default(<CorocDocument>[]) List<CorocDocument> versions,
+  }) = _CorocDocument;
+
+  factory CorocDocument.fromJson(Map<String, dynamic> json) => _$CorocDocumentFromJson(json);
+
+  bool get isPdf => mime == 'application/pdf';
+  bool get isImage => mime.startsWith('image/');
+  bool get voided => meta['voided'] == true;
+}
+
+@freezed
+abstract class DocumentPage with _$DocumentPage {
+  const factory DocumentPage({@Default(<CorocDocument>[]) List<CorocDocument> items, String? nextCursor}) = _DocumentPage;
+  factory DocumentPage.fromJson(Map<String, dynamic> json) => _$DocumentPageFromJson(json);
+}
+
+/// Enlace firmado de corta duración (§4.2). `path` es relativo a la base de la API.
+@freezed
+abstract class FileLink with _$FileLink {
+  const factory FileLink({required String url, required String path, required String expiresAt}) = _FileLink;
+  factory FileLink.fromJson(Map<String, dynamic> json) => _$FileLinkFromJson(json);
+}
+
+/// Tarea en segundo plano (estado de cuenta, informe).
+@freezed
+abstract class TaskInfo with _$TaskInfo {
+  const TaskInfo._();
+  const factory TaskInfo({required String id, required String kind, required String status, @Default(0) int progress, String? documentId, String? error, required String createdAt, String? finishedAt}) = _TaskInfo;
+  factory TaskInfo.fromJson(Map<String, dynamic> json) => _$TaskInfoFromJson(json);
+  bool get finished => status == 'done' || status == 'failed' || status == 'cancelled';
+}
+
+@freezed
+abstract class ManifestClient with _$ManifestClient {
+  const factory ManifestClient({required String id, required String code, required String folderName, required String marker, @Default(<String>[]) List<String> contracts}) = _ManifestClient;
+  factory ManifestClient.fromJson(Map<String, dynamic> json) => _$ManifestClientFromJson(json);
+}
+
+@freezed
+abstract class ManifestFile with _$ManifestFile {
+  const factory ManifestFile({required String documentId, String? clientId, required String path, required int size, required String sha256, required String updatedAt}) = _ManifestFile;
+  factory ManifestFile.fromJson(Map<String, dynamic> json) => _$ManifestFileFromJson(json);
+}
+
+/// Manifiesto de la carpeta COROC (§16.3): lo que el espejo local debe contener.
+@freezed
+abstract class FolderManifest with _$FolderManifest {
+  const factory FolderManifest({
+    required String lang,
+    required bool full,
+    required String generatedAt,
+    required String nextSince,
+    @Default(<String>[]) List<String> rootFolders,
+    @Default(<String>[]) List<String> subfolders,
+    @Default(<ManifestClient>[]) List<ManifestClient> clients,
+    @Default(<ManifestFile>[]) List<ManifestFile> files,
+    @Default(<String>[]) List<String> removed,
+    String? nextPage,
+  }) = _FolderManifest;
+  factory FolderManifest.fromJson(Map<String, dynamic> json) => _$FolderManifestFromJson(json);
+}
+
+/// Respaldo `.coroc` (§19).
+@freezed
+abstract class BackupInfo with _$BackupInfo {
+  const BackupInfo._();
+  const factory BackupInfo({
+    required String id,
+    required String status,
+    @Default(0) int progress,
+    String? fileName,
+    int? size,
+    String? sha256,
+    @Default(<String, int>{}) Map<String, int> counts,
+    required String createdAt,
+    String? finishedAt,
+  }) = _BackupInfo;
+  factory BackupInfo.fromJson(Map<String, dynamic> json) => _$BackupInfoFromJson(json);
+  bool get running => status == 'pending' || status == 'running';
+}
+
+@freezed
+abstract class RestoreSummary with _$RestoreSummary {
+  const factory RestoreSummary({
+    required String company,
+    required String createdAt,
+    required String format,
+    required String schema,
+    @Default(<String, int>{}) Map<String, int> counts,
+    @Default(0) int documents,
+    @Default(0) int bytes,
+  }) = _RestoreSummary;
+  factory RestoreSummary.fromJson(Map<String, dynamic> json) => _$RestoreSummaryFromJson(json);
+}
+
+@freezed
+abstract class RestoreInfo with _$RestoreInfo {
+  const factory RestoreInfo({required String id, required String status, int? size, RestoreSummary? summary, required String createdAt, String? appliedAt}) = _RestoreInfo;
+  factory RestoreInfo.fromJson(Map<String, dynamic> json) => _$RestoreInfoFromJson(json);
 }

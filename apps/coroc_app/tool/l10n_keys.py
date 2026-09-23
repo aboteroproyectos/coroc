@@ -22,7 +22,7 @@ def count_args(src, start):
 used = {}
 for f in sorted(LIB.rglob('*.dart')):
     if '/gen/' in str(f): continue
-    src = f.read_text()
+    src = f.read_text(encoding='utf-8')
     for m in pat.finditer(src):
         key = m.group(1)
         if key in ('l10n', 'lang', 'dart'): continue
@@ -35,12 +35,12 @@ if '--check' not in sys.argv:
 
 ok = True
 for lang in ('es', 'pt', 'en'):
-    arb = json.loads((LIB / 'l10n' / f'app_{lang}.arb').read_text())
+    arb = json.loads((LIB / 'l10n' / f'app_{lang}.arb').read_text(encoding='utf-8'))
     keys = {k for k in arb if not k.startswith('@')}
     for k, ns in used.items():
         if k not in keys:
             print(f'[{lang}] falta la clave {k}'); ok = False; continue
-        ph = arb.get('@' + k, {}).get('placeholders', {}) if lang == 'es' else json.loads((LIB / 'l10n' / 'app_es.arb').read_text()).get('@' + k, {}).get('placeholders', {})
+        ph = arb.get('@' + k, {}).get('placeholders', {}) if lang == 'es' else json.loads((LIB / 'l10n' / 'app_es.arb').read_text(encoding='utf-8')).get('@' + k, {}).get('placeholders', {})
         for n in ns:
             if n != len(ph):
                 print(f'[{lang}] {k}: se usa con {n} argumentos y define {len(ph)}'); ok = False
@@ -50,7 +50,7 @@ for lang in ('es', 'pt', 'en'):
     for k in keys - set(used):
         print(f'[{lang}] clave sin uso: {k}')
     if lang != 'es':
-        es = json.loads((LIB / 'l10n' / 'app_es.arb').read_text())
+        es = json.loads((LIB / 'l10n' / 'app_es.arb').read_text(encoding='utf-8'))
         missing = {k for k in es if not k.startswith('@')} - keys
         for k in missing: print(f'[{lang}] falta traducir {k}'); ok = False
 sys.exit(0 if ok else 1)

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../core/api/api_exception.dart';
@@ -21,6 +22,7 @@ import '../auth/login_page.dart' show CodeField;
 import '../loans/loan_providers.dart';
 import '../loans/loan_terms_form.dart' show percentToRate;
 import '../shell/app_shell.dart';
+import 'data_sections.dart';
 
 void _toast(BuildContext context, String message) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 
@@ -35,7 +37,8 @@ Future<bool> _run(BuildContext context, Future<void> Function() action) async {
   }
 }
 
-/// Configuración (§18): preferencias personales, seguridad, empresa, usuarios y roles, y topes legales de tasa.
+/// Configuración (§5.7-11): preferencias personales, seguridad, empresa, usuarios y roles, topes legales de tasa,
+/// carpeta COROC, respaldo y restauración.
 /// Cada sección aparece solo si el rol tiene el permiso correspondiente.
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -55,6 +58,13 @@ class SettingsPage extends ConsumerWidget {
       if (u.can('company.view')) ...[gap, _CompanySection(canEdit: u.can('company.edit'))],
       if (u.can('users.view')) ...[gap, _UsersSection(me: u)],
       if (u.can('compliance.view')) ...[gap, _RateCapsSection(canManage: u.can('compliance.manage'), country: auth.company.country)],
+      gap,
+      const FolderSection(),
+      if (u.can('backup.create')) ...[gap, const BackupSection()],
+      if (u.can('backup.restore')) ...[gap, const RestoreSection()],
+      gap,
+      // En teléfonos la Ayuda no cabe en la barra inferior cuando están los Informes (§5.6): queda aquí.
+      Card(child: ListTile(leading: const Icon(Icons.help_outline), title: Text(l.navHelp), trailing: const Icon(Icons.chevron_right), onTap: () => GoRouter.of(context).go('/help'))),
       gap,
       _About(company: auth.company),
     ]);

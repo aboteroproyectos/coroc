@@ -8,19 +8,22 @@ import '../../core/l10n.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/brand.dart';
 import '../../design/widgets/common.dart';
+import '../settings/data_sections.dart' show FolderAutoSync, showCreateBackupDialog;
 
 class _Dest {
-  const _Dest(this.path, this.icon, this.selectedIcon, this.label);
+  const _Dest(this.path, this.icon, this.selectedIcon, this.label, [this.permission]);
   final String path;
   final IconData icon;
   final IconData selectedIcon;
   final String Function(AppLocalizations) label;
+  final String? permission;
 }
 
 final _destinations = <_Dest>[
   _Dest('/dashboard', Icons.space_dashboard_outlined, Icons.space_dashboard, (l) => l.navDashboard),
   _Dest('/today', Icons.event_available_outlined, Icons.event_available, (l) => l.navToday),
   _Dest('/clients', Icons.people_alt_outlined, Icons.people_alt, (l) => l.navClients),
+  _Dest('/reports', Icons.insert_chart_outlined, Icons.insert_chart, (l) => l.navReports, 'reports.view'),
   _Dest('/settings', Icons.tune_outlined, Icons.tune, (l) => l.navSettings),
   _Dest('/help', Icons.help_outline, Icons.help, (l) => l.navHelp),
 ];
@@ -40,9 +43,12 @@ class AppShell extends ConsumerWidget {
   final String location;
   final Widget child;
 
-  int _index() {
-    final i = _destinations.indexWhere((d) => location.startsWith(d.path));
-    return i < 0 ? 0 : i;
+  /// Destinos que el rol puede ver. En teléfonos la barra inferior tiene 5 (§5.6): si aparecen Informes, la Ayuda
+  /// pasa a Configuración.
+  static List<_Dest> _visible(bool Function(String) can, {bool compact = false}) {
+    final list = _destinations.where((d) => d.permission == null || can(d.permission!)).toList();
+    if (compact && list.length > 5) list.removeWhere((d) => d.path == '/help');
+    return list;
   }
 
   @override
@@ -52,8 +58,11 @@ class AppShell extends ConsumerWidget {
     final session = auth is SignedIn ? auth.session : null;
     final canCreate = session?.user.can('clients.create') ?? false;
     final width = MediaQuery.sizeOf(context).width;
-    final index = _index();
-    void go(int i) => context.go(_destinations[i].path);
+    bool can(String p) => session?.user.can(p) ?? false;
+    final dests = _visible(can, compact: width < CorocBreakpoints.tablet);
+    final found = dests.indexWhere((d) => location.startsWith(d.path));
+    final index = found < 0 ? 0 : found;
+    void go(int i) => context.go(dests[i].path);
 
     final shortcuts = <ShortcutActivator, Intent>{
       const SingleActivator(LogicalKeyboardKey.keyK, control: true): const SearchIntent(),
@@ -74,12 +83,12 @@ class AppShell extends ConsumerWidget {
       }),
     };
 
-    final body = Shortcuts(shortcuts: shortcuts, child: Actions(actions: actions, child: Focus(autofocus: true, child: child)));
+    final body = FolderAutoSync(child: Shortcuts(shortcuts: shortcuts, child: Actions(actions: actions, child: Focus(autofocus: true, child: child))));
 
     if (width >= CorocBreakpoints.desktop) {
       return Scaffold(
         body: Row(children: [
-          _Sidebar(index: index, onSelect: go),
+          _Sidebar(dests: dests, index: index, onSelect: go),
           Expanded(child: body),
         ]),
       );
@@ -92,7 +101,7 @@ class AppShell extends ConsumerWidget {
             onDestinationSelected: go,
             labelType: NavigationRailLabelType.all,
             leading: const Padding(padding: EdgeInsets.symmetric(vertical: CorocSpace.md), child: CorocLogo(layout: LogoLayout.isotype, height: 36)),
-            destinations: [for (final d in _destinations) NavigationRailDestination(icon: Icon(d.icon), selectedIcon: Icon(d.selectedIcon), label: Text(d.label(l)))],
+            destinations: [for (final d in dests) NavigationRailDestination(icon: Icon(d.icon), selectedIcon: Icon(d.selectedIcon), label: Text(d.label(l)))],
           ),
           const VerticalDivider(width: 1),
           Expanded(child: body),
@@ -104,14 +113,15 @@ class AppShell extends ConsumerWidget {
       bottomNavigationBar: NavigationBar(
         selectedIndex: index,
         onDestinationSelected: go,
-        destinations: [for (final d in _destinations) NavigationDestination(icon: Icon(d.icon), selectedIcon: Icon(d.selectedIcon), label: d.label(l))],
+        destinations: [for (final d in dests) NavigationDestination(icon: Icon(d.icon), selectedIcon: Icon(d.selectedIcon), label: d.label(l))],
       ),
     );
   }
 }
 
 class _Sidebar extends ConsumerWidget {
-  const _Sidebar({required this.index, required this.onSelect});
+  const _Sidebar({required this.dests, required this.index, required this.onSelect});
+  final List<_Dest> dests;
   final int index;
   final ValueChanged<int> onSelect;
 
@@ -131,14 +141,17 @@ class _Sidebar extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(CorocSpace.lg, CorocSpace.lg, CorocSpace.lg, CorocSpace.xl),
             child: Align(alignment: Alignment.centerLeft, child: Theme(data: ThemeData.dark(), child: const CorocLogo(layout: LogoLayout.horizontal, height: 40))),
           ),
-          for (var i = 0; i < _destinations.length; i++)
+          for (var i = 0; i < dests.length; i++)
             _SideItem(
-              icon: i == index ? _destinations[i].selectedIcon : _destinations[i].icon,
-              label: _destinations[i].label(l),
+              icon: i == index ? dests[i].selectedIcon : dests[i].icon,
+              label: dests[i].label(l),
               selected: i == index,
               onTap: () => onSelect(i),
             ),
           const Spacer(),
+          // «Crear respaldo» visible en el menú principal (§19).
+          if (user != null && user.can('backup.create'))
+            _SideItem(icon: Icons.backup_outlined, label: l.backupCreate, selected: false, onTap: () => showCreateBackupDialog(context, ref)),
           if (user != null)
             Padding(
               padding: const EdgeInsets.all(CorocSpace.md),

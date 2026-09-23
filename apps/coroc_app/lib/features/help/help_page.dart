@@ -53,6 +53,10 @@ class _HelpPageState extends State<HelpPage> {
       (icon: Icons.shield_outlined, title: l.helpSecurityTitle, body: l.helpSecurityBody),
       (icon: Icons.translate, title: l.helpLanguageTitle, body: l.helpLanguageBody),
       (icon: Icons.keyboard_outlined, title: l.helpShortcutsTitle, body: l.helpShortcutsBody),
+      (icon: Icons.picture_as_pdf_outlined, title: l.helpDocumentsTitle, body: l.helpDocumentsBody),
+      (icon: Icons.folder_outlined, title: l.helpFolderTitle, body: l.helpFolderBody),
+      (icon: Icons.insert_chart_outlined, title: l.helpReportsTitle, body: l.helpReportsBody),
+      (icon: Icons.backup_outlined, title: l.helpBackupTitle, body: l.helpBackupBody),
     ];
     final q = _fold(_q.trim());
     final shown = q.isEmpty ? topics : topics.where((t) => _fold('${t.title} ${t.body}').contains(q)).toList();

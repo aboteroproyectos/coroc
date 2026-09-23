@@ -159,6 +159,8 @@ Garantías en la base (verificadas en PostgreSQL 16.14, ver `services/api/db/tes
 
 Estructura: `COROC/<Nombre Apellidos - Código>/<Contrato>/{01 … 05}` más `_Sin asignar`, `_Entrada`, `_Informes`, `_Respaldos`. Los nombres de carpeta van sin tildes (ADR-013). Cada carpeta de cliente guarda `.coroc-id` para sobrevivir a cambios de nombre.
 
+**Fase 2:** así quedó implementado en la app Flutter (ADR-036). El plugin `coroc_bookmarks` maneja los marcadores de macOS, y `saf_util`/`saf_stream` el acceso en Android. La carpeta es un espejo del repositorio del servidor, que guarda los archivos cifrados (ADR-031) y genera los PDF con Chromium desde una bandeja de salida transaccional (ADR-032, ADR-033).
+
 ## 8. Núcleo compartido `@coroc/core`
 
 `packages/core` es la única implementación de las reglas de dinero y de cumplimiento. Lo usan la API, los workers y el prototipo web (empaquetado con esbuild). Las apps Flutter no recalculan: piden `POST /loans/preview` y leen resultados de la API.

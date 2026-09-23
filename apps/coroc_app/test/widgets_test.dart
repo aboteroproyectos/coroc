@@ -99,5 +99,12 @@ void main() {
     await tester.enterText(find.byType(TextField), 'reversar');
     await tester.pumpAndSettle();
     expect(find.text('Reversar un pago'), findsOneWidget);
+    // Temas de la Fase 2.
+    await tester.enterText(find.byType(TextField), 'anulado');
+    await tester.pumpAndSettle();
+    expect(find.text('Documentos y recibos en PDF'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), 'renombra');
+    await tester.pumpAndSettle();
+    expect(find.text('Carpeta COROC'), findsOneWidget);
   });
 }

@@ -9,6 +9,8 @@ class MemorySessionStore implements SessionStore {
   String? tenant;
   String? username;
   bool remember = false;
+  String? folder;
+  bool asked = false;
   int refreshWrites = 0;
 
   @override
@@ -44,4 +46,16 @@ class MemorySessionStore implements SessionStore {
 
   @override
   Future<void> saveTheme(String mode) async => savedTheme = mode;
+
+  @override
+  Future<String?> folderConfig() async => folder;
+
+  @override
+  Future<void> saveFolderConfig(String? json) async => folder = json;
+
+  @override
+  Future<bool> folderAsked() async => asked;
+
+  @override
+  Future<void> saveFolderAsked() async => asked = true;
 }

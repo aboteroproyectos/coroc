@@ -1,10 +1,10 @@
 openapi: 3.1.0
 info:
   title: COROC API
-  version: 0.2.0
+  version: 0.3.0
   summary: Gestión y cobro de préstamos personales
   description: |
-    Contrato de la API de COROC (§24.1-3 del prompt maestro). Versión 0.2.0: operaciones de la Fase 1 implementadas y verificadas
+    Contrato de la API de COROC (§24.1-3 del prompt maestro). Versión 0.3.0: operaciones de las fases 1 y 2 implementadas y verificadas
     contra este contrato en cada prueba (el servidor valida las peticiones con él y las pruebas validan las respuestas).
 
     **Convenciones**
@@ -15,7 +15,7 @@ info:
     - Toda petición autenticada opera dentro de la empresa del token; la base de datos aplica Row Level Security.
     - Idempotencia: las operaciones que crean movimientos contables aceptan el encabezado `Idempotency-Key`.
     - Concurrencia optimista: los recursos editables exponen `version`; enviar `If-Match` con ese valor.
-    - Tiempo real: `GET /events` (Server-Sent Events) emite `payment.posted`, `intake.updated`, `message.updated`, `dashboard.changed`.
+    - Tiempo real: `GET /events` (Server-Sent Events) emite `payment.posted`, `payment.reversed`, `loan.created`, `document.created` y `dashboard.changed`; en fases siguientes `intake.updated` y `message.updated`.
   contact:
     name: COROC
   license:
@@ -747,18 +747,18 @@ paths:
                 type: array
                 items: { $ref: '#/components/schemas/ReceiptRecord' }
         '4XX': { $ref: '#/components/responses/Problem' }
-  /loans/{id}/statement:
+  /loans/{id}/statements:
     post:
       tags: [documents]
-      operationId: issueStatement
-      summary: Generar estado de cuenta PDF en el idioma del cliente
+      operationId: requestStatement
+      summary: Estado de cuenta en PDF, en el idioma del deudor (§16.4). Se genera en segundo plano
       parameters: [{ $ref: '#/components/parameters/Id' }]
       responses:
-        '201':
-          description: Documento generado
+        '202':
+          description: Tarea en cola; seguirla con `GET /tasks/{id}`
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Document' }
+              schema: { $ref: '#/components/schemas/Task' }
         '4XX': { $ref: '#/components/responses/Problem' }
   /loans/{id}/upload-link:
     post:
@@ -790,51 +790,152 @@ paths:
     get:
       tags: [documents]
       operationId: listDocuments
-      summary: Repositorio del cliente
+      summary: Repositorio documental (§16.1) con filtros, búsqueda por texto y etiquetas
+      description: El Cobrador solo ve los documentos de sus clientes (RLS). Sin `includeSuperseded` solo vienen las versiones vigentes.
       parameters:
-        - { name: clientId, in: query, required: true, schema: { type: string, format: uuid } }
+        - { name: clientId, in: query, schema: { type: string, format: uuid } }
+        - { name: loanId, in: query, schema: { type: string, format: uuid } }
         - { name: kind, in: query, schema: { $ref: '#/components/schemas/DocKind' } }
-        - { name: q, in: query, schema: { type: string }, description: Búsqueda en el texto leído }
+        - { name: from, in: query, schema: { type: string, format: date } }
+        - { name: to, in: query, schema: { type: string, format: date } }
+        - { name: q, in: query, schema: { type: string, maxLength: 120 }, description: Búsqueda sin tildes en el nombre y el texto leído }
+        - { name: tag, in: query, schema: { type: string, maxLength: 40 } }
+        - { name: includeSuperseded, in: query, schema: { type: boolean } }
+        - { $ref: '#/components/parameters/Cursor' }
+        - { $ref: '#/components/parameters/Limit' }
       responses:
         '200':
-          description: Documentos
+          description: Página de documentos, del más reciente al más antiguo
           content:
             application/json:
               schema:
-                type: array
-                items: { $ref: '#/components/schemas/Document' }
+                type: object
+                required: [items, nextCursor]
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/Document' } }
+                  nextCursor: { type: [string, 'null'] }
         '4XX': { $ref: '#/components/responses/Problem' }
-    post:
+  /documents/{id}:
+    get:
       tags: [documents]
-      operationId: uploadDocument
-      summary: Subir un comprobante (entra al pipeline de §13) u otro documento
+      operationId: getDocument
+      summary: Documento con todas sus versiones (la vigente primero)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Documento
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/Document' }
+                  - type: object
+                    required: [versions]
+                    properties:
+                      versions: { type: array, items: { $ref: '#/components/schemas/Document' } }
+        '4XX': { $ref: '#/components/responses/Problem' }
+    patch:
+      tags: [documents]
+      operationId: updateDocument
+      summary: Cambiar las etiquetas. El archivo nunca se modifica (§16.1)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
       requestBody:
         required: true
         content:
-          multipart/form-data:
+          application/json:
             schema:
               type: object
-              required: [file]
+              required: [tags]
+              additionalProperties: false
               properties:
-                file: { type: string, contentMediaType: application/octet-stream }
-                clientId: { type: string, format: uuid }
-                kind: { type: string, enum: [receipt_in, other], default: receipt_in }
-                senderPhone: { type: string }
+                tags: { type: array, maxItems: 20, items: { type: string, minLength: 1, maxLength: 40 } }
       responses:
-        '202':
-          description: Recibido; el resultado llega por `intake.updated`
+        '200':
+          description: Documento actualizado
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/IntakeEvent' }
+              schema: { $ref: '#/components/schemas/Document' }
         '4XX': { $ref: '#/components/responses/Problem' }
-  /documents/{id}/content:
-    get:
+  /documents/{id}/link:
+    post:
       tags: [documents]
-      operationId: downloadDocument
-      summary: Descargar por URL firmada de corta duración
+      operationId: createDocumentLink
+      summary: Enlace firmado de corta duración para ver, descargar o compartir el archivo
       parameters: [{ $ref: '#/components/parameters/Id' }]
       responses:
-        '302': { description: Redirección a la URL firmada }
+        '200':
+          description: Enlace
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FileLink' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /clients/{id}/documents:
+    post:
+      tags: [documents]
+      operationId: uploadDocument
+      summary: Carga manual al repositorio del cliente (§12.6)
+      description: 'El cuerpo es el archivo (PDF, JPG, PNG, WEBP o HEIC; máximo 25 MB). El tipo se reconoce por el contenido, no por la extensión.'
+      parameters:
+        - { $ref: '#/components/parameters/Id' }
+        - { name: loanId, in: query, schema: { type: string, format: uuid } }
+        - { name: kind, in: query, schema: { type: string, enum: [other, receipt_in] } }
+        - { name: name, in: query, schema: { type: string, maxLength: 160 } }
+        - { name: tags, in: query, schema: { type: string, maxLength: 400 }, description: Etiquetas separadas por comas }
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema: { type: string, contentMediaType: application/octet-stream }
+      responses:
+        '201':
+          description: Documento guardado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Document' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /folder/manifest:
+    get:
+      tags: [documents]
+      operationId: getFolderManifest
+      summary: Manifiesto de la carpeta COROC (§16.2–16.3) para el espejo local de las apps
+      description: Sin `since` trae todo lo vigente; con `since` solo lo que cambió (incluidos los archivos reemplazados que el espejo debe retirar). Se pagina por documentos con `after`.
+      parameters:
+        - { name: since, in: query, schema: { type: string, format: date-time } }
+        - { name: after, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 5000, default: 2000 } }
+      responses:
+        '200':
+          description: Manifiesto
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FolderManifest' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /files/{token}:
+    get:
+      tags: [documents]
+      operationId: downloadFile
+      summary: Descarga con enlace firmado (sin sesión). Admite `Range` para reanudar
+      security: []
+      parameters:
+        - { name: token, in: path, required: true, schema: { type: string, minLength: 20, maxLength: 600 } }
+        - { name: download, in: query, schema: { type: string, enum: ['1'] } }
+      responses:
+        '200': { description: Archivo completo, content: { application/octet-stream: {} } }
+        '206': { description: Rango del archivo, content: { application/octet-stream: {} } }
+        '416': { description: Rango fuera del archivo }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /tasks/{id}:
+    get:
+      tags: [documents]
+      operationId: getTask
+      summary: Estado de una tarea de documentos (estado de cuenta, informe)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Tarea
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Task' }
         '4XX': { $ref: '#/components/responses/Problem' }
 
   /intake:
@@ -1109,24 +1210,23 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/TodayCollections' }
         '4XX': { $ref: '#/components/responses/Problem' }
-  /reports/{type}:
-    get:
+  /reports:
+    post:
       tags: [reports]
-      operationId: getReport
-      summary: Informes (§18)
-      parameters:
-        - { name: type, in: path, required: true, schema: { type: string, enum: [portfolio, collections, aging, closed, cashflow, ledger, messages, audit] } }
-        - { name: format, in: query, required: true, schema: { type: string, enum: [pdf, csv, xlsx] } }
-        - { name: from, in: query, schema: { type: string, format: date } }
-        - { name: to, in: query, schema: { type: string, format: date } }
-        - { name: lang, in: query, schema: { $ref: '#/components/schemas/Lang' } }
+      operationId: requestReport
+      summary: Generar un informe (§18) en PDF, XLSX o CSV, en el idioma elegido
+      description: Se genera en segundo plano y queda en el repositorio (carpeta `_Informes`). Montos agrupados por moneda; nunca se suman monedas distintas.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReportRequest' }
       responses:
-        '200':
-          description: Archivo
+        '202':
+          description: Tarea en cola
           content:
-            application/pdf: {}
-            text/csv: {}
-            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet: {}
+            application/json:
+              schema: { $ref: '#/components/schemas/Task' }
         '4XX': { $ref: '#/components/responses/Problem' }
   /events:
     get:
@@ -1135,7 +1235,7 @@ paths:
       summary: Eventos en tiempo real (Server-Sent Events)
       responses:
         '200':
-          description: 'Flujo `text/event-stream` con `ready`, `ping` (cada 25 s), `payment.posted`, `payment.reversed`, `loan.created`, `dashboard.changed` y `security.lockout` (solo Propietario y Administrador); en fases siguientes `intake.updated` y `message.updated`'
+          description: 'Flujo `text/event-stream` con `ready`, `ping` (cada 25 s), `payment.posted`, `payment.reversed`, `loan.created`, `document.created` (el Cobrador solo los de sus clientes), `dashboard.changed` y `security.lockout` (solo Propietario y Administrador); en fases siguientes `intake.updated` y `message.updated`'
           content:
             text/event-stream: {}
         '4XX': { $ref: '#/components/responses/Problem' }
@@ -1144,7 +1244,7 @@ paths:
     post:
       tags: [backup]
       operationId: createBackup
-      summary: Crear respaldo cifrado `.coroc` (§19)
+      summary: Crear respaldo cifrado `.coroc` (§19). Se genera por flujo en segundo plano
       requestBody:
         required: true
         content:
@@ -1152,11 +1252,12 @@ paths:
             schema:
               type: object
               required: [password]
+              additionalProperties: false
               properties:
-                password: { type: string, format: password, minLength: 10 }
+                password: { type: string, format: password, minLength: 10, maxLength: 200 }
       responses:
         '202':
-          description: En proceso; descarga cuando `status = ready`
+          description: En proceso; seguir con `GET /backups/{id}`
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Backup' }
@@ -1164,44 +1265,118 @@ paths:
     get:
       tags: [backup]
       operationId: listBackups
-      summary: Respaldos disponibles
+      summary: Respaldos de la empresa
       responses:
         '200':
-          description: Respaldos
+          description: Respaldos, del más reciente al más antiguo
           content:
             application/json:
-              schema:
-                type: array
-                items: { $ref: '#/components/schemas/Backup' }
+              schema: { type: array, items: { $ref: '#/components/schemas/Backup' } }
         '4XX': { $ref: '#/components/responses/Problem' }
-  /backups/restore:
+  /backups/{id}:
+    get:
+      tags: [backup]
+      operationId: getBackup
+      summary: Estado y avance del respaldo
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Respaldo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Backup' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /backups/{id}/cancel:
     post:
       tags: [backup]
-      operationId: restoreBackup
-      summary: Restaurar (solo Propietario); `dryRun` verifica integridad y resume antes de reemplazar
+      operationId: cancelBackup
+      summary: Cancelar un respaldo en curso
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Respaldo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Backup' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /backups/{id}/link:
+    post:
+      tags: [backup]
+      operationId: createBackupLink
+      summary: Enlace firmado para descargar el `.coroc` (admite `Range`, reanudable)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Enlace
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FileLink' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /restores:
+    post:
+      tags: [backup]
+      operationId: uploadRestore
+      summary: Subir un `.coroc` para restaurar (solo Propietario). El cuerpo es el archivo
       requestBody:
         required: true
         content:
-          multipart/form-data:
-            schema:
-              type: object
-              required: [file, password, dryRun]
-              properties:
-                file: { type: string, contentMediaType: application/octet-stream }
-                password: { type: string, format: password }
-                dryRun: { type: boolean }
-                confirmCompanyName: { type: string, description: Obligatorio cuando dryRun = false }
+          application/octet-stream:
+            schema: { type: string, contentMediaType: application/octet-stream }
       responses:
-        '200':
-          description: Resumen o restauración completada
+        '201':
+          description: Archivo recibido; aún no se ha verificado
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  counts: { type: object, additionalProperties: { type: integer } }
-                  restored: { type: boolean }
-        '422': { $ref: '#/components/responses/Problem' }
+              schema: { $ref: '#/components/schemas/Restore' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /restores/{id}/verify:
+    post:
+      tags: [backup]
+      operationId: verifyRestore
+      summary: Verificar integridad y versión y simular (§19) sin cambiar nada
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              additionalProperties: false
+              properties:
+                password: { type: string, format: password, minLength: 1, maxLength: 200 }
+      responses:
+        '200':
+          description: Resumen de lo que se restauraría
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Restore' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /restores/{id}/apply:
+    post:
+      tags: [backup]
+      operationId: applyRestore
+      summary: Restauración atómica; reemplaza todos los datos de la empresa
+      description: Exige la contraseña del respaldo y escribir el nombre de la empresa. Si algo falla, no cambia nada.
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password, confirmName]
+              additionalProperties: false
+              properties:
+                password: { type: string, format: password, minLength: 1, maxLength: 200 }
+                confirmName: { type: string, minLength: 1, maxLength: 200 }
+      responses:
+        '200':
+          description: Restauración completada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Restore' }
+        '4XX': { $ref: '#/components/responses/Problem' }
 
   /public/upload/{token}:
     get:
@@ -1244,27 +1419,26 @@ paths:
       responses:
         '202': { description: Recibido }
         '413': { $ref: '#/components/responses/Problem' }
-  /public/receipts/verify/{code}:
+  /public/receipts/{code}:
     get:
       tags: [public]
       operationId: verifyReceipt
-      summary: Verificar la autenticidad de un recibo (código QR)
+      summary: Verificar la autenticidad de un recibo (código QR, §15)
+      description: Con `Accept text/html` responde una página para el navegador del celular; si no, JSON. No revela el nombre del deudor.
       security: []
-      parameters: [{ name: code, in: path, required: true, schema: { type: string } }]
+      parameters: [{ name: code, in: path, required: true, schema: { type: string, pattern: '^[0-9A-Fa-f]{16}$' } }]
       responses:
         '200':
           description: Recibo auténtico
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  number: { type: string }
-                  issuedAt: { type: string, format: date-time }
-                  amount: { $ref: '#/components/schemas/Minor' }
-                  currency: { $ref: '#/components/schemas/Currency' }
-                  voided: { type: boolean }
-        '404': { $ref: '#/components/responses/Problem' }
+              schema: { $ref: '#/components/schemas/ReceiptVerification' }
+        '404':
+          description: No existe un recibo con ese código
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReceiptVerification' }
+        '429': { $ref: '#/components/responses/Problem' }
 
   /webhooks/whatsapp:
     get:
@@ -1387,7 +1561,7 @@ components:
     Role: { type: string, enum: [owner, admin, collector, auditor] }
     Frequency: { type: string, enum: [daily, weekly, monthly] }
     Channel: { type: string, enum: [whatsapp, email] }
-    DocKind: { type: string, enum: [plan, schedule, receipt_in, receipt_out, statement, payoff, other] }
+    DocKind: { type: string, enum: [plan, schedule, receipt_in, receipt_out, statement, payoff, other, report] }
     IntakeStatus: { type: string, enum: [processing, review, unassigned, applied_auto, approved, duplicate, rejected, archived] }
     MessageStatus: { type: string, enum: [ready, scheduled, sent, delivered, read, failed, blocked, cancelled] }
     MessageEvent: { type: string, enum: [welcome, reminder, overdue, receipt, statement, payoff, manual] }
@@ -1802,26 +1976,116 @@ components:
         balance: { $ref: '#/components/schemas/Minor' }
     ReceiptRecord:
       type: object
+      required: [number, entryId, voided, createdAt, data, documentId, voidDocumentId]
       properties:
         number: { type: string }
         entryId: { type: string, format: uuid }
         voided: { type: boolean }
         createdAt: { type: string, format: date-time }
         data: { $ref: '#/components/schemas/ReceiptData' }
+        documentId: { type: [string, 'null'], format: uuid, description: PDF del recibo (nulo mientras se genera) }
+        voidDocumentId: { type: [string, 'null'], format: uuid, description: Versión sellada ANULADO }
     Document:
       type: object
+      required: [id, clientId, loanId, contract, kind, name, fileName, folderPath, mime, size, sha256, version, superseded, source, tags, lang, meta, createdAt, updatedAt]
       properties:
         id: { type: string, format: uuid }
         clientId: { type: [string, 'null'], format: uuid }
         loanId: { type: [string, 'null'], format: uuid }
+        contract: { type: [string, 'null'] }
         kind: { $ref: '#/components/schemas/DocKind' }
-        name: { type: string }
+        name: { type: string, description: 'Nombre visible, con tildes' }
+        fileName: { type: string, example: 2026-10-09_1435_RECIBO_RC-000482_CT-000125.pdf }
+        folderPath: { type: string, example: 'Maria Jose Perez Gomez - C000042/CT-000125/03 Recibos emitidos' }
         mime: { type: string }
-        sizeBytes: { type: integer }
-        sha256: { type: string }
-        version: { type: integer }
-        folderPath: { type: string, example: 'Maria Jose Perez Gomez - C000042/CT-000125/03 Recibos emitidos/2026-10-09_1435_RECIBO_RC-000482_CT-000125.pdf' }
+        size: { type: integer }
+        sha256: { type: string, pattern: '^[0-9a-f]{64}$' }
+        version: { type: integer, minimum: 1 }
+        superseded: { type: boolean }
+        source: { type: string }
+        tags: { type: array, items: { type: string } }
+        lang: { oneOf: [{ $ref: '#/components/schemas/Lang' }, { type: 'null' }] }
+        meta: { type: object }
         createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    FileLink:
+      type: object
+      required: [url, path, expiresAt]
+      properties:
+        url: { type: string, format: uri }
+        path: { type: string, description: Ruta relativa a la base de la API (`/v1`) }
+        expiresAt: { type: string, format: date-time }
+    Task:
+      type: object
+      required: [id, kind, status, progress, documentId, error, createdAt, finishedAt]
+      properties:
+        id: { type: string, format: uuid }
+        kind: { type: string, enum: [schedule, receipt, receipt_void, statement, payoff, report, backup] }
+        status: { type: string, enum: [pending, running, done, failed, cancelled] }
+        progress: { type: integer, minimum: 0, maximum: 100 }
+        documentId: { type: [string, 'null'], format: uuid }
+        error: { type: [string, 'null'] }
+        createdAt: { type: string, format: date-time }
+        finishedAt: { type: [string, 'null'], format: date-time }
+    FolderManifest:
+      type: object
+      required: [lang, full, generatedAt, nextSince, rootFolders, subfolders, clients, files, removed, nextPage]
+      properties:
+        lang: { $ref: '#/components/schemas/Lang' }
+        full: { type: boolean }
+        generatedAt: { type: string, format: date-time }
+        nextSince: { type: string, format: date-time, description: Valor de `since` para la próxima sincronización }
+        rootFolders: { type: array, items: { type: string }, example: [_Sin asignar, _Entrada, _Informes, _Respaldos] }
+        subfolders: { type: array, minItems: 5, maxItems: 5, items: { type: string } }
+        clients:
+          type: array
+          items:
+            type: object
+            required: [id, code, folderName, marker, contracts]
+            properties:
+              id: { type: string, format: uuid }
+              code: { type: string }
+              folderName: { type: string }
+              marker: { type: string, description: 'Ruta del archivo `.coroc-id`' }
+              contracts: { type: array, items: { type: string } }
+        files:
+          type: array
+          items:
+            type: object
+            required: [documentId, clientId, path, size, sha256, updatedAt]
+            properties:
+              documentId: { type: string, format: uuid }
+              clientId: { type: [string, 'null'], format: uuid }
+              path: { type: string }
+              size: { type: integer }
+              sha256: { type: string }
+              updatedAt: { type: string, format: date-time }
+        removed: { type: array, items: { type: string, format: uuid } }
+        nextPage: { type: [string, 'null'] }
+    ReportRequest:
+      type: object
+      required: [type, format]
+      additionalProperties: false
+      properties:
+        type: { type: string, enum: [portfolio, portfolio_by_collector, collections, aging, closed, cashflow, ledger, messages] }
+        format: { type: string, enum: [pdf, xlsx, csv] }
+        lang: { $ref: '#/components/schemas/Lang' }
+        from: { type: string, format: date }
+        to: { type: string, format: date }
+        collectorId: { type: string, format: uuid }
+        currency: { $ref: '#/components/schemas/Currency' }
+    ReceiptVerification:
+      type: object
+      required: [valid, voided]
+      properties:
+        valid: { type: boolean }
+        voided: { type: boolean }
+        company: { type: string }
+        number: { type: string }
+        paymentDate: { type: string, format: date }
+        amount: { $ref: '#/components/schemas/Minor' }
+        currency: { $ref: '#/components/schemas/Currency' }
+        issuedAt: { type: string }
     ExtractedString:
       type: object
       properties:
@@ -1996,10 +2260,36 @@ components:
               balance: { $ref: '#/components/schemas/Minor' }
     Backup:
       type: object
+      required: [id, status, progress, fileName, size, sha256, counts, createdAt, finishedAt]
       properties:
         id: { type: string, format: uuid }
-        status: { type: string, enum: [running, ready, failed] }
-        fileName: { type: string, example: COROC_Respaldo_Empresa_2026-10-09_1435.coroc }
-        downloadUrl: { type: [string, 'null'], format: uri }
+        status: { type: string, enum: [pending, running, done, failed, cancelled] }
+        progress: { type: integer, minimum: 0, maximum: 100 }
+        fileName: { type: [string, 'null'], example: COROC_Respaldo_Empresa_2026-10-09_1435.coroc }
+        size: { type: [integer, 'null'] }
+        sha256: { type: [string, 'null'] }
         counts: { type: object, additionalProperties: { type: integer } }
         createdAt: { type: string, format: date-time }
+        finishedAt: { type: [string, 'null'], format: date-time }
+    Restore:
+      type: object
+      required: [id, status, size, summary, createdAt, appliedAt]
+      properties:
+        id: { type: string, format: uuid }
+        status: { type: string, enum: [uploading, uploaded, verified, applied, failed] }
+        size: { type: [integer, 'null'] }
+        summary:
+          oneOf:
+            - type: 'null'
+            - type: object
+              required: [company, createdAt, format, schema, counts, documents, bytes]
+              properties:
+                company: { type: string }
+                createdAt: { type: string }
+                format: { type: string }
+                schema: { type: string }
+                counts: { type: object, additionalProperties: { type: integer } }
+                documents: { type: integer }
+                bytes: { type: integer }
+        createdAt: { type: string, format: date-time }
+        appliedAt: { type: [string, 'null'], format: date-time }

@@ -7,6 +7,7 @@ export const PERMISSIONS = [
   'payments.register', 'payments.reverse',
   'compliance.view', 'compliance.manage',
   'dashboard.view',
+  'documents.upload',
   'reports.view', 'audit.view',
   'backup.create', 'backup.restore', 'subscription.manage',
 ] as const;
@@ -18,7 +19,7 @@ export const ROLE_PERMISSIONS: Record<Role, ReadonlySet<Permission>> = {
   owner: ALL,
   admin: new Set(PERMISSIONS.filter((p) => p !== 'backup.restore' && p !== 'subscription.manage')),
   // Solo sus clientes asignados; puede registrar y validar pagos; no reversa ni ve informes globales.
-  collector: new Set<Permission>(['company.view', 'clients.view', 'payments.register', 'dashboard.view']),
+  collector: new Set<Permission>(['company.view', 'clients.view', 'payments.register', 'documents.upload', 'dashboard.view']),
   auditor: new Set<Permission>(['company.view', 'users.view', 'clients.view', 'compliance.view', 'dashboard.view', 'reports.view', 'audit.view']),
 };
 

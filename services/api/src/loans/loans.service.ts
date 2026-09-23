@@ -20,6 +20,7 @@ import { RateCapService } from '../compliance/rate-caps.js';
 import type { TenantInfo } from '../company/tenant-cache.js';
 import { EventBus } from '../dashboard/event-bus.js';
 import type { Tx } from '../db/db.service.js';
+import { DocumentTasks } from '../documents/tasks.js';
 import { LoanStateService, termsOf, type LoadedLoan } from './loan-state.service.js';
 
 export interface LoanTermsInput {
@@ -67,6 +68,7 @@ export class LoansService {
     private readonly audit: AuditService,
     private readonly bus: EventBus,
     private readonly clock: Clock,
+    private readonly tasks: DocumentTasks,
   ) {}
 
   toTerms(input: LoanTermsInput, tenant: TenantInfo): LoanTerms {
@@ -161,6 +163,8 @@ export class LoansService {
       "INSERT INTO ledger_entries (tenant_id, loan_id, type, entry_date, amount, source, created_by) VALUES (current_tenant(), $1, 'disbursement', $2, $3, 'manual', $4)",
       [loan!.id, terms.disbursementDate, terms.principal, auth.userId],
     );
+    // Contrato y plan de pagos en PDF (§8.3): se genera después del commit y queda en el repositorio y la carpeta.
+    await this.tasks.enqueue(tx, { kind: 'schedule', loanId: loan!.id, dedupeKey: `schedule:${loan!.id}`, createdBy: auth.userId });
     const loaded = (await this.state.load(tx, loan!.id))!;
     const r = await this.state.recompute(tx, loaded, this.clock.today(tenant.timezone));
     await this.audit.log(tx, 'loan.created', 'loan', loan!.id, { after: { contract, ...termsJson(terms), totalPayable: s.totalPayable, effectiveAnnualRate: ea } });
@@ -210,6 +214,7 @@ export class LoansService {
   }
 
   publishCreated(auth: AuthContext, clientId: string, collectorId: string | null, loanId: string): void {
+    this.tasks.kick();
     this.bus.publish({ type: 'loan.created', tenantId: auth.tenantId, clientId, collectorId, data: { loanId, clientId } });
     this.bus.publish({ type: 'dashboard.changed', tenantId: auth.tenantId, clientId, collectorId, data: {} });
   }

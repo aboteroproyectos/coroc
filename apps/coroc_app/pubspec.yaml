@@ -5,7 +5,7 @@ version: 0.1.0+1
 
 environment:
   sdk: ^3.8.0
-  flutter: ">=3.32.0"
+  flutter: ">=3.47.0"
 
 dependencies:
   flutter:
@@ -23,6 +23,17 @@ dependencies:
   flutter_svg: ^2.0.17
   qr_flutter: ^4.1.0
   uuid: ^4.5.1
+  # Fase 2 · documentos y carpeta COROC (ADR-035, ADR-036)
+  pdfrx: ^2.6.5
+  share_plus: ^12.0.2
+  file_selector: ^1.1.0
+  path_provider: ^2.1.6
+  path: ^1.9.0
+  crypto: ^3.0.6
+  saf_util: ^3.1.0
+  saf_stream: ^4.0.1
+  coroc_bookmarks:
+    path: packages/coroc_bookmarks
 
 dev_dependencies:
   flutter_test:

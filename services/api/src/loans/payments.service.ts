@@ -11,6 +11,7 @@ import { TenantCache } from '../company/tenant-cache.js';
 import { CONFIG, type AppConfig } from '../config.js';
 import { EventBus } from '../dashboard/event-bus.js';
 import { DbService, type Tx } from '../db/db.service.js';
+import { DocumentTasks } from '../documents/tasks.js';
 import { LoanStateService, type LedgerRow } from './loan-state.service.js';
 
 export interface PaymentInput {
@@ -58,6 +59,7 @@ export class PaymentsService {
     private readonly access: AccessService,
     private readonly bus: EventBus,
     private readonly clock: Clock,
+    private readonly tasks: DocumentTasks,
     @Inject(CONFIG) private readonly config: AppConfig,
   ) {}
 
@@ -108,7 +110,7 @@ export class PaymentsService {
         before: before.summary,
         after: after.summary,
         verificationCode: verification,
-        verificationUrl: `${this.config.publicAppUrl}/verificar/${verification}`,
+        verificationUrl: `${this.config.verifyUrlBase}${verification}`,
       });
       await tx.exec(
         `INSERT INTO receipts (tenant_id, number, entry_id, loan_id, document_id, verification_hash, data, lang)
@@ -116,6 +118,13 @@ export class PaymentsService {
         [number, entry!.id, loanId, verification, JSON.stringify(receipt), client!.lang],
       );
       await tx.exec('SELECT bump_daily_collection($1, $2, $3, 1)', [l.loan.currency, input.date, input.amount]);
+      // Documentos del pago (§15, §10): se generan después del commit, pero quedan registrados en esta misma transacción.
+      await this.tasks.enqueue(tx, { kind: 'receipt', loanId, entryId: entry!.id, createdBy: auth.userId });
+      await this.tasks.enqueue(tx, { kind: 'schedule', loanId, dedupeKey: `schedule:${loanId}` });
+      if (after.summary.balance === 0) {
+        await this.tasks.enqueue(tx, { kind: 'payoff', loanId, dedupeKey: `payoff:${loanId}` });
+        await this.tasks.enqueue(tx, { kind: 'statement', loanId, params: { reason: 'closed' } });
+      }
       await this.audit.log(tx, 'payment.posted', 'loan', loanId, { after: { entryId: entry!.id, amount: input.amount, date: input.date, receipt: number } });
       return {
         client: client!,
@@ -127,6 +136,7 @@ export class PaymentsService {
         },
       };
     });
+    this.tasks.kick();
     const c = result.client;
     this.bus.publish({
       type: 'payment.posted', tenantId: auth.tenantId, clientId: c.id, collectorId: c.collector_id,
@@ -157,10 +167,14 @@ export class PaymentsService {
       const receipt = await tx.one<{ number: string }>('UPDATE receipts SET voided_at = now(), data = data || \'{"voided": true}\'::jsonb WHERE entry_id = $1 RETURNING number', [entryId]);
       const after = await this.state.recompute(tx, l, today);
       await tx.exec('SELECT bump_daily_collection($1, $2, $3, -1)', [l.loan.currency, target.entry_date, -target.amount]);
+      if (receipt) await this.tasks.enqueue(tx, { kind: 'receipt_void', loanId, entryId, createdBy: auth.userId });
+      await this.tasks.enqueue(tx, { kind: 'schedule', loanId, dedupeKey: `schedule:${loanId}` });
+      await this.tasks.enqueue(tx, { kind: 'payoff', loanId, dedupeKey: `payoff:${loanId}` });
       await this.audit.log(tx, 'payment.reversed', 'loan', loanId, { before: { entryId, amount: target.amount }, after: { reversalId: rev!.id, reason: reason.trim(), receipt: receipt?.number } });
       const client = await tx.one<Record<string, any>>('SELECT id, collector_id FROM clients WHERE id = $1', [l.loan.client_id]);
       return { client: client!, body: { entry: entryJson(rev!), voidedReceipt: receipt?.number ?? null, balance: after.summary.balance } };
     });
+    this.tasks.kick();
     this.bus.publish({ type: 'payment.reversed', tenantId: auth.tenantId, clientId: out.client.id, collectorId: out.client.collector_id, data: { loanId, entryId } });
     this.bus.publish({ type: 'dashboard.changed', tenantId: auth.tenantId, clientId: out.client.id, collectorId: out.client.collector_id, data: {} });
     return out.body;
@@ -192,10 +206,11 @@ export class PaymentsService {
     });
   }
 
-  /** Recibos del préstamo (datos del recibo; el PDF se genera en la Fase 2). */
+  /** Recibos del préstamo con su PDF (§15) y, si fue anulado, la versión sellada ANULADO. */
   async receipts(tx: Tx, loanId: string) {
-    return (await tx.many<Record<string, any>>('SELECT number, entry_id, data, voided_at, created_at FROM receipts WHERE loan_id = $1 ORDER BY created_at', [loanId])).map((r) => ({
+    return (await tx.many<Record<string, any>>('SELECT number, entry_id, data, voided_at, created_at, document_id, void_document_id FROM receipts WHERE loan_id = $1 ORDER BY created_at', [loanId])).map((r) => ({
       number: r.number, entryId: r.entry_id, voided: !!r.voided_at, createdAt: new Date(r.created_at).toISOString(), data: r.data,
+      documentId: r.document_id ?? null, voidDocumentId: r.void_document_id ?? null,
     }));
   }
 }
