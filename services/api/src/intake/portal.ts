@@ -35,14 +35,16 @@ function page(lang: Lang, title: string, body: string, self?: string): string {
 }
 
 /** Portal del deudor (§12.3): su plan de pagos, el saldo y el formulario para subir el comprobante. */
-export function portalHtml(d: PortalData, lang: Lang, self: string, notice?: { kind: 'sent' | 'duplicate' | 'error'; message?: string }): string {
+export function portalHtml(d: PortalData, lang: Lang, self: string, notice?: { kind: 'sent' | 'duplicate' | 'error' | 'optedOut'; message?: string }): string {
   const cur = d.currency as Currency;
   const m = (x: number) => esc(money(x, cur, lang));
   const s = d.summary;
   const alert = notice
     ? notice.kind === 'error'
       ? `<div class="alert" role="alert">${esc(notice.message ?? '')}</div>`
-      : `<div class="alert ok" role="status"><strong>${esc(t(lang, 'portal.thanksTitle'))}</strong><br>${esc(t(lang, notice.kind === 'sent' ? 'portal.thanksBody' : 'portal.duplicateBody'))}</div>`
+      : notice.kind === 'optedOut'
+        ? `<div class="alert ok" role="status"><strong>${esc(t(lang, 'portal.optedOutTitle'))}</strong><br>${esc(t(lang, 'portal.optedOutBody'))}</div>`
+        : `<div class="alert ok" role="status"><strong>${esc(t(lang, 'portal.thanksTitle'))}</strong><br>${esc(t(lang, notice.kind === 'sent' ? 'portal.thanksBody' : 'portal.duplicateBody'))}</div>`
     : '';
   const head = `<section class="card"><h1>${esc(t(lang, 'portal.hello', { name: d.clientFirstName }))}</h1>
 <p class="muted">${esc(t(lang, 'portal.contract', { contract: d.contract }))} · ${esc(t(lang, 'portal.company', { company: d.company.name }))}</p>
@@ -60,7 +62,10 @@ ${s.next ? `<div><p class="muted">${esc(t(lang, 'portal.next'))}</p><p style="fo
     .map((i) => `<tr><td>${i.number}</td><td>${esc(shortDate(i.dueDate, lang))}</td><td class="n">${m(i.amount)}</td><td class="s-${i.status}">${esc(t(lang, `portal.${i.status}`))}</td></tr>`)
     .join('');
   const plan = `<section class="card"><h2>${esc(t(lang, 'portal.plan'))}</h2><table><thead><tr><th>${esc(t(lang, 'portal.number'))}</th><th>${esc(t(lang, 'portal.due'))}</th><th class="n">${esc(t(lang, 'portal.amount'))}</th><th>${esc(t(lang, 'portal.status'))}</th></tr></thead><tbody>${rows}</tbody></table></section>`;
-  return page(lang, t(lang, 'portal.title'), alert + head + upload + plan, self);
+  // Exclusión desde el portal (§20.1): deja de recibir mensajes por WhatsApp y correo, de inmediato.
+  const optOut = `<section class="card" style="border-top-color:var(--line)"><h2>${esc(t(lang, 'portal.messagesTitle'))}</h2><p class="muted">${esc(t(lang, 'portal.messagesHelp'))}</p>
+<form method="post" action="${esc(self)}/opt-out?lang=${lang}"><input type="hidden" name="channel" value="all"><button type="submit" style="background:#fff;border:1px solid var(--line)">${esc(t(lang, 'portal.optOutButton'))}</button></form></section>`;
+  return page(lang, t(lang, 'portal.title'), alert + head + upload + plan + optOut, self);
 }
 
 export function portalErrorHtml(lang: Lang): string {

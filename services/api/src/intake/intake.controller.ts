@@ -16,6 +16,7 @@ import { CONFIG, type AppConfig } from '../config.js';
 import { DbService } from '../db/db.service.js';
 import { readBody } from '../documents/documents.controller.js';
 import { MAX_UPLOAD_BYTES } from '../documents/documents.service.js';
+import { MessagingService } from '../messaging/messaging.service.js';
 import { IntakeService, type IntakeChannel } from './intake.service.js';
 import { PORTAL_CSP, portalErrorHtml, portalHtml } from './portal.js';
 import { UploadLinksService } from './upload-links.service.js';
@@ -170,6 +171,8 @@ export class PortalController {
     private readonly intake: IntakeService,
     private readonly limiter: RateLimiter,
     private readonly clock: Clock,
+    private readonly db: DbService,
+    private readonly messaging: MessagingService,
   ) {}
 
   private wantsJson(req: Request) {
@@ -185,7 +188,7 @@ export class PortalController {
   @Public()
   @Get(':token')
   @Op('debtorPortal')
-  async view(@Param('token') token: string, @Query() q: { lang?: string; sent?: string; dup?: string }, @Req() req: Request, @Res() res: Response): Promise<void> {
+  async view(@Param('token') token: string, @Query() q: { lang?: string; sent?: string; dup?: string; optedOut?: string }, @Req() req: Request, @Res() res: Response): Promise<void> {
     this.limiter.hit(`portal:${req.ip}`, 120, 60_000);
     const fallback = langOf(q.lang) ?? pickLang(null, req.headers['accept-language']);
     try {
@@ -197,11 +200,44 @@ export class PortalController {
         return;
       }
       const lang = langOf(q.lang) ?? d.lang;
-      const notice = q.sent ? { kind: 'sent' as const } : q.dup ? { kind: 'duplicate' as const } : undefined;
+      const notice = q.sent ? { kind: 'sent' as const } : q.dup ? { kind: 'duplicate' as const } : q.optedOut ? { kind: 'optedOut' as const } : undefined;
       res.type('html').setHeader('Content-Security-Policy', PORTAL_CSP).send(portalHtml(d, lang, `/v1/public/upload/${token}`, notice));
     } catch (e) {
       this.fail(req, res, e, fallback);
     }
+  }
+
+  /**
+   * Exclusión desde el portal o desde el enlace del correo (§20.1): el deudor deja de recibir mensajes, de inmediato.
+   * Acepta el formulario del portal y la baja con un clic de los programas de correo (RFC 8058, `List-Unsubscribe-Post`).
+   */
+  @Public()
+  @Post(':token/opt-out')
+  @Op('debtorOptOut')
+  async optOut(@Param('token') token: string, @Query() q: { lang?: string; channel?: string }, @Req() req: Request, @Res() res: Response): Promise<void> {
+    this.limiter.hit(`portal-out:${req.ip}`, 30, 60_000);
+    const fallback = langOf(q.lang) ?? pickLang(null, req.headers['accept-language']);
+    let link: Awaited<ReturnType<UploadLinksService['resolve']>>;
+    try {
+      link = await this.links.resolve(token);
+    } catch (e) {
+      return this.fail(req, res, e, fallback);
+    }
+    const form = new URLSearchParams((await readBody(req, 16 * 1024)).toString('utf8'));
+    const oneClick = form.get('List-Unsubscribe') === 'One-Click';
+    const which = q.channel ?? form.get('channel') ?? 'all';
+    const channels: ('whatsapp' | 'email')[] = which === 'email' ? ['email'] : which === 'whatsapp' ? ['whatsapp'] : ['whatsapp', 'email'];
+    const blocked: Record<string, any>[] = [];
+    await this.db.tx({ tenantId: link.tenantId }, async (tx) => {
+      const loan = await tx.one<{ client_id: string }>('SELECT client_id FROM loans WHERE id = $1', [link.loanId]);
+      if (loan) await this.messaging.optOutTx(tx, loan.client_id, channels, oneClick || q.channel === 'email' ? 'email_link' : 'portal', blocked);
+    });
+    this.messaging.published(link.tenantId, blocked);
+    if (oneClick || this.wantsJson(req)) {
+      res.status(200).json({ optedOut: channels });
+      return;
+    }
+    res.redirect(303, `/v1/public/upload/${token}?lang=${langOf(q.lang) ?? fallback}&optedOut=1`);
   }
 
   @Public()
@@ -273,6 +309,7 @@ export class WebhooksController {
     private readonly intake: IntakeService,
     private readonly tenants: TenantCache,
     private readonly limiter: RateLimiter,
+    private readonly messaging: MessagingService,
     @Inject(CONFIG) private readonly config: AppConfig,
   ) {
     this.box = new SecretBox(config.dataKey);
@@ -299,34 +336,50 @@ export class WebhooksController {
     const raw = await readBody(req, 5 * 1024 * 1024);
     const expected = `sha256=${crypto.createHmac('sha256', this.config.whatsapp.appSecret).update(raw).digest('hex')}`;
     if (!safeEqual(String(req.headers['x-hub-signature-256'] ?? ''), expected)) throw new Problem(401, 'WEBHOOK_SIGNATURE_INVALID');
-    const payload = JSON.parse(raw.toString('utf8')) as { entry?: { changes?: { value?: Record<string, any> }[] }[] };
+    const payload = JSON.parse(raw.toString('utf8')) as { entry?: { id?: string; changes?: { field?: string; value?: Record<string, any> }[] }[] };
     let received = 0;
-    for (const change of (payload.entry ?? []).flatMap((e) => e.changes ?? [])) {
-      const v = change.value ?? {};
-      const phoneNumberId = String(v.metadata?.phone_number_id ?? '');
-      const messages: Record<string, any>[] = v.messages ?? [];
-      if (!phoneNumberId || !messages.length) continue; // estados de entrega: Fase 4
-      const tenantId = (await this.db.tx(null, (tx) => tx.one<{ t: string | null }>('SELECT whatsapp_tenant($1) AS t', [phoneNumberId])))?.t;
-      if (!tenantId) {
-        this.log.warn(`Mensaje para un número de WhatsApp sin empresa (${phoneNumberId})`);
-        continue;
-      }
-      const account = await this.db.tx({ tenantId }, (tx) => tx.one<{ token_enc: Buffer }>('SELECT token_enc FROM whatsapp_accounts WHERE tenant_id = current_tenant()'));
-      const token = this.box.open(account!.token_enc, `whatsapp:${tenantId}`).toString();
-      const tenant = await this.tenants.get(tenantId);
-      for (const m of messages) {
-        const media = m.type === 'image' ? m.image : m.type === 'document' ? m.document : null;
-        if (!media?.id) continue; // texto suelto: la mensajería llega en la Fase 4
-        // La URL del medio caduca en minutos: se descarga ya, antes de responder (§12.1).
-        const body = await this.media(String(media.id), token);
-        const phone = normalizePhone(`+${String(m.from ?? '').replace(/\D/g, '')}`, tenant.country);
-        await this.intake.ingest({ tenantId, userId: null, role: 'owner' }, {
-          channel: 'whatsapp', body, fileName: media.filename ?? null, senderPhone: phone, providerMsgId: String(m.id), messageText: media.caption ?? null,
-        }).catch((e) => {
-          if (e instanceof Problem && (e.code === 'FILE_TYPE_NOT_ALLOWED' || e.code === 'FILE_TOO_LARGE')) return null;
-          throw e;
-        });
-        received++;
+    for (const entry of payload.entry ?? []) {
+      for (const change of entry.changes ?? []) {
+        const v = change.value ?? {};
+        // Avisos de la cuenta (suspensión, CA-20) y del estado de las plantillas: llegan con el id de la cuenta de WhatsApp Business.
+        if (change.field === 'account_update' || change.field === 'message_template_status_update') {
+          await this.messaging.onWhatsAppAccountEvent(String(entry.id ?? ''), change.field, v);
+          continue;
+        }
+        const phoneNumberId = String(v.metadata?.phone_number_id ?? '');
+        const messages: Record<string, any>[] = v.messages ?? [];
+        const statuses: Record<string, any>[] = v.statuses ?? [];
+        if (!phoneNumberId || (!messages.length && !statuses.length)) continue;
+        const tenantId = (await this.db.tx(null, (tx) => tx.one<{ t: string | null }>('SELECT whatsapp_tenant($1) AS t', [phoneNumberId])))?.t;
+        if (!tenantId) {
+          this.log.warn(`Evento para un número de WhatsApp sin empresa (${phoneNumberId})`);
+          continue;
+        }
+        // Estados de entrega de los mensajes enviados por la Cloud API (§11.3).
+        if (statuses.length) await this.messaging.onWhatsAppStatuses(tenantId, statuses);
+        if (!messages.length) continue;
+        const tenant = await this.tenants.get(tenantId);
+        let token: string | null = null;
+        for (const m of messages) {
+          const phone = normalizePhone(`+${String(m.from ?? '').replace(/\D/g, '')}`, tenant.country);
+          // Todo mensaje del deudor abre la ventana de 24 horas; «SALIR», «SAIR» o «STOP» lo excluyen de inmediato (§20.1).
+          await this.messaging.onWhatsAppInbound(tenantId, phone, m.type === 'text' ? String(m.text?.body ?? '') : null);
+          const media = m.type === 'image' ? m.image : m.type === 'document' ? m.document : null;
+          if (!media?.id) continue;
+          if (!token) {
+            const account = await this.db.tx({ tenantId }, (tx) => tx.one<{ token_enc: Buffer }>('SELECT token_enc FROM whatsapp_accounts WHERE tenant_id = current_tenant()'));
+            token = this.box.open(account!.token_enc, `whatsapp:${tenantId}`).toString();
+          }
+          // La URL del medio caduca en minutos: se descarga ya, antes de responder (§12.1).
+          const body = await this.media(String(media.id), token);
+          await this.intake.ingest({ tenantId, userId: null, role: 'owner' }, {
+            channel: 'whatsapp', body, fileName: media.filename ?? null, senderPhone: phone, providerMsgId: String(m.id), messageText: media.caption ?? null,
+          }).catch((e) => {
+            if (e instanceof Problem && (e.code === 'FILE_TYPE_NOT_ALLOWED' || e.code === 'FILE_TOO_LARGE')) return null;
+            throw e;
+          });
+          received++;
+        }
       }
     }
     return { received };
@@ -394,53 +447,124 @@ export class WebhooksController {
     }
     return { received };
   }
+  /**
+   * Avisos del proveedor de correo saliente (§11.2): entrega, rebote y queja, en el formato de los webhooks de Postmark.
+   * Un rebote duro marca la dirección como inválida en la ficha del cliente; una queja lo excluye del correo.
+   */
+  @Public()
+  @Post('email/events')
+  @Op('emailEvents')
+  @HttpCode(200)
+  async emailEvents(@Req() req: Request, @Query('token') token?: string) {
+    const secret = this.config.email.eventsSecret;
+    if (!secret) throw new Problem(404, 'WEBHOOK_NOT_CONFIGURED');
+    this.limiter.hit(`email-ev:${req.ip}`, 1200, 60_000);
+    const basic = /^Basic (.+)$/i.exec(String(req.headers.authorization ?? ''))?.[1];
+    const given = token ?? (basic ? Buffer.from(basic, 'base64').toString().split(':').slice(1).join(':') : '');
+    if (!safeEqual(given, secret)) throw new Problem(401, 'WEBHOOK_SIGNATURE_INVALID');
+    const body = JSON.parse((await readBody(req, 1024 * 1024)).toString('utf8')) as Record<string, any> | Record<string, any>[];
+    let matched = 0;
+    for (const e of Array.isArray(body) ? body : [body]) if (await this.messaging.onEmailEvent(e)) matched++;
+    return { matched };
+  }
 }
 
-/** Número de WhatsApp Business de la empresa para recibir comprobantes (§12.1). El token nunca vuelve a mostrarse. */
+/**
+ * Número de WhatsApp Business de la empresa (§12.1) y modo de envío (§11.1). El token nunca vuelve a mostrarse. El modo
+ * automático (Cloud API) solo se activa con la lista de verificación completa y la aceptación del propietario.
+ */
 @Controller('company/whatsapp')
 export class WhatsAppAccountController {
   private readonly box: SecretBox;
 
-  constructor(private readonly db: DbService, private readonly audit: AuditService, @Inject(CONFIG) private readonly config: AppConfig) {
+  constructor(private readonly db: DbService, private readonly audit: AuditService, private readonly tenants: TenantCache, private readonly clock: Clock, @Inject(CONFIG) private readonly config: AppConfig) {
     this.box = new SecretBox(config.dataKey);
   }
 
-  private json(r: Record<string, any> | null) {
+  private json(r: Record<string, any> | null, mode: string) {
+    const c = (r?.checklist ?? {}) as Record<string, any>;
     return {
       configured: !!r,
       phoneNumberId: r?.phone_number_id ?? null,
       displayNumber: r?.display_number ?? null,
+      wabaId: r?.waba_id ?? null,
       active: r?.active ?? false,
+      status: (r?.status as string | undefined) ?? 'active',
+      suspendedAt: r?.suspended_at ? new Date(r.suspended_at).toISOString() : null,
+      suspensionReason: r?.suspension_reason ?? null,
+      mode: mode === 'cloud_api' ? 'cloud_api' : 'assisted',
+      checklist: {
+        businessVerified: !!c.businessVerified, dedicatedNumber: !!c.dedicatedNumber, templatesApproved: !!c.templatesApproved,
+        legalReview: !!c.legalReview, policyAccepted: !!c.policyAccepted, acceptedAt: c.acceptedAt ?? null,
+      },
       updatedAt: r ? new Date(r.updated_at).toISOString() : null,
       webhookUrl: `${this.config.publicApiUrl}/v1/webhooks/whatsapp`,
       serverReady: !!(this.config.whatsapp.appSecret && this.config.whatsapp.verifyToken),
     };
   }
 
+  private async current(a: AuthContext) {
+    const tenant = await this.tenants.get(a.tenantId);
+    const r = await this.db.tx({ tenantId: a.tenantId, userId: a.userId, role: a.role }, (tx) => tx.one('SELECT * FROM whatsapp_accounts WHERE tenant_id = current_tenant()'));
+    return this.json(r, tenant.settings.whatsappMode);
+  }
+
   @Get()
   @Requires('company.view')
   @Op('getWhatsAppAccount')
-  async get(@Auth() a: AuthContext) {
-    return this.json(await this.db.tx({ tenantId: a.tenantId, userId: a.userId, role: a.role }, (tx) => tx.one('SELECT * FROM whatsapp_accounts WHERE tenant_id = current_tenant()')));
+  get(@Auth() a: AuthContext) {
+    return this.current(a);
   }
 
   @Put()
   @Requires('company.edit')
   @Op('saveWhatsAppAccount')
-  async save(@Auth() a: AuthContext, @Body() b: { phoneNumberId: string; accessToken: string; displayNumber?: string }) {
-    const r = await this.db.tx({ tenantId: a.tenantId, userId: a.userId, role: a.role }, async (tx) => {
+  async save(@Auth() a: AuthContext, @Body() b: { phoneNumberId: string; accessToken: string; displayNumber?: string; wabaId?: string }) {
+    await this.db.tx({ tenantId: a.tenantId, userId: a.userId, role: a.role }, async (tx) => {
       const taken = await tx.one<{ t: string | null }>('SELECT whatsapp_tenant($1) AS t', [b.phoneNumberId.trim()]);
       if (taken?.t && taken.t !== a.tenantId) throw new Problem(409, 'WHATSAPP_ACCOUNT_IN_USE');
-      const row = await tx.one(
-        `INSERT INTO whatsapp_accounts (tenant_id, phone_number_id, display_number, token_enc, updated_by) VALUES (current_tenant(), $1, $2, $3, $4)
+      const wabaId = b.wabaId?.trim() || null;
+      const wabaOwner = wabaId ? (await tx.one<{ t: string | null }>('SELECT whatsapp_tenant_by_waba($1) AS t', [wabaId]))?.t : null;
+      if (wabaOwner && wabaOwner !== a.tenantId) throw new Problem(409, 'WHATSAPP_ACCOUNT_IN_USE');
+      await tx.one(
+        `INSERT INTO whatsapp_accounts (tenant_id, phone_number_id, display_number, token_enc, waba_id, updated_by) VALUES (current_tenant(), $1, $2, $3, $4, $5)
          ON CONFLICT (tenant_id) DO UPDATE SET phone_number_id = EXCLUDED.phone_number_id, display_number = EXCLUDED.display_number, token_enc = EXCLUDED.token_enc,
-                active = true, updated_at = now(), updated_by = EXCLUDED.updated_by RETURNING *`,
-        [b.phoneNumberId.trim(), b.displayNumber?.trim() || null, this.box.seal(Buffer.from(b.accessToken.trim()), `whatsapp:${a.tenantId}`), a.userId],
+                waba_id = coalesce(EXCLUDED.waba_id, whatsapp_accounts.waba_id), active = true, updated_at = now(), updated_by = EXCLUDED.updated_by RETURNING *`,
+        [b.phoneNumberId.trim(), b.displayNumber?.trim() || null, this.box.seal(Buffer.from(b.accessToken.trim()), `whatsapp:${a.tenantId}`), wabaId, a.userId],
       );
-      await this.audit.log(tx, 'whatsapp.configured', 'company', a.tenantId, { after: { phoneNumberId: b.phoneNumberId.trim() } });
-      return row;
+      await this.audit.log(tx, 'whatsapp.configured', 'company', a.tenantId, { after: { phoneNumberId: b.phoneNumberId.trim(), wabaId } });
     });
-    return this.json(r);
+    return this.current(a);
+  }
+
+  /**
+   * Modo de envío de WhatsApp (§11.1). Activar la Cloud API exige la lista de verificación completa y la aceptación
+   * explícita del propietario sobre la Política de Mensajería de WhatsApp Business, que prohíbe la cobranza de deudas;
+   * la aceptación queda en la bitácora. Si la cuenta estaba suspendida, activarla de nuevo declara que Meta la restableció.
+   */
+  @Put('mode')
+  @Requires('company.edit')
+  @Op('setWhatsAppMode')
+  async mode(@Auth() a: AuthContext, @Body() b: { mode: 'assisted' | 'cloud_api'; checklist?: Record<string, boolean> }) {
+    if (b.mode !== 'assisted' && b.mode !== 'cloud_api') throw new Problem(422, 'VALIDATION_FAILED', {}, [{ field: 'mode', message: 'enum' }]);
+    await this.db.tx({ tenantId: a.tenantId, userId: a.userId, role: a.role }, async (tx) => {
+      if (b.mode === 'cloud_api') {
+        if (a.role !== 'owner') throw new Problem(403, 'OWNER_REQUIRED');
+        const acc = await tx.one<Record<string, any>>('SELECT * FROM whatsapp_accounts WHERE tenant_id = current_tenant() FOR UPDATE');
+        if (!acc || !acc.waba_id || !this.config.whatsapp.appSecret || !this.config.whatsapp.verifyToken) throw new Problem(409, 'WHATSAPP_NOT_READY');
+        const keys = ['businessVerified', 'dedicatedNumber', 'templatesApproved', 'legalReview', 'policyAccepted'];
+        const missing = keys.filter((k) => b.checklist?.[k] !== true);
+        if (missing.length) throw new Problem(422, 'WHATSAPP_CHECKLIST_INCOMPLETE', {}, missing.map((k) => ({ field: `checklist.${k}`, message: 'required' })));
+        const checklist = { ...Object.fromEntries(keys.map((k) => [k, true])), acceptedAt: this.clock.now().toISOString(), acceptedBy: a.userId };
+        await tx.exec("UPDATE whatsapp_accounts SET checklist = $1, status = 'active', suspended_at = NULL, suspension_reason = NULL, updated_at = now(), updated_by = $2 WHERE tenant_id = current_tenant()", [JSON.stringify(checklist), a.userId]);
+        await this.audit.log(tx, 'whatsapp.cloud_api_enabled', 'company', a.tenantId, { before: { status: acc.status }, after: { checklist } });
+      } else {
+        await this.audit.log(tx, 'whatsapp.assisted_mode', 'company', a.tenantId, { after: { mode: 'assisted' } });
+      }
+      await tx.exec(`UPDATE tenants SET settings = jsonb_set(settings, '{whatsappMode}', to_jsonb($1::text)), version = version + 1 WHERE id = current_tenant()`, [b.mode]);
+    });
+    this.tenants.invalidate(a.tenantId);
+    return this.current(a);
   }
 
   @Delete()

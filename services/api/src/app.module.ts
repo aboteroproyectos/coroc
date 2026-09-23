@@ -20,7 +20,7 @@ import { RateLimiter } from './common/rate-limit.js';
 import { CompanyController } from './company/company.controller.js';
 import { TenantCache } from './company/tenant-cache.js';
 import { RateCapsController, RateCapService } from './compliance/rate-caps.js';
-import { CONFIG, loadConfig } from './config.js';
+import { CONFIG, loadConfig, type AppConfig } from './config.js';
 import { DashboardController, DashboardService } from './dashboard/dashboard.js';
 import { EventBus } from './dashboard/event-bus.js';
 import { DbService } from './db/db.service.js';
@@ -46,6 +46,11 @@ import { IntakeService } from './intake/intake.service.js';
 import { ReceiptExtractor } from './intake/extractor.js';
 import { ReceiptReader } from './intake/reader.js';
 import { UploadLinksService } from './intake/upload-links.service.js';
+import { DnsResolver } from './messaging/dns.js';
+import { EmailProvider, emailProviderFactory } from './messaging/email.js';
+import { ContactExceptionController, ContactRulesController, EmailSenderController, MessagesController, TemplatesController } from './messaging/messaging.controller.js';
+import { MessagingService } from './messaging/messaging.service.js';
+import { ProviderMailer } from './common/mailer.js';
 
 @Controller('health')
 class HealthController {
@@ -75,7 +80,8 @@ function requestMetaMiddleware(req: Request, _res: Response, next: NextFunction)
 @Module({
   controllers: [HealthController, AuthController, MeController, UsersController, CompanyController, RateCapsController, ClientsController, LoansController, DashboardController,
     DocumentsController, ClientDocumentsController, LoanDocumentsController, TasksController, FolderController, FilesController, PublicReceiptsController, ReportsController, BackupsController, RestoresController,
-    IntakeController, UploadLinksController, PortalController, WebhooksController, WhatsAppAccountController],
+    IntakeController, UploadLinksController, PortalController, WebhooksController, WhatsAppAccountController,
+    MessagesController, TemplatesController, ContactRulesController, ContactExceptionController, EmailSenderController],
   providers: [
     { provide: CONFIG, useFactory: () => loadConfig() },
     Clock,
@@ -83,7 +89,15 @@ function requestMetaMiddleware(req: Request, _res: Response, next: NextFunction)
     AuditService,
     EventBus,
     TenantCache,
-    { provide: Mailer, useClass: MemoryMailer },
+    { provide: EmailProvider, useFactory: emailProviderFactory, inject: [CONFIG] },
+    // Correo de la cuenta (recuperación de contraseña): por el proveedor configurado; en memoria en desarrollo y pruebas.
+    {
+      provide: Mailer,
+      useFactory: (config: AppConfig, email: EmailProvider) => (email.name === 'memory' || email.name === 'none' ? new MemoryMailer() : new ProviderMailer(email, config.email.from)),
+      inject: [CONFIG, EmailProvider],
+    },
+    DnsResolver,
+    MessagingService,
     RateLimiter,
     AccessService,
     AuthService,

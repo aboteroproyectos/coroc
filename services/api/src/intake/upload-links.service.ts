@@ -70,16 +70,35 @@ export class UploadLinksService {
       const l = await this.loan(tx, auth, loanId);
       if (l.status !== 'active') throw new Problem(409, 'LOAN_ALREADY_PAID');
       await tx.exec('UPDATE upload_links SET revoked_at = now() WHERE loan_id = $1 AND revoked_at IS NULL', [loanId]);
-      const token = randomToken(24);
-      const id = (await tx.one<{ id: string }>('SELECT gen_random_uuid() AS id'))!.id;
-      const r = await tx.one<Record<string, any>>(
-        `INSERT INTO upload_links (id, tenant_id, loan_id, token_hash, token_enc, expires_at, created_by)
-         VALUES ($1, current_tenant(), $2, $3, $4, now() + make_interval(days => $5), $6) RETURNING *`,
-        [id, loanId, sha256(token), this.box.seal(Buffer.from(token), `upload-link:${auth.tenantId}:${id}`), this.config.uploadLinkDays, auth.userId],
-      );
-      await this.audit.log(tx, 'upload_link.rotated', 'loan', loanId, { after: { linkId: id, expiresAt: r!.expires_at } });
-      return this.json(r!, auth.tenantId);
+      const r = await this.create(tx, auth.tenantId, loanId, auth.userId);
+      await this.audit.log(tx, 'upload_link.rotated', 'loan', loanId, { after: { linkId: r.id, expiresAt: r.expires_at } });
+      return this.json(r, auth.tenantId);
     });
+  }
+
+  private async create(tx: Tx, tenantId: string, loanId: string, createdBy: string | null): Promise<Record<string, any>> {
+    const token = randomToken(24);
+    const id = (await tx.one<{ id: string }>('SELECT gen_random_uuid() AS id'))!.id;
+    return (await tx.one<Record<string, any>>(
+      `INSERT INTO upload_links (id, tenant_id, loan_id, token_hash, token_enc, expires_at, created_by)
+       VALUES ($1, current_tenant(), $2, $3, $4, now() + make_interval(days => $5), $6) RETURNING *`,
+      [id, loanId, sha256(token), this.box.seal(Buffer.from(token), `upload-link:${tenantId}:${id}`), this.config.uploadLinkDays, createdBy],
+    ))!;
+  }
+
+  /**
+   * Enlace vigente del préstamo para un mensaje (§11.1: cada mensaje del modo asistido lo lleva); si no hay, lo crea.
+   * Corre dentro de la transacción del hecho que origina el mensaje.
+   */
+  async ensureTx(tx: Tx, tenantId: string, loanId: string, createdBy: string | null): Promise<{ url: string; token: string }> {
+    let r = await tx.one<Record<string, any>>('SELECT * FROM upload_links WHERE loan_id = $1 AND revoked_at IS NULL AND expires_at > now() AND token_enc IS NOT NULL', [loanId]);
+    if (!r) {
+      await tx.exec('UPDATE upload_links SET revoked_at = now() WHERE loan_id = $1 AND revoked_at IS NULL', [loanId]);
+      r = await this.create(tx, tenantId, loanId, createdBy);
+      await this.audit.log(tx, 'upload_link.created', 'loan', loanId, { after: { linkId: r.id, expiresAt: r.expires_at, reason: 'message' } });
+    }
+    const token = this.box.open(r.token_enc, `upload-link:${tenantId}:${r.id}`).toString();
+    return { url: `${this.config.portalUrlBase}${token}`, token };
   }
 
   async revoke(auth: AuthContext, loanId: string): Promise<void> {

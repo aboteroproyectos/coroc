@@ -188,7 +188,16 @@
     "UPLOAD_LINK_EXPIRED": "The upload link expired or was revoked.",
     "WEBHOOK_SIGNATURE_INVALID": "Invalid webhook signature.",
     "WEBHOOK_NOT_CONFIGURED": "This channel is not configured on the server.",
-    "WHATSAPP_ACCOUNT_IN_USE": "That WhatsApp number is already connected to another company."
+    "WHATSAPP_ACCOUNT_IN_USE": "That WhatsApp number is already connected to another company.",
+    "TEMPLATE_BLOCKED": "The text cannot be saved: it contains language that the law or WhatsApp policy forbids (threats, asking why the debtor has not paid, mentioning third parties, or requesting sensitive data).",
+    "MESSAGE_NOT_PENDING": "This message is no longer pending.",
+    "MESSAGE_NOT_RETRYABLE": "Only failed or blocked messages can be retried.",
+    "CONTACT_BLOCKED": "The contact rules do not allow sending this message now ({rule}).",
+    "CONTACT_OUT_OF_WINDOW": "Outside the allowed hours. It can be sent from {at}.",
+    "CONTACT_EXCEPTION_EVIDENCE": "The time exception requires as evidence a client document, separate from the contract and dated after it.",
+    "OWNER_REQUIRED": "Only the Owner can make this change.",
+    "WHATSAPP_NOT_READY": "First connect the WhatsApp Business number with the account id and configure the server (app secret and verify token).",
+    "WHATSAPP_CHECKLIST_INCOMPLETE": "Complete the whole checklist before turning on automatic mode."
   },
   "terms": {
     "PRINCIPAL": "The principal must be a positive amount.",
@@ -437,6 +446,17 @@
     "errorSize": "The file is larger than {mb} MB.",
     "errorEmpty": "Choose the proof of payment file.",
     "errorRate": "You sent many files in a short time. Please try again in an hour.",
-    "privacy": "Your data is used only to manage your loan."
+    "privacy": "Your data is used only to manage your loan.",
+    "messagesTitle": "Messages",
+    "messagesHelp": "You receive reminders and receipts for your loan by WhatsApp and email. You can stop them at any time.",
+    "optOutButton": "I don't want to receive more messages",
+    "optedOutTitle": "Done",
+    "optedOutBody": "You will no longer receive messages from this company by WhatsApp or email. Your loan and this link stay the same."
+  },
+  "messaging": {
+    "emailFooter": "This message was sent by {company} through COROC.",
+    "unsubscribe": "To stop receiving emails",
+    "suspendedSubject": "COROC · WhatsApp switched to assisted mode",
+    "suspendedNotice": "Meta suspended or restricted the WhatsApp Business account of {company}. COROC switched to assisted mode automatically: no message was lost, and the pending ones are in “To send today”, ready to send with one tap. Check the account in Meta's WhatsApp Manager and, once it is restored, turn automatic mode back on in Settings."
   }
 }

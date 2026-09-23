@@ -22,6 +22,8 @@ export interface ClientInput {
   idDocType?: string | null;
   idDocNumber?: string | null;
   lang?: Lang;
+  /** Zona horaria del deudor para las reglas de contacto (§11.4); vacía: la de la empresa. */
+  timezone?: string | null;
   collectorId?: string | null;
   coDebtor?: { name: string; phone?: string; email?: string } | null;
   notes?: string | null;
@@ -170,6 +172,8 @@ export class ClientsService {
       idDocType: r.id_doc_type ?? null, idDocNumber: r.id_doc_number ?? null, lang: r.lang, collectorId: r.collector_id ?? null,
       coDebtor: cd && cd.name !== '(retirado)' ? { name: cd.name, phone: cd.phone_e164 ?? undefined, email: cd.email ?? undefined } : null,
       notes: r.notes ?? null, folderName: r.folder_name, consents: consents.map(this.consentJson), loans,
+      timezone: r.timezone ?? null, emailStatus: r.email_status ?? null,
+      contactException: r.authorized_windows ? { windows: r.authorized_windows, documentId: r.authorized_windows_document_id ?? null, grantedAt: r.authorized_windows_at ? new Date(r.authorized_windows_at).toISOString() : null } : null,
       createdAt: new Date(r.created_at).toISOString(), version: r.version,
     };
   }
@@ -192,14 +196,25 @@ export class ClientsService {
       const phone = this.phone(c.phone, tenant, 'phone')!;
       const phone2 = this.phone(c.phone2, tenant, 'phone2');
       await this.assertCollector(tx, c.collectorId);
+      if (c.timezone) {
+        try {
+          new Intl.DateTimeFormat('en', { timeZone: c.timezone });
+        } catch {
+          throw new Problem(422, 'VALIDATION_FAILED', {}, [{ field: 'timezone', message: 'enum' }]);
+        }
+      }
       const r = await tx.one<Record<string, any>>(
         `UPDATE clients SET first_name = $2, last_name = $3, phone_e164 = $4, phone2_e164 = $5, email = $6, address = $7, city = $8,
-                id_doc_type = $9, id_doc_number = $10, lang = $11, collector_id = $12, notes = $13, folder_name = $14, version = version + 1
+                id_doc_type = $9, id_doc_number = $10, lang = $11, collector_id = $12, notes = $13, folder_name = $14, version = version + 1,
+                timezone = CASE WHEN $15::boolean THEN $16 ELSE timezone END,
+                -- Una dirección nueva se vuelve a intentar: el rebote era de la anterior (§11.2).
+                email_status = CASE WHEN email IS DISTINCT FROM $6::citext THEN NULL ELSE email_status END,
+                email_status_at = CASE WHEN email IS DISTINCT FROM $6::citext THEN NULL ELSE email_status_at END
           WHERE id = $1 RETURNING *`,
         [
           id, c.firstName.trim(), c.lastName.trim(), phone, phone2, c.email?.trim() || null, c.address?.trim() || null, c.city?.trim() || null,
           c.idDocType?.trim() || null, c.idDocNumber?.trim() || null, c.lang ?? before.lang, c.collectorId === undefined ? before.collector_id : c.collectorId, c.notes?.trim() || null,
-          clientFolderName(c.firstName.trim(), c.lastName.trim(), before.code),
+          clientFolderName(c.firstName.trim(), c.lastName.trim(), before.code), c.timezone !== undefined, c.timezone?.trim() || null,
         ],
       );
       if (c.coDebtor !== undefined) await this.saveCoDebtor(tx, id, c.coDebtor, tenant);
