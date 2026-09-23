@@ -18,6 +18,12 @@ on:
   push:
     tags: ['v*']
   workflow_dispatch:
+  # Prueba en seco cuando cambia el propio flujo o el ajuste de plataformas: compila todo, sin publicar.
+  pull_request:
+    paths:
+      - .github/workflows/release.yml
+      - apps/coroc_app/tool/patch_platforms.py
+      - apps/coroc_app/pubspec.yaml
 
 permissions:
   contents: write
@@ -77,7 +83,7 @@ jobs:
             apps/coroc_app/build/app/outputs/bundle/release/app-release.aab
             apps/coroc_app/build/app/outputs/flutter-apk/app-release.apk
       - name: Subir a Google Play (pista interna, borrador)
-        if: env.HAS_KEY == 'true' && env.HAS_PLAY == 'true'
+        if: env.HAS_KEY == 'true' && env.HAS_PLAY == 'true' && github.event_name != 'pull_request'
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
@@ -140,7 +146,7 @@ jobs:
             apps/coroc_app/build/ios/ipa/*.ipa
           if-no-files-found: ignore
       - name: Subir a App Store Connect (TestFlight)
-        if: env.HAS_CERT == 'true' && env.HAS_ASC == 'true'
+        if: env.HAS_CERT == 'true' && env.HAS_ASC == 'true' && github.event_name != 'pull_request'
         run: |
           mkdir -p ~/.appstoreconnect/private_keys
           echo "${{ secrets.APPSTORE_API_KEY_P8 }}" > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APPSTORE_API_KEY_ID }}.p8
