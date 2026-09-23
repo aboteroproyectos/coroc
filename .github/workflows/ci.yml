@@ -123,7 +123,7 @@ jobs:
         run: |
           node scripts/dast.mjs prepare > dast.env
           set -a; . ./dast.env; set +a
-          nohup node dist/main.js > api.log 2>&1 &
+          NO_COLOR=1 nohup node dist/main.js > api.log 2>&1 &
           for i in $(seq 1 60); do curl -sf http://localhost:3000/health && break; sleep 1; done
           node scripts/dast.mjs token | sed 's/^DAST_TOKEN=//' > token.txt
           echo "::add-mask::$(cat token.txt)"
@@ -136,6 +136,11 @@ jobs:
           curl -sf http://localhost:8088/openapi.yaml > /dev/null
       - name: OWASP ZAP · escaneo de la API con sesión
         uses: zaproxy/action-api-scan@v0.9.0
+        env:
+          # Encabezado de sesión que ZAP agrega a cada petición a la API (mecanismo nativo de los scripts de ZAP).
+          ZAP_AUTH_HEADER: Authorization
+          ZAP_AUTH_HEADER_VALUE: Bearer ${{ env.DAST_TOKEN }}
+          ZAP_AUTH_HEADER_SITE: localhost:3000
         with:
           target: http://localhost:8088/openapi.yaml
           format: openapi
@@ -144,23 +149,24 @@ jobs:
           fail_action: true
           artifact_name: informe-zap
           # -I: las advertencias no fallan el trabajo; fallan las reglas marcadas FAIL en .zap/rules.tsv (inyección, XSS,
-          # SSRF…). Se excluyen las operaciones que cerrarían la sesión del propio escáner.
+          # SSRF…). Se excluyen las operaciones que cerrarían la sesión del propio escáner o la empresa.
           cmd_options: >-
             -I -O http://localhost:3000/v1
-            -z "-config replacer.full_list(0).description=sesion
-            -config replacer.full_list(0).enabled=true
-            -config replacer.full_list(0).matchtype=REQ_HEADER
-            -config replacer.full_list(0).matchstr=Authorization
-            -config replacer.full_list(0).regex=false
-            -config replacer.full_list(0).replacement=Bearer ${{ env.DAST_TOKEN }}
-            -config globalexcludeurl.url_list.url(0).regex=.*/v1/(auth/logout|me/password|me/mfa.*|me/sessions.*|users/.*/sessions|restores.*).*
+            -z "-config globalexcludeurl.url_list.url(0).regex=.*/v1/(auth/logout|me|me/password|me/mfa.*|me/sessions.*|users/.*|company/closure|restores.*)$
             -config globalexcludeurl.url_list.url(0).description=sesion
             -config globalexcludeurl.url_list.url(0).enabled=true
             -config scanner.maxScanDurationInMins=20
             -config scanner.maxRuleDurationInMins=3"
-      - name: Registro de la API durante el escaneo (sin datos personales)
+      - name: Cobertura del escaneo (estados HTTP de la API, con sesión)
         if: always()
-        run: tail -n 200 services/api/api.log || true
+        run: |
+          grep -oE '(GET|POST|PUT|PATCH|DELETE) /v1/[^ ]* [0-9]{3}' services/api/api.log | awk '{print $NF}' | sort | uniq -c | sort -rn || true
+          ok=$(grep -cE ' /v1/[^ ]* 2[0-9]{2} ' services/api/api.log || true)
+          echo "Respuestas 2xx con sesión: $ok"
+          test "$ok" -gt 50
+      - name: Errores 5xx de la API durante el escaneo (sin datos personales)
+        if: always()
+        run: grep -E ' 5[0-9]{2} ' services/api/api.log | head -50 || true
 
   docker:
     name: Imagen Docker de la API
