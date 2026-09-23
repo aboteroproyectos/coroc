@@ -2,19 +2,20 @@
 
 Plataforma de gestión y cobro de préstamos personales para Android, iOS, Windows y macOS.
 
-**Estado:** Fase 1 «Núcleo» terminada en la rama `fase-1` (notas en [`docs/05_FASE_1_NOTAS_DE_VERSION.md`](docs/05_FASE_1_NOTAS_DE_VERSION.md)). La Fase 0 (arquitectura, núcleo probado y app HTML) está en `main`.
+**Estado:** Fase 2 «Documentos» terminada en la rama `fase-2` (notas en [`docs/07_FASE_2_NOTAS_DE_VERSION.md`](docs/07_FASE_2_NOTAS_DE_VERSION.md)). Las fases 0 y 1 están en `main` (notas de la Fase 1 en [`docs/05_FASE_1_NOTAS_DE_VERSION.md`](docs/05_FASE_1_NOTAS_DE_VERSION.md)).
 
 ## Estructura (§24.2)
 
 ```
 coroc/
-├── apps/coroc_app/     App Flutter para Android, iOS, Windows y macOS (Fase 1)
+├── apps/coroc_app/     App Flutter para Android, iOS, Windows y macOS (fases 1 y 2)
+│   └── packages/coroc_bookmarks/  Plugin de marcadores de seguridad de macOS para la carpeta COROC
 ├── apps/prototype/     App COROC en un solo archivo HTML (Fase 0): valida los flujos de las fases 2 a 4
-├── services/api/       API NestJS 12 · PostgreSQL 16 con RLS · contrato OpenAPI 3.1 (70 operaciones) · pruebas de aceptación
-├── packages/core/      @coroc/core: dinero, calendario, amortización, pagos, tasas, Ley 2300, identificación, lectura, recibo
+├── services/api/       API NestJS 12 · PostgreSQL 16 con RLS · PDF con Chromium · archivos cifrados · contrato OpenAPI 3.1 (80 operaciones) · pruebas de aceptación
+├── packages/core/      @coroc/core: dinero, calendario, amortización, pagos, tasas, Ley 2300, identificación, lectura, recibo, carpeta COROC
 ├── infra/              Docker Compose (PostgreSQL, Redis, migraciones, API, HTTPS con Caddy)
 ├── brand/              Logo vectorizado, variantes e íconos de app
-├── docs/               Arquitectura, decisiones (ADR-001 a ADR-030), pantallas, supuestos, criterios, notas de versión, despliegue
+├── docs/               Arquitectura, decisiones (ADR-001 a ADR-036), pantallas, supuestos, criterios, notas de versión, despliegue
 └── .github/            Integración continua: pruebas y compilación de las 4 apps
 ```
 
@@ -22,6 +23,7 @@ coroc/
 
 | Documento | Contenido |
 |---|---|
+| [`docs/07_FASE_2_NOTAS_DE_VERSION.md`](docs/07_FASE_2_NOTAS_DE_VERSION.md) | Qué trae la Fase 2: documentos, PDF, carpeta COROC, informes y respaldo |
 | [`docs/05_FASE_1_NOTAS_DE_VERSION.md`](docs/05_FASE_1_NOTAS_DE_VERSION.md) | Qué trae la Fase 1, seguridad y límites conocidos |
 | [`docs/06_EJECUCION_Y_DESPLIEGUE.md`](docs/06_EJECUCION_Y_DESPLIEGUE.md) | Ejecución local, Docker, app Flutter, CI y producción |
 | [`docs/04_CRITERIOS_DE_ACEPTACION.md`](docs/04_CRITERIOS_DE_ACEPTACION.md) | Estado de CA-01 a CA-20 con su evidencia |
@@ -34,7 +36,7 @@ coroc/
 
 ```bash
 npm ci && npm run build
-TEST_DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/postgres npm test   # núcleo (46) y API (33)
+TEST_DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/postgres npm test   # núcleo (50) y API (59); los PDF necesitan Chromium, ver docs/06
 npm run lint:i18n
 cd apps/coroc_app && flutter test                                                 # ver apps/coroc_app/README.md
 ```
@@ -47,6 +49,6 @@ cd apps/coroc_app && flutter test                                               
 
 ## Siguiente paso
 
-- Subir el repositorio a GitHub para que la CI compile las cuatro apps.
+- Fase 3 (§23): lectura de comprobantes y portal del deudor.
 - Responder P-1 (nube y dominio), P-2 (cuentas de tiendas) y P-6 (tasas de los préstamos diarios frente a la usura).
 - Fase 2 «Documentos»: repositorio, carpeta COROC en las 4 plataformas, PDF, respaldo y restauración, e informes.

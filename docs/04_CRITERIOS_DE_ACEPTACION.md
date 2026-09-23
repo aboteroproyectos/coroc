@@ -1,6 +1,19 @@
 # COROC · Estado de los criterios de aceptación (§22)
 
-Corte: 22 de septiembre de 2026 · Fase 1.
+Corte: 23 de septiembre de 2026 · Fase 2.
+
+## Fase 2: cierre por el servidor
+
+La Fase 2 se cierra con CA-13, CA-15 y CA-18 (§23), verificados contra la API real con PostgreSQL 16, RLS forzada, archivos cifrados y PDF generados con Chromium. Las pruebas leen el texto de cada PDF generado.
+
+| ID | Resultado por la API | Prueba |
+|---|---|---|
+| CA-13 | ✅ Respaldo `.coroc` generado por flujo y descargado en partes. Se rechazan la contraseña errada, un byte alterado y la confirmación con otro nombre, sin cambiar nada. Al restaurar en una empresa vacía quedan los mismos conteos, las mismas huellas SHA-256 de cada documento y los mismos saldos, y todos los documentos abren | `services/api/test/backup.test.ts` · «Respaldo y restauración (§19, CA-13)» |
+| CA-15 | ✅ Al crear a «María José Pérez Gómez» queda `Maria Jose Perez Gomez - C…/CT-…/` con las 5 subcarpetas, el `.coroc-id` y el PDF del contrato y plan de pagos. En la app, la sincronización lo copia a la carpeta del dispositivo | `services/api/test/documents.test.ts` y `apps/coroc_app/test/folder_sync_test.dart` |
+| CA-18 | ✅ El reverso emite la versión ANULADO del recibo, la carpeta reemplaza el archivo, y el saldo y el dashboard vuelven al valor anterior. El QR del recibo lo muestra anulado | `documents.test.ts` · «CA-18 con PDF» y `acceptance.test.ts` |
+
+Otras verificaciones de la Fase 2: CA-05 con PDF (el recibo dice exactamente lo que registró el pago), descargas por rangos, enlaces alterados o vencidos rechazados, estado de cuenta y paz y salvo, carga manual por contenido, informes en PDF, XLSX y CSV, y cifrado en reposo con detección de alteraciones. En total hay 59 pruebas de la API.
+
 
 ## Fase 1: cierre por el servidor
 
@@ -18,7 +31,7 @@ La Fase 1 se cierra con CA-01 a CA-06, CA-12, CA-14, CA-16 y CA-17 (§23). Todos
 | CA-14 | ✅ Servidor: los errores cambian de idioma con cada petición (`Accept-Language`). App: `test/widgets_test.dart` cambia es → pt → en en la pantalla de ingreso sin reiniciar. 377 textos en 3 idiomas, verificados por `tool/l10n_keys.py` | `acceptance.test.ts` y app Flutter (CI) |
 | CA-16 | ✅ El Cobrador ve solo sus clientes; sobre uno ajeno recibe 403 «Acceso denegado» y queda `access.denied` en la bitácora. En la base, aunque la API se equivocara, RLS le oculta los ajenos (ADR-022) | «Roles y aislamiento» |
 | CA-17 | ✅ La empresa B no puede leer, modificar ni pagar datos de la empresa A | ídem |
-| CA-18 | ✅ Adelantado de la Fase 2: contramovimiento, recibo ANULADO, saldos y dashboard recalculados | «Pagos, recibo, reverso y dashboard» |
+| CA-18 | ✅ Contramovimiento, recibo ANULADO, saldos y dashboard recalculados | «Pagos, recibo, reverso y dashboard» |
 
 Otras verificaciones de la Fase 1:
 
@@ -73,12 +86,13 @@ Otras verificaciones de la Fase 1:
 ## Cómo repetir las verificaciones
 
 ```bash
-# Fase 1: núcleo y API (PostgreSQL 16 accesible con un usuario que pueda crear bases y roles)
+# Fases 1 y 2: núcleo y API (PostgreSQL 16 accesible con un usuario que pueda crear bases y roles)
 npm ci && npm run build
+npx playwright-core install chromium-headless-shell   # PDF de la Fase 2 (o COROC_CHROMIUM_PATH=/ruta/al/ejecutable)
 TEST_DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/postgres npm test
 (cd services/api && PERF=1 TEST_DATABASE_URL=... npx vitest run test/perf.test.ts)   # 50.000 clientes
 
-# Fase 1: app Flutter (ver apps/coroc_app/README.md)
+# Fases 1 y 2: app Flutter (ver apps/coroc_app/README.md)
 cd apps/coroc_app && flutter test
 
 # Núcleo

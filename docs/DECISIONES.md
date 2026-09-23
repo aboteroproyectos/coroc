@@ -124,3 +124,66 @@ Regla 3 del prompt maestro: toda decisión no especificada se toma con criterio 
 
 ### ADR-030 · Formato del peso colombiano fijado en código
 **Contexto:** la biblioteca `intl` no trae datos de `es_CO`; con `es` pondría el símbolo después del número («1.200.000 $»). **Decisión:** COP usa el patrón fijo `¤ #,##0`: símbolo delante, punto de miles y sin decimales, que es como se escribe en Colombia. Las fechas y porcentajes usan `es`. **Consecuencias:** «$ 1.200.000» en todas las plataformas. Una prueba lo verifica.
+
+## Fase 2
+
+### ADR-031 · Archivos cifrados en reposo, por bloques
+**Contexto:** §7.3 pide cifrado en reposo. Los documentos pueden pesar varios megas y el respaldo varios gigas, y §16 pide descargas que se reanuden. **Decisión:** la API cifra cada archivo antes de entregarlo al almacén, con AES-256-GCM en bloques de 64 KiB.
+- Cada objeto tiene su propia clave, derivada con HKDF-SHA256 de `COROC_DATA_KEY`, una sal aleatoria y el identificador de la empresa.
+- Cada bloque lleva su número y la marca de último bloque como datos autenticados, así que no se pueden reordenar, truncar ni mover a otra empresa.
+- Una lectura por rangos descifra solo los bloques necesarios.
+- El almacén puede ser un disco (`COROC_STORAGE=fs`) o un servicio compatible con S3 (`COROC_STORAGE=s3`, con cifrado del proveedor opcional como segunda capa).
+
+**Consecuencias:** quien obtenga el disco o el depósito no lee nada sin la clave maestra, y un byte alterado se detecta. Perder `COROC_DATA_KEY` hace ilegibles los archivos, así que debe tener respaldo en el gestor de secretos. El almacén S3 se probó con la interfaz, pero no contra un servicio S3 real.
+
+### ADR-032 · Documentos en bandeja de salida transaccional
+**Contexto:** el PDF de un recibo no puede perderse si el proceso se cae justo después del pago, ni puede frenar el registro del pago. **Decisión:** cada hecho (préstamo creado, pago, reverso, estado de cuenta pedido, informe, respaldo) registra su tarea en `document_tasks` dentro de la misma transacción.
+- Un trabajador las toma con `claim_document_tasks` (`FOR UPDATE SKIP LOCKED`, con plazo de posesión), en orden por préstamo.
+- Si una tarea falla, se reintenta hasta 6 veces, con esperas crecientes de hasta una hora.
+- `COROC_DOCUMENT_WORKER=on|off|inline` permite separar el trabajador de la API o, en las pruebas, ejecutarlo en línea.
+- La app consulta el avance con `GET /tasks/{id}`.
+
+**Consecuencias:** un pago nunca queda sin recibo, aunque el PDF puede tardar unos segundos. Varias instancias pueden procesar la bandeja sin coordinarse.
+
+### ADR-033 · PDF con plantillas HTML y Chromium sin interfaz
+**Decisión:** los PDF (plan de pagos, recibo A5, estado de cuenta, paz y salvo, versión ANULADO e informes) se generan con plantillas HTML y CSS, renderizadas por Chromium sin interfaz (`playwright-core`).
+- Las tipografías y el logo van incrustados.
+- JavaScript está desactivado y no hay acceso a la red.
+- Hay un contexto nuevo por documento y un tope de páginas por tipo.
+- El código QR del recibo lleva a `GET /v1/public/receipts/{código}`, que confirma la empresa, el número, la fecha, el monto y si fue anulado, sin datos del deudor.
+
+**Consecuencias:** los documentos se ven iguales en las tres lenguas y los tres países, y el diseño se cambia editando HTML. La imagen Docker incluye `chromium-headless-shell`. En desarrollo se puede indicar otro ejecutable con `COROC_CHROMIUM_PATH`.
+
+### ADR-034 · Formato del respaldo `.coroc` y restauración atómica
+**Decisión:** el respaldo es una línea JSON de encabezado seguida de un ZIP cifrado por bloques (ADR-031).
+- La clave se deriva de la contraseña con PBKDF2-SHA256 de 310.000 iteraciones, y el encabezado va autenticado.
+- El ZIP contiene `data/*.jsonl` por tabla, `files/<documento>` y `manifest.json` con conteos y huellas SHA-256.
+- Se genera por flujo, sin cargarlo en memoria, y se descarga en partes.
+- La restauración tiene tres pasos: subir, verificar (contraseña, integridad y un resumen de lo que se restaurará) y aplicar.
+- Al aplicar, en una sola transacción se vacía la empresa y se vuelven a crear los identificadores de forma determinista (`sha256(empresa:restore:id)`). Los usuarios se emparejan por nombre de usuario, se reconstruyen los saldos y se comparan los conteos. Si algo no cuadra, no se cambia nada.
+- Para confirmar hay que escribir el nombre de la empresa. Solo el Propietario restaura.
+
+**Consecuencias:**
+- Un respaldo se puede restaurar en la misma empresa o en otra, sin choques de identificadores.
+- Los secretos del segundo factor no se restauran: cada usuario lo activa de nuevo.
+- La bitácora de la empresa se reemplaza por la del respaldo, más el evento de restauración.
+- Los respaldos `COROC-BACKUP-1` de la app HTML de la Fase 0 usan otro modelo de datos y no se restauran en el servidor.
+
+### ADR-035 · Documentos en la app: visor propio y descargas firmadas
+**Decisión:** la app no guarda documentos en un caché propio (en línea con ADR-023).
+- Cada descarga usa un enlace firmado con HMAC que vence en 5 minutos (`COROC_LINK_TTL`) y admite rangos para reanudar.
+- Los PDF se abren en un visor integrado (pdfrx) con zoom, historial de versiones, datos del documento (con su huella SHA-256) y botón para compartir o guardar. Para imprimir se comparte a la app de impresión del sistema. XLSX y CSV se comparten o se guardan con el diálogo del sistema.
+- Los documentos nunca se sobrescriben: cada cambio crea una versión nueva (el recibo ANULADO es una versión del recibo).
+
+**Consecuencias:** un enlace filtrado deja de servir en minutos y el historial de cada documento queda completo.
+
+### ADR-036 · Carpeta COROC en cada plataforma
+**Contexto:** §16.2 pide una carpeta COROC visible para el usuario, y cada sistema tiene su propio modelo de permisos. **Decisión:** la carpeta es un espejo de solo llegada del repositorio del servidor, que es la fuente de verdad.
+- **Windows:** carpeta elegida con el diálogo del sistema; por defecto, `Documentos\COROC`.
+- **macOS:** marcador de seguridad de la app (plugin `coroc_bookmarks` del repositorio), que conserva el permiso entre sesiones.
+- **Android:** Storage Access Framework con permiso persistente (`saf_util`/`saf_stream`).
+- **iOS:** carpeta Documentos de la app, visible en Archivos › En mi iPhone › COROC.
+
+La sincronización corre al abrir la app, cada 2 minutos y con cada evento `document.created`. Lleva un índice `.coroc-sync.json` con la huella de cada archivo. En escritorio, los archivos que el usuario pone en la carpeta de un cliente se pueden subir al repositorio. Los nombres siguen §16.3 sin tildes (ADR-013), en el idioma de la empresa.
+
+**Consecuencias:** si el usuario no da permiso, COROC sigue funcionando con la nube. Borrar un archivo de la carpeta no lo borra del servidor: vuelve en la siguiente sincronización.

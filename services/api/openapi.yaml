@@ -15,7 +15,7 @@ info:
     - Toda petición autenticada opera dentro de la empresa del token; la base de datos aplica Row Level Security.
     - Idempotencia: las operaciones que crean movimientos contables aceptan el encabezado `Idempotency-Key`.
     - Concurrencia optimista: los recursos editables exponen `version`; enviar `If-Match` con ese valor.
-    - Tiempo real: `GET /events` (Server-Sent Events) emite `payment.posted`, `intake.updated`, `message.updated`, `dashboard.changed`.
+    - Tiempo real: `GET /events` (Server-Sent Events) emite `payment.posted`, `payment.reversed`, `loan.created`, `document.created` y `dashboard.changed`; en fases siguientes `intake.updated` y `message.updated`.
   contact:
     name: COROC
   license:
@@ -1235,7 +1235,7 @@ paths:
       summary: Eventos en tiempo real (Server-Sent Events)
       responses:
         '200':
-          description: 'Flujo `text/event-stream` con `ready`, `ping` (cada 25 s), `payment.posted`, `payment.reversed`, `loan.created`, `dashboard.changed` y `security.lockout` (solo Propietario y Administrador); en fases siguientes `intake.updated` y `message.updated`'
+          description: 'Flujo `text/event-stream` con `ready`, `ping` (cada 25 s), `payment.posted`, `payment.reversed`, `loan.created`, `document.created` (el Cobrador solo los de sus clientes), `dashboard.changed` y `security.lockout` (solo Propietario y Administrador); en fases siguientes `intake.updated` y `message.updated`'
           content:
             text/event-stream: {}
         '4XX': { $ref: '#/components/responses/Problem' }
