@@ -106,10 +106,11 @@ export class DocumentTasks implements OnApplicationBootstrap, OnModuleDestroy {
       };
       const cancelled = async () => (await this.db.tx(ctx, (tx) => tx.one<{ status: string }>('SELECT status FROM document_tasks WHERE id = $1', [id])))?.status === 'cancelled';
       const documentId = await handler(task, progress, cancelled);
-      await this.db.tx(ctx, (tx) => tx.exec("UPDATE document_tasks SET status = 'done', progress = 100, document_id = $2, finished_at = now(), error = NULL WHERE id = $1 AND status = 'running'", [id, documentId]));
+      // `secret` (p. ej. la clave derivada de la contraseña de un respaldo) nunca sobrevive a la tarea.
+      await this.db.tx(ctx, (tx) => tx.exec("UPDATE document_tasks SET status = 'done', progress = 100, document_id = $2, finished_at = now(), error = NULL, params = params - 'secret' WHERE id = $1 AND status = 'running'", [id, documentId]));
     } catch (e) {
       if (e instanceof TaskCancelled) {
-        await this.db.tx(ctx, (tx) => tx.exec("UPDATE document_tasks SET status = 'cancelled', finished_at = now() WHERE id = $1", [id]));
+        await this.db.tx(ctx, (tx) => tx.exec("UPDATE document_tasks SET status = 'cancelled', finished_at = now(), params = params - 'secret' WHERE id = $1", [id]));
         return;
       }
       // El mensaje de error es técnico y no lleva datos personales (§2 regla 9).
@@ -119,6 +120,7 @@ export class DocumentTasks implements OnApplicationBootstrap, OnModuleDestroy {
       await this.db.tx(ctx, (tx) =>
         tx.exec(
           `UPDATE document_tasks SET status = $2, error = $3, locked_until = NULL, finished_at = CASE WHEN $2 = 'failed' THEN now() END,
+                  params = CASE WHEN $2 = 'failed' THEN params - 'secret' ELSE params END,
                   run_after = now() + make_interval(secs => $4) WHERE id = $1`,
           [id, final ? 'failed' : 'pending', message, Math.min(3600, 5 * 2 ** task.attempts)],
         ),

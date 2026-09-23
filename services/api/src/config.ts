@@ -33,6 +33,8 @@ export interface AppConfig {
   documentWorker: 'on' | 'off' | 'inline';
   /** Validez de los enlaces firmados de descarga, en segundos. */
   linkTtlSeconds: number;
+  /** Tamaño máximo de un `.coroc` que se sube para restaurar. */
+  restoreMaxBytes: number;
 }
 
 function required(name: string): string {
@@ -65,6 +67,7 @@ export function loadConfig(env = process.env): AppConfig {
     chromiumPath: env.COROC_CHROMIUM_PATH || null,
     verifyUrlBase: env.COROC_VERIFY_URL ?? `${(env.COROC_API_PUBLIC_URL ?? `http://localhost:${env.PORT ?? 3000}`).replace(/\/+$/, '')}/v1/public/receipts/`,
     documentWorker: env.COROC_DOCUMENT_WORKER === 'off' ? 'off' : env.COROC_DOCUMENT_WORKER === 'inline' ? 'inline' : 'on',
+    restoreMaxBytes: Number(env.COROC_RESTORE_MAX_BYTES ?? 20 * 1024 ** 3),
     linkTtlSeconds: Math.min(3600, Math.max(30, Number(env.COROC_LINK_TTL ?? 300))),
   };
 }

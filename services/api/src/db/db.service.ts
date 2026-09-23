@@ -43,10 +43,11 @@ export class DbService implements OnModuleDestroy {
    * Ejecuta `fn` en una transacción con `app.tenant_id`, `app.user_id` y `app.role` fijados con SET LOCAL:
    * PostgreSQL aplica el aislamiento por empresa y el alcance del Cobrador (RLS), no solo la API.
    */
-  async tx<T>(ctx: TxContext | null, fn: (tx: Tx) => Promise<T>, opts: { lookupSlug?: string } = {}): Promise<T> {
+  async tx<T>(ctx: TxContext | null, fn: (tx: Tx) => Promise<T>, opts: { lookupSlug?: string; snapshot?: boolean } = {}): Promise<T> {
     const client = await this.pool.connect();
     try {
-      await client.query('BEGIN');
+      // `snapshot`: lectura consistente de toda la empresa en un instante (respaldo, §19).
+      await client.query(opts.snapshot ? 'BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY' : 'BEGIN');
       await client.query(
         "SELECT set_config('app.tenant_id', $1, true), set_config('app.user_id', $2, true), set_config('app.role', $3, true), set_config('app.lookup_slug', $4, true)",
         [ctx?.tenantId ?? '', ctx?.userId ?? '', ctx?.role ?? '', opts.lookupSlug ?? ''],

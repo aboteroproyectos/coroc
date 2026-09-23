@@ -143,6 +143,42 @@
     "LINK_EXPIRED": {
       "title": "Link expirado",
       "detail": "Este link não é mais válido. Abra-o novamente pelo COROC."
+    },
+    "BACKUP_IN_PROGRESS": {
+      "title": "Backup em andamento",
+      "detail": "Já há um backup sendo gerado. Aguarde terminar ou cancele-o."
+    },
+    "BACKUP_NOT_READY": {
+      "title": "Backup indisponível",
+      "detail": "O backup ainda não está pronto para download."
+    },
+    "BACKUP_NOT_COROC": {
+      "title": "Arquivo inválido",
+      "detail": "O arquivo não é um backup do COROC."
+    },
+    "BACKUP_FORMAT_UNSUPPORTED": {
+      "title": "Backup do app local",
+      "detail": "Este backup é do app local da Fase 0 e tem outro formato. Não pode ser restaurado no servidor."
+    },
+    "BACKUP_TOO_NEW": {
+      "title": "Backup de uma versão mais nova",
+      "detail": "O backup é de uma versão mais recente do COROC ({version}). Atualize o servidor antes de restaurá-lo."
+    },
+    "BACKUP_PASSWORD_OR_DAMAGED": {
+      "title": "Não foi possível abrir o backup",
+      "detail": "A senha está incorreta ou o arquivo está danificado. Nada foi alterado."
+    },
+    "BACKUP_INTEGRITY": {
+      "title": "Falha de integridade",
+      "detail": "{n} itens não conferem com sua impressão SHA-256. Nada foi restaurado."
+    },
+    "RESTORE_CONFIRM_NAME": {
+      "title": "Confirme o nome da empresa",
+      "detail": "Digite o nome exato da empresa para confirmar que substitui todos os dados."
+    },
+    "RESTORE_ALREADY_APPLIED": {
+      "title": "Restauração já aplicada",
+      "detail": "Este backup já foi restaurado. Envie-o novamente para repetir a restauração."
     }
   },
   "terms": {

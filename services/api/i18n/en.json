@@ -143,6 +143,42 @@
     "LINK_EXPIRED": {
       "title": "Link expired",
       "detail": "This link is no longer valid. Open it again from COROC."
+    },
+    "BACKUP_IN_PROGRESS": {
+      "title": "Backup in progress",
+      "detail": "A backup is already being created. Wait for it to finish or cancel it."
+    },
+    "BACKUP_NOT_READY": {
+      "title": "Backup not ready",
+      "detail": "The backup is not ready to download yet."
+    },
+    "BACKUP_NOT_COROC": {
+      "title": "Invalid file",
+      "detail": "The file is not a COROC backup."
+    },
+    "BACKUP_FORMAT_UNSUPPORTED": {
+      "title": "Local app backup",
+      "detail": "This backup comes from the Phase 0 local app and uses another format. It cannot be restored on the server."
+    },
+    "BACKUP_TOO_NEW": {
+      "title": "Backup from a newer version",
+      "detail": "The backup comes from a newer COROC version ({version}). Update the server before restoring it."
+    },
+    "BACKUP_PASSWORD_OR_DAMAGED": {
+      "title": "Could not open the backup",
+      "detail": "The password is wrong or the file is damaged. Nothing was changed."
+    },
+    "BACKUP_INTEGRITY": {
+      "title": "Integrity check failed",
+      "detail": "{n} items do not match their SHA-256 fingerprint. Nothing was restored."
+    },
+    "RESTORE_CONFIRM_NAME": {
+      "title": "Confirm the company name",
+      "detail": "Type the exact company name to confirm you are replacing all of its data."
+    },
+    "RESTORE_ALREADY_APPLIED": {
+      "title": "Restore already applied",
+      "detail": "This backup was already restored. Upload it again to repeat the restore."
     }
   },
   "terms": {

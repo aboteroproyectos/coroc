@@ -143,6 +143,42 @@
     "LINK_EXPIRED": {
       "title": "Enlace vencido",
       "detail": "Este enlace ya no es válido. Ábralo de nuevo desde COROC."
+    },
+    "BACKUP_IN_PROGRESS": {
+      "title": "Respaldo en curso",
+      "detail": "Ya se está generando un respaldo. Espere a que termine o cancélelo."
+    },
+    "BACKUP_NOT_READY": {
+      "title": "Respaldo no disponible",
+      "detail": "El respaldo aún no está listo para descargar."
+    },
+    "BACKUP_NOT_COROC": {
+      "title": "Archivo no válido",
+      "detail": "El archivo no es un respaldo de COROC."
+    },
+    "BACKUP_FORMAT_UNSUPPORTED": {
+      "title": "Respaldo de la app local",
+      "detail": "Este respaldo es de la app local de la Fase 0 y tiene otro formato. No se puede restaurar en el servidor."
+    },
+    "BACKUP_TOO_NEW": {
+      "title": "Respaldo de una versión más nueva",
+      "detail": "El respaldo es de una versión más reciente de COROC ({version}). Actualice el servidor antes de restaurarlo."
+    },
+    "BACKUP_PASSWORD_OR_DAMAGED": {
+      "title": "No se pudo abrir el respaldo",
+      "detail": "La contraseña es incorrecta o el archivo está dañado. No se cambió nada."
+    },
+    "BACKUP_INTEGRITY": {
+      "title": "Integridad fallida",
+      "detail": "{n} elementos no coinciden con su huella SHA-256. No se restauró nada."
+    },
+    "RESTORE_CONFIRM_NAME": {
+      "title": "Confirme el nombre de la empresa",
+      "detail": "Escriba el nombre exacto de la empresa para confirmar que reemplaza todos sus datos."
+    },
+    "RESTORE_ALREADY_APPLIED": {
+      "title": "Restauración ya aplicada",
+      "detail": "Este respaldo ya se restauró. Súbalo de nuevo si quiere repetir la restauración."
     }
   },
   "terms": {
