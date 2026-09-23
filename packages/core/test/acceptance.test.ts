@@ -21,7 +21,7 @@ import {
   type Extraction,
   type InstallmentState,
   type LoanTerms,
-} from '../src';
+} from '../src/index.js';
 
 const CA01: LoanTerms = {
   principal: 1_000_000,

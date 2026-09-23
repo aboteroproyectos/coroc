@@ -1,6 +1,6 @@
-import { CURRENCIES, Decimal, type Currency } from './money';
-import { addDays, type IsoDate } from './calendar';
-import type { Extraction, ExtractedField } from './intake';
+import { CURRENCIES, Decimal, type Currency } from './money.js';
+import { addDays, type IsoDate } from './calendar.js';
+import type { Extraction, ExtractedField } from './intake.js';
 
 /**
  * Lector de comprobantes por reglas (es / pt-BR / en) sobre el texto de OCR o de la capa de texto del PDF.

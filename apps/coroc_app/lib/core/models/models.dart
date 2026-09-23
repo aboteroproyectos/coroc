@@ -1,0 +1,473 @@
+// Modelos de la API (contrato OpenAPI 0.2.0). Montos en unidades mínimas de la moneda (int), fechas civiles como texto.
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'models.freezed.dart';
+part 'models.g.dart';
+
+@freezed
+abstract class User with _$User {
+  const User._();
+  const factory User({
+    required String id,
+    required String username,
+    required String name,
+    String? email,
+    required String role,
+    required String lang,
+    @Default('system') String theme,
+    @Default(true) bool active,
+    @Default(false) bool mfaEnabled,
+    @Default(5) int autoLockMinutes,
+    String? lastLoginAt,
+    @Default(<String>[]) List<String> permissions,
+  }) = _User;
+
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+
+  bool can(String permission) => permissions.contains(permission);
+}
+
+@freezed
+abstract class CompanyBrief with _$CompanyBrief {
+  const factory CompanyBrief({
+    required String id,
+    required String slug,
+    required String name,
+    required String currency,
+    required String country,
+    required String timezone,
+    required String lang,
+  }) = _CompanyBrief;
+
+  factory CompanyBrief.fromJson(Map<String, dynamic> json) => _$CompanyBriefFromJson(json);
+}
+
+@freezed
+abstract class Session with _$Session {
+  const factory Session({
+    required String accessToken,
+    required String refreshToken,
+    required int expiresIn,
+    @Default(false) bool mfaEnrollmentRequired,
+    required User user,
+    required CompanyBrief company,
+  }) = _Session;
+
+  factory Session.fromJson(Map<String, dynamic> json) => _$SessionFromJson(json);
+}
+
+@freezed
+abstract class MfaEnrollment with _$MfaEnrollment {
+  const factory MfaEnrollment({required String secret, required String otpauthUri}) = _MfaEnrollment;
+  factory MfaEnrollment.fromJson(Map<String, dynamic> json) => _$MfaEnrollmentFromJson(json);
+}
+
+@freezed
+abstract class SessionInfo with _$SessionInfo {
+  const factory SessionInfo({
+    required String id,
+    required String deviceId,
+    String? deviceName,
+    required String createdAt,
+    required String lastUsedAt,
+    @Default(false) bool current,
+  }) = _SessionInfo;
+
+  factory SessionInfo.fromJson(Map<String, dynamic> json) => _$SessionInfoFromJson(json);
+}
+
+@freezed
+abstract class Company with _$Company {
+  const factory Company({
+    required String id,
+    required String slug,
+    required String name,
+    String? taxId,
+    String? phone,
+    String? email,
+    String? address,
+    String? city,
+    required String country,
+    required String currency,
+    required String timezone,
+    required String lang,
+    @Default(<String, dynamic>{}) Map<String, dynamic> settings,
+    required int version,
+  }) = _Company;
+
+  factory Company.fromJson(Map<String, dynamic> json) => _$CompanyFromJson(json);
+}
+
+@freezed
+abstract class NextInstallment with _$NextInstallment {
+  const factory NextInstallment({required int number, required String dueDate, required int outstanding}) = _NextInstallment;
+  factory NextInstallment.fromJson(Map<String, dynamic> json) => _$NextInstallmentFromJson(json);
+}
+
+@freezed
+abstract class ClientListItem with _$ClientListItem {
+  const factory ClientListItem({
+    required String id,
+    required String code,
+    required String fullName,
+    required String phone,
+    @Default(<String>[]) List<String> contracts,
+    String? frequency,
+    NextInstallment? next,
+    required int balance,
+    required String currency,
+    required String status,
+    @Default(0) int daysPastDue,
+    String? collectorId,
+  }) = _ClientListItem;
+
+  factory ClientListItem.fromJson(Map<String, dynamic> json) => _$ClientListItemFromJson(json);
+}
+
+@freezed
+abstract class ClientPage with _$ClientPage {
+  const factory ClientPage({required List<ClientListItem> items, String? nextCursor}) = _ClientPage;
+  factory ClientPage.fromJson(Map<String, dynamic> json) => _$ClientPageFromJson(json);
+}
+
+@freezed
+abstract class CoDebtor with _$CoDebtor {
+  const factory CoDebtor({required String name, String? phone, String? email}) = _CoDebtor;
+  factory CoDebtor.fromJson(Map<String, dynamic> json) => _$CoDebtorFromJson(json);
+}
+
+@freezed
+abstract class Consent with _$Consent {
+  const factory Consent({required String channel, required String method, required String grantedAt, String? revokedAt}) = _Consent;
+  factory Consent.fromJson(Map<String, dynamic> json) => _$ConsentFromJson(json);
+}
+
+@freezed
+abstract class LoanTerms with _$LoanTerms {
+  const factory LoanTerms({
+    required int principal,
+    required String currency,
+    required String method,
+    required String rate,
+    required int installments,
+    required String frequency,
+    required String disbursementDate,
+    String? firstDueDate,
+    @Default(<int>[1, 2, 3, 4, 5, 6]) List<int> collectionDays,
+    @Default(true) bool excludeHolidays,
+    int? monthlyDay,
+    @Default(1) int roundingUnit,
+  }) = _LoanTerms;
+
+  factory LoanTerms.fromJson(Map<String, dynamic> json) => _$LoanTermsFromJson(json);
+}
+
+@freezed
+abstract class LoanSummary with _$LoanSummary {
+  const factory LoanSummary({
+    required int totalInstallments,
+    required int paidInstallments,
+    required int remainingInstallments,
+    required int totalPayable,
+    required int paidTotal,
+    @Default(0) int lateFeesOutstanding,
+    required int balance,
+    NextInstallment? next,
+    @Default(0) int overdueCount,
+    @Default(0) int daysPastDue,
+    @Default(0) int surplus,
+    @Default(0.0) double progress,
+  }) = _LoanSummary;
+
+  factory LoanSummary.fromJson(Map<String, dynamic> json) => _$LoanSummaryFromJson(json);
+}
+
+@freezed
+abstract class Loan with _$Loan {
+  const factory Loan({
+    required String id,
+    required String clientId,
+    required String contract,
+    required LoanTerms terms,
+    required int totalPayable,
+    required int totalInterest,
+    required double effectiveAnnualRate,
+    required String status,
+    required LoanSummary summary,
+    @Default(0) int realizedProfit,
+    String? expectedMethod,
+    required String createdAt,
+    required int version,
+  }) = _Loan;
+
+  factory Loan.fromJson(Map<String, dynamic> json) => _$LoanFromJson(json);
+}
+
+@freezed
+abstract class Client with _$Client {
+  const factory Client({
+    required String id,
+    required String code,
+    required String firstName,
+    required String lastName,
+    required String fullName,
+    required String phone,
+    String? phone2,
+    String? email,
+    String? address,
+    String? city,
+    String? idDocType,
+    String? idDocNumber,
+    required String lang,
+    String? collectorId,
+    CoDebtor? coDebtor,
+    String? notes,
+    required String folderName,
+    @Default(<Consent>[]) List<Consent> consents,
+    @Default(<Loan>[]) List<Loan> loans,
+    required String createdAt,
+    required int version,
+  }) = _Client;
+
+  factory Client.fromJson(Map<String, dynamic> json) => _$ClientFromJson(json);
+}
+
+@freezed
+abstract class ScheduledInstallment with _$ScheduledInstallment {
+  const factory ScheduledInstallment({
+    required int number,
+    required String dueDate,
+    required int amount,
+    required int principal,
+    required int interest,
+    required int balanceAfter,
+  }) = _ScheduledInstallment;
+
+  factory ScheduledInstallment.fromJson(Map<String, dynamic> json) => _$ScheduledInstallmentFromJson(json);
+}
+
+@freezed
+abstract class InstallmentState with _$InstallmentState {
+  const factory InstallmentState({
+    required int number,
+    required String dueDate,
+    required int amount,
+    required int principal,
+    required int interest,
+    required int balanceAfter,
+    required int paid,
+    @Default(0) int lateFeeAccrued,
+    @Default(0) int lateFeePaid,
+    required String status,
+    String? lastPaymentDate,
+    @Default(<String>[]) List<String> receiptNumbers,
+  }) = _InstallmentState;
+
+  factory InstallmentState.fromJson(Map<String, dynamic> json) => _$InstallmentStateFromJson(json);
+}
+
+@freezed
+abstract class RateCapCheck with _$RateCapCheck {
+  const factory RateCapCheck({
+    required bool ok,
+    required double effectiveAnnual,
+    double? cap,
+    String? maxRate,
+    @Default(false) bool missing,
+  }) = _RateCapCheck;
+
+  factory RateCapCheck.fromJson(Map<String, dynamic> json) => _$RateCapCheckFromJson(json);
+}
+
+@freezed
+abstract class LoanPreview with _$LoanPreview {
+  const factory LoanPreview({
+    required List<ScheduledInstallment> installments,
+    required int regularInstallment,
+    required int totalPayable,
+    required int totalInterest,
+    required double effectiveAnnualRate,
+    required RateCapCheck rateCap,
+  }) = _LoanPreview;
+
+  factory LoanPreview.fromJson(Map<String, dynamic> json) => _$LoanPreviewFromJson(json);
+}
+
+@freezed
+abstract class AllocationLine with _$AllocationLine {
+  const factory AllocationLine({
+    required int number,
+    @Default(0) int toLateFee,
+    @Default(0) int toInstallment,
+    @Default(false) bool completed,
+    @Default(false) bool partial,
+  }) = _AllocationLine;
+
+  factory AllocationLine.fromJson(Map<String, dynamic> json) => _$AllocationLineFromJson(json);
+}
+
+@freezed
+abstract class LedgerEntry with _$LedgerEntry {
+  const factory LedgerEntry({
+    required String id,
+    required String type,
+    required String entryDate,
+    required String recordedAt,
+    required int amount,
+    @Default('') String method,
+    @Default('') String reference,
+    @Default('') String source,
+    String? reversesId,
+    String? reversedBy,
+    @Default('') String reason,
+    @Default('') String note,
+    @Default(<AllocationLine>[]) List<AllocationLine> allocation,
+    String? receiptNumber,
+  }) = _LedgerEntry;
+
+  factory LedgerEntry.fromJson(Map<String, dynamic> json) => _$LedgerEntryFromJson(json);
+}
+
+@freezed
+abstract class ReceiptPayment with _$ReceiptPayment {
+  const factory ReceiptPayment({required String date, required int amount, String? method, String? reference}) = _ReceiptPayment;
+  factory ReceiptPayment.fromJson(Map<String, dynamic> json) => _$ReceiptPaymentFromJson(json);
+}
+
+@freezed
+abstract class ReceiptNext with _$ReceiptNext {
+  const factory ReceiptNext({required int number, required String dueDate, required int amount}) = _ReceiptNext;
+  factory ReceiptNext.fromJson(Map<String, dynamic> json) => _$ReceiptNextFromJson(json);
+}
+
+@freezed
+abstract class ReceiptData with _$ReceiptData {
+  const factory ReceiptData({
+    required String lang,
+    required String number,
+    required String issuedAt,
+    required String contract,
+    required String currency,
+    required ReceiptPayment payment,
+    required int totalInstallments,
+    required String coverage,
+    required int remainingInstallments,
+    required int accumulatedPaid,
+    required int previousBalance,
+    required int newBalance,
+    ReceiptNext? next,
+    required String verificationCode,
+    @Default(false) bool voided,
+  }) = _ReceiptData;
+
+  factory ReceiptData.fromJson(Map<String, dynamic> json) => _$ReceiptDataFromJson(json);
+}
+
+@freezed
+abstract class PaymentResult with _$PaymentResult {
+  const factory PaymentResult({required LedgerEntry entry, required ReceiptData receipt, @Default(0) int surplus, @Default(false) bool loanClosed}) = _PaymentResult;
+  factory PaymentResult.fromJson(Map<String, dynamic> json) => _$PaymentResultFromJson(json);
+}
+
+@freezed
+abstract class PaymentPreview with _$PaymentPreview {
+  const factory PaymentPreview({
+    @Default(<AllocationLine>[]) List<AllocationLine> lines,
+    required String coverage,
+    required int previousBalance,
+    required int newBalance,
+    required int remainingInstallments,
+    @Default(0) int surplus,
+    @Default(false) bool loanClosed,
+  }) = _PaymentPreview;
+
+  factory PaymentPreview.fromJson(Map<String, dynamic> json) => _$PaymentPreviewFromJson(json);
+}
+
+@freezed
+abstract class ReceiptRecord with _$ReceiptRecord {
+  const factory ReceiptRecord({required String number, required String entryId, @Default(false) bool voided, required String createdAt, required ReceiptData data}) = _ReceiptRecord;
+  factory ReceiptRecord.fromJson(Map<String, dynamic> json) => _$ReceiptRecordFromJson(json);
+}
+
+@freezed
+abstract class TrendPoint with _$TrendPoint {
+  const factory TrendPoint({required String date, required int amount}) = _TrendPoint;
+  factory TrendPoint.fromJson(Map<String, dynamic> json) => _$TrendPointFromJson(json);
+}
+
+@freezed
+abstract class AgingBucket with _$AgingBucket {
+  const factory AgingBucket({@Default(0) int loans, @Default(0) int amount}) = _AgingBucket;
+  factory AgingBucket.fromJson(Map<String, dynamic> json) => _$AgingBucketFromJson(json);
+}
+
+@freezed
+abstract class Aging with _$Aging {
+  const factory Aging({
+    required AgingBucket current,
+    @JsonKey(name: 'd1_7') required AgingBucket days1to7,
+    @JsonKey(name: 'd8_30') required AgingBucket days8to30,
+    @JsonKey(name: 'd30p') required AgingBucket over30,
+  }) = _Aging;
+
+  factory Aging.fromJson(Map<String, dynamic> json) => _$AgingFromJson(json);
+}
+
+@freezed
+abstract class Dashboard with _$Dashboard {
+  const factory Dashboard({
+    required String currency,
+    @Default(<String>[]) List<String> currencies,
+    required String asOf,
+    @Default(false) bool refreshing,
+    required int clientsActive,
+    required int clientsTotal,
+    required int totalLent,
+    required int totalLentHistoric,
+    required int expectedToday,
+    required int collectedToday,
+    required int overdueTotal,
+    required int totalReceivable,
+    @Default(0) int lateFeesOutstanding,
+    @Default(<TrendPoint>[]) List<TrendPoint> trend,
+    required Aging aging,
+  }) = _Dashboard;
+
+  factory Dashboard.fromJson(Map<String, dynamic> json) => _$DashboardFromJson(json);
+}
+
+@freezed
+abstract class TodayItem with _$TodayItem {
+  const factory TodayItem({
+    required String loanId,
+    required String clientId,
+    required String clientCode,
+    required String clientName,
+    required String phone,
+    required String contract,
+    required String currency,
+    int? installmentNumber,
+    String? dueDate,
+    required int dueToday,
+    required int overdue,
+    required int amountToCollect,
+    required int daysPastDue,
+    required String status,
+    required int balance,
+  }) = _TodayItem;
+
+  factory TodayItem.fromJson(Map<String, dynamic> json) => _$TodayItemFromJson(json);
+}
+
+@freezed
+abstract class TodayCollections with _$TodayCollections {
+  const factory TodayCollections({required String asOf, required List<TodayItem> items}) = _TodayCollections;
+  factory TodayCollections.fromJson(Map<String, dynamic> json) => _$TodayCollectionsFromJson(json);
+}
+
+@freezed
+abstract class RateCap with _$RateCap {
+  const factory RateCap({required String id, required String country, required double effectiveAnnual, required String validFrom, required String validTo, required String source}) = _RateCap;
+  factory RateCap.fromJson(Map<String, dynamic> json) => _$RateCapFromJson(json);
+}

@@ -1,10 +1,11 @@
 openapi: 3.1.0
 info:
   title: COROC API
-  version: 0.1.0
+  version: 0.2.0
   summary: Gestión y cobro de préstamos personales
   description: |
-    Contrato de la API de COROC (Fase 0, §24.1-3 del prompt maestro).
+    Contrato de la API de COROC (§24.1-3 del prompt maestro). Versión 0.2.0: operaciones de la Fase 1 implementadas y verificadas
+    contra este contrato en cada prueba (el servidor valida las peticiones con él y las pruebas validan las respuestas).
 
     **Convenciones**
     - Dinero: enteros en la unidad mínima de la moneda (`COP` = peso, `BRL`/`USD` = centavo). Nunca decimales binarios.
@@ -75,10 +76,11 @@ paths:
               type: object
               required: [tenant, username, password, deviceId]
               properties:
-                tenant: { type: string, description: Identificador corto de la empresa }
-                username: { type: string }
-                password: { type: string, format: password }
-                deviceId: { type: string }
+                tenant: { type: string, description: Identificador corto de la empresa, maxLength: 40 }
+                username: { type: string, maxLength: 32 }
+                password: { type: string, format: password, maxLength: 128 }
+                deviceId: { type: string, minLength: 8, maxLength: 120 }
+                deviceName: { type: string, maxLength: 120 }
       responses:
         '200':
           description: Sesión iniciada o segundo factor requerido
@@ -167,6 +169,26 @@ paths:
       responses:
         '202': { description: 'Si el usuario existe, se envió el correo' }
         '4XX': { $ref: '#/components/responses/Problem' }
+  /auth/password/reset:
+    post:
+      tags: [auth]
+      operationId: resetPassword
+      summary: Crear una contraseña nueva con el enlace de recuperación (un solo uso, 30 min)
+      description: Cierra todas las sesiones del usuario.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, password]
+              properties:
+                token: { type: string }
+                password: { type: string, format: password, minLength: 12, maxLength: 128 }
+      responses:
+        '204': { description: Contraseña cambiada }
+        '4XX': { $ref: '#/components/responses/Problem' }
   /me:
     get:
       tags: [auth]
@@ -178,6 +200,121 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/User' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+    patch:
+      tags: [auth]
+      operationId: updateMe
+      summary: Preferencias del usuario (idioma §6, apariencia §5.4, bloqueo por inactividad §7.1)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                lang: { $ref: '#/components/schemas/Lang' }
+                theme: { type: string, enum: [system, light, dark] }
+                name: { type: string, minLength: 1, maxLength: 120 }
+                autoLockMinutes: { type: integer, minimum: 1, maximum: 60 }
+                email: { type: [string, 'null'], format: email }
+      responses:
+        '200':
+          description: Usuario actualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /me/password:
+    post:
+      tags: [auth]
+      operationId: changePassword
+      summary: Cambiar la contraseña (cierra las demás sesiones)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword: { type: string, format: password, maxLength: 128 }
+                newPassword: { type: string, format: password, minLength: 12, maxLength: 128 }
+      responses:
+        '204': { description: Contraseña cambiada }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /me/mfa/enroll:
+    post:
+      tags: [auth]
+      operationId: enrollMfa
+      summary: Iniciar la verificación en dos pasos (TOTP); obligatoria para el Propietario
+      responses:
+        '200':
+          description: Secreto para la app autenticadora
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MfaEnrollment' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /me/mfa/confirm:
+    post:
+      tags: [auth]
+      operationId: confirmMfa
+      summary: Confirmar con el primer código; devuelve tokens con el segundo factor activo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code: { type: string, pattern: '^[0-9]{6}$' }
+      responses:
+        '200':
+          description: Sesión con segundo factor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /me/mfa:
+    delete:
+      tags: [auth]
+      operationId: disableMfa
+      summary: Desactivar el segundo factor (no disponible para el Propietario)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code: { type: string, pattern: '^[0-9]{6}$' }
+      responses:
+        '204': { description: Desactivado }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /me/sessions:
+    get:
+      tags: [auth]
+      operationId: mySessions
+      summary: Sesiones abiertas del usuario por dispositivo
+      responses:
+        '200':
+          description: Sesiones
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SessionInfo' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /me/sessions/{id}:
+    delete:
+      tags: [auth]
+      operationId: revokeMySession
+      summary: Cerrar una sesión propia en otro dispositivo
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '204': { description: Cerrada }
         '4XX': { $ref: '#/components/responses/Problem' }
 
   /company:
@@ -276,9 +413,11 @@ paths:
               required: [username, name, role, password]
               properties:
                 username: { type: string, pattern: '^[a-z0-9._-]{3,32}$' }
-                name: { type: string }
+                name: { type: string, minLength: 1, maxLength: 120 }
                 role: { $ref: '#/components/schemas/Role' }
-                password: { type: string, format: password, minLength: 12 }
+                password: { type: string, format: password, minLength: 12, maxLength: 128 }
+                email: { type: string, format: email }
+                lang: { $ref: '#/components/schemas/Lang' }
       responses:
         '201':
           description: Usuario creado
@@ -301,7 +440,8 @@ paths:
               properties:
                 active: { type: boolean }
                 role: { $ref: '#/components/schemas/Role' }
-                name: { type: string }
+                name: { type: string, minLength: 1, maxLength: 120 }
+                email: { type: [string, 'null'], format: email }
       responses:
         '200':
           description: Actualizado
@@ -535,6 +675,38 @@ paths:
               schema: { $ref: '#/components/schemas/PaymentResult' }
         '409': { $ref: '#/components/responses/Problem' }
         '422': { $ref: '#/components/responses/Problem' }
+  /loans/{id}/payments/preview:
+    post:
+      tags: [payments]
+      operationId: previewPayment
+      summary: Vista previa de la cobertura exacta de un pago, sin registrarlo
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, date]
+              properties:
+                amount: { $ref: '#/components/schemas/Minor' }
+                date: { type: string, format: date }
+      responses:
+        '200':
+          description: Resultado que tendría el pago
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lines: { type: array, items: { $ref: '#/components/schemas/AllocationLine' } }
+                  coverage: { type: string }
+                  previousBalance: { $ref: '#/components/schemas/Minor' }
+                  newBalance: { $ref: '#/components/schemas/Minor' }
+                  remainingInstallments: { type: integer }
+                  surplus: { $ref: '#/components/schemas/Minor' }
+                  loanClosed: { type: boolean }
+        '4XX': { $ref: '#/components/responses/Problem' }
   /loans/{id}/payments/{entryId}/reversal:
     post:
       tags: [payments]
@@ -558,8 +730,23 @@ paths:
           description: Reverso registrado
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/LedgerEntry' }
+              schema: { $ref: '#/components/schemas/ReversalResult' }
         '409': { $ref: '#/components/responses/Problem' }
+  /loans/{id}/receipts:
+    get:
+      tags: [payments]
+      operationId: listReceipts
+      summary: Recibos emitidos del préstamo, incluidos los anulados
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Recibos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ReceiptRecord' }
+        '4XX': { $ref: '#/components/responses/Problem' }
   /loans/{id}/statement:
     post:
       tags: [documents]
@@ -898,12 +1085,29 @@ paths:
       parameters:
         - { name: currency, in: query, schema: { $ref: '#/components/schemas/Currency' } }
         - { name: collectorId, in: query, schema: { type: string, format: uuid } }
+        - { name: days, in: query, schema: { type: integer, minimum: 7, maximum: 90, default: 30 }, description: Días de la tendencia de recaudo }
       responses:
         '200':
           description: Indicadores
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Dashboard' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /collections/today:
+    get:
+      tags: [dashboard]
+      operationId: todayCollections
+      summary: Cobros de hoy (§5.7-4)
+      description: Cuotas que vencen hoy y vencidas, ordenadas por días de mora.
+      parameters:
+        - { name: collectorId, in: query, schema: { type: string, format: uuid } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 1000, default: 500 } }
+      responses:
+        '200':
+          description: Cobros
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TodayCollections' }
         '4XX': { $ref: '#/components/responses/Problem' }
   /reports/{type}:
     get:
@@ -931,7 +1135,7 @@ paths:
       summary: Eventos en tiempo real (Server-Sent Events)
       responses:
         '200':
-          description: Flujo `text/event-stream` con `payment.posted`, `intake.updated`, `message.updated`, `dashboard.changed`
+          description: 'Flujo `text/event-stream` con `ready`, `ping` (cada 25 s), `payment.posted`, `payment.reversed`, `loan.created`, `dashboard.changed` y `security.lockout` (solo Propietario y Administrador); en fases siguientes `intake.updated` y `message.updated`'
           content:
             text/event-stream: {}
         '4XX': { $ref: '#/components/responses/Problem' }
@@ -1189,34 +1393,64 @@ components:
     MessageEvent: { type: string, enum: [welcome, reminder, overdue, receipt, statement, payoff, manual] }
     Session:
       type: object
-      required: [accessToken, refreshToken, expiresIn, user]
+      required: [accessToken, refreshToken, expiresIn, user, company, mfaEnrollmentRequired]
       properties:
         accessToken: { type: string }
-        refreshToken: { type: string }
+        refreshToken: { type: string, description: 'Opaco y rotativo; ligado al dispositivo' }
         expiresIn: { type: integer, example: 900 }
+        mfaEnrollmentRequired: { type: boolean, description: 'El Propietario debe activar el segundo factor antes de continuar' }
         user: { $ref: '#/components/schemas/User' }
+        company:
+          type: object
+          properties:
+            id: { type: string, format: uuid }
+            slug: { type: string }
+            name: { type: string }
+            currency: { $ref: '#/components/schemas/Currency' }
+            country: { type: string, enum: [CO, BR, US] }
+            timezone: { type: string }
+            lang: { $ref: '#/components/schemas/Lang' }
+    MfaEnrollment:
+      type: object
+      required: [secret, otpauthUri]
+      properties:
+        secret: { type: string, description: Secreto en Base32 para escribirlo a mano }
+        otpauthUri: { type: string, description: 'URI otpauth:// para mostrar como código QR' }
+    SessionInfo:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        deviceId: { type: string }
+        deviceName: { type: [string, 'null'] }
+        createdAt: { type: string, format: date-time }
+        lastUsedAt: { type: string, format: date-time }
+        current: { type: boolean }
     User:
       type: object
       properties:
         id: { type: string, format: uuid }
         username: { type: string }
         name: { type: string }
+        email: { type: [string, 'null'] }
         role: { $ref: '#/components/schemas/Role' }
         lang: { $ref: '#/components/schemas/Lang' }
+        theme: { type: string, enum: [system, light, dark] }
         active: { type: boolean }
         mfaEnabled: { type: boolean }
+        autoLockMinutes: { type: integer }
         lastLoginAt: { type: [string, 'null'], format: date-time }
         permissions: { type: array, items: { type: string } }
     Company:
       type: object
       properties:
         id: { type: string, format: uuid }
+        slug: { type: string, description: Identificador corto con el que se ingresa }
         name: { type: string }
-        taxId: { type: string }
-        phone: { type: string }
-        email: { type: string, format: email }
-        address: { type: string }
-        city: { type: string }
+        taxId: { type: [string, 'null'] }
+        phone: { type: [string, 'null'] }
+        email: { type: [string, 'null'] }
+        address: { type: [string, 'null'] }
+        city: { type: [string, 'null'] }
         country: { type: string, enum: [CO, BR, US] }
         currency: { $ref: '#/components/schemas/Currency' }
         timezone: { type: string, example: America/Bogota }
@@ -1267,15 +1501,43 @@ components:
       type: object
       required: [firstName, lastName, phone]
       properties:
+        firstName: { type: string, minLength: 1, maxLength: 80 }
+        lastName: { type: string, minLength: 1, maxLength: 80 }
+        phone: { type: string, minLength: 7, maxLength: 20, description: Se normaliza a E.164 }
+        phone2: { type: [string, 'null'], maxLength: 20 }
+        email: { type: [string, 'null'], format: email }
+        address: { type: [string, 'null'], maxLength: 200 }
+        city: { type: [string, 'null'], maxLength: 80 }
+        idDocType: { type: [string, 'null'], maxLength: 20 }
+        idDocNumber: { type: [string, 'null'], maxLength: 30 }
+        lang: { $ref: '#/components/schemas/Lang' }
+        collectorId: { type: [string, 'null'], format: uuid }
+        coDebtor:
+          type: [object, 'null']
+          properties:
+            name: { type: string, maxLength: 120 }
+            phone: { type: string, maxLength: 20 }
+            email: { type: string, format: email }
+        notes: { type: [string, 'null'], maxLength: 2000 }
+        consents:
+          type: array
+          items: { $ref: '#/components/schemas/ConsentInput' }
+    Client:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        code: { type: string, example: C000042 }
         firstName: { type: string }
         lastName: { type: string }
-        phone: { type: string, description: Se normaliza a E.164 }
-        phone2: { type: string }
-        email: { type: string, format: email }
-        address: { type: string }
-        city: { type: string }
-        idDocType: { type: string }
-        idDocNumber: { type: string }
+        fullName: { type: string }
+        phone: { type: string }
+        phoneE164: { type: string }
+        phone2: { type: [string, 'null'] }
+        email: { type: [string, 'null'] }
+        address: { type: [string, 'null'] }
+        city: { type: [string, 'null'] }
+        idDocType: { type: [string, 'null'] }
+        idDocNumber: { type: [string, 'null'] }
         lang: { $ref: '#/components/schemas/Lang' }
         collectorId: { type: [string, 'null'], format: uuid }
         coDebtor:
@@ -1283,27 +1545,17 @@ components:
           properties:
             name: { type: string }
             phone: { type: string }
-            email: { type: string, format: email }
-        notes: { type: string }
+            email: { type: string }
+        notes: { type: [string, 'null'] }
+        folderName: { type: string, example: Maria Jose Perez Gomez - C000042 }
         consents:
           type: array
-          items: { $ref: '#/components/schemas/ConsentInput' }
-    Client:
-      allOf:
-        - $ref: '#/components/schemas/ClientInput'
-        - type: object
-          properties:
-            id: { type: string, format: uuid }
-            code: { type: string, example: C000042 }
-            phoneE164: { type: string }
-            folderName: { type: string, example: Maria Jose Perez Gomez - C000042 }
-            consents:
-              type: array
-              items: { $ref: '#/components/schemas/Consent' }
-            loans:
-              type: array
-              items: { $ref: '#/components/schemas/Loan' }
-            version: { type: integer }
+          items: { $ref: '#/components/schemas/Consent' }
+        loans:
+          type: array
+          items: { $ref: '#/components/schemas/Loan' }
+        createdAt: { type: string, format: date-time }
+        version: { type: integer }
     ClientListItem:
       type: object
       properties:
@@ -1312,11 +1564,13 @@ components:
         fullName: { type: string }
         phone: { type: string }
         contracts: { type: array, items: { type: string } }
-        frequency: { $ref: '#/components/schemas/Frequency' }
+        frequency: { oneOf: [{ $ref: '#/components/schemas/Frequency' }, { type: 'null' }] }
         next: { $ref: '#/components/schemas/NextInstallment' }
         balance: { $ref: '#/components/schemas/Minor' }
         currency: { $ref: '#/components/schemas/Currency' }
         status: { type: string, enum: [current, overdue, closed] }
+        daysPastDue: { type: integer }
+        collectorId: { type: [string, 'null'], format: uuid }
     ConsentInput:
       type: object
       required: [channel, method]
@@ -1343,10 +1597,10 @@ components:
       type: object
       required: [principal, currency, method, rate, installments, frequency, disbursementDate]
       properties:
-        principal: { $ref: '#/components/schemas/Minor' }
+        principal: { type: integer, format: int64, minimum: 1, description: Capital en unidades mínimas }
         currency: { $ref: '#/components/schemas/Currency' }
         method: { type: string, enum: [simple, french] }
-        rate: { type: string, description: 'simple: tasa sobre el total; french: tasa por período', example: '0.20' }
+        rate: { type: string, pattern: '^[0-9]{1,3}(\.[0-9]{1,10})?$', description: 'simple: tasa sobre el total; french: tasa por período', example: '0.20' }
         installments: { type: integer, minimum: 1, maximum: 3660 }
         frequency: { $ref: '#/components/schemas/Frequency' }
         disbursementDate: { type: string, format: date }
@@ -1389,11 +1643,13 @@ components:
       properties:
         ok: { type: boolean }
         effectiveAnnual: { type: number }
-        cap: { type: number }
+        cap: { type: [number, 'null'] }
         maxRate: { type: string, description: 'Tasa máxima que cumple, redondeada hacia abajo a una centésima de punto porcentual' }
+        missing: { type: boolean, description: 'No hay tope registrado para la fecha; en Colombia impide crear el préstamo' }
     LoanPreview:
       type: object
       properties:
+        terms: { $ref: '#/components/schemas/LoanTerms' }
         installments:
           type: array
           items: { $ref: '#/components/schemas/ScheduledInstallment' }
@@ -1421,6 +1677,8 @@ components:
         next: { $ref: '#/components/schemas/NextInstallment' }
         overdueCount: { type: integer }
         daysPastDue: { type: integer }
+        surplus: { $ref: '#/components/schemas/Minor' }
+        progress: { type: number, minimum: 0, maximum: 1 }
     Loan:
       type: object
       properties:
@@ -1435,6 +1693,7 @@ components:
         status: { type: string, enum: [active, closed, written_off] }
         summary: { $ref: '#/components/schemas/LoanSummary' }
         realizedProfit: { $ref: '#/components/schemas/Minor' }
+        expectedMethod: { type: [string, 'null'] }
         createdAt: { type: string, format: date-time }
         version: { type: integer }
     AllocationLine:
@@ -1459,12 +1718,14 @@ components:
         source: { type: string }
         documentId: { type: [string, 'null'], format: uuid }
         reversesId: { type: [string, 'null'], format: uuid }
+        reversedBy: { type: [string, 'null'], format: uuid }
         reason: { type: string }
+        note: { type: string }
         auto: { type: boolean }
         allocation:
           type: array
           items: { $ref: '#/components/schemas/AllocationLine' }
-        receiptNumber: { type: string }
+        receiptNumber: { type: [string, 'null'] }
         createdBy: { type: string }
     PaymentInput:
       type: object
@@ -1472,18 +1733,32 @@ components:
       properties:
         amount: { $ref: '#/components/schemas/Minor' }
         date: { type: string, format: date }
-        method: { type: string }
-        reference: { type: string }
-        note: { type: string }
+        method: { type: string, maxLength: 60 }
+        reference: { type: string, maxLength: 80 }
+        institution: { type: string, maxLength: 80 }
+        note: { type: string, maxLength: 500 }
         cash: { type: boolean, default: false }
         proofDocumentId: { type: string, format: uuid }
     ReceiptData:
       type: object
-      description: Contenido del recibo «Gracias por tu pago» (§15)
+      description: Contenido del recibo «Gracias por tu pago» (§15), en el idioma del deudor
       properties:
         lang: { $ref: '#/components/schemas/Lang' }
         number: { type: string }
-        issuedAt: { type: string }
+        issuedAt: { type: string, description: Fecha y hora local YYYY-MM-DD HH:mm }
+        company:
+          type: object
+          properties:
+            name: { type: string }
+            taxId: { type: string }
+            phone: { type: string }
+            email: { type: string }
+            address: { type: string }
+        client:
+          type: object
+          properties:
+            fullName: { type: string }
+            code: { type: string }
         contract: { type: string }
         currency: { $ref: '#/components/schemas/Currency' }
         payment:
@@ -1499,11 +1774,18 @@ components:
         accumulatedPaid: { $ref: '#/components/schemas/Minor' }
         previousBalance: { $ref: '#/components/schemas/Minor' }
         newBalance: { $ref: '#/components/schemas/Minor' }
-        next: { $ref: '#/components/schemas/NextInstallment' }
+        next:
+          type: object
+          properties:
+            number: { type: integer }
+            dueDate: { type: string, format: date }
+            amount: { $ref: '#/components/schemas/Minor' }
         verificationCode: { type: string }
+        verificationUrl: { type: string }
         voided: { type: boolean }
     PaymentResult:
       type: object
+      required: [entry, receipt, surplus, loanClosed]
       properties:
         entry: { $ref: '#/components/schemas/LedgerEntry' }
         receipt: { $ref: '#/components/schemas/ReceiptData' }
@@ -1511,6 +1793,21 @@ components:
         surplus: { $ref: '#/components/schemas/Minor' }
         message: { $ref: '#/components/schemas/Message' }
         loanClosed: { type: boolean }
+    ReversalResult:
+      type: object
+      required: [entry, balance]
+      properties:
+        entry: { $ref: '#/components/schemas/LedgerEntry' }
+        voidedReceipt: { type: [string, 'null'] }
+        balance: { $ref: '#/components/schemas/Minor' }
+    ReceiptRecord:
+      type: object
+      properties:
+        number: { type: string }
+        entryId: { type: string, format: uuid }
+        voided: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        data: { $ref: '#/components/schemas/ReceiptData' }
     Document:
       type: object
       properties:
@@ -1639,8 +1936,12 @@ components:
         source: { type: string, description: 'Resolución o fuente oficial' }
     Dashboard:
       type: object
+      description: 'Indicadores de una sola moneda (§17): nunca se suman monedas distintas'
       properties:
         currency: { $ref: '#/components/schemas/Currency' }
+        currencies: { type: array, items: { $ref: '#/components/schemas/Currency' } }
+        asOf: { type: string, format: date }
+        refreshing: { type: boolean, description: 'El estado diario de los préstamos se está poniendo al día en segundo plano' }
         clientsActive: { type: integer }
         clientsTotal: { type: integer }
         totalLent: { $ref: '#/components/schemas/Minor' }
@@ -1649,6 +1950,7 @@ components:
         collectedToday: { $ref: '#/components/schemas/Minor' }
         overdueTotal: { $ref: '#/components/schemas/Minor' }
         totalReceivable: { $ref: '#/components/schemas/Minor' }
+        lateFeesOutstanding: { $ref: '#/components/schemas/Minor' }
         trend:
           type: array
           items:
@@ -1658,11 +1960,40 @@ components:
               amount: { $ref: '#/components/schemas/Minor' }
         aging:
           type: object
-          additionalProperties:
+          properties:
+            current: { $ref: '#/components/schemas/AgingBucket' }
+            d1_7: { $ref: '#/components/schemas/AgingBucket' }
+            d8_30: { $ref: '#/components/schemas/AgingBucket' }
+            d30p: { $ref: '#/components/schemas/AgingBucket' }
+    AgingBucket:
+      type: object
+      properties:
+        loans: { type: integer }
+        amount: { $ref: '#/components/schemas/Minor' }
+    TodayCollections:
+      type: object
+      properties:
+        asOf: { type: string, format: date }
+        items:
+          type: array
+          items:
             type: object
             properties:
-              loans: { type: integer }
-              amount: { $ref: '#/components/schemas/Minor' }
+              loanId: { type: string, format: uuid }
+              clientId: { type: string, format: uuid }
+              clientCode: { type: string }
+              clientName: { type: string }
+              phone: { type: string }
+              contract: { type: string }
+              currency: { $ref: '#/components/schemas/Currency' }
+              installmentNumber: { type: [integer, 'null'] }
+              dueDate: { type: [string, 'null'], format: date }
+              dueToday: { $ref: '#/components/schemas/Minor' }
+              overdue: { $ref: '#/components/schemas/Minor' }
+              amountToCollect: { $ref: '#/components/schemas/Minor' }
+              daysPastDue: { type: integer }
+              status: { type: string, enum: [due_today, overdue] }
+              balance: { $ref: '#/components/schemas/Minor' }
     Backup:
       type: object
       properties:

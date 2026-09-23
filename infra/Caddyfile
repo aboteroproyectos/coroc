@@ -1,0 +1,13 @@
+# Proxy HTTPS delante de la API. Caddy obtiene y renueva el certificado solo.
+{$COROC_DOMAIN} {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+		-Server
+	}
+	# Los eventos en vivo (SSE) no deben quedar en búfer.
+	reverse_proxy /v1/events api:3000 {
+		flush_interval -1
+	}
+	reverse_proxy api:3000
+}

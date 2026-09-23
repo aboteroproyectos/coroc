@@ -1,0 +1,71 @@
+name: coroc
+description: "COROC · Gestión y cobro de préstamos personales (Android, iOS, Windows y macOS)."
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.8.0
+  flutter: ">=3.32.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+  flutter_riverpod: ^2.6.1
+  go_router: ^15.1.2
+  freezed_annotation: ^3.0.0
+  json_annotation: ^4.9.0
+  http: ^1.3.0
+  flutter_secure_storage: ^9.2.4
+  local_auth: ^2.3.0
+  flutter_svg: ^2.0.17
+  qr_flutter: ^4.1.0
+  uuid: ^4.5.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.15
+  freezed: ^3.0.6
+  json_serializable: ^6.9.5
+  flutter_launcher_icons: ^0.14.3
+
+flutter:
+  uses-material-design: true
+  generate: true
+  assets:
+    - assets/brand/
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Montserrat-SemiBold.ttf
+          weight: 600
+
+# Íconos de app a partir del isotipo sobre azul noche (§5.1). Se generan en CI con:
+#   dart run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: assets/icon/icon-1024.png
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  adaptive_icon_background: "#130E42"
+  adaptive_icon_foreground: assets/icon/android-foreground-432.png
+  min_sdk_android: 26
+  windows:
+    generate: true
+    image_path: assets/icon/icon-1024.png
+    icon_size: 256
+  macos:
+    generate: true
+    image_path: assets/icon/icon-1024.png

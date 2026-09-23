@@ -1,6 +1,6 @@
-import { formatMoney, type Currency } from './money';
-import type { AllocationLine, LoanSummary } from './allocation';
-import type { IsoDate } from './calendar';
+import { formatMoney, type Currency } from './money.js';
+import type { AllocationLine, LoanSummary } from './allocation.js';
+import type { IsoDate } from './calendar.js';
 
 export type Lang = 'es' | 'pt-BR' | 'en';
 

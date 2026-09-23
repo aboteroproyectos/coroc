@@ -1,4 +1,4 @@
-import { addDays, isHoliday, isoWeekday, type CountryCode, type IsoDate } from './calendar';
+import { addDays, isHoliday, isoWeekday, type CountryCode, type IsoDate } from './calendar.js';
 
 /**
  * Motor de reglas de contacto (§11.4).

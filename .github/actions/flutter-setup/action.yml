@@ -1,0 +1,30 @@
+name: Preparar la app Flutter de COROC
+description: Instala Flutter estable, genera las carpetas nativas, aplica los ajustes de COROC y genera el código (modelos e idiomas).
+runs:
+  using: composite
+  steps:
+    - uses: subosito/flutter-action@v2
+      with:
+        channel: stable
+        cache: true
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Carpetas nativas y ajustes de COROC
+      shell: bash
+      working-directory: apps/coroc_app
+      run: |
+        flutter --version
+        flutter create --platforms=android,ios,macos,windows --org co.coroc --project-name coroc --no-pub .
+        # `flutter create` agrega una prueba de ejemplo que no aplica a COROC.
+        rm -f test/widget_test.dart
+        python tool/patch_platforms.py
+    - name: Dependencias, modelos e idiomas
+      shell: bash
+      working-directory: apps/coroc_app
+      run: |
+        flutter pub get
+        dart run build_runner build --delete-conflicting-outputs
+        flutter gen-l10n
+        python tool/l10n_keys.py --check
+        dart run flutter_launcher_icons || echo "::warning::No se pudieron generar los íconos de la app"

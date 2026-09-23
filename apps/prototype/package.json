@@ -19,5 +19,9 @@
     "jszip": "^3.10.1",
     "qrcode-generator": "^1.4.4"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "sharp": "^0.34.0",
+    "@coroc/core": "*"
+  }
 }

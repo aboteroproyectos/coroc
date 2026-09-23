@@ -1,0 +1,71 @@
+# COROC en un servidor con Docker: PostgreSQL 16, Redis 7, migraciones, API y, opcionalmente, HTTPS con Caddy.
+#
+#   cp infra/.env.example infra/.env        # y complete los secretos
+#   docker compose -f infra/docker-compose.yml up -d --build
+#   docker compose -f infra/docker-compose.yml --profile https up -d   # con dominio propio y certificado automático
+#
+# Primera empresa y su Propietario (pide la contraseña sin mostrarla):
+#   docker compose -f infra/docker-compose.yml run --rm migrate node dist/cli/tenant-create.js \
+#     --slug mi-empresa --name "Mi Empresa S.A.S." --country CO --owner admin --owner-name "Nombre Apellido" --email admin@ejemplo.com
+name: coroc
+
+x-api-image: &api-build
+  context: ..
+  dockerfile: services/api/Dockerfile
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: coroc
+    healthcheck: { test: ["CMD", "pg_isready", "-U", "postgres"], interval: 5s, retries: 20 }
+    volumes: [db:/var/lib/postgresql/data]
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: [redis:/data]
+
+  # Aplica las migraciones con el rol dueño y deja listo el usuario de la API (sin BYPASSRLS).
+  migrate:
+    build: *api-build
+    command: sh -c "node dist/db/migrate.js && node dist/db/setup-roles.js"
+    environment:
+      DATABASE_ADMIN_URL: postgres://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/coroc
+      COROC_API_DB_PASSWORD: ${COROC_API_DB_PASSWORD:-coroc-api-local}
+    depends_on: { db: { condition: service_healthy } }
+
+  api:
+    build: *api-build
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # La API solo conoce su propio usuario (sin BYPASSRLS); la clave del dueño queda en «migrate».
+      DATABASE_URL: postgres://coroc_api:${COROC_API_DB_PASSWORD:-coroc-api-local}@db:5432/coroc
+      REDIS_URL: redis://redis:6379
+    ports: ["${COROC_API_PORT:-3000}:3000"]
+    healthcheck: { test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"], interval: 15s, retries: 5 }
+    depends_on: { migrate: { condition: service_completed_successfully }, redis: { condition: service_started } }
+
+  # HTTPS con certificado automático (Let's Encrypt). Requiere COROC_DOMAIN apuntando a este servidor.
+  caddy:
+    image: caddy:2
+    profiles: [https]
+    restart: unless-stopped
+    environment:
+      COROC_DOMAIN: ${COROC_DOMAIN:-localhost}
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy:/data
+    depends_on: [api]
+
+volumes:
+  db: {}
+  redis: {}
+  caddy: {}

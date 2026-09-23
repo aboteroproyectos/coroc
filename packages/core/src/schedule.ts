@@ -1,4 +1,4 @@
-import { Decimal, roundToUnit, type Currency } from './money';
+import { Decimal, roundToUnit, type Currency } from './money.js';
 import {
   addDays,
   addMonthsClamped,
@@ -6,7 +6,7 @@ import {
   type CollectionCalendar,
   type CountryCode,
   type IsoDate,
-} from './calendar';
+} from './calendar.js';
 
 export type Frequency = 'daily' | 'weekly' | 'monthly';
 /** simple = interés fijo sobre el capital (estilo prestamista); french = cuota fija con amortización. */

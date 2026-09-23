@@ -1,0 +1,158 @@
+{
+  "errors": {
+    "VALIDATION_FAILED": {
+      "title": "Invalid data",
+      "detail": "Check the highlighted fields."
+    },
+    "UNAUTHENTICATED": {
+      "title": "Sign-in required",
+      "detail": "Sign in to continue."
+    },
+    "INVALID_CREDENTIALS": {
+      "title": "Incorrect sign-in details",
+      "detail": "The company, username or password do not match."
+    },
+    "ACCOUNT_LOCKED": {
+      "title": "Account locked",
+      "detail": "For security, try again in {minutes} minutes."
+    },
+    "MFA_INVALID": {
+      "title": "Incorrect code",
+      "detail": "The verification code is invalid or has expired."
+    },
+    "MFA_ENROLLMENT_REQUIRED": {
+      "title": "Turn on two-step verification",
+      "detail": "The Owner role must turn on two-step verification before continuing."
+    },
+    "SESSION_EXPIRED": {
+      "title": "Session expired",
+      "detail": "Please sign in again."
+    },
+    "FORBIDDEN": {
+      "title": "Not allowed",
+      "detail": "Your role does not allow this action."
+    },
+    "ACCESS_DENIED": {
+      "title": "Access denied",
+      "detail": "This client is assigned to another collector. The attempt was logged."
+    },
+    "NOT_FOUND": {
+      "title": "Not found",
+      "detail": "The resource does not exist."
+    },
+    "VERSION_CONFLICT": {
+      "title": "Concurrent changes",
+      "detail": "Someone else changed this record. Reload and try again."
+    },
+    "DUPLICATE_CLIENT": {
+      "title": "Possible duplicate client",
+      "detail": "Client {code} already has the same number or ID document."
+    },
+    "CONTRACT_TAKEN": {
+      "title": "Contract already exists",
+      "detail": "Contract number {contract} already exists."
+    },
+    "USERNAME_TAKEN": {
+      "title": "Username taken",
+      "detail": "That username already exists in the company."
+    },
+    "RATE_CAP_EXCEEDED": {
+      "title": "Rate above the legal cap",
+      "detail": "The effective annual rate ({effectiveAnnual}) exceeds the current cap ({cap}). Maximum allowed rate: {maxRate}."
+    },
+    "RATE_CAP_MISSING": {
+      "title": "Legal rate cap missing",
+      "detail": "Register the current maximum legal rate in Settings › Compliance before creating loans."
+    },
+    "RATE_CAP_OVERLAP": {
+      "title": "Overlapping periods",
+      "detail": "A cap is already registered for part of that period."
+    },
+    "LATE_FEE_EXCEEDS_CAP": {
+      "title": "Late fee above the cap",
+      "detail": "The late fee is equivalent to an annual rate above the current cap."
+    },
+    "INVALID_TERMS": {
+      "title": "Invalid terms",
+      "detail": "{reason}"
+    },
+    "INVALID_PHONE": {
+      "title": "Invalid number",
+      "detail": "{phone} is not a valid phone number."
+    },
+    "WEAK_PASSWORD": {
+      "title": "Weak password",
+      "detail": "The password must have at least 12 characters and must not contain the username or company name."
+    },
+    "BREACHED_PASSWORD": {
+      "title": "Exposed password",
+      "detail": "This password appears in public data breaches. Choose another one."
+    },
+    "LOAN_ALREADY_PAID": {
+      "title": "Loan paid off",
+      "detail": "This loan has no balance left to pay."
+    },
+    "PAYMENT_INVALID_AMOUNT": {
+      "title": "Invalid amount",
+      "detail": "The payment amount must be greater than zero."
+    },
+    "PAYMENT_DATE_INVALID": {
+      "title": "Invalid date",
+      "detail": "The payment date cannot be in the future or before the disbursement."
+    },
+    "ALREADY_REVERSED": {
+      "title": "Already reversed",
+      "detail": "That payment was already reversed."
+    },
+    "NOT_A_PAYMENT": {
+      "title": "Entry cannot be reversed",
+      "detail": "Only payments can be reversed."
+    },
+    "LAST_OWNER": {
+      "title": "Last owner",
+      "detail": "The company must keep at least one active Owner."
+    },
+    "IDEMPOTENCY_MISMATCH": {
+      "title": "Idempotency key reused",
+      "detail": "That key was already used with different data."
+    },
+    "IDEMPOTENCY_IN_PROGRESS": {
+      "title": "Operation in progress",
+      "detail": "The same operation is being processed. Please wait."
+    },
+    "RESET_TOKEN_INVALID": {
+      "title": "Invalid link",
+      "detail": "The recovery link is invalid, already used or expired."
+    },
+    "RATE_LIMITED": {
+      "title": "Too many requests",
+      "detail": "Please wait a moment before trying again."
+    },
+    "INTERNAL": {
+      "title": "Internal error",
+      "detail": "An unexpected error occurred. The technical team was notified."
+    }
+  },
+  "terms": {
+    "PRINCIPAL": "The principal must be a positive amount.",
+    "INSTALLMENTS": "The number of installments must be between 1 and 3660.",
+    "RATE": "The rate is not valid.",
+    "COLLECTION_DAYS": "Choose at least one collection day.",
+    "MONTHLY_DAY": "The monthly collection day must be between 1 and 31.",
+    "FIRST_DUE": "The first installment must be after the disbursement.",
+    "CURRENCY": "The loan currency does not match the company currency."
+  },
+  "validation": {
+    "required": "Required field",
+    "type": "Invalid data type",
+    "format": "Invalid format",
+    "enum": "Value not allowed",
+    "pattern": "Invalid format",
+    "minLength": "Too short",
+    "maxLength": "Too long",
+    "minimum": "Value too low",
+    "maximum": "Value too high",
+    "additionalProperties": "Unknown field",
+    "other": "Invalid value"
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "errors": {
+    "VALIDATION_FAILED": {
+      "title": "Datos no válidos",
+      "detail": "Revise los campos marcados."
+    },
+    "UNAUTHENTICATED": {
+      "title": "Sesión requerida",
+      "detail": "Inicie sesión para continuar."
+    },
+    "INVALID_CREDENTIALS": {
+      "title": "Datos de ingreso incorrectos",
+      "detail": "La empresa, el usuario o la contraseña no coinciden."
+    },
+    "ACCOUNT_LOCKED": {
+      "title": "Cuenta bloqueada",
+      "detail": "Por seguridad, intente de nuevo en {minutes} minutos."
+    },
+    "MFA_INVALID": {
+      "title": "Código incorrecto",
+      "detail": "El código de verificación no es válido o ya venció."
+    },
+    "MFA_ENROLLMENT_REQUIRED": {
+      "title": "Active la verificación en dos pasos",
+      "detail": "El rol Propietario debe activar la verificación en dos pasos antes de continuar."
+    },
+    "SESSION_EXPIRED": {
+      "title": "Sesión vencida",
+      "detail": "Inicie sesión de nuevo."
+    },
+    "FORBIDDEN": {
+      "title": "Sin permiso",
+      "detail": "Su rol no permite esta acción."
+    },
+    "ACCESS_DENIED": {
+      "title": "Acceso denegado",
+      "detail": "Este cliente está asignado a otro cobrador. El intento quedó registrado."
+    },
+    "NOT_FOUND": {
+      "title": "No encontrado",
+      "detail": "El recurso no existe."
+    },
+    "VERSION_CONFLICT": {
+      "title": "Cambios simultáneos",
+      "detail": "Otra persona modificó este registro. Recargue y vuelva a intentarlo."
+    },
+    "DUPLICATE_CLIENT": {
+      "title": "Posible cliente duplicado",
+      "detail": "Ya existe el cliente {code} con el mismo número o documento."
+    },
+    "CONTRACT_TAKEN": {
+      "title": "Contrato repetido",
+      "detail": "El número de contrato {contract} ya existe."
+    },
+    "USERNAME_TAKEN": {
+      "title": "Usuario repetido",
+      "detail": "Ese nombre de usuario ya existe en la empresa."
+    },
+    "RATE_CAP_EXCEEDED": {
+      "title": "Tasa por encima del tope legal",
+      "detail": "La tasa efectiva anual ({effectiveAnnual}) supera el tope vigente ({cap}). Tasa máxima permitida: {maxRate}."
+    },
+    "RATE_CAP_MISSING": {
+      "title": "Falta el tope legal de tasa",
+      "detail": "Registre la tasa de usura vigente en Configuración › Cumplimiento antes de crear préstamos."
+    },
+    "RATE_CAP_OVERLAP": {
+      "title": "Vigencias solapadas",
+      "detail": "Ya existe un tope registrado para parte de ese período."
+    },
+    "LATE_FEE_EXCEEDS_CAP": {
+      "title": "Mora por encima del tope",
+      "detail": "El cargo por mora equivale a una tasa anual superior al tope vigente."
+    },
+    "INVALID_TERMS": {
+      "title": "Condiciones no válidas",
+      "detail": "{reason}"
+    },
+    "INVALID_PHONE": {
+      "title": "Número no válido",
+      "detail": "El número {phone} no es un teléfono válido."
+    },
+    "WEAK_PASSWORD": {
+      "title": "Contraseña débil",
+      "detail": "La contraseña debe tener al menos 12 caracteres y no contener el usuario ni el nombre de la empresa."
+    },
+    "BREACHED_PASSWORD": {
+      "title": "Contraseña expuesta",
+      "detail": "Esta contraseña aparece en filtraciones públicas. Elija otra."
+    },
+    "LOAN_ALREADY_PAID": {
+      "title": "Préstamo pagado",
+      "detail": "Este préstamo ya no tiene saldo por pagar."
+    },
+    "PAYMENT_INVALID_AMOUNT": {
+      "title": "Valor no válido",
+      "detail": "El valor del pago debe ser mayor que cero."
+    },
+    "PAYMENT_DATE_INVALID": {
+      "title": "Fecha no válida",
+      "detail": "La fecha del pago no puede ser futura ni anterior al desembolso."
+    },
+    "ALREADY_REVERSED": {
+      "title": "Ya reversado",
+      "detail": "Ese pago ya fue reversado."
+    },
+    "NOT_A_PAYMENT": {
+      "title": "Movimiento no reversable",
+      "detail": "Solo se pueden reversar pagos."
+    },
+    "LAST_OWNER": {
+      "title": "Último propietario",
+      "detail": "La empresa debe conservar al menos un Propietario activo."
+    },
+    "IDEMPOTENCY_MISMATCH": {
+      "title": "Clave de idempotencia reutilizada",
+      "detail": "Esa clave ya se usó con datos distintos."
+    },
+    "IDEMPOTENCY_IN_PROGRESS": {
+      "title": "Operación en curso",
+      "detail": "La misma operación se está procesando. Espere un momento."
+    },
+    "RESET_TOKEN_INVALID": {
+      "title": "Enlace no válido",
+      "detail": "El enlace de recuperación no es válido, ya se usó o venció."
+    },
+    "RATE_LIMITED": {
+      "title": "Demasiadas solicitudes",
+      "detail": "Espere un momento antes de intentarlo de nuevo."
+    },
+    "INTERNAL": {
+      "title": "Error interno",
+      "detail": "Ocurrió un error inesperado. El equipo técnico fue notificado."
+    }
+  },
+  "terms": {
+    "PRINCIPAL": "El capital debe ser un valor positivo.",
+    "INSTALLMENTS": "El total de cuotas debe estar entre 1 y 3660.",
+    "RATE": "La tasa no es válida.",
+    "COLLECTION_DAYS": "Elija al menos un día de cobro.",
+    "MONTHLY_DAY": "El día de cobro mensual debe estar entre 1 y 31.",
+    "FIRST_DUE": "La primera cuota debe ser posterior al desembolso.",
+    "CURRENCY": "La moneda del préstamo no coincide con la de la empresa."
+  },
+  "validation": {
+    "required": "Campo obligatorio",
+    "type": "Tipo de dato no válido",
+    "format": "Formato no válido",
+    "enum": "Valor no permitido",
+    "pattern": "Formato no válido",
+    "minLength": "Demasiado corto",
+    "maxLength": "Demasiado largo",
+    "minimum": "Valor demasiado bajo",
+    "maximum": "Valor demasiado alto",
+    "additionalProperties": "Campo no reconocido",
+    "other": "Valor no válido"
+  }
+}

@@ -22,7 +22,10 @@ import {
   toMinor,
   type ClientRef,
   type LoanTerms,
-} from '../src';
+  replayLoan,
+  clientFolderName,
+  sanitizeFolderName,
+} from '../src/index.js';
 
 const base: LoanTerms = {
   principal: 1_000_000, currency: 'COP', method: 'simple', rate: '0.20', installments: 20,
@@ -289,5 +292,60 @@ Confirmation code: ZL77889900`;
   it('un documento sin forma de comprobante se clasifica como otro', () => {
     const x = extractFromText('Cédula de ciudadanía\nRepública de Colombia', { receivedOn: '2026-10-09', defaultCurrency: 'COP' });
     expect(x.documentType.value).toBe('other');
+  });
+});
+
+describe('replayLoan y nombres de carpeta', () => {
+  const plan = [1, 2, 3, 4].map((n) => ({ number: n, dueDate: `2026-10-0${n + 1}`, amount: 60000 }));
+  it('aplica los pagos vigentes en orden de fecha y de registro', () => {
+    const r = replayLoan(plan, [
+      { id: 'b', date: '2026-10-03', order: '2', amount: 150000 },
+      { id: 'a', date: '2026-10-02', order: '1', amount: 60000 },
+    ], '2026-10-03');
+    expect(r.states.map((s) => s.paid)).toEqual([60000, 60000, 60000, 30000]);
+    expect(r.allocations.get('b')!.lines.map((l) => l.number)).toEqual([2, 3, 4]);
+    expect(r.summary.balance).toBe(30000);
+    expect(r.states[3]!.status).toBe('partial');
+    expect(r.states[0]!.lastPaymentDate).toBe('2026-10-02');
+  });
+  it('reversar un pago antiguo reacomoda los posteriores (ADR-003)', () => {
+    const r = replayLoan(plan, [{ id: 'b', date: '2026-10-03', order: '2', amount: 60000 }], '2026-10-06');
+    expect(r.states.map((s) => s.paid)).toEqual([60000, 0, 0, 0]);
+    expect(r.summary.overdueCount).toBe(3);
+    expect(r.states[1]!.status).toBe('overdue');
+  });
+  it('excedente queda como saldo a favor', () => {
+    const r = replayLoan(plan, [{ id: 'x', date: '2026-10-02', order: '1', amount: 250000 }], '2026-10-02');
+    expect(r.surplus).toBe(10000);
+    expect(r.summary.balance).toBe(0);
+  });
+  it('carpeta sin tildes ni caracteres inválidos', () => {
+    expect(clientFolderName('María José', 'Pérez Gómez', 'C000042')).toBe('Maria Jose Perez Gomez - C000042');
+    expect(sanitizeFolderName('Ñandú: <Ltda.> ')).toBe('Nandu Ltda');
+  });
+});
+
+describe('la reconstrucción rápida equivale a aplicar pago por pago', () => {
+  it('500 préstamos aleatorios con pagos, excedentes y mora', () => {
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+    for (let k = 0; k < 500; k++) {
+      const n = 1 + Math.floor(rnd() * 30);
+      const plan = Array.from({ length: n }, (_, i) => ({ number: i + 1, dueDate: `2026-${String(1 + Math.floor(i / 28)).padStart(2, '0')}-${String(1 + (i % 28)).padStart(2, '0')}`, amount: 1000 + Math.floor(rnd() * 90000) }));
+      const payments = Array.from({ length: Math.floor(rnd() * 12) }, (_, i) => ({ id: `p${i}`, date: `2026-0${1 + Math.floor(rnd() * 3)}-${String(1 + Math.floor(rnd() * 28)).padStart(2, '0')}`, order: String(i).padStart(3, '0'), amount: 1 + Math.floor(rnd() * 120000) }));
+      const lateFee = rnd() < 0.3 ? { type: 'fixed_daily' as const, value: '50', graceDays: 2 } : null;
+      const fast = replayLoan(plan, payments, '2026-04-15', lateFee);
+      // Referencia: la función pública, una copia completa por pago.
+      let st = plan.map((i) => ({ ...i, paid: 0, lateFeeAccrued: 0, lateFeePaid: 0 }));
+      const sorted = [...payments].sort((a, b) => (a.date === b.date ? a.order.localeCompare(b.order) : a.date < b.date ? -1 : 1));
+      for (const p of sorted) {
+        if (lateFee) st = accrueLateFees(st, p.date, lateFee);
+        const r = allocatePayment(st, p.amount);
+        expect(fast.allocations.get(p.id)!.lines).toEqual(r.lines);
+        st = r.after;
+      }
+      if (lateFee) st = accrueLateFees(st, '2026-04-15', lateFee);
+      expect(fast.summary).toEqual(summarize(st, '2026-04-15'));
+    }
   });
 });

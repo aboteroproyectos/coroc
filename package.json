@@ -1,0 +1,13 @@
+{
+  "name": "coroc",
+  "private": true,
+  "description": "COROC · plataforma de gestión y cobro de préstamos personales",
+  "license": "UNLICENSED",
+  "engines": { "node": ">=22" },
+  "workspaces": ["packages/core", "services/api", "apps/prototype"],
+  "scripts": {
+    "build": "npm run build -w @coroc/core && npm run build -w @coroc/api",
+    "test": "npm test -w @coroc/core && npm test -w @coroc/api",
+    "lint:i18n": "node services/api/scripts/check-i18n.mjs"
+  }
+}

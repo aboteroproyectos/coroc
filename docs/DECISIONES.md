@@ -86,3 +86,41 @@ Regla 3 del prompt maestro: toda decisión no especificada se toma con criterio 
 
 ### ADR-020 · Duplicados también contra la bandeja pendiente
 **Decisión:** un comprobante que llega de nuevo mientras el primero espera revisión se marca como duplicado. **Consecuencias:** la bandeja no se llena de copias del mismo pago.
+
+## Fase 1
+
+### ADR-021 · Estado del préstamo derivado y recalculable
+**Contexto:** el dashboard y la lista de clientes necesitan saldo, mora y próxima cuota de miles de préstamos en menos de 1,5 s (§21), pero el libro de movimientos es la única fuente de verdad (ADR-003). **Decisión:** la tabla `loan_state` es una caché derivada: se recalcula con `replayLoan` de `@coroc/core` dentro de la misma transacción de cada pago, reverso o préstamo nuevo. Un trabajo horario (BullMQ, `7 * * * *`) actualiza la mora de los préstamos cuyo corte quedó atrás, en lotes de 2.000 y solo si el cálculo nuevo es más reciente. Si al abrir el dashboard hay hasta 3.000 préstamos atrasados, se actualizan en el momento; si hay más, la respuesta lleva `refreshing: true` y la app lo informa. **Consecuencias:** dashboard en 75 ms y búsqueda en 55 a 137 ms con 50.000 clientes; `loan_state` se puede borrar y reconstruir sin perder nada.
+
+### ADR-022 · Rol de base de datos propio para el Cobrador
+**Contexto:** CA-16 exige que el Cobrador no vea clientes ajenos «aunque la API se equivocara». **Decisión:** las transacciones del Cobrador hacen `SET LOCAL ROLE coroc_collector`; ese rol tiene políticas RLS **restrictivas** que exigen que el cliente o préstamo le esté asignado, además del aislamiento por empresa. El usuario de la API es miembro de `coroc_collector` con `INHERIT FALSE, SET TRUE`: no hereda esas políticas en las demás sesiones, pero puede asumirlas. Las consultas que necesitan saltar el filtro de forma controlada (consecutivos, recaudo diario, lista de empresas del trabajo nocturno) son funciones `SECURITY DEFINER` con `search_path` fijo. **Consecuencias:** verificado por la API y directamente en la base (`acceptance.test.ts`, CA-16).
+
+### ADR-023 · La app no guarda datos de clientes en el equipo (Fase 1)
+**Contexto:** §7.3 pide cifrado local y §15 consulta sin conexión. Un caché local mal protegido es el mayor riesgo en teléfonos de cobradores. **Decisión:** en la Fase 1 la app solo guarda en el almacén seguro del sistema (Keychain, Keystore, DPAPI) el identificador del dispositivo, el token de renovación y preferencias sin datos personales. La consulta sin conexión (drift + SQLCipher con clave en el almacén seguro) se implementa en la fase de endurecimiento, junto con el borrado remoto. **Consecuencias:** robar o perder un teléfono no expone la cartera. Mientras tanto la app necesita conexión, y lo dice con un mensaje claro cuando no la hay.
+
+### ADR-024 · Versiones del servidor
+**Decisión:** Node.js 22 LTS, NestJS 12 (ESM), TypeScript 6.0, PostgreSQL 16, Redis 7 y BullMQ 5, que eran las versiones estables vigentes al iniciar la Fase 1. **Consecuencias:** sin dependencias en fin de soporte al salir a producción.
+
+### ADR-025 · Bloqueo progresivo de cuentas
+**Contexto:** §7.1 fija 15 minutos tras 5 intentos fallidos. Un atacante paciente podría seguir probando indefinidamente. **Decisión:** cada bloqueo nuevo dura el doble del anterior (15, 30, 60 minutos…) hasta un máximo de 24 horas. Un ingreso correcto o el cambio de contraseña reinician la cuenta. Cada bloqueo queda en la bitácora y avisa en vivo al Propietario. **Consecuencias:** el primer bloqueo cumple §7.1 al pie de la letra y los siguientes frenan los ataques lentos.
+
+### ADR-026 · Tope de tasa obligatorio en Colombia
+**Decisión:** en empresas de Colombia no se puede crear un préstamo si no hay tasa de usura vigente registrada para la fecha de desembolso (`RATE_CAP_MISSING`). En Brasil y Estados Unidos el tope es opcional: si existe se aplica y, si no, la vista previa lo informa. La mora también se limita al tope (`LATE_FEE_EXCEEDS_CAP`). Las vigencias no se pueden solapar (restricción de exclusión en la base). **Consecuencias:** es imposible prestar por encima de la usura por olvido.
+
+### ADR-027 · CA-05 y CA-06 en una empresa sin tope
+**Contexto:** las condiciones de CA-01 (20 % sobre el capital en 20 cuotas diarias) equivalen a una tasa efectiva anual muy superior a la usura colombiana, así que por ADR-026 ese préstamo no se puede crear en una empresa de Colombia. **Decisión:** CA-01 a CA-04 se verifican con la vista previa en una empresa de Colombia, y CA-05, CA-06 y CA-18 con el mismo préstamo creado en una empresa de Estados Unidos, donde no hay tope registrado. **Consecuencias:** se verifica la aritmética exacta que piden los criterios sin debilitar el control legal. Queda como pregunta para el Propietario si las tasas reales de sus préstamos diarios cumplen la usura (P-6).
+
+### ADR-028 · El contrato OpenAPI valida en tiempo de ejecución
+**Decisión:** cada ruta declara su `operationId`. Al arrancar, la API compila con Ajv (JSON Schema 2020-12) el esquema de cada petición y rechaza con 422 lo que no cumpla. Las pruebas validan cada respuesta contra el contrato y verifican que toda ruta del código exista en `openapi.yaml` y viceversa. **Consecuencias:** el contrato no se desactualiza. La app Flutter y los clientes futuros pueden confiar en él.
+
+### ADR-029 · Carpetas nativas de Flutter generadas en CI
+**Decisión:** el repositorio guarda solo el código Dart, los recursos y `tool/patch_platforms.py`. En cada compilación, `flutter create` genera `android/`, `ios/`, `macos/` y `windows/`, y el script aplica los ajustes de COROC:
+- Android: `FlutterFragmentActivity` con `FLAG_SECURE`, permisos, sin copia de seguridad en la nube y API 26 o superior.
+- iOS: Face ID e iOS 16.
+- macOS: acceso de red y macOS 13.
+- Windows: título de la ventana.
+
+**Consecuencias:** las plantillas siempre corresponden a la versión de Flutter en uso. Cuando se configure la firma para las tiendas (fase de publicación), estas carpetas se versionarán.
+
+### ADR-030 · Formato del peso colombiano fijado en código
+**Contexto:** la biblioteca `intl` no trae datos de `es_CO`; con `es` pondría el símbolo después del número («1.200.000 $»). **Decisión:** COP usa el patrón fijo `¤ #,##0`: símbolo delante, punto de miles y sin decimales, que es como se escribe en Colombia. Las fechas y porcentajes usan `es`. **Consecuencias:** «$ 1.200.000» en todas las plataformas. Una prueba lo verifica.
