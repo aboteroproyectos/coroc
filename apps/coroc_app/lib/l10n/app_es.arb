@@ -1747,7 +1747,7 @@
   "@docUploadOtherHelp": {
     "description": "Ayuda al cargar otro documento"
   },
-  "docUploadReceiptHelp": "Queda en «02 Comprobantes recibidos». La lectura automática llega en la Fase 3; mientras tanto, registre el pago a mano.",
+  "docUploadReceiptHelp": "Va a la Bandeja: COROC lo lee, identifica el pago y, si todo cuadra, lo registra solo. Queda en «02 Comprobantes recibidos».",
   "@docUploadReceiptHelp": {
     "description": "Ayuda al cargar un comprobante"
   },
@@ -2285,7 +2285,7 @@
   "@helpFolderTitle": {
     "description": "Tema de Ayuda"
   },
-  "helpFolderBody": "La carpeta COROC es una copia en su equipo de todo el repositorio: una carpeta por cliente («Nombre Apellidos - Código», sin tildes para que funcione en todos los sistemas y nubes) y, dentro, una por contrato con «01 Contrato y plan de pagos», «02 Comprobantes recibidos», «03 Recibos emitidos», «04 Estados de cuenta» y «05 Otros documentos». Además están _Sin asignar, _Entrada, _Informes y _Respaldos. Se actualiza sola mientras la app está abierta y, si un cliente cambia de nombre, su carpeta se renombra sin perder archivos. COROC nunca borra archivos que usted haya puesto; en el escritorio le ofrece importarlos. En Android usa solo la carpeta que usted elija; en iOS la verá en Archivos.",
+  "helpFolderBody": "La carpeta COROC es una copia en su equipo de todo el repositorio: una carpeta por cliente («Nombre Apellidos - Código», sin tildes para que funcione en todos los sistemas y nubes) y, dentro, una por contrato con «01 Contrato y plan de pagos», «02 Comprobantes recibidos», «03 Recibos emitidos», «04 Estados de cuenta» y «05 Otros documentos». Además están _Sin asignar, _Entrada, _Informes y _Respaldos. Se actualiza sola mientras la app está abierta y, si un cliente cambia de nombre, su carpeta se renombra sin perder archivos. En el escritorio, las fotos y PDF que deje en _Entrada o en la carpeta de un cliente van solos a la Bandeja; los demás archivos se ofrecen para importar. COROC nunca borra otros archivos suyos. En Android usa solo la carpeta que usted elija; en iOS la verá en Archivos.",
   "@helpFolderBody": {
     "description": "Texto de Ayuda"
   },
@@ -2304,5 +2304,636 @@
   "helpBackupBody": "«Crear respaldo» genera un archivo .coroc con todos los datos y documentos de la empresa, cifrado con AES-256 y la contraseña que usted elija (COROC no la guarda). Incluye un manifiesto con la huella SHA-256 de cada archivo. Se genera en el servidor mientras usted sigue trabajando, se puede cancelar y la descarga se reanuda si se corta; queda en _Respaldos y puede guardarlo en otra ubicación. Solo el Propietario restaura: COROC verifica la integridad y la versión, muestra cuánto se restaurará y pide escribir el nombre de la empresa. La restauración es atómica: si algo falla, no cambia nada. Los usuarios del respaldo deben activar de nuevo el segundo factor.",
   "@helpBackupBody": {
     "description": "Texto de Ayuda"
+  },
+  "actionConfirm": "Confirmar",
+  "@actionConfirm": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "actionDelete": "Eliminar",
+  "@actionDelete": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "navInbox": "Bandeja",
+  "@navInbox": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "inboxSubtitle": "Comprobantes recibidos por WhatsApp, correo, enlace de carga, carpeta y la app. Revise lo que COROC no pudo registrar solo.",
+  "@inboxSubtitle": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "inboxFilterPending": "Por revisar",
+  "@inboxFilterPending": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "inboxFilterUnassigned": "Sin asignar",
+  "@inboxFilterUnassigned": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "inboxFilterAuto": "Registrados solos",
+  "@inboxFilterAuto": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "inboxFilterAll": "Todos",
+  "@inboxFilterAll": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "inboxEmpty": "Nada por revisar",
+  "@inboxEmpty": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "inboxEmptyHelp": "Los comprobantes que lleguen aparecerán aquí.",
+  "@inboxEmptyHelp": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "inboxSelect": "Elija un comprobante",
+  "@inboxSelect": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "inboxSelectHelp": "Verá el archivo con los datos leídos resaltados y podrá aprobarlo con Enter.",
+  "@inboxSelectHelp": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "inboxUpload": "Subir comprobante",
+  "@inboxUpload": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "inboxApproveSelected": "Aprobar {n} seleccionados",
+  "@inboxApproveSelected": {
+    "description": "Fase 3 · Recepción y Bandeja",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "inboxBatchResult": "{approved} aprobados · {skipped} requieren revisión",
+  "@inboxBatchResult": {
+    "description": "Fase 3 · Recepción y Bandeja",
+    "placeholders": {
+      "approved": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "inboxUnassignedClient": "Sin asignar",
+  "@inboxUnassignedClient": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeStatusProcessing": "Leyendo…",
+  "@intakeStatusProcessing": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeStatusReview": "Por revisar",
+  "@intakeStatusReview": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeStatusUnassigned": "Sin asignar",
+  "@intakeStatusUnassigned": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeStatusAuto": "Registrado automáticamente",
+  "@intakeStatusAuto": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeStatusApproved": "Aprobado",
+  "@intakeStatusApproved": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeStatusDuplicate": "Duplicado",
+  "@intakeStatusDuplicate": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeStatusRejected": "Rechazado",
+  "@intakeStatusRejected": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeStatusArchived": "No es comprobante",
+  "@intakeStatusArchived": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeStatusFailed": "No se pudo procesar",
+  "@intakeStatusFailed": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "channelWhatsapp": "WhatsApp",
+  "@channelWhatsapp": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "channelEmail": "Correo",
+  "@channelEmail": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "channelUploadLink": "Enlace de carga",
+  "@channelUploadLink": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "channelShare": "Compartido con COROC",
+  "@channelShare": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "channelFolder": "Carpeta COROC",
+  "@channelFolder": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "channelUpload": "Subido en la app",
+  "@channelUpload": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "flagMissingField": "Falta un dato: {field}",
+  "@flagMissingField": {
+    "description": "Fase 3 · Recepción y Bandeja",
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "flagLowConfidence": "Lectura dudosa: {field}",
+  "@flagLowConfidence": {
+    "description": "Fase 3 · Recepción y Bandeja",
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "flagReceiverMismatch": "El pago no se hizo a tus cuentas",
+  "@flagReceiverMismatch": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "flagPayerMismatch": "Quien paga no es el cliente ni su codeudor (se permite, pero revise)",
+  "@flagPayerMismatch": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "flagPayerInferred": "El comprobante no trae el pagador: se tomó el cliente del canal",
+  "@flagPayerInferred": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "flagFutureDate": "La fecha del pago es futura",
+  "@flagFutureDate": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "flagBeforeDisbursement": "La fecha es anterior al desembolso",
+  "@flagBeforeDisbursement": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "flagTooOld": "El comprobante es demasiado antiguo",
+  "@flagTooOld": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "flagNonPositive": "El valor no es válido",
+  "@flagNonPositive": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "flagCurrencyMismatch": "La moneda no es la del préstamo",
+  "@flagCurrencyMismatch": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "flagTamper": "Posible alteración del archivo: nunca se registra solo",
+  "@flagTamper": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "flagNotReceipt": "No parece un comprobante de pago",
+  "@flagNotReceipt": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "flagUnreadable": "No se pudo leer el archivo",
+  "@flagUnreadable": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "flagExtractionMismatch": "Los lectores no coinciden en: {field}",
+  "@flagExtractionMismatch": {
+    "description": "Fase 3 · Recepción y Bandeja",
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "flagSenderUnknown": "Remitente desconocido",
+  "@flagSenderUnknown": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "flagSenderAmbiguous": "Varios clientes posibles",
+  "@flagSenderAmbiguous": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "flagLoanAmbiguous": "No se sabe a qué préstamo aplicarlo",
+  "@flagLoanAmbiguous": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeFields": "Datos leídos",
+  "@intakeFields": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeFieldAmount": "Valor",
+  "@intakeFieldAmount": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeFieldDate": "Fecha del pago",
+  "@intakeFieldDate": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeFieldPayer": "Quien paga",
+  "@intakeFieldPayer": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeFieldReceiver": "Quien recibe",
+  "@intakeFieldReceiver": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeFieldReference": "Referencia",
+  "@intakeFieldReference": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeFieldEntity": "Entidad o medio",
+  "@intakeFieldEntity": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeConfidence": "Confianza de la lectura: {value}",
+  "@intakeConfidence": {
+    "description": "Fase 3 · Recepción y Bandeja",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "intakeReadBy": "Leído por: {engine}",
+  "@intakeReadBy": {
+    "description": "Fase 3 · Recepción y Bandeja",
+    "placeholders": {
+      "engine": {
+        "type": "String"
+      }
+    }
+  },
+  "intakeEngineRules": "lector de COROC",
+  "@intakeEngineRules": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeClient": "Cliente y préstamo",
+  "@intakeClient": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeChooseClient": "Elegir cliente",
+  "@intakeChooseClient": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeSearchClient": "Buscar por nombre, código o contrato",
+  "@intakeSearchClient": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeSuggested": "Sugeridos",
+  "@intakeSuggested": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeLoan": "Préstamo",
+  "@intakeLoan": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeNoLoans": "El cliente no tiene préstamos activos",
+  "@intakeNoLoans": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeSaveSender": "Guardar {phone} como número secundario del cliente",
+  "@intakeSaveSender": {
+    "description": "Fase 3 · Recepción y Bandeja",
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "intakePreview": "Resultado del pago",
+  "@intakePreview": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeBalanceBefore": "Saldo antes",
+  "@intakeBalanceBefore": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeBalanceAfter": "Saldo después",
+  "@intakeBalanceAfter": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeApprove": "Aprobar",
+  "@intakeApprove": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeReject": "Rechazar",
+  "@intakeReject": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeRejectReason": "Motivo del rechazo",
+  "@intakeRejectReason": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeArchive": "No es comprobante",
+  "@intakeArchive": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeRevert": "Revertir",
+  "@intakeRevert": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeRevertConfirm": "Se registrará un contramovimiento, el recibo quedará ANULADO y el comprobante volverá a revisión.",
+  "@intakeRevertConfirm": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeRevertUntil": "Se puede revertir con un toque hasta el {date}",
+  "@intakeRevertUntil": {
+    "description": "Fase 3 · Recepción y Bandeja",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "intakeApproved": "Pago registrado · recibo {receipt}",
+  "@intakeApproved": {
+    "description": "Fase 3 · Recepción y Bandeja",
+    "placeholders": {
+      "receipt": {
+        "type": "String"
+      }
+    }
+  },
+  "intakeDuplicateOf": "Este comprobante ya se había recibido: no se registra dos veces.",
+  "@intakeDuplicateOf": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeProcessing": "Estamos leyendo el comprobante…",
+  "@intakeProcessing": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeOpenReceipt": "Ver recibo",
+  "@intakeOpenReceipt": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeOpenFile": "Abrir archivo",
+  "@intakeOpenFile": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeFile": "Comprobante",
+  "@intakeFile": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakePreviewUnavailable": "Este equipo no puede mostrar la imagen. Ábrala con «Abrir archivo».",
+  "@intakePreviewUnavailable": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeSending": "Enviando comprobante a la Bandeja…",
+  "@intakeSending": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "intakeSent": "Comprobante enviado: confirme el cliente para registrarlo",
+  "@intakeSent": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "uploadLinkTitle": "Enlace de carga",
+  "@uploadLinkTitle": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "uploadLinkHelp": "El deudor ve su plan y sube el comprobante desde el celular, sin instalar nada. El enlace lo identifica, así que el pago queda en este préstamo.",
+  "@uploadLinkHelp": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "uploadLinkNone": "Este préstamo aún no tiene enlace.",
+  "@uploadLinkNone": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "uploadLinkCreate": "Crear enlace",
+  "@uploadLinkCreate": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "uploadLinkRotate": "Cambiar enlace",
+  "@uploadLinkRotate": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "uploadLinkRotateConfirm": "El enlace actual dejará de funcionar de inmediato.",
+  "@uploadLinkRotateConfirm": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "uploadLinkRevoke": "Desactivar",
+  "@uploadLinkRevoke": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "uploadLinkCopy": "Copiar",
+  "@uploadLinkCopy": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "uploadLinkCopied": "Enlace copiado",
+  "@uploadLinkCopied": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "uploadLinkShare": "Compartir",
+  "@uploadLinkShare": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "uploadLinkShareText": "Aquí puedes ver tu plan de pagos y enviarnos tu comprobante: {url}",
+  "@uploadLinkShareText": {
+    "description": "Fase 3 · Recepción y Bandeja",
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "uploadLinkExpires": "Vence el {date}",
+  "@uploadLinkExpires": {
+    "description": "Fase 3 · Recepción y Bandeja",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "uploadLinkUses": "usado {n} veces",
+  "@uploadLinkUses": {
+    "description": "Fase 3 · Recepción y Bandeja",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "receivingTitle": "Cuentas receptoras",
+  "@receivingTitle": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "receivingHelp": "Cuentas donde los deudores le pagan. Quien recibe en cada comprobante debe coincidir con una de ellas; si no, el pago va a revisión con la alerta «El pago no se hizo a tus cuentas».",
+  "@receivingHelp": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "receivingEmpty": "Sin cuentas registradas: ningún pago se registrará solo.",
+  "@receivingEmpty": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "receivingAdd": "Agregar cuenta",
+  "@receivingAdd": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "receivingHolder": "Titular",
+  "@receivingHolder": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "receivingHolderHelp": "Como aparece en los comprobantes",
+  "@receivingHolderHelp": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "receivingInstitution": "Entidad (banco o billetera)",
+  "@receivingInstitution": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "receivingLast4": "Últimos 4 dígitos",
+  "@receivingLast4": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "autoTitle": "Registro automático de pagos",
+  "@autoTitle": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "autoModeAudit": "Automático con auditoría",
+  "@autoModeAudit": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "autoModePrior": "Aprobación previa",
+  "@autoModePrior": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "autoModeAuditHelp": "Si todo cuadra, el pago se registra al instante y queda en la Bandeja como «Registrado automáticamente»; se puede revertir con un toque durante {hours} horas.",
+  "@autoModeAuditHelp": {
+    "description": "Fase 3 · Recepción y Bandeja",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "autoModePriorHelp": "Todo comprobante pasa por la Bandeja antes de registrarse. Puede aprobar en lote los que no tienen alertas.",
+  "@autoModePriorHelp": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "autoThreshold": "Confianza mínima",
+  "@autoThreshold": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "autoThresholdHelp": "Un campo leído con menos confianza nunca se registra solo.",
+  "@autoThresholdHelp": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "autoMaxAge": "Antigüedad máxima (días)",
+  "@autoMaxAge": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "autoRevertHours": "Plazo para revertir (horas)",
+  "@autoRevertHours": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "whatsappTitle": "WhatsApp Business (recepción)",
+  "@whatsappTitle": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "whatsappHelp": "Con la Cloud API de Meta, los comprobantes que los deudores envíen a su número llegan solos a la Bandeja y el número identifica al cliente. Sin esto, use «Compartir con COROC» desde WhatsApp.",
+  "@whatsappHelp": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "whatsappConnected": "Conectado: {number}",
+  "@whatsappConnected": {
+    "description": "Fase 3 · Recepción y Bandeja",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "whatsappNotConnected": "Sin conectar",
+  "@whatsappNotConnected": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "whatsappServerMissing": "El servidor aún no tiene el secreto de la app de Meta ni el token de verificación: pídalo a quien administra COROC.",
+  "@whatsappServerMissing": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "whatsappWebhook": "URL del webhook para Meta",
+  "@whatsappWebhook": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "whatsappConnect": "Conectar número",
+  "@whatsappConnect": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "whatsappDisconnect": "Desconectar",
+  "@whatsappDisconnect": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "whatsappDisplay": "Número visible (opcional)",
+  "@whatsappDisplay": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "whatsappPhoneId": "Id. del número de teléfono (Meta)",
+  "@whatsappPhoneId": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "whatsappToken": "Token de acceso permanente",
+  "@whatsappToken": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "whatsappTokenHelp": "Se guarda cifrado y no vuelve a mostrarse",
+  "@whatsappTokenHelp": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "folderWatch": "Vigilar la carpeta",
+  "@folderWatch": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "folderWatchHelp": "Las fotos y PDF que deje en _Entrada o en la carpeta de un cliente van solos a la Bandeja.",
+  "@folderWatchHelp": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "folderSentToInbox": "{n} enviados a la Bandeja en esta sesión.",
+  "@folderSentToInbox": {
+    "description": "Fase 3 · Recepción y Bandeja",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "helpInboxTitle": "Bandeja de validación",
+  "@helpInboxTitle": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "helpInboxBody": "Todo comprobante que llega (WhatsApp, correo, enlace de carga, «Compartir con COROC», carpeta o subida en la app) se lee solo: valor, fecha, quién paga, quién recibe, referencia y entidad, cada uno con su confianza. COROC identifica al cliente por el número, el correo, el enlace o la carpeta, valida que el pago se hizo a sus cuentas, que la fecha tiene sentido y que no es un duplicado (misma referencia, valor y fecha, o el mismo archivo), y registra el pago solo si todo es inequívoco. Lo demás queda en la Bandeja: a la izquierda el archivo con lo leído resaltado, a la derecha los datos para corregir, el cliente y el préstamo, y el saldo antes y después. Aprobar con Enter; también puede rechazar con motivo o marcar «No es comprobante». Un registro automático se revierte con un toque durante el plazo configurado; después, con el reverso formal.",
+  "@helpInboxBody": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "helpUploadLinkTitle": "Enlace de carga del deudor",
+  "@helpUploadLinkTitle": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "helpUploadLinkBody": "Cada préstamo puede tener un enlace personal. El deudor lo abre en cualquier navegador, en su idioma y sin instalar nada: ve su saldo, su próxima cuota y su plan de pagos, y sube la foto o el PDF del comprobante. Como el enlace identifica al deudor, el pago queda en el préstamo correcto. Créelo, cópielo o compártalo desde el resumen del préstamo; «Cambiar enlace» invalida el anterior al instante y «Desactivar» lo apaga.",
+  "@helpUploadLinkBody": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "helpShareTitle": "Compartir con COROC",
+  "@helpShareTitle": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "helpShareBody": "En Android y iOS, COROC aparece al compartir o abrir una imagen o un PDF: desde WhatsApp, toque el comprobante, «Compartir» y COROC. El archivo va a la Bandeja; como el teléfono no dice quién lo envió, COROC propone el cliente más probable (por el nombre del pagador y el valor) y usted confirma con un toque. En el escritorio, deje el archivo en la carpeta _Entrada o en la carpeta del cliente, o use «Subir comprobante».",
+  "@helpShareBody": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "helpReceivingTitle": "Cuentas receptoras y registro automático",
+  "@helpReceivingTitle": {
+    "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "helpReceivingBody": "En Configuración registre las cuentas donde le pagan (titular, entidad y últimos 4 dígitos). El beneficiario de cada comprobante se compara con ellas sin tildes; si no coincide, el pago nunca se registra solo. Elija también el modo: «Automático con auditoría» registra al instante lo que es inequívoco y deja revertirlo durante un plazo; «Aprobación previa» manda todo a la Bandeja. La confianza mínima, la antigüedad máxima del comprobante y el plazo para revertir se ajustan allí mismo.",
+  "@helpReceivingBody": {
+    "description": "Fase 3 · Recepción y Bandeja"
   }
 }

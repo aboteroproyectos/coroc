@@ -145,13 +145,14 @@ export interface LogicalKeyInput {
 }
 
 /**
- * Huella lógica del comprobante. Con referencia: referencia + valor + fecha + entidad.
- * Sin referencia: valor + fecha + hora + entidad + pagador (evita confundir dos pagos iguales del mismo día).
+ * Huella lógica del comprobante. Con referencia: referencia + valor + fecha. La entidad no entra: el mismo comprobante
+ * puede llegar como foto (donde el OCR no siempre lee el logo del banco) y como PDF (donde sí), y no debe contarse dos
+ * veces (CA-07). Sin referencia: valor + fecha + hora + entidad + pagador (evita confundir dos pagos iguales del mismo día).
  */
 export function logicalFingerprint(x: LogicalKeyInput): string {
   const norm = (s?: string) => stripAccents(s ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
   if (x.reference && norm(x.reference).length >= 4) {
-    return ['ref', norm(x.reference), x.amount, x.date, norm(x.entity)].join('|');
+    return ['ref', norm(x.reference), x.amount, x.date].join('|');
   }
   return ['noref', x.amount, x.date, x.time ?? '', norm(x.entity), norm(x.payerName)].join('|');
 }
@@ -201,7 +202,14 @@ export type FlagCode =
   | 'NON_POSITIVE_AMOUNT'
   | 'CURRENCY_MISMATCH'
   | 'TAMPER_SIGNAL'
-  | 'NOT_A_RECEIPT';
+  | 'NOT_A_RECEIPT'
+  /** No se pudo leer el archivo (formato sin OCR, imagen ilegible o lector desactivado). */
+  | 'OCR_UNAVAILABLE'
+  /** La IA y el lector por reglas no coinciden en el valor o la fecha (ADR-017). */
+  | 'EXTRACTION_MISMATCH'
+  | 'SENDER_UNKNOWN'
+  | 'SENDER_AMBIGUOUS'
+  | 'LOAN_AMBIGUOUS';
 
 export interface Flag {
   code: FlagCode;

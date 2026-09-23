@@ -1,4 +1,4 @@
-# COROC · Ejecución local y despliegue (Fases 1 y 2)
+# COROC · Ejecución local y despliegue (fases 1 a 3)
 
 ## Requisitos
 
@@ -9,6 +9,7 @@
 | Redis | 7 (opcional con una sola instancia: sin `REDIS_URL`, los eventos en vivo y el trabajo horario corren en memoria dentro de la API) |
 | Flutter | estable 3.32 o posterior (Dart 3.8) |
 | Chromium sin interfaz | El de `playwright-core` (`npx playwright-core install chromium-headless-shell`) o cualquier Chromium con `COROC_CHROMIUM_PATH`; genera los PDF (ADR-033) |
+| Tesseract y Poppler | Tesseract 5 con `spa`, `por` y `eng`, y `pdftoppm`, para leer comprobantes (ADR-037). En Debian o Ubuntu: `apt-get install tesseract-ocr tesseract-ocr-spa tesseract-ocr-por tesseract-ocr-eng poppler-utils` |
 | Docker | 24 o posterior, con Compose v2.24 o posterior (para `infra/`) |
 
 ## 1. Servidor en desarrollo
@@ -81,9 +82,9 @@ flutter test
 
 | Trabajo | Qué hace |
 |---|---|
-| Núcleo y API | `npm ci`, compilación, tipos, textos en 3 idiomas, Redocly, Chromium sin interfaz y todas las pruebas con PostgreSQL 16 (incluidos los PDF) |
+| Núcleo y API | `npm ci`, compilación, tipos, textos en 3 idiomas, Redocly, Chromium sin interfaz, Tesseract y todas las pruebas con PostgreSQL 16 (incluidos los PDF, CA-07 a CA-09 y CA-19 con OCR real) |
 | Imagen Docker | Construye `services/api/Dockerfile` |
-| App · análisis y pruebas | Genera las carpetas nativas y el código, verifica los 519 textos en 3 idiomas, `flutter analyze` y `flutter test` |
+| App · análisis y pruebas | Genera las carpetas nativas y el código, verifica los 656 textos en 3 idiomas, `flutter analyze` y `flutter test` |
 | App · Android | APK y App Bundle (artefacto `coroc-android`) |
 | App · Windows | Ejecutable (artefacto `coroc-windows`) |
 | App · macOS e iOS | En `main`, etiquetas `v*` o a pedido: `.app` de macOS e iOS sin firma |
@@ -110,7 +111,13 @@ Los instaladores quedan como artefactos de cada ejecución, en la pestaña Actio
    - `COROC_DOCUMENT_WORKER=on` (predeterminado) procesa la bandeja de documentos en la instancia; `off` para instancias que solo atienden peticiones. Al menos una debe tenerlo en `on` (ADR-032);
    - `COROC_LINK_TTL` (segundos, de 30 a 3600; 300 por defecto): vigencia de los enlaces de descarga;
    - `COROC_RESTORE_MAX_BYTES` (20 GB por defecto): tamaño máximo de un respaldo a restaurar. El proxy debe permitir cuerpos de ese tamaño en `/v1/restores` y peticiones largas en esa ruta.
-5. **Contenedor:** la imagen de `services/api/Dockerfile` corre sin root y expone `/health`. Detrás de HTTPS con TLS 1.2 o superior (Caddy, balanceador de la nube o similar). Para los eventos en vivo, desactive el búfer del proxy en `/v1/events`.
-6. **Respaldo de la base:** respaldo automático diario del proveedor con retención de 30 días, más `pg_dump` semanal cifrado fuera de la nube principal. El respaldo `.coroc` por empresa (Configuración › Respaldo) complementa esto, pero no lo reemplaza. Respalde también el volumen o el depósito de archivos.
+5. **Recepción de comprobantes (Fase 3):**
+   - `COROC_OCR=tesseract` (predeterminado) o `none`. Opcionales: `COROC_TESSERACT_PATH`, `COROC_PDFTOPPM_PATH`, `COROC_OCR_LANGS` (`spa+por+eng`) y `COROC_OCR_MAX_PAGES` (3);
+   - extracción con IA (opcional, ADR-037): `COROC_EXTRACTION=claude` y `ANTHROPIC_API_KEY` en el gestor de secretos. También `COROC_EXTRACTION_MODEL` (`claude-opus-5`) y `COROC_EXTRACTION_TIMEOUT_MS`. Requiere el acuerdo de tratamiento de datos (S-6);
+   - portal del deudor: `COROC_PORTAL_URL` (por defecto `COROC_API_PUBLIC_URL` + `/v1/public/upload/`) y `COROC_UPLOAD_LINK_DAYS` (365);
+   - correo entrante: `COROC_INBOUND_EMAIL_DOMAIN` (p. ej. `pagos.coroc.app`) y `COROC_INBOUND_EMAIL_SECRET`. En el proveedor (Postmark u otro que envíe el mismo JSON), apunte el webhook de entrada a `https://api…/v1/webhooks/email/inbound?token=<secreto>`. Cada empresa recibe en `pagos-<código>@<dominio>`. El proxy debe aceptar cuerpos de hasta 40 MB en esa ruta;
+   - WhatsApp Cloud API: `COROC_WHATSAPP_APP_SECRET` (secreto de la app de Meta) y `COROC_WHATSAPP_VERIFY_TOKEN`. En Meta, suscriba el webhook `https://api…/v1/webhooks/whatsapp` al campo `messages`. Cada empresa conecta su número (id del número y token de acceso) en Configuración › WhatsApp Business. Opcional: `COROC_WHATSAPP_GRAPH_VERSION` (`v23.0`).
+6. **Contenedor:** la imagen de `services/api/Dockerfile` corre sin root y expone `/health`. Detrás de HTTPS con TLS 1.2 o superior (Caddy, balanceador de la nube o similar). Para los eventos en vivo, desactive el búfer del proxy en `/v1/events`.
+7. **Respaldo de la base:** respaldo automático diario del proveedor con retención de 30 días, más `pg_dump` semanal cifrado fuera de la nube principal. El respaldo `.coroc` por empresa (Configuración › Respaldo) complementa esto, pero no lo reemplaza. Respalde también el volumen o el depósito de archivos.
 
 Queda pendiente decidir la nube, la región y el dominio (pregunta P-1).

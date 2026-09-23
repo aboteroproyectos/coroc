@@ -14,6 +14,7 @@ import '../../design/widgets/common.dart';
 import '../../design/widgets/labels.dart';
 import '../dashboard/dashboard_page.dart';
 import '../documents/documents.dart';
+import '../inbox/upload_link_card.dart';
 import '../loans/loan_providers.dart';
 import '../loans/payment_sheet.dart';
 import '../shell/app_shell.dart';
@@ -227,6 +228,8 @@ class _SummaryTab extends StatelessWidget {
         if (c.maxWidth < 900) return Column(children: [progress, const SizedBox(height: CorocSpace.md), terms]);
         return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Expanded(child: progress), const SizedBox(width: CorocSpace.md), Expanded(child: terms)]);
       }),
+      const SizedBox(height: CorocSpace.md),
+      UploadLinkCard(loan: loan),
       const SizedBox(height: CorocSpace.md),
       SectionCard(
         title: l.clientData,

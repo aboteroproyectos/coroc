@@ -25,13 +25,17 @@ class SyncResult {
 /// Archivo que alguien puso a mano en la carpeta de un cliente (escritorio, §16.3): se ofrece para importar.
 class UntrackedFile {
   const UntrackedFile({required this.clientId, required this.contract, required this.subfolder, required this.dir, required this.name});
-  final String clientId;
+  /// Cliente de la carpeta donde se dejó el archivo; null si se dejó en `_Entrada` (§12.5).
+  final String? clientId;
   final String? contract;
   /// Índice de la subcarpeta (0–4) o -1 si está directamente en la carpeta del cliente.
   final int subfolder;
   final List<String> dir;
   final String name;
   String get path => [...dir, name].join('/');
+
+  /// Imagen o PDF: puede ser un comprobante y va a la Bandeja (§12.5). Lo demás se ofrece como documento.
+  bool get receiptLike => const {'pdf', 'jpg', 'jpeg', 'png', 'webp', 'heic'}.contains(name.split('.').last.toLowerCase());
 }
 
 /// Espejo local de la carpeta COROC (§16.2–16.3). La nube es la fuente de verdad: este motor crea la estructura
@@ -156,11 +160,17 @@ class FolderSync {
   }
 
   /// Archivos que el usuario agregó a mano en las carpetas de sus clientes y que COROC no conoce (§16.3).
-  Future<List<UntrackedFile>> untracked(List<String> subfolders) async {
+  Future<List<UntrackedFile>> untracked(List<String> subfolders, {String? inbox}) async {
     final idx = await _load();
     final known = idx.files.values.map((e) => e.path).toSet();
     final out = <UntrackedFile>[];
-    bool candidate(String n) => !n.startsWith('.') && !n.endsWith('.part');
+    bool candidate(String n) => !n.startsWith('.') && !n.endsWith('.part') && !n.startsWith('~\$');
+    // `_Entrada`: lo que el usuario deja ahí sigue el flujo de un comprobante recibido, sin cliente todavía.
+    if (inbox != null) {
+      for (final n in await store.listFiles([inbox])) {
+        if (candidate(n)) out.add(UntrackedFile(clientId: null, contract: null, subfolder: -1, dir: [inbox], name: n));
+      }
+    }
     for (final entry in idx.clients.entries) {
       final folder = entry.value;
       for (final n in await store.listFiles([folder])) {

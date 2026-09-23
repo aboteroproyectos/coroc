@@ -179,7 +179,16 @@
     "RESTORE_ALREADY_APPLIED": {
       "title": "Restore already applied",
       "detail": "This backup was already restored. Upload it again to repeat the restore."
-    }
+    },
+    "INTAKE_NOT_PENDING": "This proof of payment was already resolved in the Review inbox.",
+    "INTAKE_DUPLICATE": "A payment was already recorded with this same proof (same reference, amount and date).",
+    "INTAKE_NOT_REVERTIBLE": "Only an automatically recorded payment can be reverted.",
+    "INTAKE_REVERT_EXPIRED": "More than {hours} hours have passed: use a formal reversal with a reason to cancel this payment.",
+    "UPLOAD_LINK_INVALID": "The upload link does not exist or was replaced.",
+    "UPLOAD_LINK_EXPIRED": "The upload link expired or was revoked.",
+    "WEBHOOK_SIGNATURE_INVALID": "Invalid webhook signature.",
+    "WEBHOOK_NOT_CONFIGURED": "This channel is not configured on the server.",
+    "WHATSAPP_ACCOUNT_IN_USE": "That WhatsApp number is already connected to another company."
   },
   "terms": {
     "PRINCIPAL": "The principal must be a positive amount.",
@@ -393,5 +402,41 @@
     "number": "Receipt No.",
     "date": "Payment date",
     "amount": "Amount paid"
+  },
+  "portal": {
+    "title": "Your loan",
+    "hello": "Hi, {name}",
+    "contract": "Contract {contract}",
+    "company": "Serviced by {company}",
+    "balance": "Balance due",
+    "next": "Next installment",
+    "nextValue": "{amount} on {date}",
+    "progress": "{paid} of {total} installments paid",
+    "closed": "Your loan is paid in full. Thank you!",
+    "plan": "Payment plan",
+    "number": "Installment",
+    "due": "Date",
+    "amount": "Amount",
+    "status": "Status",
+    "paid": "Paid",
+    "partial": "Partial",
+    "overdue": "Overdue",
+    "pending": "Pending",
+    "uploadTitle": "Send proof of payment",
+    "uploadHelp": "Upload the photo or PDF of your transfer, deposit or payment receipt. We will review it and send you your receipt.",
+    "file": "Proof of payment (photo or PDF, up to {mb} MB)",
+    "note": "Note (optional)",
+    "submit": "Send proof of payment",
+    "thanksTitle": "We received your proof of payment!",
+    "thanksBody": "We are reviewing it. Once the payment is recorded we will send you your \"Thank you for your payment\" receipt.",
+    "duplicateBody": "We had already received this proof of payment: no need to send it again.",
+    "back": "Back to my loan",
+    "invalidTitle": "Link not available",
+    "invalidBody": "This link no longer works. Ask your lender for a new one.",
+    "errorType": "Only photos (JPG, PNG, HEIC) or PDF are accepted.",
+    "errorSize": "The file is larger than {mb} MB.",
+    "errorEmpty": "Choose the proof of payment file.",
+    "errorRate": "You sent many files in a short time. Please try again in an hour.",
+    "privacy": "Your data is used only to manage your loan."
   }
 }

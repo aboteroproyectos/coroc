@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { DocumentTasks } from '../src/documents/tasks.js';
 import { auth, bootApp, expectContract, newTenant, ownerSession, PASSWORD } from './helpers.js';
 import { pdfText } from './pdf-text.js';
+import { receiptHtml, renderOne } from './receipts/dataset.js';
 
 type T = Awaited<ReturnType<typeof bootApp>>;
 const terms = (over: Record<string, unknown> = {}) => ({ principal: 1_000_000, currency: 'COP', method: 'simple', rate: '0.20', installments: 20, frequency: 'daily', disbursementDate: '2026-10-08', ...over });
@@ -54,6 +55,9 @@ describe('Respaldo y restauración (§19, CA-13)', () => {
     const png = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), crypto.randomBytes(200_000)]);
     await t.http().post(`/v1/clients/${c1.client.id}/documents`).query({ name: 'Cédula' }).set(auth(a.token)).set('Content-Type', 'application/octet-stream').send(png).expect(201);
     await t.http().post('/v1/reports').set(auth(a.token)).send({ type: 'portfolio', format: 'xlsx', currency: 'COP' }).expect(202);
+    // Un comprobante recibido en la Bandeja (PDF con capa de texto, desde la carpeta del cliente).
+    const receipt = await renderOne(receiptHtml('BBVA', { amount: 60_000, currency: 'COP', date: '2026-10-19', payer: 'María José Pérez Gómez', receiver: 'Inversiones Coroc SAS', reference: 'BB7700112' }), 'pdf', process.env.COROC_CHROMIUM_PATH);
+    await t.http().post('/v1/intake').set(auth(a.token)).query({ channel: 'folder', clientId: c1.client.id }).set('Content-Type', 'application/octet-stream').send(receipt).expect(202);
     await idle();
   });
   afterAll(async () => t.app.close());
@@ -135,6 +139,13 @@ describe('Respaldo y restauración (§19, CA-13)', () => {
       return out.sort();
     };
     expect(await summary(b.token)).toEqual(await summary(a.token));
+    // La Bandeja también viaja: mismos comprobantes, con la identificación apuntando al cliente restaurado.
+    const inbox = async (token: string) => (await t.http().get('/v1/intake').set(auth(token)).expect(200)).body.items;
+    const [ia, ib] = [await inbox(a.token), await inbox(b.token)];
+    expect(ib.map((i: any) => `${i.status}|${i.extraction.amount?.value}|${i.clientName}|${i.channel}`)).toEqual(ia.map((i: any) => `${i.status}|${i.extraction.amount?.value}|${i.clientName}|${i.channel}`));
+    expect(ib).toHaveLength(1);
+    expect(ib[0].identification.clientId).toBe(ib[0].clientId);
+    expect(ib[0].clientId).not.toBe(ia[0].clientId);
     const ledgerA = (await t.http().get('/v1/clients').set(auth(a.token)).expect(200)).body.items.length;
     expect(ledgerA).toBe(2);
     // La empresa restaurada sigue operando: el siguiente recibo continúa la numeración del respaldo.

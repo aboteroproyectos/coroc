@@ -23,7 +23,7 @@ export interface NewDocument {
   body: Buffer;
   /** Documentos versionados: la versión nueva reemplaza a la anterior sin borrarla (§16.1). */
   versionKey?: string | null;
-  source: 'system' | 'manual' | 'folder';
+  source: 'system' | 'manual' | 'cash' | 'inbox' | 'folder' | 'whatsapp' | 'email' | 'upload_link';
   lang?: Lang | null;
   meta?: Record<string, unknown>;
   tags?: string[];

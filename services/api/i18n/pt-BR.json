@@ -179,7 +179,16 @@
     "RESTORE_ALREADY_APPLIED": {
       "title": "Restauração já aplicada",
       "detail": "Este backup já foi restaurado. Envie-o novamente para repetir a restauração."
-    }
+    },
+    "INTAKE_NOT_PENDING": "Este comprovante já foi resolvido na Caixa de validação.",
+    "INTAKE_DUPLICATE": "Já existe um pagamento registrado com este mesmo comprovante (mesma referência, valor e data).",
+    "INTAKE_NOT_REVERTIBLE": "Só é possível reverter um pagamento registrado automaticamente.",
+    "INTAKE_REVERT_EXPIRED": "Passaram mais de {hours} horas: para cancelar este pagamento use o estorno formal com motivo.",
+    "UPLOAD_LINK_INVALID": "O link de envio não existe ou foi substituído.",
+    "UPLOAD_LINK_EXPIRED": "O link de envio venceu ou foi revogado.",
+    "WEBHOOK_SIGNATURE_INVALID": "Assinatura do webhook inválida.",
+    "WEBHOOK_NOT_CONFIGURED": "Este canal não está configurado no servidor.",
+    "WHATSAPP_ACCOUNT_IN_USE": "Esse número de WhatsApp já está conectado a outra empresa."
   },
   "terms": {
     "PRINCIPAL": "O capital deve ser um valor positivo.",
@@ -393,5 +402,41 @@
     "number": "Recibo nº",
     "date": "Data do pagamento",
     "amount": "Valor pago"
+  },
+  "portal": {
+    "title": "Seu empréstimo",
+    "hello": "Olá, {name}",
+    "contract": "Contrato {contract}",
+    "company": "Atendimento de {company}",
+    "balance": "Saldo a pagar",
+    "next": "Próxima parcela",
+    "nextValue": "{amount} em {date}",
+    "progress": "{paid} de {total} parcelas pagas",
+    "closed": "Seu empréstimo está quitado. Obrigado!",
+    "plan": "Plano de pagamento",
+    "number": "Parcela",
+    "due": "Data",
+    "amount": "Valor",
+    "status": "Situação",
+    "paid": "Paga",
+    "partial": "Parcial",
+    "overdue": "Vencida",
+    "pending": "Pendente",
+    "uploadTitle": "Enviar comprovante de pagamento",
+    "uploadHelp": "Envie a foto ou o PDF do comprovante da sua transferência, depósito ou pagamento. Nós conferimos e enviamos o seu recibo.",
+    "file": "Comprovante (foto ou PDF, máximo {mb} MB)",
+    "note": "Observação (opcional)",
+    "submit": "Enviar comprovante",
+    "thanksTitle": "Recebemos o seu comprovante!",
+    "thanksBody": "Estamos conferindo. Quando o pagamento for registrado, enviaremos o seu recibo «Obrigado pelo seu pagamento».",
+    "duplicateBody": "Já tínhamos recebido este comprovante: não é preciso enviá-lo de novo.",
+    "back": "Voltar ao meu empréstimo",
+    "invalidTitle": "Link indisponível",
+    "invalidBody": "Este link não funciona mais. Peça um novo a quem lhe emprestou.",
+    "errorType": "Aceitamos apenas fotos (JPG, PNG, HEIC) ou PDF.",
+    "errorSize": "O arquivo passa de {mb} MB.",
+    "errorEmpty": "Escolha o arquivo do comprovante.",
+    "errorRate": "Você enviou muitos arquivos em pouco tempo. Tente de novo em uma hora.",
+    "privacy": "Seus dados são usados apenas para administrar o seu empréstimo."
   }
 }

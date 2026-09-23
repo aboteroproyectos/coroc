@@ -8,6 +8,8 @@ import '../../core/l10n.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/brand.dart';
 import '../../design/widgets/common.dart';
+import '../inbox/inbox_page.dart' show InboxRealtime, intakeSummaryProvider;
+import '../inbox/share_receiver.dart';
 import '../settings/data_sections.dart' show FolderAutoSync, showCreateBackupDialog;
 
 class _Dest {
@@ -23,6 +25,7 @@ final _destinations = <_Dest>[
   _Dest('/dashboard', Icons.space_dashboard_outlined, Icons.space_dashboard, (l) => l.navDashboard),
   _Dest('/today', Icons.event_available_outlined, Icons.event_available, (l) => l.navToday),
   _Dest('/clients', Icons.people_alt_outlined, Icons.people_alt, (l) => l.navClients),
+  _Dest('/inbox', Icons.inbox_outlined, Icons.inbox, (l) => l.navInbox, 'intake.view'),
   _Dest('/reports', Icons.insert_chart_outlined, Icons.insert_chart, (l) => l.navReports, 'reports.view'),
   _Dest('/settings', Icons.tune_outlined, Icons.tune, (l) => l.navSettings),
   _Dest('/help', Icons.help_outline, Icons.help, (l) => l.navHelp),
@@ -43,13 +46,18 @@ class AppShell extends ConsumerWidget {
   final String location;
   final Widget child;
 
-  /// Destinos que el rol puede ver. En teléfonos la barra inferior tiene 5 (§5.6): si aparecen Informes, la Ayuda
-  /// pasa a Configuración.
+  /// Destinos que el rol puede ver. En teléfonos la barra inferior tiene 5 (§5.6): si no caben, la Ayuda y luego los
+  /// Informes pasan a Configuración.
   static List<_Dest> _visible(bool Function(String) can, {bool compact = false}) {
     final list = _destinations.where((d) => d.permission == null || can(d.permission!)).toList();
     if (compact && list.length > 5) list.removeWhere((d) => d.path == '/help');
+    if (compact && list.length > 5) list.removeWhere((d) => d.path == '/reports');
     return list;
   }
+
+  /// Ícono con el contador de la Bandeja (§13.6).
+  static Widget _icon(_Dest d, IconData icon, int pending) =>
+      d.path == '/inbox' && pending > 0 ? Badge(label: Text(pending > 99 ? '99+' : '$pending'), child: Icon(icon)) : Icon(icon);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -60,6 +68,7 @@ class AppShell extends ConsumerWidget {
     final width = MediaQuery.sizeOf(context).width;
     bool can(String p) => session?.user.can(p) ?? false;
     final dests = _visible(can, compact: width < CorocBreakpoints.tablet);
+    final pending = can('intake.view') ? ref.watch(intakeSummaryProvider).valueOrNull?.pending ?? 0 : 0;
     final found = dests.indexWhere((d) => location.startsWith(d.path));
     final index = found < 0 ? 0 : found;
     void go(int i) => context.go(dests[i].path);
@@ -83,12 +92,12 @@ class AppShell extends ConsumerWidget {
       }),
     };
 
-    final body = FolderAutoSync(child: Shortcuts(shortcuts: shortcuts, child: Actions(actions: actions, child: Focus(autofocus: true, child: child))));
+    final body = ShareReceiver(child: InboxRealtime(child: FolderAutoSync(child: Shortcuts(shortcuts: shortcuts, child: Actions(actions: actions, child: Focus(autofocus: true, child: child))))));
 
     if (width >= CorocBreakpoints.desktop) {
       return Scaffold(
         body: Row(children: [
-          _Sidebar(dests: dests, index: index, onSelect: go),
+          _Sidebar(dests: dests, index: index, onSelect: go, pending: pending),
           Expanded(child: body),
         ]),
       );
@@ -101,7 +110,7 @@ class AppShell extends ConsumerWidget {
             onDestinationSelected: go,
             labelType: NavigationRailLabelType.all,
             leading: const Padding(padding: EdgeInsets.symmetric(vertical: CorocSpace.md), child: CorocLogo(layout: LogoLayout.isotype, height: 36)),
-            destinations: [for (final d in dests) NavigationRailDestination(icon: Icon(d.icon), selectedIcon: Icon(d.selectedIcon), label: Text(d.label(l)))],
+            destinations: [for (final d in dests) NavigationRailDestination(icon: _icon(d, d.icon, pending), selectedIcon: _icon(d, d.selectedIcon, pending), label: Text(d.label(l)))],
           ),
           const VerticalDivider(width: 1),
           Expanded(child: body),
@@ -113,17 +122,18 @@ class AppShell extends ConsumerWidget {
       bottomNavigationBar: NavigationBar(
         selectedIndex: index,
         onDestinationSelected: go,
-        destinations: [for (final d in dests) NavigationDestination(icon: Icon(d.icon), selectedIcon: Icon(d.selectedIcon), label: d.label(l))],
+        destinations: [for (final d in dests) NavigationDestination(icon: _icon(d, d.icon, pending), selectedIcon: _icon(d, d.selectedIcon, pending), label: d.label(l))],
       ),
     );
   }
 }
 
 class _Sidebar extends ConsumerWidget {
-  const _Sidebar({required this.dests, required this.index, required this.onSelect});
+  const _Sidebar({required this.dests, required this.index, required this.onSelect, this.pending = 0});
   final List<_Dest> dests;
   final int index;
   final ValueChanged<int> onSelect;
+  final int pending;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -147,6 +157,7 @@ class _Sidebar extends ConsumerWidget {
               label: dests[i].label(l),
               selected: i == index,
               onTap: () => onSelect(i),
+              count: dests[i].path == '/inbox' ? pending : 0,
             ),
           const Spacer(),
           // «Crear respaldo» visible en el menú principal (§19).
@@ -182,11 +193,12 @@ class _Sidebar extends ConsumerWidget {
 }
 
 class _SideItem extends StatelessWidget {
-  const _SideItem({required this.icon, required this.label, required this.selected, required this.onTap});
+  const _SideItem({required this.icon, required this.label, required this.selected, required this.onTap, this.count = 0});
   final IconData icon;
   final String label;
   final bool selected;
   final VoidCallback onTap;
+  final int count;
 
   @override
   Widget build(BuildContext context) {
@@ -205,6 +217,7 @@ class _SideItem extends StatelessWidget {
               Icon(icon, size: 22, color: selected ? CorocColors.gold300 : CorocColors.ivory),
               const SizedBox(width: 14),
               Expanded(child: Text(label, style: t.bodyLarge?.copyWith(color: CorocColors.ivory, fontWeight: selected ? FontWeight.w600 : FontWeight.w400))),
+              if (count > 0) Badge(label: Text(count > 99 ? '99+' : '$count'), backgroundColor: CorocColors.gold500, textColor: CorocColors.navy800),
             ]),
           ),
         ),

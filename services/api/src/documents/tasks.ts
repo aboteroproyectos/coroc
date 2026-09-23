@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } f
 import { CONFIG, type AppConfig } from '../config.js';
 import { DbService, type Tx } from '../db/db.service.js';
 
-export type TaskKind = 'schedule' | 'receipt' | 'receipt_void' | 'statement' | 'payoff' | 'report' | 'backup';
+export type TaskKind = 'schedule' | 'receipt' | 'receipt_void' | 'statement' | 'payoff' | 'report' | 'backup' | 'intake';
 
 export interface TaskRow {
   id: string;
@@ -119,8 +119,8 @@ export class DocumentTasks implements OnApplicationBootstrap, OnModuleDestroy {
       this.log.warn(`Tarea ${task.kind} ${id} falló (intento ${task.attempts}): ${message}`);
       await this.db.tx(ctx, (tx) =>
         tx.exec(
-          `UPDATE document_tasks SET status = $2, error = $3, locked_until = NULL, finished_at = CASE WHEN $2 = 'failed' THEN now() END,
-                  params = CASE WHEN $2 = 'failed' THEN params - 'secret' ELSE params END,
+          `UPDATE document_tasks SET status = $2::task_status, error = $3, locked_until = NULL, finished_at = CASE WHEN $2::task_status = 'failed' THEN now() END,
+                  params = CASE WHEN $2::task_status = 'failed' THEN params - 'secret' ELSE params END,
                   run_after = now() + make_interval(secs => $4) WHERE id = $1`,
           [id, final ? 'failed' : 'pending', message, Math.min(3600, 5 * 2 ** task.attempts)],
         ),

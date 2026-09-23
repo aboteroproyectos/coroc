@@ -179,7 +179,16 @@
     "RESTORE_ALREADY_APPLIED": {
       "title": "Restauración ya aplicada",
       "detail": "Este respaldo ya se restauró. Súbalo de nuevo si quiere repetir la restauración."
-    }
+    },
+    "INTAKE_NOT_PENDING": "Este comprobante ya fue resuelto en la Bandeja.",
+    "INTAKE_DUPLICATE": "Ya hay un pago registrado con este mismo comprobante (misma referencia, valor y fecha).",
+    "INTAKE_NOT_REVERTIBLE": "Solo se puede revertir un pago registrado automáticamente.",
+    "INTAKE_REVERT_EXPIRED": "Pasaron más de {hours} horas: para anular este pago use el reverso formal con motivo.",
+    "UPLOAD_LINK_INVALID": "El enlace de carga no existe o fue reemplazado.",
+    "UPLOAD_LINK_EXPIRED": "El enlace de carga venció o fue revocado.",
+    "WEBHOOK_SIGNATURE_INVALID": "Firma del webhook no válida.",
+    "WEBHOOK_NOT_CONFIGURED": "Este canal no está configurado en el servidor.",
+    "WHATSAPP_ACCOUNT_IN_USE": "Ese número de WhatsApp ya está conectado a otra empresa."
   },
   "terms": {
     "PRINCIPAL": "El capital debe ser un valor positivo.",
@@ -393,5 +402,41 @@
     "number": "Recibo N.º",
     "date": "Fecha del pago",
     "amount": "Valor pagado"
+  },
+  "portal": {
+    "title": "Tu préstamo",
+    "hello": "Hola, {name}",
+    "contract": "Contrato {contract}",
+    "company": "Te atiende {company}",
+    "balance": "Saldo por pagar",
+    "next": "Próxima cuota",
+    "nextValue": "{amount} el {date}",
+    "progress": "{paid} de {total} cuotas pagadas",
+    "closed": "Tu préstamo está pagado. ¡Gracias!",
+    "plan": "Plan de pagos",
+    "number": "Cuota",
+    "due": "Fecha",
+    "amount": "Valor",
+    "status": "Estado",
+    "paid": "Pagada",
+    "partial": "Abono",
+    "overdue": "Vencida",
+    "pending": "Pendiente",
+    "uploadTitle": "Enviar comprobante de pago",
+    "uploadHelp": "Sube la foto o el PDF del comprobante de tu transferencia, consignación o pago. Lo revisamos y te enviamos tu recibo.",
+    "file": "Comprobante (foto o PDF, máximo {mb} MB)",
+    "note": "Nota (opcional)",
+    "submit": "Enviar comprobante",
+    "thanksTitle": "¡Recibimos tu comprobante!",
+    "thanksBody": "Lo estamos revisando. Cuando se registre el pago te enviaremos tu recibo «Gracias por tu pago».",
+    "duplicateBody": "Ya habíamos recibido este comprobante: no hace falta enviarlo otra vez.",
+    "back": "Volver a mi préstamo",
+    "invalidTitle": "Enlace no disponible",
+    "invalidBody": "Este enlace ya no funciona. Pide uno nuevo a quien te prestó.",
+    "errorType": "Solo se aceptan fotos (JPG, PNG, HEIC) o PDF.",
+    "errorSize": "El archivo supera {mb} MB.",
+    "errorEmpty": "Elige el archivo del comprobante.",
+    "errorRate": "Enviaste muchos archivos en poco tiempo. Intenta de nuevo en una hora.",
+    "privacy": "Tus datos se usan solo para administrar tu préstamo."
   }
 }

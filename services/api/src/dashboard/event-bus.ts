@@ -5,7 +5,7 @@ import { CONFIG, type AppConfig } from '../config.js';
 
 /** Evento en tiempo real (§17): se difunde a todos los dispositivos conectados de la empresa. */
 export interface CorocEvent {
-  type: 'payment.posted' | 'payment.reversed' | 'loan.created' | 'client.updated' | 'dashboard.changed' | 'security.lockout' | 'document.created' | 'task.finished';
+  type: 'payment.posted' | 'payment.reversed' | 'loan.created' | 'client.updated' | 'dashboard.changed' | 'security.lockout' | 'document.created' | 'task.finished' | 'intake.updated';
   tenantId: string;
   /** Para filtrar lo que ve un Cobrador: solo eventos de sus clientes. */
   clientId?: string | null;

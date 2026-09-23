@@ -22,6 +22,9 @@ COPY --from=build /repo/node_modules ./node_modules
 # Chromium sin interfaz para los PDF (§4.2), en la versión que corresponde a playwright-core, con sus dependencias del sistema.
 RUN node node_modules/playwright-core/cli.js install --with-deps chromium-headless-shell \
  && rm -rf /var/lib/apt/lists/*
+# Lectura de comprobantes (§13.2): OCR en español, portugués e inglés, y Poppler para los PDF escaneados.
+RUN apt-get update -q && apt-get install -y -q --no-install-recommends tesseract-ocr tesseract-ocr-spa tesseract-ocr-por tesseract-ocr-eng poppler-utils \
+ && rm -rf /var/lib/apt/lists/*
 COPY --from=build /repo/packages/core/package.json ./packages/core/package.json
 COPY --from=build /repo/packages/core/dist ./packages/core/dist
 COPY --from=build /repo/services/api/package.json ./services/api/package.json

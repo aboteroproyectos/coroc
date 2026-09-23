@@ -1,4 +1,4 @@
-// Modelos de la API (contrato OpenAPI 0.3.0). Montos en unidades mínimas de la moneda (int), fechas civiles como texto.
+// Modelos de la API (contrato OpenAPI 0.4.0). Montos en unidades mínimas de la moneda (int), fechas civiles como texto.
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'models.freezed.dart';
@@ -605,4 +605,141 @@ abstract class RestoreSummary with _$RestoreSummary {
 abstract class RestoreInfo with _$RestoreInfo {
   const factory RestoreInfo({required String id, required String status, int? size, RestoreSummary? summary, required String createdAt, String? appliedAt}) = _RestoreInfo;
   factory RestoreInfo.fromJson(Map<String, dynamic> json) => _$RestoreInfoFromJson(json);
+}
+
+// ─────────────────────────── Fase 3 · Recepción y lectura (§12, §13) ───────────────────────────
+
+/// Dónde se leyó un campo, en fracciones de la página (0–1), para resaltarlo sobre la imagen (§13.6).
+@freezed
+abstract class FieldRegion with _$FieldRegion {
+  const factory FieldRegion({@Default(0) int page, required double x, required double y, required double w, required double h}) = _FieldRegion;
+  factory FieldRegion.fromJson(Map<String, dynamic> json) => _$FieldRegionFromJson(json);
+}
+
+/// Campo leído del comprobante con su confianza (0–1).
+@freezed
+abstract class ExtractedValue with _$ExtractedValue {
+  const factory ExtractedValue({Object? value, @Default(0) double confidence, FieldRegion? region}) = _ExtractedValue;
+  factory ExtractedValue.fromJson(Map<String, dynamic> json) => _$ExtractedValueFromJson(json);
+}
+
+@freezed
+abstract class IntakeFlag with _$IntakeFlag {
+  const IntakeFlag._();
+  const factory IntakeFlag({required String code, String? field, String? detail, @Default('blocking') String severity}) = _IntakeFlag;
+  factory IntakeFlag.fromJson(Map<String, dynamic> json) => _$IntakeFlagFromJson(json);
+  bool get blocking => severity == 'blocking';
+}
+
+@freezed
+abstract class IntakeCandidate with _$IntakeCandidate {
+  const factory IntakeCandidate({required String clientId, @Default(0) double score, @Default(<String>[]) List<String> reasons, String? name, String? code}) = _IntakeCandidate;
+  factory IntakeCandidate.fromJson(Map<String, dynamic> json) => _$IntakeCandidateFromJson(json);
+}
+
+@freezed
+abstract class IntakeIdentification with _$IntakeIdentification {
+  const factory IntakeIdentification({
+    @Default('unknown') String status,
+    String? clientId,
+    String? via,
+    String? loanRule,
+    String? duplicateOf,
+    @Default(<IntakeCandidate>[]) List<IntakeCandidate> candidates,
+  }) = _IntakeIdentification;
+  factory IntakeIdentification.fromJson(Map<String, dynamic> json) => _$IntakeIdentificationFromJson(json);
+}
+
+/// Comprobante recibido por un canal (§12) y su lectura (§13). Es un elemento de la Bandeja de validación.
+@freezed
+abstract class IntakeItem with _$IntakeItem {
+  const IntakeItem._();
+  const factory IntakeItem({
+    required String id,
+    required String channel,
+    String? senderPhone,
+    String? senderEmail,
+    String? messageText,
+    required String documentId,
+    String? fileName,
+    String? mime,
+    required String status,
+    required String stage,
+    String? engine,
+    @Default(<String, dynamic>{}) Map<String, dynamic> extraction,
+    @Default(IntakeIdentification()) IntakeIdentification identification,
+    @Default(<IntakeFlag>[]) List<IntakeFlag> flags,
+    String? clientId,
+    String? clientName,
+    String? clientCode,
+    String? loanId,
+    String? contract,
+    String? currency,
+    String? entryId,
+    String? receiptNumber,
+    String? receiptDocumentId,
+    String? revertibleUntil,
+    String? reason,
+    String? decidedBy,
+    String? decidedAt,
+    required String createdAt,
+    String? updatedAt,
+  }) = _IntakeItem;
+  factory IntakeItem.fromJson(Map<String, dynamic> json) => _$IntakeItemFromJson(json);
+
+  /// Campo leído (`amount`, `date`, `payerName`, `receiverName`, `reference`, `entity`…).
+  ExtractedValue field(String name) {
+    final raw = extraction[name];
+    return raw is Map<String, dynamic> ? ExtractedValue.fromJson(raw) : const ExtractedValue();
+  }
+
+  int? get amount => (field('amount').value as num?)?.toInt();
+  String? get date => field('date').value as String?;
+  String? text(String name) => field(name).value as String?;
+  List<String> get tamperSignals => (extraction['tamperSignals'] as List<dynamic>? ?? const []).cast<String>();
+  bool get pending => status == 'review' || status == 'unassigned';
+  bool get isPdf => mime == 'application/pdf';
+  bool get revertible => status == 'applied_auto' && revertibleUntil != null && DateTime.parse(revertibleUntil!).isAfter(DateTime.now());
+  bool get hasBlocking => flags.any((f) => f.blocking);
+}
+
+@freezed
+abstract class IntakePage with _$IntakePage {
+  const factory IntakePage({@Default(<IntakeItem>[]) List<IntakeItem> items, String? nextCursor}) = _IntakePage;
+  factory IntakePage.fromJson(Map<String, dynamic> json) => _$IntakePageFromJson(json);
+}
+
+@freezed
+abstract class IntakeSummary with _$IntakeSummary {
+  const factory IntakeSummary({@Default(0) int review, @Default(0) int unassigned, @Default(0) int processing, @Default(0) int revertible, @Default(0) int pending}) = _IntakeSummary;
+  factory IntakeSummary.fromJson(Map<String, dynamic> json) => _$IntakeSummaryFromJson(json);
+}
+
+/// Enlace personal de carga del préstamo (§12.3).
+@freezed
+abstract class UploadLink with _$UploadLink {
+  const factory UploadLink({required String url, required String expiresAt, required String createdAt, @Default(0) int uses, String? lastUsedAt}) = _UploadLink;
+  factory UploadLink.fromJson(Map<String, dynamic> json) => _$UploadLinkFromJson(json);
+}
+
+/// Cuenta de la empresa donde los deudores pagan (§13.4): el beneficiario del comprobante debe coincidir con alguna.
+@freezed
+abstract class ReceivingAccount with _$ReceivingAccount {
+  const factory ReceivingAccount({required String id, required String holderName, String? institution, String? last4, @Default(true) bool active}) = _ReceivingAccount;
+  factory ReceivingAccount.fromJson(Map<String, dynamic> json) => _$ReceivingAccountFromJson(json);
+}
+
+/// Número de WhatsApp Business que recibe comprobantes (§12.1). El token nunca vuelve del servidor.
+@freezed
+abstract class WhatsAppAccount with _$WhatsAppAccount {
+  const factory WhatsAppAccount({
+    @Default(false) bool configured,
+    String? phoneNumberId,
+    String? displayNumber,
+    @Default(false) bool active,
+    String? updatedAt,
+    required String webhookUrl,
+    @Default(false) bool serverReady,
+  }) = _WhatsAppAccount;
+  factory WhatsAppAccount.fromJson(Map<String, dynamic> json) => _$WhatsAppAccountFromJson(json);
 }

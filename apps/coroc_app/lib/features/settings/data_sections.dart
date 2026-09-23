@@ -96,6 +96,18 @@ class FolderSection extends ConsumerWidget {
           ] else
             FilledButton.icon(onPressed: () => _connect(context, ref), icon: const Icon(Icons.create_new_folder_outlined), label: Text(s.status == FolderStatus.needsPermission ? l.folderReauthorize : l.folderAskCreate)),
         ]),
+        // Carpeta vigilada (§12.5): en escritorio, las fotos y PDF que se dejen en _Entrada o en la carpeta de un cliente
+        // van solos a la Bandeja.
+        if (s.status == FolderStatus.ready && FolderController.isDesktop) ...[
+          const SizedBox(height: CorocSpace.sm),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            value: s.watching,
+            onChanged: (v) => c.setWatching(v),
+            title: Text(l.folderWatch),
+            subtitle: Text(s.sentToInbox > 0 ? '${l.folderWatchHelp} ${l.folderSentToInbox(s.sentToInbox)}' : l.folderWatchHelp),
+          ),
+        ],
         if (s.untracked.isNotEmpty) ...[
           const Divider(height: CorocSpace.xl),
           Overline(l.folderUntrackedTitle(s.untracked.length)),

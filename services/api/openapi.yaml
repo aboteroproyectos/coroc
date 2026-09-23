@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: COROC API
-  version: 0.3.0
+  version: 0.4.0
   summary: Gestión y cobro de préstamos personales
   description: |
     Contrato de la API de COROC (§24.1-3 del prompt maestro). Versión 0.3.0: operaciones de las fases 1 y 2 implementadas y verificadas
@@ -15,7 +15,7 @@ info:
     - Toda petición autenticada opera dentro de la empresa del token; la base de datos aplica Row Level Security.
     - Idempotencia: las operaciones que crean movimientos contables aceptan el encabezado `Idempotency-Key`.
     - Concurrencia optimista: los recursos editables exponen `version`; enviar `If-Match` con ese valor.
-    - Tiempo real: `GET /events` (Server-Sent Events) emite `payment.posted`, `payment.reversed`, `loan.created`, `document.created` y `dashboard.changed`; en fases siguientes `intake.updated` y `message.updated`.
+    - Tiempo real: `GET /events` (Server-Sent Events) emite `payment.posted`, `payment.reversed`, `loan.created`, `document.created` y `dashboard.changed`; `intake.updated`; en la Fase 4, `message.updated`.
   contact:
     name: COROC
   license:
@@ -386,6 +386,48 @@ paths:
         '204': { description: Desactivada }
         '4XX': { $ref: '#/components/responses/Problem' }
 
+  /company/whatsapp:
+    get:
+      tags: [company]
+      operationId: getWhatsAppAccount
+      summary: Número de WhatsApp Business de la empresa para recibir comprobantes (§12.1)
+      responses:
+        '200':
+          description: Configuración (el token de acceso nunca se devuelve)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WhatsAppAccount' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+    put:
+      tags: [company]
+      operationId: saveWhatsAppAccount
+      summary: Conectar o actualizar el número (id del número en Meta y token de acceso, que se guarda cifrado)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phoneNumberId, accessToken]
+              additionalProperties: false
+              properties:
+                phoneNumberId: { type: string, pattern: '^[0-9]{5,30}$' }
+                accessToken: { type: string, minLength: 20, maxLength: 1000 }
+                displayNumber: { type: string, maxLength: 30 }
+      responses:
+        '200':
+          description: Guardado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WhatsAppAccount' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+    delete:
+      tags: [company]
+      operationId: deleteWhatsAppAccount
+      summary: Desconectar el número
+      responses:
+        '204': { description: Desconectado }
+        '4XX': { $ref: '#/components/responses/Problem' }
   /users:
     get:
       tags: [users]
@@ -761,21 +803,30 @@ paths:
               schema: { $ref: '#/components/schemas/Task' }
         '4XX': { $ref: '#/components/responses/Problem' }
   /loans/{id}/upload-link:
+    get:
+      tags: [intake]
+      operationId: getUploadLink
+      summary: Enlace personal de carga vigente del préstamo (§12.3)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Enlace vigente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UploadLink' }
+        '4XX': { $ref: '#/components/responses/Problem' }
     post:
       tags: [intake]
       operationId: rotateUploadLink
       summary: Crear o rotar el enlace personal de carga del deudor (§12.3)
+      description: Revoca el enlace anterior al instante. El enlace identifica al remitente, así que el comprobante queda vinculado a este préstamo.
       parameters: [{ $ref: '#/components/parameters/Id' }]
       responses:
         '201':
-          description: Enlace (el token solo se muestra una vez)
+          description: Enlace nuevo
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  url: { type: string, format: uri }
-                  expiresAt: { type: string, format: date-time }
+              schema: { $ref: '#/components/schemas/UploadLink' }
         '4XX': { $ref: '#/components/responses/Problem' }
     delete:
       tags: [intake]
@@ -939,28 +990,119 @@ paths:
         '4XX': { $ref: '#/components/responses/Problem' }
 
   /intake:
+    post:
+      tags: [intake]
+      operationId: uploadIntake
+      summary: Comprobante desde la app — «Compartir con COROC», carpeta vigilada o subida manual (§12.4–§12.6)
+      description: 'El cuerpo es el archivo (PDF, JPG, PNG, WEBP o HEIC; máximo 25 MB). Con `clientId` o `loanId` el remitente queda identificado (carpeta del cliente o elección en la app). La lectura sigue en segundo plano; el resultado llega con el evento `intake.updated`.'
+      parameters:
+        - { name: channel, in: query, schema: { type: string, enum: [share, folder, upload], default: upload } }
+        - { name: clientId, in: query, schema: { type: string, format: uuid } }
+        - { name: loanId, in: query, schema: { type: string, format: uuid } }
+        - { name: fileName, in: query, schema: { type: string, maxLength: 200 } }
+        - { name: note, in: query, schema: { type: string, maxLength: 2000 } }
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema: { type: string, contentMediaType: application/octet-stream }
+      responses:
+        '202':
+          description: Recibido; en lectura
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/IntakeEvent' }
+        '4XX': { $ref: '#/components/responses/Problem' }
     get:
       tags: [intake]
       operationId: listIntake
       summary: Bandeja de validación (§13.6)
+      description: El Cobrador solo ve los comprobantes de sus clientes; «Sin asignar» es del Propietario y el Administrador.
       parameters:
-        - { name: status, in: query, schema: { type: array, items: { $ref: '#/components/schemas/IntakeStatus' } }, style: form, explode: false }
+        - { name: status, in: query, schema: { type: string, maxLength: 200 }, description: 'Estados separados por comas (p. ej. `review,unassigned`)' }
+        - { name: channel, in: query, schema: { type: string, enum: [whatsapp, email, upload_link, share, folder, upload] } }
+        - { name: clientId, in: query, schema: { type: string, format: uuid } }
         - { $ref: '#/components/parameters/Cursor' }
         - { $ref: '#/components/parameters/Limit' }
       responses:
         '200':
-          description: Elementos
+          description: Elementos, del más reciente al más antiguo
           content:
             application/json:
               schema:
-                type: array
-                items: { $ref: '#/components/schemas/IntakeEvent' }
+                type: object
+                required: [items, nextCursor]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/IntakeEvent' }
+                  nextCursor: { type: [string, 'null'] }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /intake/summary:
+    get:
+      tags: [intake]
+      operationId: intakeSummary
+      summary: Contadores de la Bandeja para la navegación (§13.6)
+      responses:
+        '200':
+          description: Contadores
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/IntakeSummary' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /intake/approve-batch:
+    post:
+      tags: [intake]
+      operationId: approveIntakeBatch
+      summary: Aprobación en lote de los elementos sin alertas bloqueantes (§13.6)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids]
+              additionalProperties: false
+              properties:
+                ids: { type: array, minItems: 1, maxItems: 100, items: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Resultado por elemento
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [approved, skipped]
+                properties:
+                  approved: { type: array, items: { type: string, format: uuid } }
+                  skipped:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, reason]
+                      properties:
+                        id: { type: string, format: uuid }
+                        reason: { type: string }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /intake/{id}:
+    get:
+      tags: [intake]
+      operationId: getIntake
+      summary: Detalle del comprobante con los campos leídos, sus regiones y los clientes sugeridos
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Comprobante
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/IntakeEvent' }
         '4XX': { $ref: '#/components/responses/Problem' }
   /intake/{id}/approve:
     post:
       tags: [intake]
       operationId: approveIntake
       summary: Corregir (si hace falta) y aprobar → registra el pago y emite el recibo
+      description: 'Para reasignar, basta con enviar otro `clientId` y `loanId`. Cada corrección queda como ejemplo de la empresa (§13.6). Con `saveSenderAsSecondaryNumber` el número del remitente se guarda como secundario del cliente si aún no tiene uno (CA-08).'
       parameters: [{ $ref: '#/components/parameters/Id' }, { $ref: '#/components/parameters/IdempotencyKey' }]
       requestBody:
         required: true
@@ -969,23 +1111,32 @@ paths:
             schema:
               type: object
               required: [clientId, loanId, amount, date]
+              additionalProperties: false
               properties:
                 clientId: { type: string, format: uuid }
                 loanId: { type: string, format: uuid }
                 amount: { $ref: '#/components/schemas/Minor' }
                 date: { type: string, format: date }
-                payerName: { type: string }
-                receiverName: { type: string }
-                reference: { type: string }
-                institution: { type: string }
+                payerName: { type: string, maxLength: 200 }
+                receiverName: { type: string, maxLength: 200 }
+                reference: { type: string, maxLength: 120 }
+                institution: { type: string, maxLength: 120 }
                 saveSenderAsSecondaryNumber: { type: boolean, default: false }
       responses:
         '201':
           description: Pago registrado
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/PaymentResult' }
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/PaymentResult' }
+                  - type: object
+                    required: [intakeId, senderSaved]
+                    properties:
+                      intakeId: { type: string, format: uuid }
+                      senderSaved: { type: boolean }
         '409': { $ref: '#/components/responses/Problem' }
+        '4XX': { $ref: '#/components/responses/Problem' }
   /intake/{id}/reject:
     post:
       tags: [intake]
@@ -999,8 +1150,9 @@ paths:
             schema:
               type: object
               required: [reason]
+              additionalProperties: false
               properties:
-                reason: { type: string }
+                reason: { type: string, minLength: 1, maxLength: 500 }
       responses:
         '200':
           description: Rechazado
@@ -1026,7 +1178,17 @@ paths:
       tags: [intake]
       operationId: revertAutoIntake
       summary: Revertir con un toque un registro automático dentro del plazo (por defecto 72 h)
+      description: Registra el contramovimiento, anula el recibo y devuelve el comprobante a revisión. Pasado el plazo, solo el reverso formal con motivo.
       parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                reason: { type: string, maxLength: 500 }
       responses:
         '200':
           description: Revertido y devuelto a revisión
@@ -1034,6 +1196,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/IntakeEvent' }
         '409': { $ref: '#/components/responses/Problem' }
+        '4XX': { $ref: '#/components/responses/Problem' }
 
   /messages:
     get:
@@ -1235,7 +1398,7 @@ paths:
       summary: Eventos en tiempo real (Server-Sent Events)
       responses:
         '200':
-          description: 'Flujo `text/event-stream` con `ready`, `ping` (cada 25 s), `payment.posted`, `payment.reversed`, `loan.created`, `document.created` (el Cobrador solo los de sus clientes), `dashboard.changed` y `security.lockout` (solo Propietario y Administrador); en fases siguientes `intake.updated` y `message.updated`'
+          description: 'Flujo `text/event-stream` con `ready`, `ping` (cada 25 s), `payment.posted`, `payment.reversed`, `loan.created`, `document.created` (el Cobrador solo los de sus clientes), `dashboard.changed`, `intake.updated` (el Cobrador solo los de sus clientes) y `security.lockout` (solo Propietario y Administrador); en la Fase 4, `message.updated`'
           content:
             text/event-stream: {}
         '4XX': { $ref: '#/components/responses/Problem' }
@@ -1383,30 +1546,30 @@ paths:
       tags: [public]
       operationId: debtorPortal
       summary: Portal del deudor — plan de pagos del préstamo del enlace (§12.3)
+      description: Con `Accept text/html` responde la página (sin JavaScript, en el idioma del deudor); si no, JSON.
       security: []
-      parameters: [{ name: token, in: path, required: true, schema: { type: string } }]
+      parameters:
+        - { name: token, in: path, required: true, schema: { type: string, pattern: '^[A-Za-z0-9_-]{16,64}$' } }
+        - { name: lang, in: query, schema: { type: string, enum: [es, pt, pt-BR, en] } }
+        - { name: sent, in: query, schema: { type: string } }
+        - { name: dup, in: query, schema: { type: string } }
       responses:
         '200':
           description: Resumen visible para el deudor
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  company: { type: string }
-                  contract: { type: string }
-                  lang: { $ref: '#/components/schemas/Lang' }
-                  summary: { $ref: '#/components/schemas/LoanSummary' }
-                  schedule:
-                    type: array
-                    items: { $ref: '#/components/schemas/InstallmentState' }
+              schema: { $ref: '#/components/schemas/PortalView' }
         '404': { $ref: '#/components/responses/Problem' }
+        '410': { $ref: '#/components/responses/Problem' }
     post:
       tags: [public]
       operationId: debtorUpload
       summary: El deudor sube su comprobante; el enlace identifica al remitente
+      description: Desde la página responde 303 hacia el portal con el aviso de recibido; con `Accept application/json`, 202.
       security: []
-      parameters: [{ name: token, in: path, required: true, schema: { type: string } }]
+      parameters:
+        - { name: token, in: path, required: true, schema: { type: string, pattern: '^[A-Za-z0-9_-]{16,64}$' } }
+        - { name: lang, in: query, schema: { type: string, enum: [es, pt, pt-BR, en] } }
       requestBody:
         required: true
         content:
@@ -1416,9 +1579,23 @@ paths:
               required: [file]
               properties:
                 file: { type: string, contentMediaType: application/octet-stream }
+                note: { type: string, maxLength: 500 }
+          application/octet-stream:
+            schema: { type: string, contentMediaType: application/octet-stream }
       responses:
-        '202': { description: Recibido }
-        '413': { $ref: '#/components/responses/Problem' }
+        '202':
+          description: Recibido
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, status, duplicate]
+                properties:
+                  id: { type: string, format: uuid }
+                  status: { $ref: '#/components/schemas/IntakeStatus' }
+                  duplicate: { type: boolean, description: El mismo archivo ya se había recibido por este enlace }
+        '303': { description: Vuelve al portal con el aviso de recibido }
+        '4XX': { $ref: '#/components/responses/Problem' }
   /public/receipts/{code}:
     get:
       tags: [public]
@@ -1461,9 +1638,9 @@ paths:
       operationId: whatsappEvents
       summary: Mensajes y estados entrantes (firma `X-Hub-Signature-256` obligatoria)
       description: |
-        Se verifica la firma HMAC-SHA256 con el secreto de la app, se deduplica por id de mensaje y los medios
-        (imagen o PDF) se descargan de inmediato porque su URL caduca en minutos. Responde 200 en menos de 1 s y
-        procesa en cola.
+        Se verifica la firma HMAC-SHA256 con el secreto de la app (`COROC_WHATSAPP_APP_SECRET`), se reconoce la empresa
+        por el número que recibió el mensaje, se deduplica por id de mensaje y los medios (imagen o PDF) se descargan de
+        inmediato porque su URL caduca en minutos. La lectura sigue en cola. Los estados de entrega llegan en la Fase 4.
       security: []
       parameters:
         - { name: X-Hub-Signature-256, in: header, required: true, schema: { type: string } }
@@ -1473,22 +1650,44 @@ paths:
           application/json:
             schema: { type: object }
       responses:
-        '200': { description: Aceptado }
-        '401': { description: Firma inválida }
+        '200':
+          description: Aceptado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received: { type: integer }
+        '401': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
   /webhooks/email/inbound:
     post:
       tags: [webhooks]
       operationId: emailInbound
       summary: Correos entrantes del buzón de pagos de la empresa (adjuntos JPG, PNG, HEIC, PDF)
+      description: |
+        Formato JSON de Postmark (`FromFull`, `ToFull`, `MessageID`, `Attachments[].Content` en base64). La empresa se
+        reconoce por la dirección `pagos-<empresa>@<COROC_INBOUND_EMAIL_DOMAIN>` y el remitente por su correo. El secreto
+        va en `?token=` o como contraseña de autenticación básica. Los adjuntos que no son imagen ni PDF se ignoran.
       security:
         - webhookSecret: []
+      parameters:
+        - { name: token, in: query, schema: { type: string } }
       requestBody:
         required: true
         content:
           application/json:
             schema: { type: object }
       responses:
-        '200': { description: Aceptado }
+        '200':
+          description: Aceptado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received: { type: integer }
+                  ignored: { type: string }
         '4XX': { $ref: '#/components/responses/Problem' }
 
 components:
@@ -1562,7 +1761,7 @@ components:
     Frequency: { type: string, enum: [daily, weekly, monthly] }
     Channel: { type: string, enum: [whatsapp, email] }
     DocKind: { type: string, enum: [plan, schedule, receipt_in, receipt_out, statement, payoff, other, report] }
-    IntakeStatus: { type: string, enum: [processing, review, unassigned, applied_auto, approved, duplicate, rejected, archived] }
+    IntakeStatus: { type: string, enum: [processing, review, unassigned, applied_auto, approved, duplicate, rejected, archived, failed] }
     MessageStatus: { type: string, enum: [ready, scheduled, sent, delivered, read, failed, blocked, cancelled] }
     MessageEvent: { type: string, enum: [welcome, reminder, overdue, receipt, statement, payoff, manual] }
     Session:
@@ -2086,16 +2285,27 @@ components:
         amount: { $ref: '#/components/schemas/Minor' }
         currency: { $ref: '#/components/schemas/Currency' }
         issuedAt: { type: string }
+    Region:
+      type: [object, 'null']
+      description: Dónde se leyó el campo, en fracciones de la página (0–1), para resaltarlo sobre la imagen (§13.6)
+      properties:
+        page: { type: integer, minimum: 0 }
+        x: { type: number }
+        y: { type: number }
+        w: { type: number }
+        h: { type: number }
     ExtractedString:
       type: object
       properties:
         value: { type: [string, 'null'] }
         confidence: { type: number, minimum: 0, maximum: 1 }
+        region: { $ref: '#/components/schemas/Region' }
     ExtractedAmount:
       type: object
       properties:
         value: { type: [integer, 'null'], format: int64 }
         confidence: { type: number, minimum: 0, maximum: 1 }
+        region: { $ref: '#/components/schemas/Region' }
     Extraction:
       type: object
       description: Campos leídos del comprobante con su confianza (§13.3)
@@ -2116,27 +2326,34 @@ components:
       properties:
         code:
           type: string
-          enum: [MISSING_FIELD, LOW_CONFIDENCE, RECEIVER_MISMATCH, PAYER_MISMATCH, PAYER_INFERRED, FUTURE_DATE, BEFORE_DISBURSEMENT, TOO_OLD, NON_POSITIVE_AMOUNT, CURRENCY_MISMATCH, TAMPER_SIGNAL, NOT_A_RECEIPT, OCR_UNAVAILABLE]
+          enum: [MISSING_FIELD, LOW_CONFIDENCE, RECEIVER_MISMATCH, PAYER_MISMATCH, PAYER_INFERRED, FUTURE_DATE, BEFORE_DISBURSEMENT, TOO_OLD, NON_POSITIVE_AMOUNT, CURRENCY_MISMATCH, TAMPER_SIGNAL, NOT_A_RECEIPT, OCR_UNAVAILABLE, EXTRACTION_MISMATCH, SENDER_UNKNOWN, SENDER_AMBIGUOUS, LOAN_AMBIGUOUS]
         field: { type: string }
         detail: { type: string }
         severity: { type: string, enum: [blocking, warning] }
     IntakeEvent:
       type: object
+      required: [id, channel, documentId, status, stage, extraction, identification, flags, createdAt]
       properties:
         id: { type: string, format: uuid }
         channel: { type: string, enum: [whatsapp, email, upload_link, share, folder, upload] }
         senderPhone: { type: [string, 'null'] }
         senderEmail: { type: [string, 'null'] }
+        messageText: { type: [string, 'null'], description: Texto que acompañó al archivo }
         documentId: { type: string, format: uuid }
+        fileName: { type: [string, 'null'] }
+        mime: { type: [string, 'null'] }
         status: { $ref: '#/components/schemas/IntakeStatus' }
-        stage: { type: string, enum: [RECIBIDO, ALMACENADO, CLASIFICADO, LEÍDO, EXTRAÍDO, VALIDADO, EN_REVISIÓN, APLICADO_AUTOMÁTICO, RECIBO_EMITIDO, RECIBO_ENVIADO, DUPLICADO] }
+        stage: { type: string, enum: [RECIBIDO, ALMACENADO, CLASIFICADO, LEÍDO, EXTRAÍDO, VALIDADO, EN_REVISIÓN, APLICADO_AUTOMÁTICO, RECIBO_EMITIDO, RECIBO_ENVIADO, DUPLICADO, NO_ES_COMPROBANTE, RECHAZADO] }
+        engine: { type: [string, 'null'], description: 'Motor de extracción: `rules` o el modelo de IA (ADR-017)' }
         extraction: { $ref: '#/components/schemas/Extraction' }
         identification:
           type: object
           properties:
             status: { type: string, enum: [identified, ambiguous, unknown] }
-            clientId: { type: string, format: uuid }
-            via: { type: string, enum: [upload_link, folder, phone, email, codebtor_phone] }
+            clientId: { type: [string, 'null'], format: uuid }
+            via: { type: [string, 'null'], enum: [upload_link, folder, phone, email, codebtor_phone, null] }
+            loanRule: { type: [string, 'null'], enum: [single, amount_match, oldest_overdue, ambiguous, null] }
+            duplicateOf: { type: [string, 'null'], format: uuid }
             candidates:
               type: array
               items:
@@ -2145,14 +2362,86 @@ components:
                   clientId: { type: string, format: uuid }
                   score: { type: number }
                   reasons: { type: array, items: { type: string } }
+                  name: { type: [string, 'null'] }
+                  code: { type: [string, 'null'] }
         flags:
           type: array
           items: { $ref: '#/components/schemas/Flag' }
+        receiverMatch:
+          type: [object, 'null']
+          properties:
+            holderName: { type: string }
+            score: { type: number }
         clientId: { type: [string, 'null'], format: uuid }
+        clientName: { type: [string, 'null'] }
+        clientCode: { type: [string, 'null'] }
         loanId: { type: [string, 'null'], format: uuid }
+        contract: { type: [string, 'null'] }
+        currency: { type: [string, 'null'] }
         entryId: { type: [string, 'null'], format: uuid }
+        receiptNumber: { type: [string, 'null'] }
+        receiptDocumentId: { type: [string, 'null'], format: uuid }
         revertibleUntil: { type: [string, 'null'], format: date-time }
+        reason: { type: [string, 'null'] }
+        decidedBy: { type: [string, 'null'] }
+        decidedAt: { type: [string, 'null'], format: date-time }
         createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    IntakeSummary:
+      type: object
+      required: [review, unassigned, processing, revertible, pending]
+      properties:
+        review: { type: integer }
+        unassigned: { type: integer }
+        processing: { type: integer }
+        revertible: { type: integer, description: Registrados automáticamente que aún se pueden revertir con un toque }
+        pending: { type: integer, description: review + unassigned (contador de la navegación) }
+    UploadLink:
+      type: object
+      required: [url, expiresAt, createdAt, uses]
+      properties:
+        url: { type: string, format: uri }
+        expiresAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+        uses: { type: integer }
+        lastUsedAt: { type: [string, 'null'], format: date-time }
+    PortalView:
+      type: object
+      required: [company, clientFirstName, lang, contract, currency, summary, closed, installments]
+      properties:
+        company:
+          type: object
+          properties:
+            name: { type: string }
+            phone: { type: [string, 'null'] }
+            email: { type: [string, 'null'] }
+        clientFirstName: { type: string }
+        lang: { $ref: '#/components/schemas/Lang' }
+        contract: { type: string }
+        currency: { type: string }
+        summary: { type: object }
+        closed: { type: boolean }
+        installments:
+          type: array
+          items:
+            type: object
+            properties:
+              number: { type: integer }
+              dueDate: { type: string, format: date }
+              amount: { $ref: '#/components/schemas/Minor' }
+              paid: { $ref: '#/components/schemas/Minor' }
+              status: { type: string, enum: [paid, partial, overdue, pending] }
+    WhatsAppAccount:
+      type: object
+      required: [configured, active, webhookUrl, serverReady]
+      properties:
+        configured: { type: boolean }
+        phoneNumberId: { type: [string, 'null'] }
+        displayNumber: { type: [string, 'null'] }
+        active: { type: boolean }
+        updatedAt: { type: [string, 'null'], format: date-time }
+        webhookUrl: { type: string, format: uri }
+        serverReady: { type: boolean, description: El servidor tiene el secreto de la app y el token de verificación de Meta }
     ContactDecision:
       type: object
       properties:

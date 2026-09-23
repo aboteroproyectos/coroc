@@ -50,7 +50,8 @@ const TABLES: { name: string; order: string; exclude?: string[] }[] = [
   { name: 'documents', order: 'created_at, id', exclude: ['storage_key'] },
   { name: 'consents', order: 'granted_at, id' },
   { name: 'receipts', order: 'created_at, id' },
-  { name: 'intake_events', order: 'created_at, id' },
+  { name: 'intake_events', order: 'created_at, id', exclude: ['upload_link_id'] },
+  { name: 'extraction_corrections', order: 'created_at, id' },
   { name: 'messages', order: 'created_at, id' },
   { name: 'audit_log', order: 'at, id', exclude: ['id'] },
 ];
@@ -506,7 +507,11 @@ export class BackupService implements OnModuleInit {
                 o[c] = remap(String(o[c]));
               }
               if (t.name === 'documents') o.storage_key = storageOf.get(row.id);
-              if (t.name === 'intake_events') o.upload_link_id = null; // los enlaces de carga no viajan en el respaldo
+              if (t.name === 'intake_events') {
+                o.upload_link_id = null; // los enlaces de carga no viajan en el respaldo
+                // Los clientes sugeridos y el comprobante duplicado van dentro del JSON de la identificación.
+                if (o.identification) o.identification = JSON.parse(JSON.stringify(o.identification).replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g, (u) => remap(u)));
+              }
               if (t.name === 'users') Object.assign(o, { failed_attempts: 0, lockouts: 0, locked_until: null });
               return o;
             });

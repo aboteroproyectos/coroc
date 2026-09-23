@@ -12,7 +12,8 @@ export async function createApp(opts: { logger?: false } = {}): Promise<INestApp
   const app = await NestFactory.create<NestExpressApplication>(AppModule, { logger: opts.logger ?? ['error', 'warn', 'log'], bodyParser: false });
   app.set('trust proxy', 1);
   app.use(helmet());
-  app.useBodyParser('json', { limit: '1mb' });
+  // Los webhooks leen el cuerpo crudo: la firma de WhatsApp se calcula sobre los bytes exactos y los correos traen adjuntos grandes.
+  app.useBodyParser('json', { limit: '1mb', type: (req: { url?: string; headers: Record<string, unknown> }) => !req.url?.startsWith('/v1/webhooks/') && /json/i.test(String(req.headers['content-type'] ?? '')) });
   app.setGlobalPrefix('v1', { exclude: ['health'] });
   app.enableCors({ origin: config.corsOrigins.length ? config.corsOrigins : false, exposedHeaders: ['Idempotent-Replayed'] });
   app.enableShutdownHooks();

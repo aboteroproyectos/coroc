@@ -1,6 +1,32 @@
 # COROC · Estado de los criterios de aceptación (§22)
 
-Corte: 23 de septiembre de 2026 · Fase 2.
+Corte: 23 de septiembre de 2026 · Fase 3.
+
+## Fase 3: cierre por el servidor
+
+La Fase 3 se cierra con CA-07, CA-08, CA-09 y CA-19 (§23). CA-07 a CA-09 se verificaron por la API real, con OCR real (Tesseract 5) sobre comprobantes generados como imagen y como PDF, PostgreSQL 16 con RLS y los canales reales: webhook de WhatsApp firmado con un Graph API de prueba, y correo entrante en formato Postmark.
+
+| ID | Resultado por la API | Prueba |
+|---|---|---|
+| CA-07 | ✅ El comprobante llega por WhatsApp desde el número del cliente, se lee con OCR y se registra solo, con el recibo RC-000001. El mismo pago reenviado por correo, ahora en PDF (otro archivo, misma referencia, valor y fecha), queda DUPLICADO y no se registra otro pago. Un reintento del webhook con el mismo id de mensaje no se recibe dos veces | `services/api/test/intake.test.ts` · «CA-07» |
+| CA-08 | ✅ Desde un número no registrado queda «Sin asignar», con el cliente sugerido por el nombre del pagador y el valor. Al aprobarlo asignando el cliente, el número se guarda como secundario y el siguiente comprobante desde ese número se identifica solo | «CA-08» |
+| CA-09 | ✅ Si quien recibe no es una cuenta receptora de la empresa, no se aplica: queda en revisión con la alerta bloqueante `RECEIVER_MISMATCH` («El pago no se hizo a tus cuentas») | «CA-09» |
+| CA-19 | ✅ Sobre un conjunto sintético: valor 100 %, fecha 100 %, nombres 97,7 % (84 de 86). Ningún campo errado llega con confianza de 0,95 o más, así que lo que no alcanza el umbral nunca se aplica solo. Falta repetir la medición con 40 o más comprobantes reales anonimizados (P-3) | `services/api/test/extraction.test.ts` |
+
+El conjunto sintético de CA-19 (`services/api/test/receipts/dataset.ts`) tiene 43 comprobantes de 18 formatos:
+- **Colombia:** Nequi, Daviplata, Bancolombia (app y QR), Bre-B, Davivienda, BBVA, Banco de Bogotá, PSE, Efecty, corresponsal y consignación en papel.
+- **Brasil:** PIX y TED.
+- **EE. UU.:** Zelle, Venmo, Cash App y transferencia bancaria.
+
+Cada formato va como captura (PNG), como PDF con capa de texto y, en tres de ellos, como foto de papel girada y con ruido. En total se leen 26 con OCR y 17 por la capa de texto.
+
+Otras verificaciones de la Fase 3:
+- portal del deudor: el enlace identifica al remitente, registro automático, reversión con un toque dentro de 72 h, rotación y desactivación del enlace;
+- modo «Aprobación previa» con aprobación en lote y corrección del valor;
+- «No es comprobante» archivado en Otros documentos y encontrado por su texto;
+- el Cobrador solo ve en la Bandeja lo de sus clientes;
+- CA-13 también restaura la Bandeja.
+
 
 ## Fase 2: cierre por el servidor
 
@@ -66,7 +92,7 @@ Otras verificaciones de la Fase 1:
 | CA-16 | Cobrador consulta cliente ajeno | ✅ Verde | Acceso denegado y evento `access.denied` en la bitácora; el Cobrador ve 1 de 13 clientes |
 | CA-17 | Empresa A lee datos de B | ✅ Verde | `services/api/db/test`: 18 de 18 pruebas en PostgreSQL 16 real con RLS forzada y rol sin BYPASSRLS |
 | CA-18 | Reverso de un pago | ✅ Verde | Contramovimiento en el libro, recibo ANULADO en el repositorio y en la carpeta, saldo y dashboard vuelven exactamente al valor anterior |
-| CA-19 | Precisión de extracción | 🟡 Parcial | Lector verificado con 6 formatos de texto y 1 imagen con OCR real. Todos los campos se leyeron con confianza de 0,93 a 0,96 y el pago se registró solo. Falta el conjunto de 40 o más comprobantes reales anonimizados (pregunta P-3) |
+| CA-19 | Precisión de extracción | ✅ Verde en la API con conjunto sintético (ver Fase 3) | Prototipo: 6 formatos de texto y 1 imagen con OCR real. Servidor: 43 comprobantes sintéticos. Falta el conjunto de 40 o más comprobantes reales anonimizados (pregunta P-3) |
 | CA-20 | Suspensión de la cuenta de WhatsApp Cloud API | ⏳ Fase 4 | Requiere el servidor y una cuenta de Meta. El modo asistido, que es el destino del cambio automático, ya funciona |
 
 ## Otras verificaciones

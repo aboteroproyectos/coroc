@@ -89,6 +89,19 @@ void main() {
     expect(untracked.map((u) => (u.clientId, u.contract, u.subfolder, u.name)), [('c1', 'CT-000125', 4, 'foto-cedula.jpg')]);
   });
 
+  test('carpeta vigilada (§12.5): lo que se deja en _Entrada queda pendiente sin cliente; imágenes y PDF van a la Bandeja', () async {
+    await sync.run();
+    await store.writeBytes(['_Entrada'], 'nequi.png', [1, 2, 3]);
+    await store.writeBytes(['_Entrada'], 'notas.txt', [4]);
+    await store.writeBytes([folder, 'CT-000125', '02 Comprobantes recibidos'], 'pago-octubre.pdf', [5]);
+    final untracked = await sync.untracked(subs, inbox: '_Entrada');
+    expect(untracked.map((u) => (u.clientId, u.contract, u.name, u.receiptLike)).toSet(), {
+      (null, null, 'nequi.png', true),
+      (null, null, 'notas.txt', false),
+      ('c1', 'CT-000125', 'pago-octubre.pdf', true),
+    });
+  });
+
   test('si el cliente cambia de nombre, su carpeta se renombra sin perder archivos (.coroc-id)', () async {
     await sync.run();
     const renamed = 'Maria Jose Perez de Lopez - C000042';

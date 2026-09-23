@@ -56,7 +56,7 @@ const PAYER_LABELS = [
   'paid by', 'sender', 'from',
 ];
 const INLINE_NO_COLON = ['le enviaste a', 'enviaste a', 'enviado a', 'transferiste a', 'enviado por', 'pagado por', 'paid to', 'sent to', 'paid by'];
-const L_REFERENCE = /(referencia|ref\.?|n[uú]mero de (?:aprobaci[oó]n|comprobante|transacci[oó]n|referencia|operaci[oó]n)|comprobante(?: no\.?| n[oº°]\.?)?|aprobaci[oó]n|c[oó]digo(?: de autentica[cç][aã]o)?|id da transa[cç][aã]o|autentica[cç][aã]o|confirmation(?: code| number| #)?|transaction id|reference(?: number)?)/i;
+const L_REFERENCE = /(reference(?: number)?|referencia|\bref\b\.?|n[uú]mero de (?:aprobaci[oó]n|comprobante|transacci[oó]n|referencia|operaci[oó]n|giro|autorizaci[oó]n)|comprobante(?: no\.?| n[oº°]\.?)?|aprobaci[oó]n|c[oó]digo(?: de autentica[cç]?[aãá]o| de transacci[oó]n)?|id da transa[cç]?[aãá]o|autentica[cç]?[aãá]o|confirmation(?: code| number| #)?|transaction id|\bcus\b|\bpin\b)/i;
 
 function field<T>(value: T | null, confidence: number): ExtractedField<T> {
   return { value, confidence: value === null ? 0 : confidence };
@@ -199,6 +199,12 @@ function labelValue(lines: string[], labels: string[]): { value: string; confide
         const n = cleanName(raw.trim().slice(lab.length));
         if (n) return { value: n, confidence: 0.96 };
       }
+      // Formularios en tabla (consignaciones en papel): «Beneficiario   Inversiones Coroc SAS» en el mismo renglón y sin
+      // dos puntos. Solo con rótulos largos e inequívocos, y con confianza bajo el umbral: nunca se aplica solo.
+      if (lab.length >= 8 && low.startsWith(lab + ' ') && /^\s+[A-ZÁÉÍÓÚÑÇ]/.test(raw.trim().slice(lab.length))) {
+        const n = cleanName(raw.trim().slice(lab.length));
+        if (n) return { value: n, confidence: 0.93 };
+      }
       if (low === lab || low === lab + ':') {
         for (let j = i + 1; j < Math.min(i + 3, lines.length); j++) {
           const n = cleanName(lines[j]!);
@@ -282,7 +288,8 @@ export function extractFromText(text: string, opts: ExtractOptions): Extraction 
     const refToken = (s: string) => [...s.matchAll(/\b([A-Z0-9][A-Z0-9-]{5,})\b/gi)].map((m) => m[1]!).find((t) => /\d/.test(t));
     const tok = refToken(after);
     // Línea que solo contiene la etiqueta ("Referencia") → el valor está en la línea siguiente.
-    const labelOnly = !/[a-záéíóúç]{2,}/i.test(after.replace(/\b(no|n[oº°])\b/gi, ''));
+    // (o con palabras del rótulo que la expresión no cubre, como «Número de giro» o «CUS / Referencia», pero sin cifras).
+    const labelOnly = !/[a-záéíóúç]{2,}/i.test(after.replace(/\b(no|n[oº°])\b/gi, '')) || (!tok && !/\d/.test(after) && after.trim().split(/\s+/).length <= 3);
     const nextLine = lines[i + 1];
     const next = labelOnly && nextLine && !L_DATE.test(nextLine) && !L_AMOUNT.test(nextLine) ? refToken(nextLine) : undefined;
     const v = tok ?? next;

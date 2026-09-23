@@ -72,7 +72,7 @@ Se cierra con CA-13, CA-15 y CA-18 en verde por la API (detalle en [04_CRITERIOS
   - informes en los 3 formatos;
   - respaldo con contraseña errada y byte alterado;
   - permisos del Cobrador.
-- App: 26 pruebas, incluidas la sincronización de la carpeta (CA-15 del lado de la app) y la búsqueda de los temas nuevos de Ayuda. También se compila para Android, Windows, macOS e iOS en CI.
+- App: 25 pruebas, incluidas la sincronización de la carpeta (CA-15 del lado de la app) y la búsqueda de los temas nuevos de Ayuda. También se compila para Android, Windows, macOS e iOS en CI.
 
 ## Seguridad y privacidad
 - Los documentos se cifran antes de salir del proceso de la API, y la app no guarda un caché propio (ADR-023, ADR-035).
