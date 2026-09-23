@@ -1,8 +1,37 @@
 # COROC · Estado de los criterios de aceptación (§22)
 
-Corte: 22 de septiembre de 2026 · Fase 0.
+Corte: 22 de septiembre de 2026 · Fase 1.
 
-Cada criterio se verifica con una prueba automatizada que se puede volver a ejecutar; los comandos están al final. El motor financiero, las reglas de contacto, la identificación y la lectura viven en `@coroc/core`. Ese núcleo es el mismo que usan la app de este paquete y, desde la Fase 1, la API. Por eso las pruebas de hoy son las mismas que cerrarán cada fase, ejecutadas contra el servidor.
+## Fase 1: cierre por el servidor
+
+La Fase 1 se cierra con CA-01 a CA-06, CA-12, CA-14, CA-16 y CA-17 (§23). Todos se verificaron de nuevo contra la API NestJS real, con PostgreSQL 16, RLS forzada y el usuario de la API sin `BYPASSRLS`. Las pruebas hacen peticiones HTTP y validan cada respuesta contra el contrato OpenAPI.
+
+| ID | Resultado por la API | Prueba |
+|---|---|---|
+| CA-01 | ✅ Total $ 1.200.000 y cuota $ 60.000 | `services/api/test/acceptance.test.ts` · «Motor financiero por la API» |
+| CA-02 | ✅ Seis cuotas de $ 164.286 y la séptima de $ 164.284 | ídem |
+| CA-03 | ✅ Cuota $ 472.798; cuota 1 con interés $ 100.000 y capital $ 372.798; saldo final $ 0 | ídem |
+| CA-04 | ✅ 9, 10, 13 y 14 de octubre de 2026 (salta el domingo y el festivo) | ídem |
+| CA-05 | ✅ Cuota 1 pagada, 19 restantes, acumulado $ 60.000, saldo $ 1.140.000; el recibo trae los mismos datos | «Pagos, recibo, reverso y dashboard» (empresa sin tope, ADR-027) |
+| CA-06 | ✅ Cuotas 2 y 3 completas, abono de $ 30.000 a la 4, 17 restantes, saldo $ 990.000 | ídem |
+| CA-12 | ✅ No se guarda; responde `RATE_CAP_EXCEEDED` con la tasa máxima que cumple. Sin tasa de usura vigente, `RATE_CAP_MISSING` | «Tope legal, clientes y duplicados» |
+| CA-14 | ✅ Servidor: los errores cambian de idioma con cada petición (`Accept-Language`). App: `test/widgets_test.dart` cambia es → pt → en en la pantalla de ingreso sin reiniciar. 377 textos en 3 idiomas, verificados por `tool/l10n_keys.py` | `acceptance.test.ts` y app Flutter (CI) |
+| CA-16 | ✅ El Cobrador ve solo sus clientes; sobre uno ajeno recibe 403 «Acceso denegado» y queda `access.denied` en la bitácora. En la base, aunque la API se equivocara, RLS le oculta los ajenos (ADR-022) | «Roles y aislamiento» |
+| CA-17 | ✅ La empresa B no puede leer, modificar ni pagar datos de la empresa A | ídem |
+| CA-18 | ✅ Adelantado de la Fase 2: contramovimiento, recibo ANULADO, saldos y dashboard recalculados | «Pagos, recibo, reverso y dashboard» |
+
+Otras verificaciones de la Fase 1:
+
+| Verificación | Resultado |
+|---|---|
+| Núcleo `@coroc/core` | 46 de 46 pruebas, incluida la equivalencia del recálculo rápido con 500 préstamos |
+| API: aceptación, ingreso y contrato | 33 de 33 pruebas (ingreso con segundo factor, bloqueo progresivo, rotación y reúso del token de renovación, recuperación de contraseña, contraseñas filtradas) |
+| Rendimiento con 50.000 clientes (`PERF=1`) | Dashboard en 75 ms (§21: menos de 1,5 s); búsqueda de 55 a 137 ms (menos de 300 ms) |
+| Contrato OpenAPI 3.1 | 70 operaciones; cada ruta del código existe en el contrato y viceversa; Redocly sin errores |
+| Textos del servidor | 84 claves en es, pt-BR y en (`npm run lint:i18n`) |
+| App Flutter | Pruebas de formato de dinero y tasas, cliente HTTP (renovación única del token, errores RFC 9457, eventos en vivo), CA-14 y diseño en teléfono en modo Medianoche. Se ejecutan en GitHub Actions junto con el análisis estático y la compilación para Android, Windows, macOS e iOS |
+
+## Estado general (Fase 0, núcleo y app HTML)
 
 | ID | Escenario | Estado | Evidencia |
 |---|---|---|---|
@@ -44,6 +73,14 @@ Cada criterio se verifica con una prueba automatizada que se puede volver a ejec
 ## Cómo repetir las verificaciones
 
 ```bash
+# Fase 1: núcleo y API (PostgreSQL 16 accesible con un usuario que pueda crear bases y roles)
+npm ci && npm run build
+TEST_DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/postgres npm test
+(cd services/api && PERF=1 TEST_DATABASE_URL=... npx vitest run test/perf.test.ts)   # 50.000 clientes
+
+# Fase 1: app Flutter (ver apps/coroc_app/README.md)
+cd apps/coroc_app && flutter test
+
 # Núcleo
 cd packages/core && npm ci && npx vitest run --coverage
 

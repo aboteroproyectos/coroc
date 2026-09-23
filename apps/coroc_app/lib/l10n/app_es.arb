@@ -1,0 +1,1670 @@
+{
+  "@@locale": "es",
+  "navDashboard": "Inicio",
+  "@navDashboard": {
+    "description": "Menú: tablero principal"
+  },
+  "navToday": "Cobros de hoy",
+  "@navToday": {
+    "description": "Menú: cobros del día"
+  },
+  "navClients": "Clientes",
+  "@navClients": {
+    "description": "Menú: clientes"
+  },
+  "navSettings": "Configuración",
+  "@navSettings": {
+    "description": "Menú: configuración"
+  },
+  "navHelp": "Ayuda",
+  "@navHelp": {
+    "description": "Menú: ayuda"
+  },
+  "actionLogout": "Cerrar sesión",
+  "@actionLogout": {
+    "description": "Acción: cerrar la sesión"
+  },
+  "roleOwner": "Propietario",
+  "@roleOwner": {
+    "description": "Rol"
+  },
+  "roleAdmin": "Administrador",
+  "@roleAdmin": {
+    "description": "Rol"
+  },
+  "roleCollector": "Cobrador",
+  "@roleCollector": {
+    "description": "Rol"
+  },
+  "roleAuditor": "Auditor",
+  "@roleAuditor": {
+    "description": "Rol"
+  },
+  "noPermissionTitle": "Sin acceso",
+  "@noPermissionTitle": {
+    "description": "Vista sin permiso: título"
+  },
+  "noPermissionMessage": "Su rol no permite ver esta sección. Pida acceso al Propietario.",
+  "@noPermissionMessage": {
+    "description": "Vista sin permiso: explicación"
+  },
+  "greetingMorning": "Buenos días",
+  "@greetingMorning": {
+    "description": "Saludo antes de mediodía"
+  },
+  "greetingAfternoon": "Buenas tardes",
+  "@greetingAfternoon": {
+    "description": "Saludo de la tarde"
+  },
+  "greetingEvening": "Buenas noches",
+  "@greetingEvening": {
+    "description": "Saludo de la noche"
+  },
+  "errorNetwork": "Sin conexión con el servidor. Revise su internet e intente de nuevo.",
+  "@errorNetwork": {
+    "description": "Error de red"
+  },
+  "errorUnexpected": "Algo salió mal. Intente de nuevo.",
+  "@errorUnexpected": {
+    "description": "Error inesperado"
+  },
+  "actionRetry": "Reintentar",
+  "@actionRetry": {
+    "description": "Botón reintentar"
+  },
+  "validationRequired": "Obligatorio",
+  "@validationRequired": {
+    "description": "Validación: campo requerido"
+  },
+  "copied": "Copiado",
+  "@copied": {
+    "description": "Aviso tras copiar"
+  },
+  "actionCopy": "Copiar",
+  "@actionCopy": {
+    "description": "Botón copiar"
+  },
+  "actionCancel": "Cancelar",
+  "@actionCancel": {
+    "description": "Botón cancelar"
+  },
+  "actionDone": "Listo",
+  "@actionDone": {
+    "description": "Botón terminar"
+  },
+  "actionSeeAll": "Ver todos",
+  "@actionSeeAll": {
+    "description": "Enlace ver todo"
+  },
+  "actionEdit": "Editar",
+  "@actionEdit": {
+    "description": "Botón editar"
+  },
+  "actionSave": "Guardar",
+  "@actionSave": {
+    "description": "Botón guardar"
+  },
+  "actionReverse": "Reversar",
+  "@actionReverse": {
+    "description": "Botón reversar un pago"
+  },
+  "actionShowPassword": "Mostrar contraseña",
+  "@actionShowPassword": {
+    "description": "Mostrar contraseña"
+  },
+  "actionHidePassword": "Ocultar contraseña",
+  "@actionHidePassword": {
+    "description": "Ocultar contraseña"
+  },
+  "actionBack": "Atrás",
+  "@actionBack": {
+    "description": "Paso anterior"
+  },
+  "actionNext": "Continuar",
+  "@actionNext": {
+    "description": "Paso siguiente"
+  },
+  "actionMore": "Más opciones",
+  "@actionMore": {
+    "description": "Menú de más acciones"
+  },
+  "actionEnable": "Activar",
+  "@actionEnable": {
+    "description": "Activar una función"
+  },
+  "actionDisable": "Desactivar",
+  "@actionDisable": {
+    "description": "Desactivar una función"
+  },
+  "actionGenerate": "Generar otra",
+  "@actionGenerate": {
+    "description": "Generar una contraseña nueva"
+  },
+  "actionKeepEditing": "Seguir editando",
+  "@actionKeepEditing": {
+    "description": "Descartar cambios: seguir"
+  },
+  "actionDiscard": "Descartar",
+  "@actionDiscard": {
+    "description": "Descartar cambios"
+  },
+  "actionSignOutDevice": "Cerrar allí",
+  "@actionSignOutDevice": {
+    "description": "Cerrar la sesión de otro equipo"
+  },
+  "saved": "Cambios guardados",
+  "@saved": {
+    "description": "Aviso tras guardar"
+  },
+  "discardTitle": "¿Descartar lo escrito?",
+  "@discardTitle": {
+    "description": "Diálogo al salir del asistente"
+  },
+  "discardMessage": "Los datos del cliente y del préstamo no se guardarán.",
+  "@discardMessage": {
+    "description": "Diálogo al salir del asistente"
+  },
+  "loginSessionExpired": "Su sesión terminó. Ingrese de nuevo.",
+  "@loginSessionExpired": {
+    "description": "Aviso de sesión vencida"
+  },
+  "loginCompany": "Código de la empresa",
+  "@loginCompany": {
+    "description": "Campo: empresa (inquilino)"
+  },
+  "loginCompanyHint": "p. ej. prestamos-rios",
+  "@loginCompanyHint": {
+    "description": "Ejemplo del código"
+  },
+  "loginUsername": "Usuario",
+  "@loginUsername": {
+    "description": "Campo: usuario"
+  },
+  "loginPassword": "Contraseña",
+  "@loginPassword": {
+    "description": "Campo: contraseña"
+  },
+  "loginRemember": "Recordar mi usuario en este equipo",
+  "@loginRemember": {
+    "description": "Casilla recordar usuario"
+  },
+  "loginSubmit": "Ingresar",
+  "@loginSubmit": {
+    "description": "Botón ingresar"
+  },
+  "loginForgot": "¿Olvidó su contraseña?",
+  "@loginForgot": {
+    "description": "Enlace de recuperación"
+  },
+  "mfaTitle": "Verificación en dos pasos",
+  "@mfaTitle": {
+    "description": "Título del segundo factor"
+  },
+  "mfaSubtitle": "Escriba el código de 6 dígitos de su app autenticadora.",
+  "@mfaSubtitle": {
+    "description": "Instrucción del segundo factor"
+  },
+  "mfaVerify": "Verificar",
+  "@mfaVerify": {
+    "description": "Botón verificar código"
+  },
+  "mfaCode": "Código",
+  "@mfaCode": {
+    "description": "Campo del código de 6 dígitos"
+  },
+  "enrollTitle": "Active la verificación en dos pasos",
+  "@enrollTitle": {
+    "description": "Título de activación del segundo factor"
+  },
+  "enrollSubtitle": "Escanee el código con Google Authenticator, Microsoft Authenticator o similar y escriba el primer código.",
+  "@enrollSubtitle": {
+    "description": "Instrucción de activación"
+  },
+  "enrollManual": "¿No puede escanear? Escriba esta clave en la app:",
+  "@enrollManual": {
+    "description": "Alternativa manual al QR"
+  },
+  "enrollConfirm": "Activar y continuar",
+  "@enrollConfirm": {
+    "description": "Botón confirmar activación"
+  },
+  "forgotTitle": "Recuperar el acceso",
+  "@forgotTitle": {
+    "description": "Título de recuperación"
+  },
+  "forgotSubtitle": "Le enviaremos un enlace al correo registrado en su usuario. Vence en 30 minutos.",
+  "@forgotSubtitle": {
+    "description": "Explicación de recuperación"
+  },
+  "forgotSent": "Si los datos coinciden, recibirá el enlace en unos minutos. Revise también la carpeta de spam.",
+  "@forgotSent": {
+    "description": "Confirmación sin revelar si el usuario existe"
+  },
+  "forgotSubmit": "Enviar enlace",
+  "@forgotSubmit": {
+    "description": "Botón enviar enlace"
+  },
+  "forgotBack": "Volver al ingreso",
+  "@forgotBack": {
+    "description": "Volver al ingreso"
+  },
+  "lockTitle": "COROC está bloqueado",
+  "@lockTitle": {
+    "description": "Pantalla de bloqueo"
+  },
+  "lockSubtitle": "Use su huella, rostro o el PIN del equipo para continuar.",
+  "@lockSubtitle": {
+    "description": "Instrucción de desbloqueo"
+  },
+  "lockNoBiometrics": "Este equipo no tiene desbloqueo biométrico. Ingrese de nuevo con su contraseña.",
+  "@lockNoBiometrics": {
+    "description": "Sin biometría disponible"
+  },
+  "lockUnlock": "Desbloquear",
+  "@lockUnlock": {
+    "description": "Botón desbloquear"
+  },
+  "lockReason": "Desbloquear COROC",
+  "@lockReason": {
+    "description": "Motivo que muestra el sistema al pedir biometría"
+  },
+  "realtimePayment": "Pago registrado: {client} · {amount}",
+  "@realtimePayment": {
+    "description": "Aviso en vivo de un pago",
+    "placeholders": {
+      "client": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "realtimeLockout": "Alerta: la cuenta {user} se bloqueó por intentos fallidos.",
+  "@realtimeLockout": {
+    "description": "Aviso en vivo de bloqueo",
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "newClient": "Nuevo cliente",
+  "@newClient": {
+    "description": "Botón y encabezado del asistente"
+  },
+  "kpiClients": "Clientes activos",
+  "@kpiClients": {
+    "description": "Indicador"
+  },
+  "kpiClientsSub": "{total} en total",
+  "@kpiClientsSub": {
+    "description": "Subtítulo del indicador de clientes",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "kpiLent": "Capital colocado",
+  "@kpiLent": {
+    "description": "Indicador: capital de préstamos vigentes"
+  },
+  "kpiLentSub": "Histórico: {amount}",
+  "@kpiLentSub": {
+    "description": "Total prestado histórico",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "kpiExpectedToday": "Esperado para hoy",
+  "@kpiExpectedToday": {
+    "description": "Indicador"
+  },
+  "kpiExpectedSub": "Recaudado {collected} · Vencido {overdue}",
+  "@kpiExpectedSub": {
+    "description": "Subtítulo del indicador de hoy",
+    "placeholders": {
+      "collected": {
+        "type": "String"
+      },
+      "overdue": {
+        "type": "String"
+      }
+    }
+  },
+  "kpiReceivable": "Total por recibir",
+  "@kpiReceivable": {
+    "description": "Indicador"
+  },
+  "kpiReceivableSub": "Capital, intereses pactados y mora",
+  "@kpiReceivableSub": {
+    "description": "Subtítulo del indicador por recibir"
+  },
+  "dashboardRefreshing": "Actualizando la cartera… las cifras se completan en segundos.",
+  "@dashboardRefreshing": {
+    "description": "Aviso de recálculo en segundo plano"
+  },
+  "trendTitle": "{days, plural, =1{Recaudo del último día} other{Recaudo de los últimos {days} días}}",
+  "@trendTitle": {
+    "description": "Título del gráfico de tendencia",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "heroOfToday": "de hoy",
+  "@heroOfToday": {
+    "description": "Sobrelínea de la tarjeta principal"
+  },
+  "heroCollectedToday": "Recaudo de hoy",
+  "@heroCollectedToday": {
+    "description": "Tarjeta principal"
+  },
+  "heroPendingToday": "Pendiente para hoy: {amount}",
+  "@heroPendingToday": {
+    "description": "Tarjeta principal",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "heroSeeToday": "Ver cobros de hoy",
+  "@heroSeeToday": {
+    "description": "Tarjeta principal: enlace"
+  },
+  "agingTitle": "Cartera por días de mora",
+  "@agingTitle": {
+    "description": "Tarjeta de antigüedad"
+  },
+  "agingCurrent": "Al día",
+  "@agingCurrent": {
+    "description": "Tramo de mora"
+  },
+  "aging1to7": "1 a 7 días",
+  "@aging1to7": {
+    "description": "Tramo de mora"
+  },
+  "aging8to30": "8 a 30 días",
+  "@aging8to30": {
+    "description": "Tramo de mora"
+  },
+  "agingOver30": "Más de 30 días",
+  "@agingOver30": {
+    "description": "Tramo de mora"
+  },
+  "loansCount": "{count, plural, =0{Sin préstamos} =1{1 préstamo} other{{count} préstamos}}",
+  "@loansCount": {
+    "description": "Cantidad de préstamos",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayEmpty": "No hay cuotas pendientes para hoy.",
+  "@todayEmpty": {
+    "description": "Lista vacía"
+  },
+  "installmentN": "Cuota {number}",
+  "@installmentN": {
+    "description": "Número de cuota",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "todaySubtitle": "Cuotas que vencen hoy y cuotas atrasadas, de la más antigua a la más reciente.",
+  "@todaySubtitle": {
+    "description": "Subtítulo de cobros de hoy"
+  },
+  "filterAll": "Todos",
+  "@filterAll": {
+    "description": "Filtro"
+  },
+  "todayDueToday": "Vence hoy",
+  "@todayDueToday": {
+    "description": "Filtro y estado"
+  },
+  "todayOverdue": "Atrasados",
+  "@todayOverdue": {
+    "description": "Filtro"
+  },
+  "todayCount": "{count, plural, =1{1 cobro} other{{count} cobros}}",
+  "@todayCount": {
+    "description": "Cantidad de cobros",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "daysPastDue": "{days, plural, =1{1 día de mora} other{{days} días de mora}}",
+  "@daysPastDue": {
+    "description": "Días de mora",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "actionRegisterPayment": "Registrar pago",
+  "@actionRegisterPayment": {
+    "description": "Botón registrar pago"
+  },
+  "clientsSubtitle": "Busque por nombre, teléfono, documento o contrato.",
+  "@clientsSubtitle": {
+    "description": "Subtítulo de clientes"
+  },
+  "clientsSearch": "Buscar cliente",
+  "@clientsSearch": {
+    "description": "Campo de búsqueda"
+  },
+  "clientsSearchHint": "Nombre, teléfono, documento o contrato",
+  "@clientsSearchHint": {
+    "description": "Ayuda del buscador"
+  },
+  "clientCurrent": "Al día",
+  "@clientCurrent": {
+    "description": "Estado del cliente"
+  },
+  "clientOverdue": "En mora",
+  "@clientOverdue": {
+    "description": "Estado del cliente"
+  },
+  "clientClosed": "Pagado",
+  "@clientClosed": {
+    "description": "Estado del cliente"
+  },
+  "freqDaily": "Diario",
+  "@freqDaily": {
+    "description": "Frecuencia"
+  },
+  "freqWeekly": "Semanal",
+  "@freqWeekly": {
+    "description": "Frecuencia"
+  },
+  "freqMonthly": "Mensual",
+  "@freqMonthly": {
+    "description": "Frecuencia"
+  },
+  "clientsEmpty": "Aún no hay clientes. Cree el primero en menos de un minuto.",
+  "@clientsEmpty": {
+    "description": "Lista vacía"
+  },
+  "clientsNoMatch": "Ningún cliente coincide con la búsqueda.",
+  "@clientsNoMatch": {
+    "description": "Búsqueda sin resultados"
+  },
+  "nextInstallmentShort": "Próxima: {date} · {amount}",
+  "@nextInstallmentShort": {
+    "description": "Próxima cuota en la lista",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "balance": "Saldo",
+  "@balance": {
+    "description": "Saldo"
+  },
+  "clientNoLoans": "Este cliente no tiene préstamos.",
+  "@clientNoLoans": {
+    "description": "Ficha sin préstamos"
+  },
+  "tabSummary": "Resumen",
+  "@tabSummary": {
+    "description": "Pestaña"
+  },
+  "tabSchedule": "Cuadro de pagos",
+  "@tabSchedule": {
+    "description": "Pestaña"
+  },
+  "tabHistory": "Movimientos",
+  "@tabHistory": {
+    "description": "Pestaña"
+  },
+  "contract": "Contrato",
+  "@contract": {
+    "description": "Contrato"
+  },
+  "actionNewLoan": "Nuevo préstamo",
+  "@actionNewLoan": {
+    "description": "Botón nuevo préstamo"
+  },
+  "cardPrincipal": "Capital prestado",
+  "@cardPrincipal": {
+    "description": "Cifra"
+  },
+  "cardInterest": "Intereses pactados",
+  "@cardInterest": {
+    "description": "Cifra"
+  },
+  "cardTotalPayable": "Total a pagar",
+  "@cardTotalPayable": {
+    "description": "Cifra"
+  },
+  "cardCollected": "Recaudado",
+  "@cardCollected": {
+    "description": "Cifra"
+  },
+  "cardBalance": "Saldo por recibir",
+  "@cardBalance": {
+    "description": "Cifra"
+  },
+  "cardRealizedProfit": "Utilidad realizada",
+  "@cardRealizedProfit": {
+    "description": "Intereses efectivamente cobrados"
+  },
+  "cardEffectiveRate": "Tasa efectiva anual",
+  "@cardEffectiveRate": {
+    "description": "Cifra"
+  },
+  "cardDaysPastDue": "Días de mora",
+  "@cardDaysPastDue": {
+    "description": "Cifra"
+  },
+  "progressTitle": "Avance del préstamo",
+  "@progressTitle": {
+    "description": "Tarjeta de avance"
+  },
+  "installmentsPaidOf": "{paid} de {total} cuotas pagadas",
+  "@installmentsPaidOf": {
+    "description": "Avance en cuotas",
+    "placeholders": {
+      "paid": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "termsTitle": "Condiciones",
+  "@termsTitle": {
+    "description": "Tarjeta de condiciones"
+  },
+  "termsMethod": "Método de cálculo",
+  "@termsMethod": {
+    "description": "Condición"
+  },
+  "termsRate": "Tasa",
+  "@termsRate": {
+    "description": "Condición"
+  },
+  "termsInstallments": "Cuotas",
+  "@termsInstallments": {
+    "description": "Condición"
+  },
+  "termsDisbursement": "Desembolso",
+  "@termsDisbursement": {
+    "description": "Condición"
+  },
+  "termsFirstDue": "Primera cuota",
+  "@termsFirstDue": {
+    "description": "Condición"
+  },
+  "ratePerPeriod": "{rate} por período",
+  "@ratePerPeriod": {
+    "description": "Tasa del método francés",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "rateOnTotal": "{rate} sobre el capital",
+  "@rateOnTotal": {
+    "description": "Tasa del método simple",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "clientData": "Datos del cliente",
+  "@clientData": {
+    "description": "Tarjeta de datos"
+  },
+  "fieldPhone": "Celular (WhatsApp)",
+  "@fieldPhone": {
+    "description": "Campo"
+  },
+  "fieldPhone2": "Otro teléfono",
+  "@fieldPhone2": {
+    "description": "Campo"
+  },
+  "fieldEmail": "Correo electrónico",
+  "@fieldEmail": {
+    "description": "Campo"
+  },
+  "fieldAddress": "Dirección",
+  "@fieldAddress": {
+    "description": "Campo"
+  },
+  "fieldCity": "Ciudad",
+  "@fieldCity": {
+    "description": "Campo"
+  },
+  "fieldIdDoc": "Número de documento",
+  "@fieldIdDoc": {
+    "description": "Campo"
+  },
+  "fieldIdDocType": "Tipo de documento",
+  "@fieldIdDocType": {
+    "description": "Campo"
+  },
+  "fieldLanguage": "Idioma",
+  "@fieldLanguage": {
+    "description": "Campo"
+  },
+  "fieldNotes": "Notas internas",
+  "@fieldNotes": {
+    "description": "Campo"
+  },
+  "fieldFirstName": "Nombres",
+  "@fieldFirstName": {
+    "description": "Campo"
+  },
+  "fieldLastName": "Apellidos",
+  "@fieldLastName": {
+    "description": "Campo"
+  },
+  "fieldPhoneHelp": "Con indicativo si es de otro país, p. ej. +55 11 91234 5678",
+  "@fieldPhoneHelp": {
+    "description": "Ayuda del teléfono"
+  },
+  "fieldName": "Nombre",
+  "@fieldName": {
+    "description": "Campo"
+  },
+  "fieldCollector": "Cobrador asignado",
+  "@fieldCollector": {
+    "description": "Campo"
+  },
+  "folder": "Carpeta",
+  "@folder": {
+    "description": "Carpeta del cliente"
+  },
+  "coDebtor": "Codeudor",
+  "@coDebtor": {
+    "description": "Sección"
+  },
+  "coDebtorHelp": "Opcional. Persona que respalda el préstamo.",
+  "@coDebtorHelp": {
+    "description": "Ayuda de la sección"
+  },
+  "consentsTitle": "Autorizaciones",
+  "@consentsTitle": {
+    "description": "Sección"
+  },
+  "consentsNone": "Ninguna registrada",
+  "@consentsNone": {
+    "description": "Sin autorizaciones"
+  },
+  "consentPersonalData": "Tratamiento de datos personales",
+  "@consentPersonalData": {
+    "description": "Autorización"
+  },
+  "collectorNone": "Sin asignar",
+  "@collectorNone": {
+    "description": "Sin cobrador"
+  },
+  "editClientTitle": "Editar cliente",
+  "@editClientTitle": {
+    "description": "Diálogo"
+  },
+  "colNumber": "N.º",
+  "@colNumber": {
+    "description": "Columna"
+  },
+  "colDueDate": "Vence",
+  "@colDueDate": {
+    "description": "Columna"
+  },
+  "colAmount": "Cuota",
+  "@colAmount": {
+    "description": "Columna"
+  },
+  "colPrincipal": "Capital",
+  "@colPrincipal": {
+    "description": "Columna"
+  },
+  "colInterest": "Interés",
+  "@colInterest": {
+    "description": "Columna"
+  },
+  "colPaid": "Pagado",
+  "@colPaid": {
+    "description": "Columna"
+  },
+  "colPaidOn": "Fecha de pago",
+  "@colPaidOn": {
+    "description": "Columna"
+  },
+  "colStatus": "Estado",
+  "@colStatus": {
+    "description": "Columna"
+  },
+  "colReceipt": "Recibo",
+  "@colReceipt": {
+    "description": "Columna"
+  },
+  "colBalanceAfter": "Saldo después",
+  "@colBalanceAfter": {
+    "description": "Columna"
+  },
+  "reason": "Motivo",
+  "@reason": {
+    "description": "Campo motivo"
+  },
+  "reverseTitle": "Reversar pago",
+  "@reverseTitle": {
+    "description": "Diálogo"
+  },
+  "reverseExplain": "Se anulará el pago de {amount} y su recibo {receipt}. El cuadro de pagos se recalcula y todo queda en la auditoría.",
+  "@reverseExplain": {
+    "description": "Explicación de la reversa",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "receipt": {
+        "type": "String"
+      }
+    }
+  },
+  "reverseDone": "Pago reversado",
+  "@reverseDone": {
+    "description": "Aviso"
+  },
+  "receiptVoided": "Anulado",
+  "@receiptVoided": {
+    "description": "Recibo anulado"
+  },
+  "statusPaid": "Pagada",
+  "@statusPaid": {
+    "description": "Estado de cuota"
+  },
+  "statusPartial": "Abono parcial",
+  "@statusPartial": {
+    "description": "Estado de cuota"
+  },
+  "statusOverdue": "Vencida",
+  "@statusOverdue": {
+    "description": "Estado de cuota"
+  },
+  "statusWaived": "Condonada",
+  "@statusWaived": {
+    "description": "Estado de cuota"
+  },
+  "statusPending": "Pendiente",
+  "@statusPending": {
+    "description": "Estado de cuota"
+  },
+  "methodSimple": "Interés simple",
+  "@methodSimple": {
+    "description": "Método de cálculo"
+  },
+  "methodFrench": "Cuota fija (francés)",
+  "@methodFrench": {
+    "description": "Método de cálculo"
+  },
+  "entryDisbursement": "Desembolso",
+  "@entryDisbursement": {
+    "description": "Movimiento"
+  },
+  "entryPayment": "Pago",
+  "@entryPayment": {
+    "description": "Movimiento"
+  },
+  "entryReversal": "Reversa",
+  "@entryReversal": {
+    "description": "Movimiento"
+  },
+  "entryLateFee": "Mora",
+  "@entryLateFee": {
+    "description": "Movimiento"
+  },
+  "entryWaiver": "Condonación",
+  "@entryWaiver": {
+    "description": "Movimiento"
+  },
+  "entryAdjustment": "Ajuste",
+  "@entryAdjustment": {
+    "description": "Movimiento"
+  },
+  "langEs": "Español",
+  "@langEs": {
+    "description": "Nombre del idioma en su propio idioma"
+  },
+  "langPt": "Português",
+  "@langPt": {
+    "description": "Nombre del idioma en su propio idioma"
+  },
+  "langEn": "English",
+  "@langEn": {
+    "description": "Nombre del idioma en su propio idioma"
+  },
+  "dayMon": "Lun",
+  "@dayMon": {
+    "description": "Día de la semana abreviado"
+  },
+  "dayTue": "Mar",
+  "@dayTue": {
+    "description": "Día de la semana abreviado"
+  },
+  "dayWed": "Mié",
+  "@dayWed": {
+    "description": "Día de la semana abreviado"
+  },
+  "dayThu": "Jue",
+  "@dayThu": {
+    "description": "Día de la semana abreviado"
+  },
+  "dayFri": "Vie",
+  "@dayFri": {
+    "description": "Día de la semana abreviado"
+  },
+  "daySat": "Sáb",
+  "@daySat": {
+    "description": "Día de la semana abreviado"
+  },
+  "daySun": "Dom",
+  "@daySun": {
+    "description": "Día de la semana abreviado"
+  },
+  "paymentAmountInvalid": "Escriba un monto mayor que cero.",
+  "@paymentAmountInvalid": {
+    "description": "Validación del monto"
+  },
+  "paymentTitle": "Registrar pago",
+  "@paymentTitle": {
+    "description": "Título de la hoja de pago"
+  },
+  "paymentAmount": "Monto recibido",
+  "@paymentAmount": {
+    "description": "Campo"
+  },
+  "paymentDate": "Fecha del pago",
+  "@paymentDate": {
+    "description": "Campo"
+  },
+  "methodCash": "Efectivo",
+  "@methodCash": {
+    "description": "Medio de pago"
+  },
+  "methodTransfer": "Transferencia",
+  "@methodTransfer": {
+    "description": "Medio de pago"
+  },
+  "methodOther": "Otro",
+  "@methodOther": {
+    "description": "Medio de pago"
+  },
+  "paymentMethodOther": "¿Cuál medio?",
+  "@paymentMethodOther": {
+    "description": "Campo del medio de pago"
+  },
+  "paymentReference": "Referencia (opcional)",
+  "@paymentReference": {
+    "description": "Campo"
+  },
+  "paymentNote": "Nota (opcional)",
+  "@paymentNote": {
+    "description": "Campo"
+  },
+  "paymentPreview": "Así se aplicará",
+  "@paymentPreview": {
+    "description": "Vista previa de la aplicación"
+  },
+  "paymentSurplus": "Excedente",
+  "@paymentSurplus": {
+    "description": "Pago mayor que el saldo"
+  },
+  "paymentConfirm": "Confirmar pago",
+  "@paymentConfirm": {
+    "description": "Botón confirmar"
+  },
+  "receiptPreviousBalance": "Saldo anterior",
+  "@receiptPreviousBalance": {
+    "description": "Recibo"
+  },
+  "receiptNewBalance": "Nuevo saldo",
+  "@receiptNewBalance": {
+    "description": "Recibo"
+  },
+  "receiptRemaining": "Cuotas pendientes",
+  "@receiptRemaining": {
+    "description": "Recibo"
+  },
+  "receiptThanks": "¡Gracias por su pago!",
+  "@receiptThanks": {
+    "description": "Recibo de agradecimiento"
+  },
+  "receiptPaid": "Valor pagado",
+  "@receiptPaid": {
+    "description": "Recibo"
+  },
+  "receiptNumber": "Recibo N.º",
+  "@receiptNumber": {
+    "description": "Recibo"
+  },
+  "receiptIssued": "Emitido",
+  "@receiptIssued": {
+    "description": "Recibo"
+  },
+  "receiptContract": "Contrato",
+  "@receiptContract": {
+    "description": "Recibo"
+  },
+  "receiptPaymentDate": "Fecha del pago",
+  "@receiptPaymentDate": {
+    "description": "Recibo"
+  },
+  "receiptMethod": "Medio",
+  "@receiptMethod": {
+    "description": "Recibo"
+  },
+  "receiptTotalInstallments": "Total de cuotas",
+  "@receiptTotalInstallments": {
+    "description": "Recibo"
+  },
+  "receiptCoverage": "Cuotas cubiertas",
+  "@receiptCoverage": {
+    "description": "Recibo"
+  },
+  "receiptAccumulated": "Total pagado a la fecha",
+  "@receiptAccumulated": {
+    "description": "Recibo"
+  },
+  "receiptNext": "Próxima cuota",
+  "@receiptNext": {
+    "description": "Recibo"
+  },
+  "receiptVerification": "Código de verificación",
+  "@receiptVerification": {
+    "description": "Recibo"
+  },
+  "fieldPrincipal": "Capital a prestar",
+  "@fieldPrincipal": {
+    "description": "Campo"
+  },
+  "fieldInstallments": "Número de cuotas",
+  "@fieldInstallments": {
+    "description": "Campo"
+  },
+  "fieldRate": "Tasa",
+  "@fieldRate": {
+    "description": "Campo"
+  },
+  "fieldDisbursement": "Desembolso",
+  "@fieldDisbursement": {
+    "description": "Botón de fecha"
+  },
+  "fieldFirstDue": "Primera cuota",
+  "@fieldFirstDue": {
+    "description": "Botón de fecha"
+  },
+  "fieldCollectionDays": "Días de cobro",
+  "@fieldCollectionDays": {
+    "description": "Campo"
+  },
+  "fieldMonthlyDay": "Día de cobro del mes",
+  "@fieldMonthlyDay": {
+    "description": "Campo"
+  },
+  "fieldMonthlyDayHelp": "Del 1 al 31. En meses más cortos se cobra el último día.",
+  "@fieldMonthlyDayHelp": {
+    "description": "Ayuda"
+  },
+  "fieldExcludeHolidays": "No cobrar en festivos",
+  "@fieldExcludeHolidays": {
+    "description": "Interruptor"
+  },
+  "fieldContract": "Número de contrato",
+  "@fieldContract": {
+    "description": "Campo"
+  },
+  "fieldContractHelp": "Déjelo vacío para numerarlo automáticamente.",
+  "@fieldContractHelp": {
+    "description": "Ayuda"
+  },
+  "rateHelpFrench": "Tasa por período de pago (día, semana o mes).",
+  "@rateHelpFrench": {
+    "description": "Ayuda de la tasa"
+  },
+  "rateHelpSimple": "Porcentaje sobre el capital por todo el plazo.",
+  "@rateHelpSimple": {
+    "description": "Ayuda de la tasa"
+  },
+  "automatic": "Automática",
+  "@automatic": {
+    "description": "Primera cuota automática"
+  },
+  "previewHint": "Complete capital, cuotas y tasa para ver la cuota, el calendario y la utilidad.",
+  "@previewHint": {
+    "description": "Vista previa vacía"
+  },
+  "previewTitle": "Vista previa",
+  "@previewTitle": {
+    "description": "Sección"
+  },
+  "previewInstallment": "Cuota",
+  "@previewInstallment": {
+    "description": "Cifra"
+  },
+  "previewTotal": "Total a pagar",
+  "@previewTotal": {
+    "description": "Cifra"
+  },
+  "previewProfit": "Utilidad",
+  "@previewProfit": {
+    "description": "Cifra"
+  },
+  "previewEffectiveRate": "Tasa efectiva anual",
+  "@previewEffectiveRate": {
+    "description": "Cifra"
+  },
+  "previewShowLess": "Ver menos",
+  "@previewShowLess": {
+    "description": "Enlace"
+  },
+  "previewShowAll": "Ver las {count} cuotas",
+  "@previewShowAll": {
+    "description": "Enlace",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "capMissingOptional": "No hay un tope registrado para esta fecha.",
+  "@capMissingOptional": {
+    "description": "Tope ausente fuera de Colombia"
+  },
+  "capMissing": "Falta registrar la tasa de usura vigente. Regístrela en Configuración antes de prestar.",
+  "@capMissing": {
+    "description": "Tope obligatorio ausente (Colombia)"
+  },
+  "capOk": "Dentro del tope legal ({cap} efectivo anual).",
+  "@capOk": {
+    "description": "Tope cumplido",
+    "placeholders": {
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "capExceeded": "Supera el tope legal: {rate} frente a {cap} efectivo anual.",
+  "@capExceeded": {
+    "description": "Tope superado",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "capUseMax": "Usar la tasa máxima permitida ({rate} %)",
+  "@capUseMax": {
+    "description": "Botón",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "wizardStepClient": "Datos del cliente",
+  "@wizardStepClient": {
+    "description": "Paso 1"
+  },
+  "wizardStepLoan": "Condiciones del préstamo",
+  "@wizardStepLoan": {
+    "description": "Paso 2"
+  },
+  "wizardStepConfirm": "Autorizaciones y confirmación",
+  "@wizardStepConfirm": {
+    "description": "Paso 3"
+  },
+  "wizardStepOf": "Paso {current} de {total}",
+  "@wizardStepOf": {
+    "description": "Progreso del asistente",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "wizardSummary": "Resumen",
+  "@wizardSummary": {
+    "description": "Sección"
+  },
+  "wizardFolderNote": "Al crear se genera el número de cliente, el contrato, el cuadro de pagos y la carpeta del cliente.",
+  "@wizardFolderNote": {
+    "description": "Nota final"
+  },
+  "newClientCreate": "Crear cliente y préstamo",
+  "@newClientCreate": {
+    "description": "Botón final"
+  },
+  "newClientCreated": "{name} quedó registrado con el contrato {contract}.",
+  "@newClientCreated": {
+    "description": "Aviso de éxito",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "contract": {
+        "type": "String"
+      }
+    }
+  },
+  "newLoanCreate": "Crear préstamo",
+  "@newLoanCreate": {
+    "description": "Botón"
+  },
+  "newLoanCreated": "Préstamo {contract} creado.",
+  "@newLoanCreated": {
+    "description": "Aviso de éxito",
+    "placeholders": {
+      "contract": {
+        "type": "String"
+      }
+    }
+  },
+  "duplicateTitle": "Posible cliente duplicado",
+  "@duplicateTitle": {
+    "description": "Diálogo"
+  },
+  "duplicateCreateAnyway": "Es otra persona: crear",
+  "@duplicateCreateAnyway": {
+    "description": "Confirmar pese al duplicado"
+  },
+  "consentPersonalDataHelp": "Obligatoria. El cliente autorizó el uso de sus datos para administrar el préstamo.",
+  "@consentPersonalDataHelp": {
+    "description": "Ayuda"
+  },
+  "consentWhatsapp": "Mensajes por WhatsApp",
+  "@consentWhatsapp": {
+    "description": "Autorización"
+  },
+  "consentEmail": "Mensajes por correo",
+  "@consentEmail": {
+    "description": "Autorización"
+  },
+  "consentChannelHelp": "Recordatorios y recibos por este medio.",
+  "@consentChannelHelp": {
+    "description": "Ayuda"
+  },
+  "consentEmailMissing": "Agregue un correo en el paso 1 para habilitarla.",
+  "@consentEmailMissing": {
+    "description": "Ayuda"
+  },
+  "consentMethod": "Cómo se obtuvo",
+  "@consentMethod": {
+    "description": "Campo"
+  },
+  "consentMethodSigned": "Firmada",
+  "@consentMethodSigned": {
+    "description": "Método"
+  },
+  "consentMethodVerbal": "Verbal",
+  "@consentMethodVerbal": {
+    "description": "Método"
+  },
+  "settingsSubtitle": "Preferencias, seguridad y administración de la empresa.",
+  "@settingsSubtitle": {
+    "description": "Subtítulo"
+  },
+  "settingsPreferences": "Preferencias",
+  "@settingsPreferences": {
+    "description": "Sección"
+  },
+  "settingsLanguageHelp": "Cambia al instante en este equipo y se guarda en su perfil.",
+  "@settingsLanguageHelp": {
+    "description": "Ayuda"
+  },
+  "settingsTheme": "Apariencia",
+  "@settingsTheme": {
+    "description": "Campo"
+  },
+  "themeSystem": "Sistema",
+  "@themeSystem": {
+    "description": "Tema"
+  },
+  "themeLight": "Marfil",
+  "@themeLight": {
+    "description": "Tema claro"
+  },
+  "themeDark": "Medianoche",
+  "@themeDark": {
+    "description": "Tema oscuro"
+  },
+  "settingsAutoLock": "Bloqueo automático",
+  "@settingsAutoLock": {
+    "description": "Campo"
+  },
+  "settingsAutoLockHelp": "Tras este tiempo sin uso, la app oculta los datos y pide desbloqueo.",
+  "@settingsAutoLockHelp": {
+    "description": "Ayuda"
+  },
+  "minutesN": "{count, plural, =1{1 minuto} other{{count} minutos}}",
+  "@minutesN": {
+    "description": "Duración",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsDisplayName": "Nombre visible",
+  "@settingsDisplayName": {
+    "description": "Campo"
+  },
+  "settingsSecurity": "Seguridad",
+  "@settingsSecurity": {
+    "description": "Sección"
+  },
+  "passwordChangeTitle": "Cambiar contraseña",
+  "@passwordChangeTitle": {
+    "description": "Acción y diálogo"
+  },
+  "passwordChangeHelp": "Cierra las sesiones abiertas en otros equipos.",
+  "@passwordChangeHelp": {
+    "description": "Ayuda"
+  },
+  "passwordCurrent": "Contraseña actual",
+  "@passwordCurrent": {
+    "description": "Campo"
+  },
+  "passwordNew": "Contraseña nueva",
+  "@passwordNew": {
+    "description": "Campo"
+  },
+  "passwordConfirm": "Repita la contraseña nueva",
+  "@passwordConfirm": {
+    "description": "Campo"
+  },
+  "passwordRules": "Mínimo 12 caracteres. Una frase fácil de recordar funciona bien.",
+  "@passwordRules": {
+    "description": "Reglas"
+  },
+  "passwordTooShort": "Debe tener al menos 12 caracteres.",
+  "@passwordTooShort": {
+    "description": "Validación"
+  },
+  "passwordMismatch": "Las contraseñas no coinciden.",
+  "@passwordMismatch": {
+    "description": "Validación"
+  },
+  "passwordChanged": "Contraseña actualizada",
+  "@passwordChanged": {
+    "description": "Aviso"
+  },
+  "mfaSetting": "Verificación en dos pasos",
+  "@mfaSetting": {
+    "description": "Ajuste"
+  },
+  "mfaOn": "Activa",
+  "@mfaOn": {
+    "description": "Estado"
+  },
+  "mfaOff": "Inactiva",
+  "@mfaOff": {
+    "description": "Estado"
+  },
+  "mfaOwnerRequired": "Obligatoria para el Propietario.",
+  "@mfaOwnerRequired": {
+    "description": "Nota"
+  },
+  "mfaEnabledDone": "Verificación en dos pasos activada",
+  "@mfaEnabledDone": {
+    "description": "Aviso"
+  },
+  "mfaDisabledDone": "Verificación en dos pasos desactivada",
+  "@mfaDisabledDone": {
+    "description": "Aviso"
+  },
+  "mfaDisableTitle": "Desactivar la verificación en dos pasos",
+  "@mfaDisableTitle": {
+    "description": "Diálogo"
+  },
+  "mfaDisableHelp": "Escriba un código actual de su app autenticadora para confirmar.",
+  "@mfaDisableHelp": {
+    "description": "Instrucción"
+  },
+  "sessionsTitle": "Equipos con sesión abierta",
+  "@sessionsTitle": {
+    "description": "Sección"
+  },
+  "sessionsHelp": "Si no reconoce un equipo, cierre su sesión y cambie la contraseña.",
+  "@sessionsHelp": {
+    "description": "Ayuda"
+  },
+  "sessionLastUsed": "Último uso: {when}",
+  "@sessionLastUsed": {
+    "description": "Fecha de último uso",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionCurrent": "Este equipo",
+  "@sessionCurrent": {
+    "description": "Etiqueta"
+  },
+  "settingsCompany": "Empresa",
+  "@settingsCompany": {
+    "description": "Sección"
+  },
+  "companyName": "Razón social o nombre",
+  "@companyName": {
+    "description": "Campo"
+  },
+  "companyCode": "Código de ingreso",
+  "@companyCode": {
+    "description": "Código de la empresa para ingresar"
+  },
+  "companyTaxId": "NIT / identificación",
+  "@companyTaxId": {
+    "description": "Campo"
+  },
+  "companyCountry": "País",
+  "@companyCountry": {
+    "description": "Campo"
+  },
+  "companyCurrency": "Moneda",
+  "@companyCurrency": {
+    "description": "Campo"
+  },
+  "companyTimezone": "Zona horaria",
+  "@companyTimezone": {
+    "description": "Campo"
+  },
+  "countryCO": "Colombia",
+  "@countryCO": {
+    "description": "País"
+  },
+  "countryBR": "Brasil",
+  "@countryBR": {
+    "description": "País"
+  },
+  "countryUS": "Estados Unidos",
+  "@countryUS": {
+    "description": "País"
+  },
+  "editCompanyTitle": "Editar datos de la empresa",
+  "@editCompanyTitle": {
+    "description": "Diálogo"
+  },
+  "settingsUsers": "Usuarios y roles",
+  "@settingsUsers": {
+    "description": "Sección"
+  },
+  "rolesHelp": "Propietario: todo. Administrador: todo salvo restaurar respaldos y suscripción. Cobrador: solo sus clientes y registrar pagos. Auditor: solo lectura.",
+  "@rolesHelp": {
+    "description": "Resumen de permisos"
+  },
+  "userNew": "Nuevo usuario",
+  "@userNew": {
+    "description": "Acción y diálogo"
+  },
+  "userCreate": "Crear usuario",
+  "@userCreate": {
+    "description": "Botón"
+  },
+  "userCreated": "Usuario de {name} creado. Entréguele la contraseña temporal por un medio seguro.",
+  "@userCreated": {
+    "description": "Aviso",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "userActive": "Activo",
+  "@userActive": {
+    "description": "Estado"
+  },
+  "userInactive": "Inactivo",
+  "@userInactive": {
+    "description": "Estado"
+  },
+  "userYou": "usted",
+  "@userYou": {
+    "description": "Marca del usuario actual en la lista"
+  },
+  "userChangeRole": "Cambiar rol",
+  "@userChangeRole": {
+    "description": "Acción"
+  },
+  "userDeactivate": "Desactivar",
+  "@userDeactivate": {
+    "description": "Acción"
+  },
+  "userActivate": "Reactivar",
+  "@userActivate": {
+    "description": "Acción"
+  },
+  "userRevokeSessions": "Cerrar todas sus sesiones",
+  "@userRevokeSessions": {
+    "description": "Acción"
+  },
+  "userSessionsRevoked": "Sesiones cerradas",
+  "@userSessionsRevoked": {
+    "description": "Aviso"
+  },
+  "fieldUsername": "Usuario",
+  "@fieldUsername": {
+    "description": "Campo"
+  },
+  "fieldUsernameHelp": "De 3 a 32 caracteres: minúsculas, números, punto, guion o guion bajo.",
+  "@fieldUsernameHelp": {
+    "description": "Reglas del usuario"
+  },
+  "fieldRole": "Rol",
+  "@fieldRole": {
+    "description": "Campo"
+  },
+  "fieldTempPassword": "Contraseña temporal",
+  "@fieldTempPassword": {
+    "description": "Campo"
+  },
+  "fieldTempPasswordHelp": "La persona podrá cambiarla en Configuración › Seguridad.",
+  "@fieldTempPasswordHelp": {
+    "description": "Ayuda"
+  },
+  "settingsRateCaps": "Topes legales de tasa",
+  "@settingsRateCaps": {
+    "description": "Sección"
+  },
+  "rateCapsHelp": "Registre el tope vigente si la ley de su país lo exige. COROC impide prestar por encima.",
+  "@rateCapsHelp": {
+    "description": "Ayuda general"
+  },
+  "rateCapsHelpCO": "En Colombia registre cada mes la tasa de usura certificada por la Superintendencia Financiera. Sin tope vigente no se pueden crear préstamos.",
+  "@rateCapsHelpCO": {
+    "description": "Ayuda para Colombia"
+  },
+  "rateCapsEmpty": "No hay topes registrados.",
+  "@rateCapsEmpty": {
+    "description": "Lista vacía"
+  },
+  "rateCapAdd": "Registrar tope",
+  "@rateCapAdd": {
+    "description": "Acción y diálogo"
+  },
+  "rateCapCurrent": "Vigente",
+  "@rateCapCurrent": {
+    "description": "Estado"
+  },
+  "rateCapRate": "Tasa efectiva anual",
+  "@rateCapRate": {
+    "description": "Campo"
+  },
+  "rateCapValidFrom": "Desde",
+  "@rateCapValidFrom": {
+    "description": "Campo"
+  },
+  "rateCapValidTo": "Hasta",
+  "@rateCapValidTo": {
+    "description": "Campo"
+  },
+  "rateCapSource": "Fuente oficial",
+  "@rateCapSource": {
+    "description": "Campo"
+  },
+  "rateCapSourceHelp": "p. ej. Resolución de la Superintendencia Financiera",
+  "@rateCapSourceHelp": {
+    "description": "Ayuda"
+  },
+  "rateCapInvalid": "Revise la tasa, las fechas y la fuente.",
+  "@rateCapInvalid": {
+    "description": "Validación"
+  },
+  "settingsAbout": "Acerca de COROC",
+  "@settingsAbout": {
+    "description": "Sección"
+  },
+  "aboutVersion": "Versión",
+  "@aboutVersion": {
+    "description": "Campo"
+  },
+  "aboutPrivacy": "Los datos de sus clientes viven cifrados en el servidor de su empresa; este equipo solo guarda la sesión en el almacén seguro del sistema.",
+  "@aboutPrivacy": {
+    "description": "Nota de privacidad"
+  },
+  "helpSubtitle": "Guías breves de lo que ya puede hacer en COROC.",
+  "@helpSubtitle": {
+    "description": "Subtítulo"
+  },
+  "helpSearch": "Buscar en la ayuda",
+  "@helpSearch": {
+    "description": "Campo"
+  },
+  "helpNoResults": "No encontramos temas con esa palabra.",
+  "@helpNoResults": {
+    "description": "Sin resultados"
+  },
+  "helpFooter": "COROC {version} · Préstamos personales",
+  "@helpFooter": {
+    "description": "Pie de la ayuda",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "helpLoginTitle": "Ingresar y proteger su cuenta",
+  "@helpLoginTitle": {
+    "description": "Tema"
+  },
+  "helpLoginBody": "Para ingresar necesita el código de su empresa, su usuario y su contraseña. El Propietario debe activar la verificación en dos pasos con una app autenticadora; los demás usuarios pueden activarla en Configuración › Seguridad. Tras varios intentos fallidos la cuenta se bloquea por un tiempo que crece con cada bloqueo. Si olvidó la contraseña, use «¿Olvidó su contraseña?» y recibirá un enlace válido por 30 minutos.",
+  "@helpLoginBody": {
+    "description": "Tema"
+  },
+  "helpNewClientTitle": "Crear un cliente con su primer préstamo",
+  "@helpNewClientTitle": {
+    "description": "Tema"
+  },
+  "helpNewClientBody": "Use «Nuevo cliente». El asistente tiene tres pasos: datos del cliente (nombre, celular con WhatsApp y, si quiere, documento, correo y codeudor), condiciones del préstamo con vista previa en vivo, y autorizaciones. Si el celular o el documento ya existen, COROC le avisa antes de crear un duplicado. Al terminar se generan el número de cliente, el contrato, el cuadro de pagos y la carpeta del cliente.",
+  "@helpNewClientBody": {
+    "description": "Tema"
+  },
+  "helpMethodsTitle": "Interés simple o cuota fija",
+  "@helpMethodsTitle": {
+    "description": "Tema"
+  },
+  "helpMethodsBody": "Interés simple: la tasa es un porcentaje sobre el capital por todo el plazo; por ejemplo, 1.000.000 al 20 % en 30 cuotas suma 1.200.000, es decir 40.000 por cuota. Cuota fija (sistema francés): la tasa es por período de pago y todas las cuotas son iguales; al principio pagan más interés y al final más capital. En ambos casos la vista previa muestra la cuota, el total, la utilidad y la tasa efectiva anual antes de guardar.",
+  "@helpMethodsBody": {
+    "description": "Tema"
+  },
+  "helpRateCapTitle": "Topes legales y tasa de usura",
+  "@helpRateCapTitle": {
+    "description": "Tema"
+  },
+  "helpRateCapBody": "COROC convierte cualquier tasa a efectiva anual y la compara con el tope vigente en la fecha del desembolso. En Colombia el tope es la tasa de usura que certifica la Superintendencia Financiera: regístrela cada mes en Configuración › Topes legales de tasa. Si una tasa lo supera, el préstamo no se guarda y la vista previa ofrece usar la tasa máxima permitida. La mora tampoco puede superar el tope.",
+  "@helpRateCapBody": {
+    "description": "Tema"
+  },
+  "helpScheduleTitle": "El cuadro de pagos",
+  "@helpScheduleTitle": {
+    "description": "Tema"
+  },
+  "helpScheduleBody": "En la ficha del cliente, la pestaña «Cuadro de pagos» muestra cada cuota con su fecha, capital, interés, lo pagado, la fecha del pago, el estado, los recibos y el saldo después de la cuota. Los festivos y los días sin cobro se saltan automáticamente. Todo se recalcula desde los movimientos, así que siempre coincide con los recibos.",
+  "@helpScheduleBody": {
+    "description": "Tema"
+  },
+  "helpPaymentsTitle": "Registrar un pago",
+  "@helpPaymentsTitle": {
+    "description": "Tema"
+  },
+  "helpPaymentsBody": "Use «Registrar pago» desde la ficha o desde Cobros de hoy. Antes de confirmar verá cómo se aplicará: primero a la mora y luego a la cuota más antigua. Puede abonar parcialmente o pagar varias cuotas a la vez. Al confirmar se emite el recibo de agradecimiento con su número y código de verificación. Si la conexión falla y lo intenta de nuevo, el pago no se duplica.",
+  "@helpPaymentsBody": {
+    "description": "Tema"
+  },
+  "helpReversalTitle": "Reversar un pago",
+  "@helpReversalTitle": {
+    "description": "Tema"
+  },
+  "helpReversalBody": "Los pagos no se borran: se reversan. En la pestaña «Movimientos», elija el pago, escriba el motivo y confirme. El recibo queda anulado, el cuadro de pagos se recalcula y la operación queda en la auditoría con su autor. Solo el Propietario y el Administrador pueden reversar.",
+  "@helpReversalBody": {
+    "description": "Tema"
+  },
+  "helpDashboardTitle": "Leer el tablero",
+  "@helpDashboardTitle": {
+    "description": "Tema"
+  },
+  "helpDashboardBody": "Capital colocado es el capital pendiente de los préstamos vigentes. Esperado para hoy suma las cuotas que vencen hoy y lo atrasado. Total por recibir incluye capital, intereses pactados y mora. La cartera por días de mora agrupa el saldo en al día, 1 a 7, 8 a 30 y más de 30 días. Las cifras se actualizan en vivo cuando alguien registra un pago. Si maneja varias monedas, cada una se muestra por separado.",
+  "@helpDashboardBody": {
+    "description": "Tema"
+  },
+  "helpRolesTitle": "Roles y permisos",
+  "@helpRolesTitle": {
+    "description": "Tema"
+  },
+  "helpRolesBody": "Propietario: todo, incluida la suscripción y la restauración de respaldos. Administrador: todo lo demás. Cobrador: ve solo los clientes que tiene asignados y registra pagos; la base de datos misma le impide ver otros. Auditor: consulta sin modificar. Cada acceso denegado queda en la auditoría.",
+  "@helpRolesBody": {
+    "description": "Tema"
+  },
+  "helpSecurityTitle": "Seguridad en el equipo",
+  "@helpSecurityTitle": {
+    "description": "Tema"
+  },
+  "helpSecurityBody": "La app se bloquea tras el tiempo sin uso que elija en Configuración y se desbloquea con huella, rostro o el PIN del equipo. Al cambiar de app, el contenido se oculta. COROC no guarda datos de clientes en el teléfono ni en el computador: solo la sesión, cifrada en el almacén seguro del sistema. Desde Configuración › Seguridad puede ver y cerrar las sesiones de otros equipos.",
+  "@helpSecurityBody": {
+    "description": "Tema"
+  },
+  "helpLanguageTitle": "Idiomas",
+  "@helpLanguageTitle": {
+    "description": "Tema"
+  },
+  "helpLanguageBody": "COROC funciona en español, portugués de Brasil e inglés. Cambie el idioma en Configuración › Preferencias o en la pantalla de ingreso; el cambio es inmediato. Cada cliente tiene su propio idioma para recibos y mensajes, independiente del idioma de quien usa la app. Los montos siempre usan el formato de su moneda.",
+  "@helpLanguageBody": {
+    "description": "Tema"
+  },
+  "helpShortcutsTitle": "Atajos de teclado",
+  "@helpShortcutsTitle": {
+    "description": "Tema"
+  },
+  "helpShortcutsBody": "En computador: Ctrl + K (⌘ + K en Mac) abre la búsqueda de clientes y Ctrl + N (⌘ + N) inicia un cliente nuevo. Tab recorre los campos y Enter confirma los diálogos.",
+  "@helpShortcutsBody": {
+    "description": "Tema"
+  }
+}

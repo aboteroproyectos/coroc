@@ -15,5 +15,12 @@ apps/coroc_app/.flutter-plugins-dependencies
 apps/coroc_app/**/*.g.dart
 apps/coroc_app/**/*.freezed.dart
 apps/coroc_app/lib/l10n/gen/
-apps/coroc_app/ios/Pods/
-apps/coroc_app/macos/Pods/
+# Carpetas nativas: se generan con `flutter create` + tool/patch_platforms.py (ADR-029)
+apps/coroc_app/android/
+apps/coroc_app/ios/
+apps/coroc_app/macos/
+apps/coroc_app/windows/
+apps/coroc_app/linux/
+apps/coroc_app/web/
+apps/coroc_app/.metadata
+apps/coroc_app/test/widget_test.dart
