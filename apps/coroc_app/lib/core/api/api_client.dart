@@ -56,6 +56,7 @@ class ApiClient {
   Future<dynamic> post(String path, {Object? body, Map<String, String>? headers, bool auth = true}) => send('POST', path, body: body, headers: headers, auth: auth);
   Future<dynamic> patch(String path, {Object? body, Map<String, String>? headers}) => send('PATCH', path, body: body, headers: headers);
   Future<dynamic> delete(String path, {Object? body}) => send('DELETE', path, body: body);
+  Future<dynamic> put(String path, {Object? body, Map<String, String>? headers}) => send('PUT', path, body: body, headers: headers);
 
   Future<dynamic> send(String method, String path, {Object? body, Map<String, Object?>? query, Map<String, String>? headers, bool auth = true, bool retry = true}) async {
     final req = http.Request(method, uri(path, query))..headers.addAll(await _headers(auth: auth, extra: headers));

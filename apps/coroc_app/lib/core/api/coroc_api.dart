@@ -2,12 +2,13 @@ import 'package:uuid/uuid.dart';
 
 import '../models/models.dart';
 import 'api_client.dart';
+import 'api_exception.dart';
 
 typedef Json = Map<String, dynamic>;
 
 List<T> _list<T>(Object? raw, T Function(Json) f) => (raw as List<dynamic>).cast<Json>().map(f).toList();
 
-/// Operaciones de la API usadas por la app (fases 1 y 2). Cada método corresponde a una operación del contrato OpenAPI.
+/// Operaciones de la API usadas por la app (fases 1 a 3). Cada método corresponde a una operación del contrato OpenAPI.
 class CorocApi {
   CorocApi(this.client);
   final ApiClient client;
@@ -120,4 +121,53 @@ class CorocApi {
   Future<RestoreInfo> verifyRestore(String id, String password) async => RestoreInfo.fromJson(await client.post('/restores/$id/verify', body: {'password': password}) as Json);
   Future<RestoreInfo> applyRestore(String id, String password, String confirmName) async =>
       RestoreInfo.fromJson(await client.post('/restores/$id/apply', body: {'password': password, 'confirmName': confirmName}) as Json);
+
+  // ─── Recepción y Bandeja de validación (§12, §13) ───
+  Future<IntakePage> intake({List<String> status = const [], String? channel, String? clientId, String? cursor, int limit = 50}) async =>
+      IntakePage.fromJson(await client.get('/intake', query: {'status': status.isEmpty ? null : status.join(','), 'channel': channel, 'clientId': clientId, 'cursor': cursor, 'limit': limit}) as Json);
+  Future<IntakeSummary> intakeSummary() async => IntakeSummary.fromJson(await client.get('/intake/summary') as Json);
+  Future<IntakeItem> intakeItem(String id) async => IntakeItem.fromJson(await client.get('/intake/$id') as Json);
+
+  /// Comprobante desde la app: «Compartir con COROC» (`share`), carpeta vigilada (`folder`) o subida manual (`upload`).
+  Future<IntakeItem> uploadIntake({required Stream<List<int>> Function() open, required int length, String channel = 'upload', String? clientId, String? loanId, String? fileName, String? note}) async =>
+      IntakeItem.fromJson(await client.upload('/intake', open: open, length: length, query: {'channel': channel, 'clientId': clientId, 'loanId': loanId, 'fileName': fileName, 'note': note}) as Json);
+
+  /// Aprobar (corrigiendo o reasignando si hace falta). La clave de idempotencia la genera la pantalla una vez.
+  Future<PaymentResult> approveIntake(String id, {required String clientId, required String loanId, required int amount, required String date, required String idempotencyKey, String? payerName, String? receiverName, String? reference, String? institution, bool saveSenderAsSecondaryNumber = false}) async =>
+      PaymentResult.fromJson(await client.post('/intake/$id/approve', headers: {'Idempotency-Key': idempotencyKey}, body: {
+        'clientId': clientId, 'loanId': loanId, 'amount': amount, 'date': date, 'payerName': ?payerName, 'receiverName': ?receiverName, 'reference': ?reference,
+        'institution': ?institution, 'saveSenderAsSecondaryNumber': saveSenderAsSecondaryNumber,
+      }) as Json);
+  Future<({List<String> approved, List<({String id, String reason})> skipped})> approveIntakeBatch(List<String> ids) async {
+    final r = await client.post('/intake/approve-batch', body: {'ids': ids}) as Json;
+    return (
+      approved: (r['approved'] as List<dynamic>).cast<String>(),
+      skipped: [for (final s in (r['skipped'] as List<dynamic>).cast<Json>()) (id: s['id'] as String, reason: s['reason'] as String)],
+    );
+  }
+  Future<IntakeItem> rejectIntake(String id, String reason) async => IntakeItem.fromJson(await client.post('/intake/$id/reject', body: {'reason': reason}) as Json);
+  Future<IntakeItem> archiveIntake(String id) async => IntakeItem.fromJson(await client.post('/intake/$id/archive') as Json);
+  Future<IntakeItem> revertIntake(String id, {String? reason}) async => IntakeItem.fromJson(await client.post('/intake/$id/revert', body: {'reason': ?reason}) as Json);
+
+  // ─── Enlace personal de carga (§12.3) ───
+  Future<UploadLink?> uploadLink(String loanId) async {
+    try {
+      return UploadLink.fromJson(await client.get('/loans/$loanId/upload-link') as Json);
+    } on ApiException catch (e) {
+      if (e.status == 404) return null;
+      rethrow;
+    }
+  }
+  Future<UploadLink> rotateUploadLink(String loanId) async => UploadLink.fromJson(await client.post('/loans/$loanId/upload-link') as Json);
+  Future<void> revokeUploadLink(String loanId) async => client.delete('/loans/$loanId/upload-link');
+
+  // ─── Cuentas receptoras y WhatsApp (§12.1, §13.4) ───
+  Future<List<ReceivingAccount>> receivingAccounts() async => _list(await client.get('/receiving-accounts'), ReceivingAccount.fromJson);
+  Future<ReceivingAccount> addReceivingAccount({required String holderName, String? institution, String? last4}) async =>
+      ReceivingAccount.fromJson(await client.post('/receiving-accounts', body: {'holderName': holderName, 'institution': ?institution, 'last4': ?last4}) as Json);
+  Future<void> removeReceivingAccount(String id) async => client.delete('/receiving-accounts/$id');
+  Future<WhatsAppAccount> whatsAppAccount() async => WhatsAppAccount.fromJson(await client.get('/company/whatsapp') as Json);
+  Future<WhatsAppAccount> saveWhatsAppAccount({required String phoneNumberId, required String accessToken, String? displayNumber}) async =>
+      WhatsAppAccount.fromJson(await client.put('/company/whatsapp', body: {'phoneNumberId': phoneNumberId, 'accessToken': accessToken, 'displayNumber': ?displayNumber}) as Json);
+  Future<void> removeWhatsAppAccount() async => client.delete('/company/whatsapp');
 }

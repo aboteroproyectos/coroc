@@ -1,0 +1,21 @@
+name: coroc_share
+description: "COROC · «Compartir con COROC» (§12.4): recibe comprobantes compartidos desde otras apps en Android e iOS."
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.8.0
+  flutter: ">=3.32.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: co.coroc.coroc_share
+        pluginClass: CorocSharePlugin
+      ios:
+        pluginClass: CorocSharePlugin

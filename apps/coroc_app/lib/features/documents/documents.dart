@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:pdfrx/pdfrx.dart';
@@ -417,6 +418,13 @@ class _DocumentsTabState extends ConsumerState<DocumentsTab> {
     });
     try {
       final length = await file.length();
+      if (kind == 'receipt_in') {
+        // Un comprobante sigue el flujo de la Bandeja (§12.6): se lee, se valida y, si todo cuadra, registra el pago.
+        final item = await ref.read(apiProvider).uploadIntake(open: file.openRead, length: length, channel: 'upload', clientId: widget.client.id, loanId: widget.loan?.id, fileName: file.name);
+        _refresh();
+        if (context.mounted) GoRouter.of(context).go('/inbox?id=${item.id}');
+        return;
+      }
       final doc = await ref.read(apiProvider).uploadDocument(widget.client.id, open: file.openRead, length: length, loanId: widget.loan?.id, kind: kind, name: name.text.trim());
       _refresh();
       if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.docUploaded(doc.name))));

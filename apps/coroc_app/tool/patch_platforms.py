@@ -42,6 +42,18 @@ def manifest(text):
     # Sin copia automática en la nube: el almacén seguro no debe restaurarse en otro equipo.
     if 'android:allowBackup' not in text:
         text = re.sub(r'<application(\s)', r'<application\n        android:allowBackup="false"\n        android:fullBackupContent="false"\1', text, count=1)
+    # «Compartir con COROC» (§12.4): COROC aparece en la hoja de compartir para imágenes y PDF (plugin coroc_share).
+    if 'android.intent.action.SEND' not in text:
+        filters = ''.join(
+            f'''
+            <intent-filter>
+                <action android:name="android.intent.action.{action}"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="image/*"/>
+                <data android:mimeType="application/pdf"/>
+            </intent-filter>'''
+            for action in ('SEND', 'SEND_MULTIPLE'))
+        text = re.sub(r'(<category android:name="android.intent.category.LAUNCHER"\s*/>\s*</intent-filter>)', lambda m: m.group(1) + filters, text, count=1)
     return text
 
 
@@ -78,6 +90,11 @@ plist('ios/Runner/Info.plist', {
     # Carpeta COROC visible en Archivos › En mi iPhone › COROC (§16.2, ADR-036).
     'UIFileSharingEnabled': True,
     'LSSupportsOpeningDocumentsInPlace': True,
+    # «Compartir con COROC» (§12.4): COROC aparece al compartir o abrir imágenes y PDF (plugin coroc_share).
+    'CFBundleDocumentTypes': [
+        {'CFBundleTypeName': 'Comprobante de pago', 'CFBundleTypeRole': 'Viewer', 'LSHandlerRank': 'Alternate',
+         'LSItemContentTypes': ['public.image', 'public.jpeg', 'public.png', 'public.heic', 'com.adobe.pdf']},
+    ],
 })
 
 

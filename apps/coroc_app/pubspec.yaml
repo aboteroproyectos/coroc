@@ -34,6 +34,8 @@ dependencies:
   saf_stream: ^4.0.1
   coroc_bookmarks:
     path: packages/coroc_bookmarks
+  coroc_share:
+    path: packages/coroc_share
 
 dev_dependencies:
   flutter_test:
