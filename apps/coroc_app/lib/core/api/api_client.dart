@@ -179,7 +179,13 @@ class ApiClient {
 
   /// Descarga en memoria (documentos pequeños para el visor).
   Future<List<int>> downloadBytes(String path) async {
-    final res = await _http.get(fileUri(path)).timeout(const Duration(seconds: 60));
+    final http.Response res;
+    try {
+      res = await _http.get(fileUri(path)).timeout(const Duration(seconds: 60));
+    } on Object catch (e) {
+      if (e is TimeoutException || e is http.ClientException || e is SocketException) throw ApiException.network();
+      rethrow;
+    }
     if (res.statusCode != 200) throw ApiException.fromBody(res.statusCode, utf8.decode(res.bodyBytes));
     return res.bodyBytes;
   }

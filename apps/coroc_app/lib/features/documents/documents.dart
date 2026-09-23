@@ -13,7 +13,9 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/format.dart';
+import '../../core/api/api_exception.dart';
 import '../../core/l10n.dart';
+import '../../core/offline/offline_sync.dart';
 import '../../core/models/models.dart';
 import '../../core/providers.dart';
 import '../../design/theme.dart';
@@ -80,9 +82,24 @@ Future<String?> waitForReceiptPdf(WidgetRef ref, String loanId, String entryId, 
   return null;
 }
 
+/// Contenido de un documento. Lo abierto se guarda cifrado para verlo sin conexión (ADR-055).
 Future<Uint8List> fetchDocumentBytes(WidgetRef ref, String documentId) async {
-  final link = await ref.read(apiProvider).documentLink(documentId);
-  return Uint8List.fromList(await ref.read(apiClientProvider).downloadBytes(link.path));
+  final saved = ref.read(offlineDocumentsProvider);
+  try {
+    final link = await ref.read(apiProvider).documentLink(documentId);
+    final bytes = await ref.read(apiClientProvider).downloadBytes(link.path);
+    try {
+      await saved.put(documentId, bytes);
+    } on Object {
+      // Sin almacén: el visor funciona igual en línea.
+    }
+    return Uint8List.fromList(bytes);
+  } on ApiException catch (e) {
+    if (!e.isNetwork) rethrow;
+    final cached = await saved.get(documentId).catchError((Object _) => null);
+    if (cached == null) rethrow;
+    return Uint8List.fromList(cached);
+  }
 }
 
 /// Compartir (móvil y macOS) o guardar en otra ubicación (escritorio).

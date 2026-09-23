@@ -130,6 +130,43 @@ class OfflineCache {
   }
 }
 
+/// Documentos abiertos recientemente, para verlos sin conexión. Cada versión tiene su propio id y no cambia, así que
+/// lo guardado nunca queda desactualizado. Se conservan los últimos [keep] de hasta [maxBytes] cada uno.
+class OfflineDocuments {
+  OfflineDocuments(this.vault, {this.keep = 30, this.maxBytes = 10 * 1024 * 1024});
+  final OfflineVault vault;
+  final int keep;
+  final int maxBytes;
+  static const _index = 'documents';
+
+  Future<List<String>> _ids() async {
+    final raw = await vault.read(_index);
+    return raw == null ? <String>[] : (jsonDecode(raw) as List).cast<String>();
+  }
+
+  Future<void> put(String id, List<int> bytes) async {
+    if (bytes.length > maxBytes) return;
+    await vault.write('doc-$id', base64Encode(bytes));
+    final ids = (await _ids())..remove(id)..insert(0, id);
+    for (final old in ids.skip(keep)) {
+      await vault.delete('doc-$old');
+    }
+    await vault.write(_index, jsonEncode(ids.take(keep).toList()));
+  }
+
+  Future<List<int>?> get(String id) async {
+    final raw = await vault.read('doc-$id');
+    return raw == null ? null : base64Decode(raw);
+  }
+
+  Future<void> clear() async {
+    for (final id in await _ids()) {
+      await vault.delete('doc-$id');
+    }
+    await vault.delete(_index);
+  }
+}
+
 /// Pago registrado sin conexión: se envía después con la misma clave de idempotencia (nunca se duplica).
 class PendingPayment {
   PendingPayment({

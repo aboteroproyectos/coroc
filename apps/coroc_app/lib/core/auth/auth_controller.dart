@@ -122,6 +122,7 @@ class AuthController extends Notifier<AuthState> {
   Future<void> _clearOffline({required bool queue}) async {
     try {
       await ref.read(offlineCacheProvider).clear();
+      await ref.read(offlineDocumentsProvider).clear();
       if (queue) await ref.read(paymentQueueProvider).clear();
     } on Object {
       // Sin almacén en esta plataforma: no hay nada que borrar.

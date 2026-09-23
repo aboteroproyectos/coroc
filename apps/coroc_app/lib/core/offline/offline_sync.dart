@@ -9,6 +9,7 @@ import 'offline_store.dart';
 
 final offlineVaultProvider = Provider<OfflineVault>((ref) => FileVault());
 final offlineCacheProvider = Provider<OfflineCache>((ref) => OfflineCache(ref.watch(offlineVaultProvider)));
+final offlineDocumentsProvider = Provider<OfflineDocuments>((ref) => OfflineDocuments(ref.watch(offlineVaultProvider)));
 final paymentQueueProvider = Provider<PaymentQueue>((ref) => PaymentQueue(ref.watch(offlineVaultProvider)));
 
 class OfflineState {

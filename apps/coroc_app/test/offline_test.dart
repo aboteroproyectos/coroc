@@ -101,4 +101,15 @@ void main() {
     await ctrl.discard('pago-2');
     expect(c.read(offlineProvider).conflicts, isEmpty);
   });
+
+  test('documentos abiertos: se guardan los últimos y se leen sin conexión', () async {
+    final docs = OfflineDocuments(MemoryVault(), keep: 2);
+    await docs.put('a', [1, 2, 3]);
+    await docs.put('b', [4]);
+    await docs.put('c', [5]);
+    expect(await docs.get('a'), isNull);
+    expect(await docs.get('c'), [5]);
+    await docs.put('grande', List.filled(docs.maxBytes + 1, 0));
+    expect(await docs.get('grande'), isNull);
+  });
 }
