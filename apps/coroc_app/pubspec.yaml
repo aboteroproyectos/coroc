@@ -38,6 +38,7 @@ dependencies:
     path: packages/coroc_share
   # Fase 4 · modo asistido: abrir WhatsApp o el correo con el texto listo (ADR-046)
   url_launcher: ^6.3.2
+  # Fase 5 · caché y cola sin conexión cifradas con AES-256-GCM (ADR-055)
   cryptography: ^2.9.0
 
 dev_dependencies:
@@ -48,6 +49,8 @@ dev_dependencies:
   freezed: ^3.0.6
   json_serializable: ^6.9.5
   flutter_launcher_icons: ^0.14.3
+  # Fase 5 · la prueba de contrato de la app lee services/api/openapi.yaml
+  yaml: ^3.1.2
 
 flutter:
   uses-material-design: true

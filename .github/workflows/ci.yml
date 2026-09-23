@@ -32,6 +32,8 @@ jobs:
       TEST_DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
       # En CI la lectura con OCR es obligatoria: sin Tesseract, las pruebas de CA-07 a CA-09 y CA-19 fallan en vez de omitirse.
       COROC_REQUIRE_OCR: '1'
+      # Umbrales de cobertura: núcleo ≥ 90 %, API ≥ 80 % de líneas (vitest.config.ts de cada paquete).
+      COVERAGE: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -199,7 +201,11 @@ jobs:
         run: flutter analyze --no-fatal-infos
       - name: Pruebas
         working-directory: apps/coroc_app
-        run: flutter test --reporter expanded
+        run: flutter test --reporter expanded --coverage
+      - name: Cobertura de la app (piso que no puede bajar; código generado excluido)
+        working-directory: apps/coroc_app
+        run: |
+          awk -F: '/^SF:/{g=($2 ~ /\.g\.dart|\.freezed\.dart|l10n\/gen/)} /^LF:/{if(!g)lf+=$2} /^LH:/{if(!g)lh+=$2} END{p=100*lh/lf; printf "Cobertura de la app: %.1f%% (%d/%d líneas)\n", p, lh, lf; exit (p < 25)}' coverage/lcov.info
 
   android:
     name: App · Android

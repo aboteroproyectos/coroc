@@ -192,11 +192,20 @@ class ApiClient {
       ..headers['Content-Type'] = 'application/octet-stream'
       ..contentLength = length;
     var sent = 0;
-    unawaited(open().listen((chunk) {
-      req.sink.add(chunk);
-      sent += chunk.length;
-      onProgress?.call(sent, length);
-    }, onDone: req.sink.close, onError: (Object e) => req.sink.addError(e), cancelOnError: true).asFuture<void>().catchError((_) {}));
+    // El cuerpo se cierra siempre al terminar el archivo (o al fallar su lectura), para que la petición concluya.
+    unawaited(() async {
+      try {
+        await for (final chunk in open()) {
+          req.sink.add(chunk);
+          sent += chunk.length;
+          onProgress?.call(sent, length);
+        }
+      } on Object catch (e) {
+        req.sink.addError(e);
+      } finally {
+        await req.sink.close();
+      }
+    }());
     http.Response res;
     try {
       res = await http.Response.fromStream(await _http.send(req).timeout(const Duration(minutes: 30)));
