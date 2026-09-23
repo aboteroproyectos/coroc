@@ -290,7 +290,7 @@
       "ledger": "Ledger",
       "messages": "Message and compliance log",
       "statement": "Loan statement",
-      "loans": "{n} loans",
+      "loans": "Loans: {n}",
       "colClient": "Client",
       "colCode": "Code",
       "colContract": "Contract",

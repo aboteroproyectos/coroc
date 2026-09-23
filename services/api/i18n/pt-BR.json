@@ -290,7 +290,7 @@
       "ledger": "Livro de movimentos",
       "messages": "Registro de mensagens e de conformidade",
       "statement": "Extrato por empréstimo",
-      "loans": "{n} empréstimos",
+      "loans": "Empréstimos: {n}",
       "colClient": "Cliente",
       "colCode": "Código",
       "colContract": "Contrato",

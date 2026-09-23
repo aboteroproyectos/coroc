@@ -290,7 +290,7 @@
       "ledger": "Libro de movimientos",
       "messages": "Bitácora de mensajes y de cumplimiento",
       "statement": "Estado de cuenta por préstamo",
-      "loans": "{n} préstamos",
+      "loans": "Préstamos: {n}",
       "colClient": "Cliente",
       "colCode": "Código",
       "colContract": "Contrato",

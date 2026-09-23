@@ -37,6 +37,8 @@ import { LinkSigner } from './documents/links.js';
 import { DocumentTasks } from './documents/tasks.js';
 import { PdfRenderer } from './pdf/renderer.js';
 import { ObjectStore } from './storage/object-store.js';
+import { ReportsController } from './reports/reports.controller.js';
+import { ReportsService } from './reports/reports.service.js';
 
 @Controller('health')
 class HealthController {
@@ -65,7 +67,7 @@ function requestMetaMiddleware(req: Request, _res: Response, next: NextFunction)
 
 @Module({
   controllers: [HealthController, AuthController, MeController, UsersController, CompanyController, RateCapsController, ClientsController, LoansController, DashboardController,
-    DocumentsController, ClientDocumentsController, LoanDocumentsController, TasksController, FolderController, FilesController, PublicReceiptsController],
+    DocumentsController, ClientDocumentsController, LoanDocumentsController, TasksController, FolderController, FilesController, PublicReceiptsController, ReportsController],
   providers: [
     { provide: CONFIG, useFactory: () => loadConfig() },
     Clock,
@@ -90,6 +92,7 @@ function requestMetaMiddleware(req: Request, _res: Response, next: NextFunction)
     DocumentTasks,
     DocumentsService,
     DocumentFactory,
+    ReportsService,
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_INTERCEPTOR, useClass: ContractInterceptor },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
