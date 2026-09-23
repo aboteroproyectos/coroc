@@ -132,6 +132,10 @@
       "title": "Error interno",
       "detail": "Ocurrió un error inesperado. El equipo técnico fue notificado."
     },
+    "PAYLOAD_TOO_LARGE": {
+      "title": "Petición muy grande",
+      "detail": "La petición supera el tamaño máximo permitido."
+    },
     "FILE_TOO_LARGE": {
       "title": "Archivo muy grande",
       "detail": "El archivo supera el máximo de {mb} MB."

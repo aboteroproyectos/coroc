@@ -132,6 +132,10 @@
       "title": "Internal error",
       "detail": "An unexpected error occurred. The technical team was notified."
     },
+    "PAYLOAD_TOO_LARGE": {
+      "title": "Request too large",
+      "detail": "The request exceeds the maximum allowed size."
+    },
     "FILE_TOO_LARGE": {
       "title": "File too large",
       "detail": "The file exceeds the {mb} MB limit."

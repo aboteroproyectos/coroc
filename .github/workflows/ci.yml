@@ -92,6 +92,74 @@ jobs:
           path: services/api/perf-report.json
           if-no-files-found: ignore
 
+  # ─── Seguridad (§20): auditoría de dependencias y escaneo dinámico con OWASP ZAP sobre el contrato OpenAPI ───
+  dast:
+    name: Seguridad · dependencias y DAST
+    runs-on: ubuntu-latest
+    needs: api
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Auditoría de dependencias de producción (ninguna vulnerabilidad moderada o mayor)
+        run: npm audit --omit=dev --audit-level=moderate
+      - run: npm run build
+      - name: Base, empresa de prueba y API en marcha
+        working-directory: services/api
+        env:
+          DAST_DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
+        run: |
+          node scripts/dast.mjs prepare > dast.env
+          set -a; . ./dast.env; set +a
+          nohup node dist/main.js > api.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:3000/health && break; sleep 1; done
+          node scripts/dast.mjs token | sed 's/^DAST_TOKEN=//' > token.txt
+          echo "::add-mask::$(cat token.txt)"
+          echo "DAST_TOKEN=$(cat token.txt)" >> "$GITHUB_ENV"
+          # ZAP lee el contrato por HTTP, con la dirección local de la API.
+          mkdir -p /tmp/contrato
+          sed 's#https://api.coroc.app/v1#http://localhost:3000/v1#' openapi.yaml > /tmp/contrato/openapi.yaml
+          (cd /tmp/contrato && nohup python3 -m http.server 8088 > /dev/null 2>&1 &)
+          sleep 1
+          curl -sf http://localhost:8088/openapi.yaml > /dev/null
+      - name: OWASP ZAP · escaneo de la API con sesión
+        uses: zaproxy/action-api-scan@v0.9.0
+        with:
+          target: http://localhost:8088/openapi.yaml
+          format: openapi
+          rules_file_name: .zap/rules.tsv
+          allow_issue_writing: false
+          fail_action: true
+          artifact_name: informe-zap
+          # -I: las advertencias no fallan el trabajo; fallan las reglas marcadas FAIL en .zap/rules.tsv (inyección, XSS,
+          # SSRF…). Se excluyen las operaciones que cerrarían la sesión del propio escáner.
+          cmd_options: >-
+            -I -O http://localhost:3000/v1
+            -z "-config replacer.full_list(0).description=sesion
+            -config replacer.full_list(0).enabled=true
+            -config replacer.full_list(0).matchtype=REQ_HEADER
+            -config replacer.full_list(0).matchstr=Authorization
+            -config replacer.full_list(0).regex=false
+            -config replacer.full_list(0).replacement=Bearer ${{ env.DAST_TOKEN }}
+            -config globalexcludeurl.url_list.url(0).regex=.*/v1/(auth/logout|me/password|me/mfa.*|me/sessions.*|users/.*/sessions|restores.*).*
+            -config globalexcludeurl.url_list.url(0).description=sesion
+            -config globalexcludeurl.url_list.url(0).enabled=true"
+      - name: Registro de la API durante el escaneo (sin datos personales)
+        if: always()
+        run: tail -n 200 services/api/api.log || true
+
   docker:
     name: Imagen Docker de la API
     runs-on: ubuntu-latest

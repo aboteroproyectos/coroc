@@ -160,7 +160,8 @@ export class ReceiptReader {
   }
 
   private async pdf(body: Buffer): Promise<Reading> {
-    const doc = await getDocument({ data: new Uint8Array(body), useSystemFonts: false }).promise;
+    const task = getDocument({ data: new Uint8Array(body), useSystemFonts: false });
+    const doc = await task.promise;
     const signals: string[] = [];
     try {
       const meta = (await doc.getMetadata()).info as Record<string, any>;
@@ -197,7 +198,7 @@ export class ReceiptReader {
       const text = pages.map(pageText).join('\n');
       if (text.replace(/\s/g, '').length >= PDF_MIN_TEXT) return { method: 'text', text, pages, confidence: 1, tamperSignals: signals };
     } finally {
-      await doc.destroy();
+      await task.destroy();
     }
     // PDF escaneado: se convierte cada página en imagen y se lee con OCR.
     const r = await this.ocrScannedPdf(body);
