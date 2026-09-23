@@ -55,6 +55,11 @@ export default async function setup() {
   });
 
   return async () => {
+    // KEEP_TEST_DB=1 conserva la base para analizar consultas (EXPLAIN) después de una prueba de rendimiento.
+    if (process.env.KEEP_TEST_DB === '1') {
+      process.stdout.write(`\nBase de prueba conservada: ${dbName}\n`);
+      return;
+    }
     const a = new pg.Client({ connectionString: base });
     await a.connect();
     await a.query(`SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = $1`, [dbName]);

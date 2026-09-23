@@ -302,4 +302,37 @@ run('Recepción y lectura de comprobantes (§12–§14, CA-07 a CA-09)', () => {
     const pedroItem = (await t.http().get('/v1/intake').set(auth(token)).query({ channel: 'upload_link' }).expect(200)).body.items[0];
     await t.http().get(`/v1/intake/${pedroItem.id}`).set(auth(login.accessToken)).expect(403);
   }, 120_000);
+
+  it('§21: 20 comprobantes a la vez por el portal quedan registrados como pago con p95 < 60 s', async () => {
+    const N = 20;
+    const names = ['Ana', 'Beatriz', 'Carlos', 'Diana', 'Eduardo', 'Fabiola', 'Gustavo', 'Helena', 'Iván', 'Julia'];
+    const people = await Promise.all(Array.from({ length: N }, async (_, i) => {
+      const client = { firstName: `${names[i % names.length]} Sofía`, lastName: `Carga ${String.fromCharCode(65 + i)} Muñoz`, phone: `+57315000${String(i).padStart(4, '0')}`, lang: 'es', idDocType: 'CC', idDocNumber: `7000${String(i).padStart(6, '0')}` };
+      const loan = (await t.http().post('/v1/clients').set(auth(token)).send({ client, loan: { ...CA01_TERMS, principal: 400_000 } }).expect(201)).body.loan.id as string;
+      const link = (await t.http().post(`/v1/loans/${loan}/upload-link`).set(auth(token)).expect(201)).body.url as string;
+      return { loan, path: new URL(link).pathname, payer: `${client.firstName} ${client.lastName}` };
+    }));
+    // Las imágenes se generan antes de medir: el reloj corre desde que el deudor envía el archivo.
+    const files: Buffer[] = [];
+    for (const [i, p] of people.entries()) files.push(await renderOne(receiptHtml(i % 2 ? 'Nequi' : 'PSE', truth({ amount: 20_000 + i * 100, payer: p.payer, reference: `CARGA${String(i).padStart(5, '0')}` })), 'png', chromium));
+    const started = new Map<string, number>();
+    const done = new Map<string, number>();
+    await Promise.all(people.map(async (p, i) => {
+      started.set(p.loan, performance.now());
+      await t.http().post(p.path).set('Accept', 'text/html').attach('file', files[i]!, `comprobante-${i}.png`).expect(303);
+    }));
+    const deadline = performance.now() + 120_000;
+    while (done.size < N && performance.now() < deadline) {
+      const items = (await t.http().get('/v1/intake').set(auth(token)).query({ channel: 'upload_link', limit: 100 }).expect(200)).body.items as { loanId: string; status: string }[];
+      for (const it of items) if (started.has(it.loanId) && !done.has(it.loanId) && it.status !== 'processing') done.set(it.loanId, performance.now() - started.get(it.loanId)!);
+      await new Promise((r) => setTimeout(r, 200));
+    }
+    await idle();
+    const ms = [...done.values()].sort((a, b) => a - b);
+    const p95 = ms[Math.ceil(0.95 * ms.length) - 1]!;
+    process.stdout.write(`\n[perf] comprobante→pago con ${N} a la vez: p50 ${Math.round(ms[Math.floor(ms.length / 2)]!)} ms · p95 ${Math.round(p95)} ms\n`);
+    expect(done.size).toBe(N);
+    for (const p of people) expect((await payments(p.loan)).length).toBe(1);
+    expect(p95).toBeLessThan(60_000);
+  }, 300_000);
 });

@@ -254,12 +254,9 @@ export class ClientsService {
         const term = fold(q.q.trim());
         const digits = q.q.replace(/\D/g, '');
         const like = p(`%${term.replace(/[%_\\]/g, (m) => `\\${m}`)}%`);
-        const ors = [`c.search_text LIKE ${like}`, `EXISTS (SELECT 1 FROM loans lx WHERE lx.client_id = c.id AND lower(lx.contract) LIKE ${like})`];
-        if (digits.length >= 4) {
-          const d = p(`%${digits}%`);
-          ors.push(`c.phone_e164 LIKE ${d}`, `c.phone2_e164 LIKE ${d}`, `regexp_replace(coalesce(c.id_doc_number, ''), '\\D', '', 'g') LIKE ${d}`);
-        }
-        where.push(`(${ors.join(' OR ')})`);
+        const d = p(digits.length >= 4 ? `%${digits}%` : null);
+        // Candidatos por nombre, código, contrato, teléfonos o documento con los índices de trigramas (migración 0006).
+        where.push(`c.id IN (SELECT id FROM search_client_ids(${like}, ${d}::text))`);
       }
       if (q.collectorId) where.push(`c.collector_id = ${p(q.collectorId)}`);
       if (q.frequency) where.push(`EXISTS (SELECT 1 FROM loans lf WHERE lf.client_id = c.id AND lf.frequency = ${p(q.frequency)} AND lf.status = 'active')`);
