@@ -10,3 +10,4 @@ export * from './extraction.js';
 export * from './receipt.js';
 export * from './ledger.js';
 export * from './folder.js';
+export * from './messaging.js';

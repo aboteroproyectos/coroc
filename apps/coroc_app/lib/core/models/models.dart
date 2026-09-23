@@ -225,6 +225,9 @@ abstract class Client with _$Client {
     required String folderName,
     @Default(<Consent>[]) List<Consent> consents,
     @Default(<Loan>[]) List<Loan> loans,
+    String? timezone,
+    String? emailStatus,
+    ContactException? contactException,
     required String createdAt,
     required int version,
   }) = _Client;
@@ -729,17 +732,248 @@ abstract class ReceivingAccount with _$ReceivingAccount {
   factory ReceivingAccount.fromJson(Map<String, dynamic> json) => _$ReceivingAccountFromJson(json);
 }
 
-/// Número de WhatsApp Business que recibe comprobantes (§12.1). El token nunca vuelve del servidor.
+/// Lista de verificación para activar la Cloud API (§11.1): la acepta el Propietario.
+@freezed
+abstract class WhatsAppChecklist with _$WhatsAppChecklist {
+  const factory WhatsAppChecklist({
+    @Default(false) bool businessVerified,
+    @Default(false) bool dedicatedNumber,
+    @Default(false) bool templatesApproved,
+    @Default(false) bool legalReview,
+    @Default(false) bool policyAccepted,
+    String? acceptedAt,
+  }) = _WhatsAppChecklist;
+  factory WhatsAppChecklist.fromJson(Map<String, dynamic> json) => _$WhatsAppChecklistFromJson(json);
+}
+
+/// Número de WhatsApp Business (§12.1) y modo de envío (§11.1). El token nunca vuelve del servidor.
 @freezed
 abstract class WhatsAppAccount with _$WhatsAppAccount {
+  const WhatsAppAccount._();
   const factory WhatsAppAccount({
     @Default(false) bool configured,
     String? phoneNumberId,
     String? displayNumber,
+    String? wabaId,
     @Default(false) bool active,
+    @Default('active') String status,
+    String? suspendedAt,
+    String? suspensionReason,
+    @Default('assisted') String mode,
+    @Default(WhatsAppChecklist()) WhatsAppChecklist checklist,
     String? updatedAt,
     required String webhookUrl,
     @Default(false) bool serverReady,
   }) = _WhatsAppAccount;
   factory WhatsAppAccount.fromJson(Map<String, dynamic> json) => _$WhatsAppAccountFromJson(json);
+  bool get suspended => status == 'suspended';
+  bool get cloud => mode == 'cloud_api';
+}
+
+// ─────────────────────────── Fase 4 · Mensajería y cumplimiento (§11, §20.1) ───────────────────────────
+
+/// Por qué el motor de reglas decidió lo que decidió (§11.4).
+@freezed
+abstract class DecisionReason with _$DecisionReason {
+  const factory DecisionReason({required String code, String? detail}) = _DecisionReason;
+  factory DecisionReason.fromJson(Map<String, dynamic> json) => _$DecisionReasonFromJson(json);
+}
+
+@freezed
+abstract class ContactDecision with _$ContactDecision {
+  const factory ContactDecision({
+    @Default('send') String decision,
+    String? at,
+    String? localAt,
+    String? timeZone,
+    @Default('') String ruleSet,
+    @Default(<DecisionReason>[]) List<DecisionReason> reasons,
+  }) = _ContactDecision;
+  factory ContactDecision.fromJson(Map<String, dynamic> json) => _$ContactDecisionFromJson(json);
+}
+
+/// Enlaces listos del modo asistido: WhatsApp con el texto (`wa.me`) o el correo (`mailto:`).
+@freezed
+abstract class AssistedLinks with _$AssistedLinks {
+  const factory AssistedLinks({String? whatsappUrl, String? mailtoUrl}) = _AssistedLinks;
+  factory AssistedLinks.fromJson(Map<String, dynamic> json) => _$AssistedLinksFromJson(json);
+}
+
+/// Mensaje al deudor con su estado: programado · por enviar · enviado · entregado · leído · fallido · bloqueado (§11.3).
+@freezed
+abstract class CorocMessage with _$CorocMessage {
+  const CorocMessage._();
+  const factory CorocMessage({
+    required String id,
+    required String clientId,
+    String? clientName,
+    String? loanId,
+    String? contract,
+    required String event,
+    required String kind,
+    required String channel,
+    required String lang,
+    required String body,
+    String? subject,
+    String? attachmentDocumentId,
+    required String status,
+    @Default(ContactDecision()) ContactDecision decision,
+    required String requestedAt,
+    String? scheduledAt,
+    String? sentAt,
+    String? deliveredAt,
+    String? readAt,
+    String? failedAt,
+    String? via,
+    String? error,
+    required String createdAt,
+    AssistedLinks? assisted,
+  }) = _CorocMessage;
+  factory CorocMessage.fromJson(Map<String, dynamic> json) => _$CorocMessageFromJson(json);
+
+  bool get pending => status == 'ready' || status == 'scheduled';
+  bool get retryable => status == 'failed' || status == 'blocked';
+  /// La regla que lo bloqueó o lo corrió de hora (la última del motor).
+  DecisionReason? get rule => decision.reasons.isEmpty ? null : decision.reasons.last;
+}
+
+@freezed
+abstract class MessagePage with _$MessagePage {
+  const factory MessagePage({@Default(<CorocMessage>[]) List<CorocMessage> items, String? nextCursor}) = _MessagePage;
+  factory MessagePage.fromJson(Map<String, dynamic> json) => _$MessagePageFromJson(json);
+}
+
+@freezed
+abstract class MessagesSummary with _$MessagesSummary {
+  const factory MessagesSummary({@Default(0) int ready, @Default(0) int scheduled, @Default(0) int blocked, @Default(0) int failed, @Default(0) int sentToday}) = _MessagesSummary;
+  factory MessagesSummary.fromJson(Map<String, dynamic> json) => _$MessagesSummaryFromJson(json);
+}
+
+/// Plantilla de un evento en un idioma (§11.3). `custom`: la empresa la personalizó.
+@freezed
+abstract class MessageTemplate with _$MessageTemplate {
+  const factory MessageTemplate({
+    required String event,
+    required String lang,
+    required String body,
+    required String subject,
+    @Default(false) bool custom,
+    String? metaTemplateName,
+    String? metaTemplateLang,
+    @Default(<String>[]) List<String> variables,
+    String? updatedAt,
+  }) = _MessageTemplate;
+  factory MessageTemplate.fromJson(Map<String, dynamic> json) => _$MessageTemplateFromJson(json);
+}
+
+/// Cada mensaje automático se activa por separado y elige sus canales (§11.3).
+@freezed
+abstract class MessageEventConfig with _$MessageEventConfig {
+  const factory MessageEventConfig({required String event, required String kind, @Default(true) bool enabled, @Default(<String>[]) List<String> channels}) = _MessageEventConfig;
+  factory MessageEventConfig.fromJson(Map<String, dynamic> json) => _$MessageEventConfigFromJson(json);
+}
+
+@freezed
+abstract class TemplatesView with _$TemplatesView {
+  const factory TemplatesView({@Default(<MessageTemplate>[]) List<MessageTemplate> templates, @Default(<MessageEventConfig>[]) List<MessageEventConfig> events}) = _TemplatesView;
+  factory TemplatesView.fromJson(Map<String, dynamic> json) => _$TemplatesViewFromJson(json);
+}
+
+@freezed
+abstract class TemplateIssue with _$TemplateIssue {
+  const factory TemplateIssue({required String code, String? match}) = _TemplateIssue;
+  factory TemplateIssue.fromJson(Map<String, dynamic> json) => _$TemplateIssueFromJson(json);
+}
+
+@freezed
+abstract class TemplatePreview with _$TemplatePreview {
+  const factory TemplatePreview({
+    required String lang,
+    required String body,
+    required String subject,
+    @Default(0) int length,
+    @Default(<String>[]) List<String> variables,
+    @Default(<TemplateIssue>[]) List<TemplateIssue> issues,
+  }) = _TemplatePreview;
+  factory TemplatePreview.fromJson(Map<String, dynamic> json) => _$TemplatePreviewFromJson(json);
+}
+
+/// Franja de contacto: día ISO (1 = lunes … 7 = domingo) y horas locales.
+@freezed
+abstract class ContactWindow with _$ContactWindow {
+  const factory ContactWindow({required int day, required String start, required String end}) = _ContactWindow;
+  factory ContactWindow.fromJson(Map<String, dynamic> json) => _$ContactWindowFromJson(json);
+}
+
+@freezed
+abstract class ContactRuleSet with _$ContactRuleSet {
+  const factory ContactRuleSet({
+    required String id,
+    required String country,
+    @Default(<ContactWindow>[]) List<ContactWindow> windows,
+    @Default(true) bool noHolidays,
+    @Default(1) int maxCollectionPerDay,
+    @Default(true) bool singleChannelPerWeek,
+    @Default(true) bool windowsApplyToTransactional,
+    @Default('') String legalReference,
+    @Default(false) bool requiresCounselReview,
+  }) = _ContactRuleSet;
+  factory ContactRuleSet.fromJson(Map<String, dynamic> json) => _$ContactRuleSetFromJson(json);
+}
+
+@freezed
+abstract class ContactPreset with _$ContactPreset {
+  const factory ContactPreset({required String id, required String country, @Default('') String legalReference, @Default(false) bool requiresCounselReview}) = _ContactPreset;
+  factory ContactPreset.fromJson(Map<String, dynamic> json) => _$ContactPresetFromJson(json);
+}
+
+/// Motor de reglas de contacto de la empresa (§11.4).
+@freezed
+abstract class ContactRules with _$ContactRules {
+  const factory ContactRules({
+    required String preset,
+    required ContactRuleSet effective,
+    String? counselReviewedAt,
+    @Default(<ContactPreset>[]) List<ContactPreset> presets,
+    @Default(false) bool transactionalImmediate,
+    @Default('08:00') String reminderTime,
+    @Default(false) bool dailyReminders,
+  }) = _ContactRules;
+  factory ContactRules.fromJson(Map<String, dynamic> json) => _$ContactRulesFromJson(json);
+}
+
+/// Excepción horaria autorizada por escrito por el deudor (§11.4).
+@freezed
+abstract class ContactException with _$ContactException {
+  const factory ContactException({@Default(<ContactWindow>[]) List<ContactWindow> windows, String? documentId, String? grantedAt}) = _ContactException;
+  factory ContactException.fromJson(Map<String, dynamic> json) => _$ContactExceptionFromJson(json);
+}
+
+@freezed
+abstract class DnsRecord with _$DnsRecord {
+  const factory DnsRecord({required String kind, @Default('TXT') String type, required String host, required String expected, String? found, @Default(false) bool ok}) = _DnsRecord;
+  factory DnsRecord.fromJson(Map<String, dynamic> json) => _$DnsRecordFromJson(json);
+}
+
+/// Remitente de correo de la empresa y el estado de SPF, DKIM y DMARC (§11.2).
+@freezed
+abstract class EmailSender with _$EmailSender {
+  const EmailSender._();
+  const factory EmailSender({
+    @Default(false) bool configured,
+    @Default('none') String provider,
+    @Default('') String defaultFrom,
+    String? fromEmail,
+    String? fromName,
+    String? domain,
+    String? dkimSelector,
+    @Default(false) bool spf,
+    @Default(false) bool dkim,
+    @Default(false) bool dmarc,
+    String? verifiedAt,
+    String? checkedAt,
+    @Default(<DnsRecord>[]) List<DnsRecord> records,
+  }) = _EmailSender;
+  factory EmailSender.fromJson(Map<String, dynamic> json) => _$EmailSenderFromJson(json);
+  bool get verified => verifiedAt != null;
 }

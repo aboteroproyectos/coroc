@@ -7,7 +7,8 @@ export interface LinkClaims {
   /** Empresa */
   t: string;
   /** Qué se descarga */
-  k: 'document' | 'backup';
+  /** `message`: el PDF de un mensaje (recibo, paz y salvo, estado de cuenta), con vigencia de días (§11.1). */
+  k: 'document' | 'backup' | 'message';
   /** Identificador */
   i: string;
   /** Vencimiento (segundos Unix) */
@@ -43,7 +44,7 @@ export class LinkSigner {
     try {
       const c = JSON.parse(Buffer.from(body, 'base64url').toString()) as LinkClaims;
       if (typeof c.e !== 'number' || c.e * 1000 < this.clock.now().getTime()) return null;
-      if (c.k !== 'document' && c.k !== 'backup') return null;
+      if (c.k !== 'document' && c.k !== 'backup' && c.k !== 'message') return null;
       return c;
     } catch {
       return null;

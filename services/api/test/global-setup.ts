@@ -46,6 +46,9 @@ export default async function setup() {
     COROC_JOBS: 'off',
     // Las tareas de documentos corren en el mismo proceso y las pruebas esperan a que terminen (DocumentTasks.idle).
     COROC_DOCUMENT_WORKER: 'inline',
+    // El correo sale a un proveedor en memoria y los mensajes se despachan cuando la prueba lo pide (dispatchDue).
+    COROC_EMAIL_PROVIDER: 'memory',
+    COROC_MESSAGE_WORKER: 'inline',
     COROC_STORAGE_DIR: fs.mkdtempSync(path.join(os.tmpdir(), 'coroc-objects-')),
     COROC_API_PUBLIC_URL: 'https://api.coroc.test',
     COROC_PUBLIC_URL: 'https://app.coroc.test',

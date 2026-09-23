@@ -17,10 +17,11 @@ import '../documents/documents.dart';
 import '../inbox/upload_link_card.dart';
 import '../loans/loan_providers.dart';
 import '../loans/payment_sheet.dart';
+import '../messaging/client_messages.dart';
 import '../shell/app_shell.dart';
 import 'client_form.dart';
 
-/// Ficha del cliente (§5.7-7): Resumen · Cuadro de inversión y pagos · Documentos · Historial.
+/// Ficha del cliente (§5.7-7): Resumen · Cuadro de inversión y pagos · Documentos · Mensajes · Historial.
 class ClientPage extends ConsumerStatefulWidget {
   const ClientPage({super.key, required this.clientId});
   final String clientId;
@@ -42,7 +43,7 @@ class _ClientPageState extends ConsumerState<ClientPage> {
           final loans = c.loans;
           final loan = loans.where((x) => x.id == _loanId).firstOrNull ?? loans.where((x) => x.status == 'active').firstOrNull ?? loans.firstOrNull;
           return DefaultTabController(
-            length: 4,
+            length: 5,
             child: NestedScrollView(
               headerSliverBuilder: (context, _) => [
                 SliverToBoxAdapter(child: _Header(client: c, loan: loan, onSelectLoan: (id) => setState(() => _loanId = id))),
@@ -54,6 +55,7 @@ class _ClientPageState extends ConsumerState<ClientPage> {
                       _SummaryTab(client: c, loan: loan),
                       _ScheduleTab(loan: loan),
                       DocumentsTab(client: c, loan: loan),
+                      ClientMessagesTab(client: c, loan: loan),
                       _HistoryTab(loan: loan),
                     ]),
             ),
@@ -77,7 +79,7 @@ class _TabsDelegate extends SliverPersistentHeaderDelegate {
       child: TabBar(
         isScrollable: true,
         tabAlignment: TabAlignment.start,
-        tabs: [Tab(text: l.tabSummary), Tab(text: l.tabSchedule), Tab(text: l.tabDocuments), Tab(text: l.tabHistory)],
+        tabs: [Tab(text: l.tabSummary), Tab(text: l.tabSchedule), Tab(text: l.tabDocuments), Tab(text: l.tabMessages), Tab(text: l.tabHistory)],
       ),
     );
   }

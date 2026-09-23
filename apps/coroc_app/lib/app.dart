@@ -22,6 +22,8 @@ import 'features/dashboard/dashboard_page.dart';
 import 'features/help/help_page.dart';
 import 'features/inbox/inbox_page.dart';
 import 'features/loans/new_loan_page.dart';
+import 'features/messaging/messages_page.dart';
+import 'features/messaging/templates_page.dart';
 import 'features/new_client/new_client_page.dart';
 import 'features/reports/reports_page.dart';
 import 'features/settings/settings_page.dart';
@@ -74,6 +76,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
           GoRoute(path: '/inbox', pageBuilder: (_, s) => _fade(s, InboxPage(focusId: s.uri.queryParameters['id']))),
+          GoRoute(
+            path: '/messages',
+            pageBuilder: (_, s) => _fade(s, const MessagesPage()),
+            routes: [GoRoute(path: 'templates', pageBuilder: (_, s) => _fade(s, const TemplatesPage()))],
+          ),
           GoRoute(path: '/reports', pageBuilder: (_, s) => _fade(s, const ReportsPage())),
           GoRoute(path: '/settings', pageBuilder: (_, s) => _fade(s, const SettingsPage())),
           GoRoute(path: '/help', pageBuilder: (_, s) => _fade(s, const HelpPage())),

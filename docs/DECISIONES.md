@@ -240,3 +240,90 @@ La sincronización corre al abrir la app, cada 2 minutos y con cada evento `docu
 
 ### ADR-043 · Carpeta vigilada en escritorio
 **Decisión:** en Windows y macOS, la carpeta COROC se vigila con el sistema de archivos y además se revisa cada 2 minutos. Las imágenes y PDF nuevos en `_Entrada` o en la carpeta de un cliente, que no hayan cambiado en los últimos 10 segundos, se suben a la Bandeja por el canal `folder`. Si estaban en la carpeta de un cliente, ese cliente queda identificado. El original se retira: la copia con el nombre estándar vuelve con la sincronización. Los demás archivos se siguen ofreciendo para importar como documentos. La vigilancia se puede apagar en Configuración. **Consecuencias:** en la oficina basta con guardar el comprobante en la carpeta. En los teléfonos la carpeta sigue siendo solo de llegada (ADR-036).
+
+## Fase 4
+
+### ADR-044 · El mensaje nace en la transacción del hecho y sale por un despachador
+**Contexto:** §14 pide que el registro del pago «programe su envío» dentro de la misma transacción, y §21 que ningún envío se pierda ni se duplique aunque haya varias instancias de la API. **Decisión:**
+- **Registro:** los mensajes se registran en la misma transacción que los origina: el préstamo nuevo (bienvenida), el pago (recibo), el saldo en cero (paz y salvo), la tarea mensual (estado de cuenta) y el trabajo de cada hora (recordatorios y cuota vencida). Cada uno tiene una clave única (`receipt:<movimiento>`, `reminder:<préstamo>:<cuota>:before`…), así que repetir el hecho no crea otro mensaje.
+- **PDF adjunto:** si el mensaje lleva un PDF, guarda la tarea que lo genera (ADR-032) y el despachador espera a que termine antes de enviarlo.
+- **Despachador:** toma los mensajes vencidos de todas las empresas con `claim_due_messages` (`FOR UPDATE SKIP LOCKED` y un arriendo de 5 minutos). La hora de envío se compara con el reloj de la aplicación, no con el de la base, para que las pruebas con reloj fijo sean exactas.
+- **Errores transitorios:** se reintentan con espera exponencial. Tras 6 intentos, un correo queda fallido y visible, y un WhatsApp pasa al modo asistido.
+- **Reverso de un pago:** descarta el recibo que aún no había salido.
+
+**Consecuencias:** un pago nunca queda sin su recibo en cola, y ningún mensaje sale dos veces. El trabajo de cada hora (BullMQ con Redis) programa la cobranza y despacha; con `COROC_MESSAGE_WORKER=on`, cada instancia revisa además cada 30 segundos.
+
+### ADR-045 · Reglas de contacto en la hora local del deudor, revisadas dos veces
+**Decisión:**
+- **Hora:** el motor (`evaluateContact` de `@coroc/core`) trabaja con la fecha y hora local del deudor. Cada cliente puede tener su zona horaria; si no la tiene, se usa la de la empresa. La conversión maneja el horario de verano: una hora que no existe pasa a la primera válida.
+- **Historial que cuenta:** los contactos de cobranza enviados y también los que ya esperan turno (programados o por enviar). Así, dos recordatorios pedidos el mismo día no salen ambos.
+- **Dos revisiones:** las reglas se aplican al registrar el mensaje y otra vez al enviarlo. En el modo asistido, también al tocar «Enviar»: fuera de franja la API responde 409 y WhatsApp no se abre.
+- **Presets:** el de Colombia (Ley 2300 de 2023) rige por defecto. Los de Brasil (CDC, art. 42) y EE. UU. (FDCPA y Regulation F) son plantillas: mientras el propietario no declare la revisión de su asesor legal, se aplica el de Colombia con los festivos del país de la empresa.
+- **Transaccionales:** respetan las franjas por defecto. El propietario puede habilitar su envío inmediato; queda en la bitácora y está explicado en Ayuda.
+- **Excepción del deudor:** exige un documento del cliente, distinto del contrato (ni plan ni recibo) y posterior al primer préstamo. Aplica solo a ese deudor.
+
+**Consecuencias:** cada decisión queda en `messages.decision` con el motivo y la hora local. Ejemplo: «Reprogramado para 13 oct 2026 07:00: fuera de franja · festivo 12 oct 2026».
+
+### ADR-046 · Modo asistido con enlaces listos y descarga segura del PDF
+**Decisión:**
+- **Cuándo:** los mensajes de WhatsApp de una empresa en modo asistido, o de una en modo automático cuando no se puede usar la Cloud API, llegan a su hora a «Por enviar hoy» (`status = ready`).
+- **Enviar:** la app llama `POST /messages/{id}/send`, que revalida las reglas y marca el envío con quién lo hizo. Luego abre `https://wa.me/<número>?text=…` o `mailto:` con `url_launcher`, el plugin oficial de Flutter.
+- **Recibo:** `wa.me` no adjunta archivos, así que el texto lleva un enlace firmado a `/v1/files/<token>` (`LinkSigner`, clase `message`) que vence en 30 días (`COROC_DELIVERY_LINK_DAYS`). El enlace resuelve el PDF del mensaje, no un documento fijo. En Android e iOS también se puede compartir el PDF directo al chat con la hoja del sistema.
+- **Enlace de carga:** todo mensaje lleva el enlace personal de carga del préstamo; si no existe, se crea (ADR-040).
+- **Cola:** los mensajes de cobranza que no se enviaron en dos días se descartan, para no acumular cobros atrasados.
+
+**Consecuencias:** COROC funciona completo sin la API de Meta (ADR-007), y el usuario solo toca «Enviar» en WhatsApp.
+
+### ADR-047 · Cloud API de WhatsApp y paso automático al modo asistido (CA-20)
+**Decisión:**
+- **Envío:** `POST /{phone-number-id}/messages` de la Graph API (v23.0, `COROC_WHATSAPP_GRAPH_VERSION`).
+  - Dentro de las 24 horas desde el último mensaje del deudor (se guarda al recibirlo), se envía texto libre.
+  - Fuera de esa ventana se envía la plantilla aprobada por Meta que la empresa asoció al evento e idioma. Los valores van como parámetros posicionales `{{1}}`, `{{2}}`… en el orden en que aparecen las variables en la plantilla de COROC.
+  - Sin plantilla aprobada, o si es un mensaje manual, el mensaje sigue por el modo asistido.
+- **Activación:** la Cloud API solo se activa con el número conectado, el id de la cuenta de WhatsApp Business, el servidor configurado y la lista de verificación completa: negocio verificado, número dedicado, plantillas aprobadas, revisión legal y aceptación de la Política de Mensajería. Solo la acepta el Propietario y queda en la bitácora.
+- **Qué cuenta como suspensión:**
+  - al enviar, los errores 368, 131031, 131042 y 131045;
+  - por webhook, un `account_update` con `DISABLED_UPDATE`, `ACCOUNT_RESTRICTION` o `waba_ban_state` en `DISABLE` o `SCHEDULE_FOR_DISABLE`, reconocido por el id de la cuenta.
+- **Qué pasa al suspenderse:**
+  - la cuenta queda suspendida y la empresa pasa al modo asistido;
+  - los mensajes en cola salen por el modo asistido, y los que fallaron por la suspensión en las últimas 24 horas vuelven a «Por enviar hoy»;
+  - se avisa al propietario por correo y en la app (`whatsapp.suspended`), y queda en la bitácora.
+- **Reactivación:** el propietario repite la lista de verificación y así declara que Meta restableció la cuenta.
+- **Plantillas de Meta:** si una se rechaza, pausa o desactiva (`message_template_status_update`), se deja de usar y sus mensajes siguen por el modo asistido.
+- **Estados de entrega:** los estados (`sent`, `delivered`, `read`, `failed`) actualizan el mensaje sin retroceder de leído a entregado.
+
+**Consecuencias:** CA-20 queda verificado con un Graph API de prueba: ningún mensaje se pierde ni sale dos veces, y solo el primer intento llega a Meta.
+
+### ADR-048 · Correo saliente por Postmark o SMTP, remitente verificado y rebotes
+**Decisión:**
+- **Proveedor:** el servidor elige el adaptador (`COROC_EMAIL_PROVIDER`):
+  - **Postmark:** API `POST /email`, con los metadatos del mensaje para relacionar los avisos;
+  - **SMTP propio:** con nodemailer; Amazon SES se usa por su interfaz SMTP;
+  - **Memoria:** solo desarrollo y pruebas.
+- **Sin proveedor:** no se simula el envío. Los correos quedan en «Por enviar hoy» con un enlace `mailto:`.
+- **Contenido:** HTML sobrio con el logo en PNG incrustado (CID, porque los programas de correo no muestran SVG ni `data:`), el PDF adjunto y `List-Unsubscribe` con baja de un clic (RFC 8058).
+- **Remitente:** mientras el dominio propio no pase SPF, DKIM y DMARC, el correo sale desde `COROC_EMAIL_FROM` con el nombre de la empresa y responde a la dirección de la empresa. El asistente consulta el DNS y muestra los registros esperados. Cambiar el remitente exige verificar otra vez.
+- **Avisos del proveedor:** un rechazo permanente o un rebote duro marcan el correo como inválido en la ficha del cliente, y ya no se usa hasta que se corrija. Una queja por correo no deseado revoca el consentimiento de correo.
+- **Pendiente:** el envío desde el Gmail o el Outlook de la empresa por OAuth (§11.2) requiere registrar la app en Google y Microsoft (P-5).
+
+**Consecuencias:** el correo funciona con cualquier proveedor SMTP o Postmark, y nunca se «envía» sin salir de verdad.
+
+### ADR-049 · Consentimiento por canal y exclusión inmediata
+**Decisión:**
+- **Consentimiento:** ningún mensaje sale sin el consentimiento activo del canal (§20.1), tampoco los transaccionales. El intento queda bloqueado con el motivo: sin autorización, el cliente se excluyó, sin correo o correo inválido.
+- **Exclusión por WhatsApp:** el mensaje completo debe ser SALIR, SAIR, STOP, BAJA o UNSUBSCRIBE, sin importar mayúsculas, tildes ni signos. Una frase que solo contiene la palabra no excluye.
+- **Otras formas de excluirse:** el botón del portal del deudor y el enlace de baja del correo.
+- **Efecto:** la exclusión revoca el consentimiento al instante, bloquea lo pendiente de ese canal y queda en la bitácora.
+- **A quién se escribe:** los mensajes solo van al deudor. Nunca a referencias, y a los codeudores no se les escribe.
+
+**Consecuencias:** cumple la Ley 1581 y la LGPD y la exigencia de opt-in de WhatsApp. Si un deudor autoriza de nuevo, se registra un consentimiento nuevo con su evidencia.
+
+### ADR-050 · Validador de contenido conservador en los tres idiomas
+**Decisión:** el validador (`validateTemplate` en `@coroc/core`) revisa en español, portugués e inglés a la vez, sobre el texto sin tildes y sin los nombres de las variables. Bloquea:
+- amenazas o lenguaje intimidante (embargo, demanda, cárcel, policía, «último aviso», visitas a la casa o el trabajo);
+- preguntar la causa del impago;
+- menciones a terceros (familia, vecinos, jefe o empleador, referencias);
+- pedir números completos de tarjeta, cuenta o documento, o claves;
+- variables desconocidas, llaves sin cerrar y textos de más de 1.024 caracteres (el límite del cuerpo de una plantilla de WhatsApp).
+
+Se aplica al guardar una plantilla y al escribir un mensaje manual. La app muestra el motivo mientras se escribe. **Consecuencias:** ante la duda bloquea y el usuario reescribe. Las plantillas de COROC pasan el validador en los tres idiomas (prueba del núcleo).

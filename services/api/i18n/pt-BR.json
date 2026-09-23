@@ -188,7 +188,16 @@
     "UPLOAD_LINK_EXPIRED": "O link de envio venceu ou foi revogado.",
     "WEBHOOK_SIGNATURE_INVALID": "Assinatura do webhook inválida.",
     "WEBHOOK_NOT_CONFIGURED": "Este canal não está configurado no servidor.",
-    "WHATSAPP_ACCOUNT_IN_USE": "Esse número de WhatsApp já está conectado a outra empresa."
+    "WHATSAPP_ACCOUNT_IN_USE": "Esse número de WhatsApp já está conectado a outra empresa.",
+    "TEMPLATE_BLOCKED": "O texto não pode ser salvo: contém linguagem que a lei ou a política do WhatsApp proíbem (ameaças, perguntar o motivo do atraso, menções a terceiros ou pedir dados sensíveis).",
+    "MESSAGE_NOT_PENDING": "Esta mensagem não está mais pendente.",
+    "MESSAGE_NOT_RETRYABLE": "Só é possível tentar novamente mensagens com falha ou bloqueadas.",
+    "CONTACT_BLOCKED": "As regras de contato não permitem enviar esta mensagem agora ({rule}).",
+    "CONTACT_OUT_OF_WINDOW": "Fora do horário permitido. Poderá ser enviada a partir de {at}.",
+    "CONTACT_EXCEPTION_EVIDENCE": "A exceção de horário exige como evidência um documento do cliente, diferente do contrato e posterior a ele.",
+    "OWNER_REQUIRED": "Somente o Proprietário pode fazer esta alteração.",
+    "WHATSAPP_NOT_READY": "Primeiro conecte o número do WhatsApp Business com o id da conta e configure o servidor (segredo do app e token de verificação).",
+    "WHATSAPP_CHECKLIST_INCOMPLETE": "Complete toda a lista de verificação antes de ativar o modo automático."
   },
   "terms": {
     "PRINCIPAL": "O capital deve ser um valor positivo.",
@@ -437,6 +446,17 @@
     "errorSize": "O arquivo passa de {mb} MB.",
     "errorEmpty": "Escolha o arquivo do comprovante.",
     "errorRate": "Você enviou muitos arquivos em pouco tempo. Tente de novo em uma hora.",
-    "privacy": "Seus dados são usados apenas para administrar o seu empréstimo."
+    "privacy": "Seus dados são usados apenas para administrar o seu empréstimo.",
+    "messagesTitle": "Mensagens",
+    "messagesHelp": "Você recebe lembretes e recibos do seu empréstimo por WhatsApp e e-mail. Pode deixar de recebê-los quando quiser.",
+    "optOutButton": "Não quero mais receber mensagens",
+    "optedOutTitle": "Pronto",
+    "optedOutBody": "Você não receberá mais mensagens desta empresa por WhatsApp nem por e-mail. Seu empréstimo e este link continuam iguais."
+  },
+  "messaging": {
+    "emailFooter": "Esta mensagem foi enviada por {company} pelo COROC.",
+    "unsubscribe": "Para não receber mais e-mails",
+    "suspendedSubject": "COROC · WhatsApp passou para o modo assistido",
+    "suspendedNotice": "A Meta suspendeu ou restringiu a conta do WhatsApp Business de {company}. O COROC passou automaticamente para o modo assistido: nenhuma mensagem foi perdida e as pendentes estão em «Para enviar hoje», prontas para enviar com um toque. Verifique a conta no Gerenciador do WhatsApp da Meta e, quando for restabelecida, reative o modo automático em Configurações."
   }
 }

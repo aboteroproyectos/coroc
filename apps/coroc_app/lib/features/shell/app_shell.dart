@@ -10,6 +10,7 @@ import '../../design/widgets/brand.dart';
 import '../../design/widgets/common.dart';
 import '../inbox/inbox_page.dart' show InboxRealtime, intakeSummaryProvider;
 import '../inbox/share_receiver.dart';
+import '../messaging/messaging_common.dart' show MessagesRealtime, messagesSummaryProvider;
 import '../settings/data_sections.dart' show FolderAutoSync, showCreateBackupDialog;
 
 class _Dest {
@@ -26,6 +27,7 @@ final _destinations = <_Dest>[
   _Dest('/today', Icons.event_available_outlined, Icons.event_available, (l) => l.navToday),
   _Dest('/clients', Icons.people_alt_outlined, Icons.people_alt, (l) => l.navClients),
   _Dest('/inbox', Icons.inbox_outlined, Icons.inbox, (l) => l.navInbox, 'intake.view'),
+  _Dest('/messages', Icons.forum_outlined, Icons.forum, (l) => l.navMessages, 'messages.view'),
   _Dest('/reports', Icons.insert_chart_outlined, Icons.insert_chart, (l) => l.navReports, 'reports.view'),
   _Dest('/settings', Icons.tune_outlined, Icons.tune, (l) => l.navSettings),
   _Dest('/help', Icons.help_outline, Icons.help, (l) => l.navHelp),
@@ -46,18 +48,21 @@ class AppShell extends ConsumerWidget {
   final String location;
   final Widget child;
 
-  /// Destinos que el rol puede ver. En teléfonos la barra inferior tiene 5 (§5.6): si no caben, la Ayuda y luego los
-  /// Informes pasan a Configuración.
+  /// Destinos que el rol puede ver. En teléfonos la barra inferior tiene 5 (§5.6): si no caben, la Ayuda y los Informes
+  /// pasan a Configuración, y «Hoy» queda en el tablero (su botón «Ver hoy»).
   static List<_Dest> _visible(bool Function(String) can, {bool compact = false}) {
     final list = _destinations.where((d) => d.permission == null || can(d.permission!)).toList();
-    if (compact && list.length > 5) list.removeWhere((d) => d.path == '/help');
-    if (compact && list.length > 5) list.removeWhere((d) => d.path == '/reports');
+    for (final path in const ['/help', '/reports', '/today']) {
+      if (compact && list.length > 5) list.removeWhere((d) => d.path == path);
+    }
     return list;
   }
 
-  /// Ícono con el contador de la Bandeja (§13.6).
-  static Widget _icon(_Dest d, IconData icon, int pending) =>
-      d.path == '/inbox' && pending > 0 ? Badge(label: Text(pending > 99 ? '99+' : '$pending'), child: Icon(icon)) : Icon(icon);
+  /// Ícono con el contador de la Bandeja (§13.6) o de «Por enviar hoy» (§11.1).
+  static Widget _icon(_Dest d, IconData icon, Map<String, int> counts) {
+    final n = counts[d.path] ?? 0;
+    return n > 0 ? Badge(label: Text(n > 99 ? '99+' : '$n'), child: Icon(icon)) : Icon(icon);
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -68,7 +73,10 @@ class AppShell extends ConsumerWidget {
     final width = MediaQuery.sizeOf(context).width;
     bool can(String p) => session?.user.can(p) ?? false;
     final dests = _visible(can, compact: width < CorocBreakpoints.tablet);
-    final pending = can('intake.view') ? ref.watch(intakeSummaryProvider).valueOrNull?.pending ?? 0 : 0;
+    final counts = {
+      '/inbox': can('intake.view') ? ref.watch(intakeSummaryProvider).valueOrNull?.pending ?? 0 : 0,
+      '/messages': can('messages.view') ? ref.watch(messagesSummaryProvider).valueOrNull?.ready ?? 0 : 0,
+    };
     final found = dests.indexWhere((d) => location.startsWith(d.path));
     final index = found < 0 ? 0 : found;
     void go(int i) => context.go(dests[i].path);
@@ -92,12 +100,12 @@ class AppShell extends ConsumerWidget {
       }),
     };
 
-    final body = ShareReceiver(child: InboxRealtime(child: FolderAutoSync(child: Shortcuts(shortcuts: shortcuts, child: Actions(actions: actions, child: Focus(autofocus: true, child: child))))));
+    final body = ShareReceiver(child: InboxRealtime(child: MessagesRealtime(child: FolderAutoSync(child: Shortcuts(shortcuts: shortcuts, child: Actions(actions: actions, child: Focus(autofocus: true, child: child)))))));
 
     if (width >= CorocBreakpoints.desktop) {
       return Scaffold(
         body: Row(children: [
-          _Sidebar(dests: dests, index: index, onSelect: go, pending: pending),
+          _Sidebar(dests: dests, index: index, onSelect: go, counts: counts),
           Expanded(child: body),
         ]),
       );
@@ -110,7 +118,7 @@ class AppShell extends ConsumerWidget {
             onDestinationSelected: go,
             labelType: NavigationRailLabelType.all,
             leading: const Padding(padding: EdgeInsets.symmetric(vertical: CorocSpace.md), child: CorocLogo(layout: LogoLayout.isotype, height: 36)),
-            destinations: [for (final d in dests) NavigationRailDestination(icon: _icon(d, d.icon, pending), selectedIcon: _icon(d, d.selectedIcon, pending), label: Text(d.label(l)))],
+            destinations: [for (final d in dests) NavigationRailDestination(icon: _icon(d, d.icon, counts), selectedIcon: _icon(d, d.selectedIcon, counts), label: Text(d.label(l)))],
           ),
           const VerticalDivider(width: 1),
           Expanded(child: body),
@@ -122,18 +130,18 @@ class AppShell extends ConsumerWidget {
       bottomNavigationBar: NavigationBar(
         selectedIndex: index,
         onDestinationSelected: go,
-        destinations: [for (final d in dests) NavigationDestination(icon: _icon(d, d.icon, pending), selectedIcon: _icon(d, d.selectedIcon, pending), label: d.label(l))],
+        destinations: [for (final d in dests) NavigationDestination(icon: _icon(d, d.icon, counts), selectedIcon: _icon(d, d.selectedIcon, counts), label: d.label(l))],
       ),
     );
   }
 }
 
 class _Sidebar extends ConsumerWidget {
-  const _Sidebar({required this.dests, required this.index, required this.onSelect, this.pending = 0});
+  const _Sidebar({required this.dests, required this.index, required this.onSelect, this.counts = const {}});
   final List<_Dest> dests;
   final int index;
   final ValueChanged<int> onSelect;
-  final int pending;
+  final Map<String, int> counts;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -157,7 +165,7 @@ class _Sidebar extends ConsumerWidget {
               label: dests[i].label(l),
               selected: i == index,
               onTap: () => onSelect(i),
-              count: dests[i].path == '/inbox' ? pending : 0,
+              count: counts[dests[i].path] ?? 0,
             ),
           const Spacer(),
           // «Crear respaldo» visible en el menú principal (§19).

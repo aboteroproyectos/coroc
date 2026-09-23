@@ -2,7 +2,7 @@
 
 Plataforma de gestión y cobro de préstamos personales para Android, iOS, Windows y macOS.
 
-**Estado:** Fase 3 «Recepción y lectura» terminada en la rama `fase-3` (notas en [`docs/08_FASE_3_NOTAS_DE_VERSION.md`](docs/08_FASE_3_NOTAS_DE_VERSION.md)). Las fases 0 a 2 están en `main`.
+**Estado:** Fase 4 «Mensajería y cumplimiento» terminada en la rama `fase-4` (notas en [`docs/09_FASE_4_NOTAS_DE_VERSION.md`](docs/09_FASE_4_NOTAS_DE_VERSION.md)). Las fases 0 a 3 están en `main`.
 
 ## Estructura (§24.2)
 
@@ -24,6 +24,7 @@ coroc/
 
 | Documento | Contenido |
 |---|---|
+| [`docs/09_FASE_4_NOTAS_DE_VERSION.md`](docs/09_FASE_4_NOTAS_DE_VERSION.md) | Qué trae la Fase 4: mensajes automáticos, plantillas, correo saliente, WhatsApp asistido y Cloud API, reglas de contacto |
 | [`docs/08_FASE_3_NOTAS_DE_VERSION.md`](docs/08_FASE_3_NOTAS_DE_VERSION.md) | Qué trae la Fase 3: recepción por WhatsApp, correo, portal, compartir y carpeta; lectura con OCR; Bandeja |
 | [`docs/07_FASE_2_NOTAS_DE_VERSION.md`](docs/07_FASE_2_NOTAS_DE_VERSION.md) | Qué trae la Fase 2: documentos, PDF, carpeta COROC, informes y respaldo |
 | [`docs/05_FASE_1_NOTAS_DE_VERSION.md`](docs/05_FASE_1_NOTAS_DE_VERSION.md) | Qué trae la Fase 1, seguridad y límites conocidos |
@@ -51,6 +52,5 @@ cd apps/coroc_app && flutter test                                               
 
 ## Siguiente paso
 
-- Fase 4 (§23): mensajería y cumplimiento (plantillas, correo saliente, WhatsApp asistido y Cloud API, reglas de contacto).
-- Responder P-1 (nube y dominio), P-2 (cuentas de tiendas) y P-6 (tasas de los préstamos diarios frente a la usura).
-- Fase 2 «Documentos»: repositorio, carpeta COROC en las 4 plataformas, PDF, respaldo y restauración, e informes.
+- Fase 5 (§23): endurecimiento y publicación (pruebas de carga y de penetración, accesibilidad, fichas de tienda, firma y publicación).
+- Responder P-1 (nube y dominio), P-2 (cuentas de tiendas), P-4 (modo automático de WhatsApp), P-6 (tasas de los préstamos diarios frente a la usura) y P-7 (correo por Gmail u Outlook).

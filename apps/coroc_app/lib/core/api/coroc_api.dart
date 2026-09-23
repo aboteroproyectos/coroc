@@ -167,7 +167,53 @@ class CorocApi {
       ReceivingAccount.fromJson(await client.post('/receiving-accounts', body: {'holderName': holderName, 'institution': ?institution, 'last4': ?last4}) as Json);
   Future<void> removeReceivingAccount(String id) async => client.delete('/receiving-accounts/$id');
   Future<WhatsAppAccount> whatsAppAccount() async => WhatsAppAccount.fromJson(await client.get('/company/whatsapp') as Json);
-  Future<WhatsAppAccount> saveWhatsAppAccount({required String phoneNumberId, required String accessToken, String? displayNumber}) async =>
-      WhatsAppAccount.fromJson(await client.put('/company/whatsapp', body: {'phoneNumberId': phoneNumberId, 'accessToken': accessToken, 'displayNumber': ?displayNumber}) as Json);
+  Future<WhatsAppAccount> saveWhatsAppAccount({required String phoneNumberId, required String accessToken, String? displayNumber, String? wabaId}) async =>
+      WhatsAppAccount.fromJson(await client.put('/company/whatsapp', body: {'phoneNumberId': phoneNumberId, 'accessToken': accessToken, 'displayNumber': ?displayNumber, 'wabaId': ?wabaId}) as Json);
   Future<void> removeWhatsAppAccount() async => client.delete('/company/whatsapp');
+
+  /// Modo de envío de WhatsApp (§11.1): `assisted` o `cloud_api` con la lista de verificación completa.
+  Future<WhatsAppAccount> setWhatsAppMode(String mode, {WhatsAppChecklist? checklist}) async => WhatsAppAccount.fromJson(await client.put('/company/whatsapp/mode', body: {
+        'mode': mode,
+        if (checklist != null)
+          'checklist': {
+            'businessVerified': checklist.businessVerified, 'dedicatedNumber': checklist.dedicatedNumber, 'templatesApproved': checklist.templatesApproved,
+            'legalReview': checklist.legalReview, 'policyAccepted': checklist.policyAccepted,
+          },
+      }) as Json);
+
+  // ─── Mensajería (§11) ───
+  Future<MessagePage> messages({List<String> status = const [], String? clientId, String? channel, String? event, String? cursor, int limit = 50}) async =>
+      MessagePage.fromJson(await client.get('/messages', query: {'status': status.isEmpty ? null : status.join(','), 'clientId': clientId, 'channel': channel, 'event': event, 'cursor': cursor, 'limit': limit}) as Json);
+  Future<MessagesSummary> messagesSummary() async => MessagesSummary.fromJson(await client.get('/messages/summary') as Json);
+  Future<CorocMessage> composeMessage({required String loanId, required String event, required String channel, String? body}) async =>
+      CorocMessage.fromJson(await client.post('/messages', body: {'loanId': loanId, 'event': event, 'channel': channel, 'body': ?body}) as Json);
+  Future<CorocMessage> sendMessage(String id) async => CorocMessage.fromJson(await client.post('/messages/$id/send') as Json);
+  Future<CorocMessage> cancelMessage(String id) async => CorocMessage.fromJson(await client.post('/messages/$id/cancel') as Json);
+  Future<CorocMessage> retryMessage(String id) async => CorocMessage.fromJson(await client.post('/messages/$id/retry') as Json);
+
+  // ─── Plantillas (§11.3) ───
+  Future<TemplatesView> templates() async => TemplatesView.fromJson(await client.get('/message-templates') as Json);
+  Future<MessageTemplate> saveTemplate(String event, String lang, {required String body, String? subject, bool active = true, String? metaTemplateName, String? metaTemplateLang}) async =>
+      MessageTemplate.fromJson(await client.put('/message-templates/$event/$lang', body: {'body': body, 'subject': ?subject, 'active': active, 'metaTemplateName': metaTemplateName, 'metaTemplateLang': metaTemplateLang}) as Json);
+  Future<TemplatePreview> previewTemplate({required String event, String? lang, String? loanId, String? body, String? subject}) async =>
+      TemplatePreview.fromJson(await client.post('/message-templates/preview', body: {'event': event, 'lang': ?lang, 'loanId': ?loanId, 'body': ?body, 'subject': ?subject}) as Json);
+
+  // ─── Reglas de contacto (§11.4) ───
+  Future<ContactRules> contactRules() async => ContactRules.fromJson(await client.get('/compliance/contact-rules') as Json);
+  Future<ContactRules> saveContactRules({String? preset, bool? counselReviewed, bool? transactionalImmediate, String? reminderTime, bool? dailyReminders}) async =>
+      ContactRules.fromJson(await client.put('/compliance/contact-rules', body: {
+        'preset': ?preset, 'counselReviewed': ?counselReviewed, 'transactionalImmediate': ?transactionalImmediate, 'reminderTime': ?reminderTime, 'dailyReminders': ?dailyReminders,
+      }) as Json);
+  Future<ContactException> setContactException(String clientId, List<ContactWindow> windows, String documentId) async => ContactException.fromJson(await client.put('/clients/$clientId/contact-exception', body: {
+        'windows': [for (final w in windows) {'day': w.day, 'start': w.start, 'end': w.end}],
+        'documentId': documentId,
+      }) as Json);
+  Future<void> removeContactException(String clientId) async => client.delete('/clients/$clientId/contact-exception');
+
+  // ─── Correo saliente (§11.2) ───
+  Future<EmailSender> emailSender() async => EmailSender.fromJson(await client.get('/company/email-sender') as Json);
+  Future<EmailSender> saveEmailSender({required String fromEmail, String? fromName, String? dkimSelector}) async =>
+      EmailSender.fromJson(await client.put('/company/email-sender', body: {'fromEmail': fromEmail, 'fromName': ?fromName, 'dkimSelector': ?dkimSelector}) as Json);
+  Future<EmailSender> verifyEmailSender() async => EmailSender.fromJson(await client.post('/company/email-sender/verify') as Json);
+  Future<void> deleteEmailSender() async => client.delete('/company/email-sender');
 }

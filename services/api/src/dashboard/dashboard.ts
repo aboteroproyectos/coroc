@@ -155,7 +155,7 @@ export class DashboardController {
   events(@Auth() a: AuthContext): Observable<MessageEvent> {
     return new Observable<MessageEvent>((sub) => {
       const visible = (ev: CorocEvent) => {
-        if (ev.type === 'security.lockout') return a.role === 'owner' || a.role === 'admin';
+        if (ev.type === 'security.lockout' || ev.type === 'whatsapp.suspended') return a.role === 'owner' || a.role === 'admin';
         if (a.role === 'collector') return !!ev.collectorId && ev.collectorId === a.userId;
         return true;
       };

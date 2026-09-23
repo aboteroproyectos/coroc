@@ -12,6 +12,7 @@ import { CONFIG, type AppConfig } from '../config.js';
 import { EventBus } from '../dashboard/event-bus.js';
 import { DbService, type Tx } from '../db/db.service.js';
 import { DocumentTasks } from '../documents/tasks.js';
+import { MessagingService } from '../messaging/messaging.service.js';
 import { LoanStateService, type LedgerRow } from './loan-state.service.js';
 
 export interface PaymentInput {
@@ -70,6 +71,7 @@ export class PaymentsService {
     private readonly bus: EventBus,
     private readonly clock: Clock,
     private readonly tasks: DocumentTasks,
+    private readonly messaging: MessagingService,
     @Inject(CONFIG) private readonly config: AppConfig,
   ) {}
 
@@ -86,6 +88,7 @@ export class PaymentsService {
   /** Eventos en vivo después del commit de un pago registrado con `postTx`. */
   published(tenantId: string, loanId: string, amount: number, result: Posted): void {
     this.tasks.kick();
+    this.messaging.kick();
     const c = result.client;
     this.bus.publish({
       type: 'payment.posted', tenantId, clientId: c.id, collectorId: c.collector_id,
@@ -149,11 +152,16 @@ export class PaymentsService {
     );
     await tx.exec('SELECT bump_daily_collection($1, $2, $3, 1)', [l.loan.currency, input.date, input.amount]);
     // Documentos del pago (§15, §10): se generan después del commit, pero quedan registrados en esta misma transacción.
-    await this.tasks.enqueue(tx, { kind: 'receipt', loanId, entryId: entry!.id, createdBy: auth.userId });
+    const receiptTask = await this.tasks.enqueue(tx, { kind: 'receipt', loanId, entryId: entry!.id, createdBy: auth.userId });
     await this.tasks.enqueue(tx, { kind: 'schedule', loanId, dedupeKey: `schedule:${loanId}` });
+    // «Pago recibido + recibo PDF» por el canal por el que llegó el comprobante (§11.3, §14 paso 5).
+    await this.messaging.enqueueTx(tx, auth.tenantId, {
+      event: 'receipt', loanId, entryId: entry!.id, documentTaskId: receiptTask, source: input.source ?? null, dedupeKey: `receipt:${entry!.id}`, createdBy: auth.userId,
+    });
     if (after.summary.balance === 0) {
-      await this.tasks.enqueue(tx, { kind: 'payoff', loanId, dedupeKey: `payoff:${loanId}` });
+      const payoffTask = await this.tasks.enqueue(tx, { kind: 'payoff', loanId, dedupeKey: `payoff:${loanId}` });
       await this.tasks.enqueue(tx, { kind: 'statement', loanId, params: { reason: 'closed' } });
+      await this.messaging.enqueueTx(tx, auth.tenantId, { event: 'payoff', loanId, documentTaskId: payoffTask, dedupeKey: `payoff:${entry!.id}`, createdBy: auth.userId });
     }
     await this.audit.log(tx, 'payment.posted', 'loan', loanId, { after: { entryId: entry!.id, amount: input.amount, date: input.date, receipt: number } });
     return {
@@ -200,6 +208,8 @@ export class PaymentsService {
     const after = await this.state.recompute(tx, l, today);
     await tx.exec('SELECT bump_daily_collection($1, $2, $3, -1)', [l.loan.currency, target.entry_date, -target.amount]);
     if (receipt) await this.tasks.enqueue(tx, { kind: 'receipt_void', loanId, entryId, createdBy: auth.userId });
+    // El recibo de un pago reversado ya no se envía; lo ya enviado queda en el historial.
+    await tx.exec("UPDATE messages SET status = 'cancelled', error = 'PAYMENT_REVERSED', locked_until = NULL WHERE entry_id = $1 AND status IN ('scheduled', 'ready')", [entryId]);
     await this.tasks.enqueue(tx, { kind: 'schedule', loanId, dedupeKey: `schedule:${loanId}` });
     await this.tasks.enqueue(tx, { kind: 'payoff', loanId, dedupeKey: `payoff:${loanId}` });
     await this.audit.log(tx, 'payment.reversed', 'loan', loanId, { before: { entryId, amount: target.amount }, after: { reversalId: rev!.id, reason: reason.trim(), receipt: receipt?.number } });

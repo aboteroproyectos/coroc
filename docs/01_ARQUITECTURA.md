@@ -145,6 +145,7 @@ Garantías en la base (verificadas en PostgreSQL 16.14, ver `services/api/db/tes
 - **Modo A, automático (Cloud API):** se implementa completo en Fase 4 y se activa solo con lista de verificación y aceptación del propietario, porque la Política de Mensajería de WhatsApp Business prohíbe la cobranza de deudas y los préstamos entre pares sin importar las licencias. Si Meta suspende la cuenta, COROC vuelve al modo B sin perder mensajes (CA-20).
 - **Prohibido:** automatizar WhatsApp Web con librerías no oficiales.
 - **Motor de reglas de contacto:** `evaluateContact` en `@coroc/core`, preset Colombia Ley 2300 de 2023 (franjas, festivos, un contacto de cobranza por día, un canal por semana, excepción autorizada por el deudor). Cada decisión se guarda en `messages.decision`.
+- **Fase 4:** así quedó implementado: los mensajes nacen en la transacción del hecho y salen por un despachador (ADR-044); las reglas se aplican en la hora del deudor (ADR-045); modo asistido con enlaces listos (ADR-046); Cloud API con Graph API v23.0 y paso automático al asistido (ADR-047); correo por Postmark (API `POST /email`) o SMTP (ADR-048).
 - **Tope de tasa:** `checkRateCap` calcula la tasa efectiva anual real (TIR sobre fechas) y bloquea préstamos por encima del tope vigente (`rate_caps`).
 
 ## 7. Carpeta COROC por plataforma (§16.2)

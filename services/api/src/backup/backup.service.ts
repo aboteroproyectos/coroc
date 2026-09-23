@@ -40,6 +40,7 @@ const TABLES: { name: string; order: string; exclude?: string[] }[] = [
   { name: 'rate_caps', order: 'valid_from, id' },
   { name: 'contact_rule_sets', order: 'id' },
   { name: 'receiving_accounts', order: 'id' },
+  { name: 'email_senders', order: 'tenant_id' },
   { name: 'message_templates', order: 'id' },
   { name: 'clients', order: 'created_at, id' },
   { name: 'co_debtors', order: 'id' },
@@ -52,7 +53,8 @@ const TABLES: { name: string; order: string; exclude?: string[] }[] = [
   { name: 'receipts', order: 'created_at, id' },
   { name: 'intake_events', order: 'created_at, id', exclude: ['upload_link_id'] },
   { name: 'extraction_corrections', order: 'created_at, id' },
-  { name: 'messages', order: 'created_at, id' },
+  // Las tareas no se respaldan: el vínculo del mensaje con la tarea que generaba su PDF se descarta (el PDF ya está vinculado).
+  { name: 'messages', order: 'created_at, id', exclude: ['document_task_id', 'locked_until'] },
   { name: 'audit_log', order: 'at, id', exclude: ['id'] },
 ];
 

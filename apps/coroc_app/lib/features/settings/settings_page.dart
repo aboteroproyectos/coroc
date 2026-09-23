@@ -24,6 +24,7 @@ import '../loans/loan_terms_form.dart' show percentToRate;
 import '../shell/app_shell.dart';
 import 'data_sections.dart';
 import 'intake_sections.dart';
+import 'messaging_sections.dart';
 
 void _toast(BuildContext context, String message) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 
@@ -63,8 +64,11 @@ class SettingsPage extends ConsumerWidget {
         gap,
         AutoRegistrationSection(canEdit: u.can('company.edit')),
         gap,
-        WhatsAppSection(canEdit: u.can('company.edit')),
+        WhatsAppSection(canEdit: u.can('company.edit'), isOwner: u.role == 'owner'),
+        gap,
+        EmailSenderSection(canEdit: u.can('company.edit')),
       ],
+      if (u.can('compliance.view')) ...[gap, ComplianceSection(canEdit: u.can('compliance.manage'), isOwner: u.role == 'owner')],
       if (u.can('users.view')) ...[gap, _UsersSection(me: u)],
       if (u.can('compliance.view')) ...[gap, _RateCapsSection(canManage: u.can('compliance.manage'), country: auth.company.country)],
       gap,

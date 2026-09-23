@@ -2935,5 +2935,781 @@
   "helpReceivingBody": "En Configuración registre las cuentas donde le pagan (titular, entidad y últimos 4 dígitos). El beneficiario de cada comprobante se compara con ellas sin tildes; si no coincide, el pago nunca se registra solo. Elija también el modo: «Automático con auditoría» registra al instante lo que es inequívoco y deja revertirlo durante un plazo; «Aprobación previa» manda todo a la Bandeja. La confianza mínima, la antigüedad máxima del comprobante y el plazo para revertir se ajustan allí mismo.",
   "@helpReceivingBody": {
     "description": "Fase 3 · Recepción y Bandeja"
+  },
+  "navMessages": "Mensajería",
+  "@navMessages": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "tabMessages": "Mensajes",
+  "@tabMessages": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "messagesSubtitle": "Recordatorios, recibos y avisos a tus clientes, siempre dentro de las reglas de contacto.",
+  "@messagesSubtitle": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "messagesAssistedHelp": "Modo asistido: COROC redacta cada mensaje y abre WhatsApp con el texto listo. Tú solo tocas «Enviar».",
+  "@messagesAssistedHelp": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "messagesTabReady": "Por enviar hoy",
+  "@messagesTabReady": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "messagesTabScheduled": "Programados",
+  "@messagesTabScheduled": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "messagesTabBlocked": "Bloqueados",
+  "@messagesTabBlocked": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "messagesTabHistory": "Historial",
+  "@messagesTabHistory": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "messagesEmpty": "No hay mensajes aquí.",
+  "@messagesEmpty": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "messagesEmptyReady": "Nada por enviar",
+  "@messagesEmptyReady": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "messagesEmptyReadyHelp": "Los mensajes del modo asistido aparecen aquí cuando llega su hora.",
+  "@messagesEmptyReadyHelp": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgEventWelcome": "Bienvenida y plan de pagos",
+  "@msgEventWelcome": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgEventReminder": "Recordatorio de cuota",
+  "@msgEventReminder": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgEventOverdue": "Cuota vencida",
+  "@msgEventOverdue": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgEventReceipt": "Pago recibido y recibo",
+  "@msgEventReceipt": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgEventStatement": "Estado de cuenta",
+  "@msgEventStatement": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgEventPayoff": "Paz y salvo",
+  "@msgEventPayoff": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgEventManual": "Mensaje manual",
+  "@msgEventManual": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgStatusScheduled": "Programado",
+  "@msgStatusScheduled": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgStatusReady": "Por enviar",
+  "@msgStatusReady": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgStatusSent": "Enviado",
+  "@msgStatusSent": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgStatusDelivered": "Entregado",
+  "@msgStatusDelivered": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgStatusRead": "Leído",
+  "@msgStatusRead": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgStatusFailed": "Fallido",
+  "@msgStatusFailed": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgStatusBlocked": "Bloqueado por regla",
+  "@msgStatusBlocked": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgStatusCancelled": "Descartado",
+  "@msgStatusCancelled": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgSendWhatsapp": "Enviar por WhatsApp",
+  "@msgSendWhatsapp": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgSendEmail": "Enviar correo",
+  "@msgSendEmail": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgSendNow": "Enviar ahora",
+  "@msgSendNow": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgDiscard": "Descartar",
+  "@msgDiscard": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgSharePdf": "Compartir PDF",
+  "@msgSharePdf": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgCannotOpen": "No se pudo abrir la aplicación. Revisa que WhatsApp o tu programa de correo estén instalados.",
+  "@msgCannotOpen": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgStatus": "Estado",
+  "@msgStatus": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgKind": "Tipo",
+  "@msgKind": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgKindCollection": "Cobranza",
+  "@msgKindCollection": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgKindTransactional": "Transaccional",
+  "@msgKindTransactional": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgRule": "Decisión del motor",
+  "@msgRule": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgRuleSet": "Reglas aplicadas",
+  "@msgRuleSet": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgScheduledAt": "Programado para",
+  "@msgScheduledAt": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgSentAt": "Enviado",
+  "@msgSentAt": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgDeliveredAt": "Entregado",
+  "@msgDeliveredAt": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgReadAt": "Leído",
+  "@msgReadAt": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgVia": "Canal usado",
+  "@msgVia": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgViaCloud": "WhatsApp automático (Cloud API)",
+  "@msgViaCloud": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "msgViaAssisted": "Modo asistido",
+  "@msgViaAssisted": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "ruleOutOfWindow": "fuera de franja",
+  "@ruleOutOfWindow": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "ruleHoliday": "festivo {day}",
+  "@ruleHoliday": {
+    "description": "Fase 4 · Mensajería y cumplimiento",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "ruleMaxPerDay": "ya hubo un contacto de cobranza el {day}",
+  "@ruleMaxPerDay": {
+    "description": "Fase 4 · Mensajería y cumplimiento",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "ruleChannelWeek": "esta semana ya se contactó por {channel}",
+  "@ruleChannelWeek": {
+    "description": "Fase 4 · Mensajería y cumplimiento",
+    "placeholders": {
+      "channel": {
+        "type": "String"
+      }
+    }
+  },
+  "ruleTransactionalImmediate": "envío inmediato de transaccionales",
+  "@ruleTransactionalImmediate": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "ruleDebtorException": "horario autorizado por el deudor",
+  "@ruleDebtorException": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "ruleNoConsent": "sin autorización para {channel}",
+  "@ruleNoConsent": {
+    "description": "Fase 4 · Mensajería y cumplimiento",
+    "placeholders": {
+      "channel": {
+        "type": "String"
+      }
+    }
+  },
+  "ruleOptedOut": "el cliente pidió no recibir más por {channel}",
+  "@ruleOptedOut": {
+    "description": "Fase 4 · Mensajería y cumplimiento",
+    "placeholders": {
+      "channel": {
+        "type": "String"
+      }
+    }
+  },
+  "ruleNoAddress": "el cliente no tiene correo",
+  "@ruleNoAddress": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "ruleAddressInvalid": "el correo del cliente rebotó",
+  "@ruleAddressInvalid": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "ruleContentBlocked": "el texto tiene contenido prohibido",
+  "@ruleContentBlocked": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "ruleLoanClosed": "el préstamo ya está pagado",
+  "@ruleLoanClosed": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "decisionRescheduled": "Reprogramado para {at}: {reasons}",
+  "@decisionRescheduled": {
+    "description": "Fase 4 · Mensajería y cumplimiento",
+    "placeholders": {
+      "at": {
+        "type": "String"
+      },
+      "reasons": {
+        "type": "String"
+      }
+    }
+  },
+  "decisionBlocked": "Bloqueado: {reasons}",
+  "@decisionBlocked": {
+    "description": "Fase 4 · Mensajería y cumplimiento",
+    "placeholders": {
+      "reasons": {
+        "type": "String"
+      }
+    }
+  },
+  "issueEmpty": "El texto está vacío.",
+  "@issueEmpty": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "issueTooLong": "Supera los 1.024 caracteres que admite WhatsApp.",
+  "@issueTooLong": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "issueUnknownVariable": "La variable {name} no existe.",
+  "@issueUnknownVariable": {
+    "description": "Fase 4 · Mensajería y cumplimiento",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "issueBraces": "Hay llaves sin cerrar: las variables se escriben así: {example}.",
+  "@issueBraces": {
+    "description": "Fase 4 · Mensajería y cumplimiento",
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
+  "issueThreat": "Amenaza o lenguaje intimidante: «{match}».",
+  "@issueThreat": {
+    "description": "Fase 4 · Mensajería y cumplimiento",
+    "placeholders": {
+      "match": {
+        "type": "String"
+      }
+    }
+  },
+  "issueAsksCause": "No se puede preguntar la causa del impago: «{match}».",
+  "@issueAsksCause": {
+    "description": "Fase 4 · Mensajería y cumplimiento",
+    "placeholders": {
+      "match": {
+        "type": "String"
+      }
+    }
+  },
+  "issueThirdParty": "No se puede mencionar a terceros: «{match}».",
+  "@issueThirdParty": {
+    "description": "Fase 4 · Mensajería y cumplimiento",
+    "placeholders": {
+      "match": {
+        "type": "String"
+      }
+    }
+  },
+  "issueSensitive": "No se pueden pedir números completos de tarjeta, cuenta, documento ni claves: «{match}».",
+  "@issueSensitive": {
+    "description": "Fase 4 · Mensajería y cumplimiento",
+    "placeholders": {
+      "match": {
+        "type": "String"
+      }
+    }
+  },
+  "templatesTitle": "Plantillas",
+  "@templatesTitle": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "templatesSubtitle": "Un texto por mensaje y por idioma. El cliente lo recibe en su idioma.",
+  "@templatesSubtitle": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "templatesPreviewWith": "Vista previa con un cliente",
+  "@templatesPreviewWith": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "templatesPreviewFor": "Vista previa: {name}",
+  "@templatesPreviewFor": {
+    "description": "Fase 4 · Mensajería y cumplimiento",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "templatesEvents": "Mensajes automáticos",
+  "@templatesEvents": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "templatesEventsHelp": "Activa cada mensaje por separado y elige por qué canales sale. Los de cobranza respetan siempre las reglas de contacto.",
+  "@templatesEventsHelp": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "templatesBody": "Texto del mensaje",
+  "@templatesBody": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "templatesSubject": "Asunto del correo",
+  "@templatesSubject": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "templatesVariables": "Variables (toca para insertar)",
+  "@templatesVariables": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "templatesPreview": "Así lo recibe el cliente",
+  "@templatesPreview": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "templatesChars": "{n} caracteres",
+  "@templatesChars": {
+    "description": "Fase 4 · Mensajería y cumplimiento",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "templatesCustom": "Personalizada",
+  "@templatesCustom": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "templatesDefault": "De COROC",
+  "@templatesDefault": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "templatesRestore": "Volver a la de COROC",
+  "@templatesRestore": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "templatesRestored": "Se restauró la plantilla de COROC.",
+  "@templatesRestored": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "templatesMetaTitle": "Plantilla aprobada por Meta",
+  "@templatesMetaTitle": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "templatesMetaHelp": "Solo para el modo automático: fuera de las 24 horas desde el último mensaje del cliente, WhatsApp solo permite plantillas aprobadas.",
+  "@templatesMetaHelp": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "templatesMetaName": "Nombre de la plantilla en Meta",
+  "@templatesMetaName": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "templatesMetaLang": "Código de idioma en Meta (es, pt_BR, en_US)",
+  "@templatesMetaLang": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "clientMessagesHistory": "Historial de mensajes",
+  "@clientMessagesHistory": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "composeTitle": "Enviar un mensaje",
+  "@composeTitle": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "composeHelp": "Pasa por el validador y por las reglas de contacto: si no se puede enviar ahora, queda programado o bloqueado con la regla.",
+  "@composeHelp": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "composeEvent": "Mensaje",
+  "@composeEvent": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "composeText": "Texto",
+  "@composeText": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "composeTextHelp": "Puedes usar variables como {first} o {second}.",
+  "@composeTextHelp": {
+    "description": "Fase 4 · Mensajería y cumplimiento",
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "second": {
+        "type": "String"
+      }
+    }
+  },
+  "composeQueue": "Poner en cola",
+  "@composeQueue": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "emailBounced": "El correo de este cliente rebotó: COROC no lo volverá a usar hasta que lo corrijas.",
+  "@emailBounced": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "emailComplained": "El cliente marcó un correo como no deseado: ya no recibe correos.",
+  "@emailComplained": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "exceptionTitle": "Horario autorizado por el deudor",
+  "@exceptionTitle": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "exceptionHelp": "Si el deudor autorizó por escrito otros horarios (en un documento distinto del contrato y posterior a él), súbelo a sus documentos y regístralo aquí. Aplica solo a este deudor.",
+  "@exceptionHelp": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "exceptionNone": "Sin excepción: aplican las franjas de la empresa.",
+  "@exceptionNone": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "exceptionWindows": "Franjas autorizadas",
+  "@exceptionWindows": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "exceptionGranted": "Registrada",
+  "@exceptionGranted": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "exceptionAdd": "Registrar excepción",
+  "@exceptionAdd": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "exceptionDays": "Días",
+  "@exceptionDays": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "exceptionFrom": "Desde",
+  "@exceptionFrom": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "exceptionTo": "Hasta",
+  "@exceptionTo": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "exceptionEvidence": "Documento de evidencia",
+  "@exceptionEvidence": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "exceptionEvidenceHelp": "La autorización firmada por el deudor",
+  "@exceptionEvidenceHelp": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "exceptionNeedsDocument": "Primero sube a los documentos del cliente la autorización firmada.",
+  "@exceptionNeedsDocument": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "complianceTitle": "Reglas de contacto",
+  "@complianceTitle": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "complianceHelp": "Deciden cuándo sale cada mensaje, en la hora local del deudor. Lo que cae fuera de franja se reprograma solo y cada decisión queda registrada.",
+  "@complianceHelp": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "compliancePreset": "Preset legal",
+  "@compliancePreset": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "complianceApplied": "Reglas vigentes",
+  "@complianceApplied": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "complianceWindows": "Franjas",
+  "@complianceWindows": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "complianceLimits": "Límites",
+  "@complianceLimits": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "complianceNoHolidays": "nunca festivos",
+  "@complianceNoHolidays": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "complianceMaxPerDay": "{n, plural, =1{un contacto de cobranza por día} other{{n} contactos de cobranza por día}}",
+  "@complianceMaxPerDay": {
+    "description": "Fase 4 · Mensajería y cumplimiento",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "complianceSingleChannel": "un canal por semana",
+  "@complianceSingleChannel": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "complianceLegal": "Fundamento",
+  "@complianceLegal": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "compliancePendingReview": "Este preset es una plantilla: mientras tu asesor legal no lo revise, COROC aplica el de Colombia, que es el más restrictivo.",
+  "@compliancePendingReview": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "complianceCounselReviewed": "Revisado por el asesor legal",
+  "@complianceCounselReviewed": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "complianceCounselHelp": "Lo declara el Propietario después de revisarlo con su asesor.",
+  "@complianceCounselHelp": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "complianceTransactionalImmediate": "Enviar transaccionales de inmediato",
+  "@complianceTransactionalImmediate": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "complianceTransactionalImmediateHelp": "Recibos, paz y salvo, bienvenida y estados de cuenta salen al momento, aun fuera de franja. Por defecto también respetan las franjas.",
+  "@complianceTransactionalImmediateHelp": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "complianceDailyReminders": "Recordatorios en préstamos diarios",
+  "@complianceDailyReminders": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "complianceDailyRemindersHelp": "Apagado por defecto: con cuotas diarias serían un mensaje de cobranza cada día.",
+  "@complianceDailyRemindersHelp": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "complianceReminderTime": "Hora de los recordatorios",
+  "@complianceReminderTime": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "complianceReminderTimeHelp": "1 día antes y el día del vencimiento, en la hora local del deudor",
+  "@complianceReminderTimeHelp": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "presetColombia": "Colombia · Ley 2300 de 2023",
+  "@presetColombia": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "presetBrazil": "Brasil · Código de Defensa del Consumidor (plantilla)",
+  "@presetBrazil": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "presetUsa": "EE. UU. · FDCPA y Regulation F (plantilla)",
+  "@presetUsa": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "emailSenderTitle": "Correo saliente",
+  "@emailSenderTitle": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "emailSenderHelp": "Los recibos, planes y estados de cuenta llegan como PDF adjunto. Para que salgan desde el dominio de tu empresa, configura SPF, DKIM y DMARC.",
+  "@emailSenderHelp": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "emailProvider": "Proveedor",
+  "@emailProvider": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "emailProviderLocal": "Local (desarrollo)",
+  "@emailProviderLocal": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "emailProviderMissing": "El servidor no tiene proveedor de correo: los correos quedan en «Por enviar hoy» para enviarlos desde tu programa de correo.",
+  "@emailProviderMissing": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "emailSenderCurrent": "Remitente",
+  "@emailSenderCurrent": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "emailSenderVerified": "Dominio verificado",
+  "@emailSenderVerified": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "emailSenderPending": "Falta verificar {email}: mientras tanto se usa el remitente de COROC con el nombre de tu empresa.",
+  "@emailSenderPending": {
+    "description": "Fase 4 · Mensajería y cumplimiento",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "emailSenderConfigure": "Usar mi dominio",
+  "@emailSenderConfigure": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "emailSenderVerify": "Verificar DNS",
+  "@emailSenderVerify": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "emailSenderUseDefault": "Usar el de COROC",
+  "@emailSenderUseDefault": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "emailSenderFrom": "Correo del remitente",
+  "@emailSenderFrom": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "emailSenderName": "Nombre que ve el cliente",
+  "@emailSenderName": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "emailSenderSelector": "Selector DKIM",
+  "@emailSenderSelector": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "emailSenderSelectorHelp": "Lo entrega tu proveedor de correo junto con la clave pública",
+  "@emailSenderSelectorHelp": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "whatsappWabaId": "Id de la cuenta de WhatsApp Business",
+  "@whatsappWabaId": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "whatsappWabaIdHelp": "Necesario para el modo automático: por ahí llegan los avisos de suspensión",
+  "@whatsappWabaIdHelp": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "whatsappSuspended": "Cuenta suspendida por Meta",
+  "@whatsappSuspended": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "whatsappSuspendedBanner": "Meta suspendió la cuenta de WhatsApp Business. COROC pasó al modo asistido: ningún mensaje se perdió y los pendientes están en «Por enviar hoy».",
+  "@whatsappSuspendedBanner": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "whatsappModeTitle": "Modo de envío",
+  "@whatsappModeTitle": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "whatsappModeAssisted": "Asistido",
+  "@whatsappModeAssisted": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "whatsappModeCloud": "Automático (Cloud API)",
+  "@whatsappModeCloud": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "whatsappModeAssistedHelp": "COROC redacta y programa; tú confirmas cada envío con un toque. No depende de Meta.",
+  "@whatsappModeAssistedHelp": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "whatsappModeCloudHelp": "Los mensajes salen solos por la API de Meta. Si Meta suspende la cuenta, COROC vuelve al modo asistido sin perder mensajes.",
+  "@whatsappModeCloudHelp": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "whatsappModeOwnerOnly": "Solo el Propietario puede activar el modo automático.",
+  "@whatsappModeOwnerOnly": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "whatsappChecklistTitle": "Antes de activar el modo automático",
+  "@whatsappChecklistTitle": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "whatsappPolicyWarning": "La Política de Mensajería de WhatsApp Business prohíbe usarlo para cobranza de deudas y préstamos entre pares, sin importar las licencias. Meta puede suspender la cuenta; si pasa, COROC vuelve solo al modo asistido.",
+  "@whatsappPolicyWarning": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "whatsappCheckBusiness": "El negocio está verificado en Meta",
+  "@whatsappCheckBusiness": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "whatsappCheckNumber": "El número es dedicado a COROC",
+  "@whatsappCheckNumber": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "whatsappCheckTemplates": "Las plantillas de utilidad están aprobadas y registradas en COROC",
+  "@whatsappCheckTemplates": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "whatsappCheckLegal": "Un asesor legal revisó que nuestro caso de uso es admisible para Meta",
+  "@whatsappCheckLegal": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "whatsappCheckPolicy": "Acepto la política de Meta y sus riesgos (queda en la bitácora)",
+  "@whatsappCheckPolicy": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "whatsappActivateCloud": "Activar modo automático",
+  "@whatsappActivateCloud": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "helpMessagingTitle": "Mensajes automáticos y modo asistido",
+  "@helpMessagingTitle": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "helpMessagingBody": "COROC envía seis mensajes automáticos: bienvenida con el plan de pagos, recordatorio de cuota (1 día antes y el día del vencimiento), pago recibido con su recibo, cuota vencida (1 día después), estado de cuenta mensual y paz y salvo. Cada uno se activa por separado y tiene su plantilla en cada idioma en Mensajería › Plantillas.\n\nEn el modo asistido COROC redacta cada mensaje y lo deja en «Por enviar hoy»: al tocar «Enviar por WhatsApp» se vuelven a revisar las reglas y se abre WhatsApp con el texto listo; tú solo tocas «Enviar». Los recibos van con un enlace seguro de descarga (30 días) y, en el celular, puedes compartir el PDF directo al chat. Cada mensaje queda en el historial del cliente con su estado.",
+  "@helpMessagingBody": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "helpContactRulesTitle": "Reglas de contacto (Ley 2300)",
+  "@helpContactRulesTitle": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "helpContactRulesBody": "En Colombia aplica la Ley 2300 de 2023: los mensajes de cobranza solo salen de lunes a viernes de 7:00 a. m. a 7:00 p. m. y los sábados de 8:00 a. m. a 3:00 p. m., nunca domingos ni festivos, siempre en la hora local del deudor; como máximo un contacto de cobranza por día y un solo canal por semana. Lo que cae fuera de franja se reprograma solo al inicio de la siguiente franja válida, y cada decisión queda registrada con su motivo.\n\nLos mensajes transaccionales (recibo, paz y salvo, bienvenida y estado de cuenta) también respetan las franjas por defecto. El propietario puede habilitar su envío inmediato en Configuración › Reglas de contacto: es una decisión de la empresa y queda en la bitácora.\n\nSi un deudor autoriza por escrito otros horarios, en un documento distinto del contrato y posterior a él, súbelo a sus documentos y registra la excepción en su ficha. Los presets de Brasil y EE. UU. son plantillas: hasta que tu asesor legal los revise, COROC aplica el de Colombia.",
+  "@helpContactRulesBody": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "helpWhatsappModesTitle": "WhatsApp: modo asistido y automático",
+  "@helpWhatsappModesTitle": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "helpWhatsappModesBody": "La Política de Mensajería de WhatsApp Business prohíbe usar WhatsApp para cobranza de deudas y préstamos entre pares, sin importar las licencias. Por eso COROC funciona completo sin la API de Meta: el modo asistido está activo desde el primer día.\n\nEl modo automático (Cloud API) envía los mensajes solo, con plantillas aprobadas por Meta fuera de la ventana de 24 horas. Solo se activa con la lista de verificación completa y la aceptación del propietario. Si Meta rechaza o suspende la cuenta, COROC pasa solo al modo asistido: ningún mensaje se pierde, los pendientes quedan en «Por enviar hoy» y el propietario recibe un aviso por correo y en la app.\n\nCOROC nunca usa librerías no oficiales ni automatiza WhatsApp Web: violan los términos de WhatsApp y exponen el número a bloqueo permanente.",
+  "@helpWhatsappModesBody": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "helpOptOutTitle": "Consentimiento y exclusión",
+  "@helpOptOutTitle": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "helpOptOutBody": "Ningún mensaje sale sin la autorización del deudor para ese canal (WhatsApp o correo), registrada con fecha y método en su ficha. El deudor puede dejar de recibir mensajes cuando quiera: respondiendo SALIR, SAIR o STOP por WhatsApp, con el botón de su portal o con el enlace de baja del correo. La exclusión se aplica de inmediato y bloquea lo que estaba pendiente.\n\nSi un correo rebota, la dirección se marca como inválida en la ficha del cliente y no se vuelve a usar hasta que la corrijas. Los mensajes nunca contienen amenazas, preguntas sobre la causa del impago, menciones a terceros ni piden números completos de tarjeta, cuenta o documento: el validador de plantillas lo impide.",
+  "@helpOptOutBody": {
+    "description": "Fase 4 · Mensajería y cumplimiento"
   }
 }

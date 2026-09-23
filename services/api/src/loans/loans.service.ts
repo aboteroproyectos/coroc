@@ -21,6 +21,7 @@ import type { TenantInfo } from '../company/tenant-cache.js';
 import { EventBus } from '../dashboard/event-bus.js';
 import type { Tx } from '../db/db.service.js';
 import { DocumentTasks } from '../documents/tasks.js';
+import { MessagingService } from '../messaging/messaging.service.js';
 import { LoanStateService, termsOf, type LoadedLoan } from './loan-state.service.js';
 
 export interface LoanTermsInput {
@@ -69,6 +70,7 @@ export class LoansService {
     private readonly bus: EventBus,
     private readonly clock: Clock,
     private readonly tasks: DocumentTasks,
+    private readonly messaging: MessagingService,
   ) {}
 
   toTerms(input: LoanTermsInput, tenant: TenantInfo): LoanTerms {
@@ -164,9 +166,11 @@ export class LoansService {
       [loan!.id, terms.disbursementDate, terms.principal, auth.userId],
     );
     // Contrato y plan de pagos en PDF (§8.3): se genera después del commit y queda en el repositorio y la carpeta.
-    await this.tasks.enqueue(tx, { kind: 'schedule', loanId: loan!.id, dedupeKey: `schedule:${loan!.id}`, createdBy: auth.userId });
+    const scheduleTask = await this.tasks.enqueue(tx, { kind: 'schedule', loanId: loan!.id, dedupeKey: `schedule:${loan!.id}`, createdBy: auth.userId });
     const loaded = (await this.state.load(tx, loan!.id))!;
     const r = await this.state.recompute(tx, loaded, this.clock.today(tenant.timezone));
+    // «Bienvenida + plan de pagos» (§11.3), sujeta al consentimiento y a las reglas de contacto; el plan va adjunto.
+    await this.messaging.enqueueTx(tx, auth.tenantId, { event: 'welcome', loanId: loan!.id, documentTaskId: scheduleTask, dedupeKey: `welcome:${loan!.id}`, createdBy: auth.userId });
     await this.audit.log(tx, 'loan.created', 'loan', loan!.id, { after: { contract, ...termsJson(terms), totalPayable: s.totalPayable, effectiveAnnualRate: ea } });
     return { loaded, replay: r };
   }
@@ -215,6 +219,7 @@ export class LoansService {
 
   publishCreated(auth: AuthContext, clientId: string, collectorId: string | null, loanId: string): void {
     this.tasks.kick();
+    this.messaging.kick();
     this.bus.publish({ type: 'loan.created', tenantId: auth.tenantId, clientId, collectorId, data: { loanId, clientId } });
     this.bus.publish({ type: 'dashboard.changed', tenantId: auth.tenantId, clientId, collectorId, data: {} });
   }

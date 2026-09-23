@@ -1,6 +1,26 @@
 # COROC · Estado de los criterios de aceptación (§22)
 
-Corte: 23 de septiembre de 2026 · Fase 3.
+Corte: 23 de septiembre de 2026 · Fase 4.
+
+## Fase 4: cierre por el servidor
+
+La Fase 4 se cierra con CA-10, CA-11 y CA-20 (§23). Los tres se verificaron por la API real: PostgreSQL 16 con RLS, el motor de reglas en la hora local del deudor (America/Bogota), el despachador de mensajes, el correo saliente en memoria y la Cloud API de WhatsApp con un Graph API de prueba que responde como Meta, incluido el error 131031 de cuenta bloqueada.
+
+| ID | Resultado por la API | Prueba |
+|---|---|---|
+| CA-10 | ✅ Un recordatorio de cobranza pedido el domingo 11-oct-2026 a las 10:00 queda programado para el martes 13-oct-2026 a las 07:00 (12:00 UTC), con los motivos «fuera de franja» y «festivo 12-oct». El despachador no lo envía antes de esa hora | `services/api/test/messaging.test.ts` · «CA-10» |
+| CA-11 | ✅ El martes, después de que salió el recordatorio, un segundo mensaje de cobranza al mismo deudor queda bloqueado con la regla `MAX_PER_DAY` (13-oct-2026) y aparece en «Bloqueados». La simulación del motor da lo mismo para un correo: el cupo del día es por deudor, no por canal | «CA-11» |
+| CA-20 | ✅ Con la Cloud API activa, el mensaje sale con la plantilla aprobada y registra entregado y leído. Si Meta responde 131031 (cuenta bloqueada), la empresa pasa sola al modo asistido: solo ese intento llega a Meta, los mensajes en cola quedan en «Por enviar hoy» con el enlace de WhatsApp listo, ninguno se pierde ni falla, y el propietario recibe el aviso por correo. Un `account_update` de suspensión por webhook produce lo mismo | «CA-20» (dos pruebas) |
+
+Otras verificaciones de la Fase 4:
+- bienvenida con el plan de pagos en PDF adjunto al correo, logo incrustado y baja con un clic; WhatsApp en «Por enviar hoy» con el enlace de carga;
+- modo asistido: «Enviar» vuelve a aplicar las reglas y fuera de franja no se envía;
+- recibo con enlace seguro de descarga que abre el PDF;
+- plantillas: el validador bloquea amenazas; la vista previa usa los datos reales del préstamo;
+- programador: recordatorio a la hora configurada sin duplicados y aviso de cuota vencida;
+- exclusión con «Salir» por WhatsApp y baja del correo con un clic desde el enlace;
+- rebote duro: la dirección queda inválida en la ficha y el siguiente correo se bloquea;
+- presets sin revisión legal, excepción horaria del deudor con evidencia y remitente propio con SPF, DKIM y DMARC.
 
 ## Fase 3: cierre por el servidor
 
@@ -83,8 +103,8 @@ Otras verificaciones de la Fase 1:
 | CA-07 | Mismo comprobante por WhatsApp y luego por correo | ✅ Verde | Núcleo (huella lógica), base de datos (índice único parcial) y lectura real con OCR: el reenvío queda DUPLICADO |
 | CA-08 | Comprobante desde un número no registrado | ✅ Verde | Núcleo y app: queda «Sin asignar» con sugerencias; al asignarlo se ofrece guardar el número, que queda como secundario |
 | CA-09 | Beneficiario distinto de las cuentas receptoras | ✅ Verde | Núcleo: no se aplica, pasa a revisión con la alerta «El pago no se hizo a tus cuentas» |
-| CA-10 | Recordatorio el domingo 11-oct-2026 10:00 | ✅ Verde | Núcleo: reprogramado al martes 13-oct-2026 07:00, con la regla registrada |
-| CA-11 | Segundo mensaje de cobranza el mismo día | ✅ Verde | Núcleo: bloqueado con la regla `MAX_PER_DAY` |
+| CA-10 | Recordatorio el domingo 11-oct-2026 10:00 | ✅ Verde | Núcleo y API: reprogramado al martes 13-oct-2026 07:00, con la regla registrada |
+| CA-11 | Segundo mensaje de cobranza el mismo día | ✅ Verde | Núcleo y API: bloqueado con la regla `MAX_PER_DAY` |
 | CA-12 | Tasa efectiva por encima del tope | ✅ Verde | Núcleo y app: no se guarda; se informa la tasa máxima que cumple |
 | CA-13 | Respaldo y restauración | ✅ Verde | `apps/prototype/tools/verify.mjs`: se restauraron 183 de 183 documentos con la misma huella SHA-256 y 180 de 180 PDF abren. Se rechazan la contraseña errada y un byte alterado |
 | CA-14 | es → pt-BR → en con la app abierta | ✅ Verde | `apps/prototype/tools/e2e.mjs`: todas las vistas en los tres idiomas sin recargar; 0 cadenas sin traducir (676 entradas) |
@@ -93,7 +113,7 @@ Otras verificaciones de la Fase 1:
 | CA-17 | Empresa A lee datos de B | ✅ Verde | `services/api/db/test`: 18 de 18 pruebas en PostgreSQL 16 real con RLS forzada y rol sin BYPASSRLS |
 | CA-18 | Reverso de un pago | ✅ Verde | Contramovimiento en el libro, recibo ANULADO en el repositorio y en la carpeta, saldo y dashboard vuelven exactamente al valor anterior |
 | CA-19 | Precisión de extracción | ✅ Verde en la API con conjunto sintético (ver Fase 3) | Prototipo: 6 formatos de texto y 1 imagen con OCR real. Servidor: 43 comprobantes sintéticos. Falta el conjunto de 40 o más comprobantes reales anonimizados (pregunta P-3) |
-| CA-20 | Suspensión de la cuenta de WhatsApp Cloud API | ⏳ Fase 4 | Requiere el servidor y una cuenta de Meta. El modo asistido, que es el destino del cambio automático, ya funciona |
+| CA-20 | Suspensión de la cuenta de WhatsApp Cloud API | ✅ Verde | API con un Graph API de prueba: paso automático al modo asistido sin perder mensajes y aviso al propietario. Falta repetirlo con una cuenta real de Meta (P-4) |
 
 ## Otras verificaciones
 

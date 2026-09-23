@@ -165,11 +165,16 @@ export class FilesController {
   async download(@Param('token') token: string, @Query('download') dl: string | undefined, @Req() req: Request, @Res() res: Response): Promise<void> {
     const c = this.links.verify(token);
     if (!c) throw new Problem(410, 'LINK_EXPIRED');
-    const row = await this.db.tx({ tenantId: c.t }, (tx) =>
-      c.k === 'document'
-        ? tx.one<{ storage_key: string; size: number; mime: string; name: string; sha: string }>('SELECT storage_key, size_bytes AS size, mime, file_name AS name, sha256 AS sha FROM documents WHERE id = $1', [c.i])
-        : tx.one<{ storage_key: string; size: number; mime: string; name: string; sha: string }>("SELECT storage_key, size_bytes AS size, 'application/octet-stream' AS mime, file_name AS name, sha256 AS sha FROM backups WHERE id = $1 AND status = 'done'", [c.i]),
-    );
+    const row = await this.db.tx({ tenantId: c.t }, async (tx) => {
+      // Enlace de un mensaje (§11.1): el PDF que el mensaje entregó; si el mensaje ya no existe, el enlace muere con él.
+      const docId = c.k === 'message'
+        ? (await tx.one<{ d: string | null }>(`SELECT coalesce(m.attachment_document_id, t.document_id) AS d FROM messages m LEFT JOIN document_tasks t ON t.id = m.document_task_id WHERE m.id = $1`, [c.i]))?.d ?? null
+        : c.i;
+      if (c.k === 'message' && !docId) return null;
+      return c.k !== 'backup'
+        ? tx.one<{ storage_key: string; size: number; mime: string; name: string; sha: string }>('SELECT storage_key, size_bytes AS size, mime, file_name AS name, sha256 AS sha FROM documents WHERE id = $1', [docId])
+        : tx.one<{ storage_key: string; size: number; mime: string; name: string; sha: string }>("SELECT storage_key, size_bytes AS size, 'application/octet-stream' AS mime, file_name AS name, sha256 AS sha FROM backups WHERE id = $1 AND status = 'done'", [c.i]);
+    });
     if (!row?.storage_key) throw Problem.notFound();
     const size = Number(row.size);
     const range = parseRange(typeof req.headers.range === 'string' ? req.headers.range : undefined, size);

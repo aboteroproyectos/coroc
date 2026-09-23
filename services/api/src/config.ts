@@ -49,6 +49,24 @@ export interface AppConfig {
   inboundEmail: { domain: string | null; secret: string | null };
   /** WhatsApp Cloud API entrante (§12.1): firma de Meta, token de verificación y Graph API. */
   whatsapp: { appSecret: string | null; verifyToken: string | null; graphUrl: string; graphVersion: string };
+  /**
+   * Correo saliente (§11.2, §4.5): Postmark (API HTTP), SMTP propio o de Amazon SES, o memoria (desarrollo). `from` es
+   * el remitente de COROC cuando la empresa no verificó su dominio; `eventsSecret` protege el webhook de rebotes.
+   */
+  email: {
+    provider: 'postmark' | 'smtp' | 'memory' | 'none';
+    postmarkToken: string | null;
+    postmarkUrl: string;
+    postmarkStream: string;
+    smtpUrl: string | null;
+    from: string;
+    eventsSecret: string | null;
+    /** `include` de SPF del proveedor, para el asistente de dominio (Postmark: spf.mtasv.net). */
+    spfInclude: string | null;
+  };
+  /** Mensajería (§11): vigencia del enlace seguro de descarga del recibo (días) y despachador en este proceso. */
+  deliveryLinkDays: number;
+  messageWorker: 'on' | 'off' | 'inline';
 }
 
 function required(name: string): string {
@@ -105,6 +123,18 @@ export function loadConfig(env = process.env): AppConfig {
       graphUrl: (env.COROC_WHATSAPP_GRAPH_URL || 'https://graph.facebook.com').replace(/\/+$/, ''),
       graphVersion: env.COROC_WHATSAPP_GRAPH_VERSION || 'v23.0',
     },
+    email: {
+      provider: env.COROC_EMAIL_PROVIDER === 'postmark' ? 'postmark' : env.COROC_EMAIL_PROVIDER === 'smtp' ? 'smtp' : env.COROC_EMAIL_PROVIDER === 'memory' ? 'memory' : 'none',
+      postmarkToken: env.POSTMARK_SERVER_TOKEN || null,
+      postmarkUrl: (env.COROC_POSTMARK_URL || 'https://api.postmarkapp.com').replace(/\/+$/, ''),
+      postmarkStream: env.COROC_POSTMARK_STREAM || 'outbound',
+      smtpUrl: env.COROC_SMTP_URL || null,
+      from: env.COROC_EMAIL_FROM || 'notificaciones@coroc.app',
+      eventsSecret: env.COROC_EMAIL_EVENTS_SECRET || null,
+      spfInclude: env.COROC_EMAIL_SPF_INCLUDE || (env.COROC_EMAIL_PROVIDER === 'postmark' ? 'spf.mtasv.net' : null),
+    },
+    deliveryLinkDays: Math.min(365, Math.max(1, Number(env.COROC_DELIVERY_LINK_DAYS ?? 30))),
+    messageWorker: env.COROC_MESSAGE_WORKER === 'off' ? 'off' : env.COROC_MESSAGE_WORKER === 'inline' ? 'inline' : 'on',
   };
 }
 

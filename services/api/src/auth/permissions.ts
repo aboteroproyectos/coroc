@@ -8,6 +8,7 @@ export const PERMISSIONS = [
   'compliance.view', 'compliance.manage',
   'dashboard.view',
   'documents.upload', 'intake.view',
+  'messages.view', 'messages.send',
   'reports.view', 'audit.view',
   'backup.create', 'backup.restore', 'subscription.manage',
 ] as const;
@@ -19,8 +20,9 @@ export const ROLE_PERMISSIONS: Record<Role, ReadonlySet<Permission>> = {
   owner: ALL,
   admin: new Set(PERMISSIONS.filter((p) => p !== 'backup.restore' && p !== 'subscription.manage')),
   // Solo sus clientes asignados; puede registrar y validar pagos; no reversa ni ve informes globales.
-  collector: new Set<Permission>(['company.view', 'clients.view', 'payments.register', 'documents.upload', 'intake.view', 'dashboard.view']),
-  auditor: new Set<Permission>(['company.view', 'users.view', 'clients.view', 'compliance.view', 'dashboard.view', 'intake.view', 'reports.view', 'audit.view']),
+  collector: new Set<Permission>(['company.view', 'clients.view', 'payments.register', 'documents.upload', 'intake.view',
+  'messages.view', 'messages.send', 'dashboard.view']),
+  auditor: new Set<Permission>(['company.view', 'users.view', 'clients.view', 'compliance.view', 'dashboard.view', 'intake.view', 'reports.view', 'audit.view', 'messages.view']),
 };
 
 export const can = (role: Role, p: Permission): boolean => ROLE_PERMISSIONS[role]?.has(p) ?? false;
