@@ -17,7 +17,7 @@ let cachedLogo: string | null = null;
 export const esc = (s: unknown): string =>
   String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
-function logo(): string {
+export function logo(): string {
   if (!cachedLogo) {
     const svg = fs.readFileSync(path.join(ASSETS, 'brand/coroc-logo-horizontal.svg'), 'utf8');
     cachedLogo = `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;

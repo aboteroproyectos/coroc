@@ -41,6 +41,11 @@ import { ReportsController } from './reports/reports.controller.js';
 import { ReportsService } from './reports/reports.service.js';
 import { BackupsController, RestoresController } from './backup/backup.controller.js';
 import { BackupService } from './backup/backup.service.js';
+import { IntakeController, PortalController, UploadLinksController, WebhooksController, WhatsAppAccountController } from './intake/intake.controller.js';
+import { IntakeService } from './intake/intake.service.js';
+import { ReceiptExtractor } from './intake/extractor.js';
+import { ReceiptReader } from './intake/reader.js';
+import { UploadLinksService } from './intake/upload-links.service.js';
 
 @Controller('health')
 class HealthController {
@@ -69,7 +74,8 @@ function requestMetaMiddleware(req: Request, _res: Response, next: NextFunction)
 
 @Module({
   controllers: [HealthController, AuthController, MeController, UsersController, CompanyController, RateCapsController, ClientsController, LoansController, DashboardController,
-    DocumentsController, ClientDocumentsController, LoanDocumentsController, TasksController, FolderController, FilesController, PublicReceiptsController, ReportsController, BackupsController, RestoresController],
+    DocumentsController, ClientDocumentsController, LoanDocumentsController, TasksController, FolderController, FilesController, PublicReceiptsController, ReportsController, BackupsController, RestoresController,
+    IntakeController, UploadLinksController, PortalController, WebhooksController, WhatsAppAccountController],
   providers: [
     { provide: CONFIG, useFactory: () => loadConfig() },
     Clock,
@@ -96,6 +102,10 @@ function requestMetaMiddleware(req: Request, _res: Response, next: NextFunction)
     DocumentFactory,
     ReportsService,
     BackupService,
+    ReceiptReader,
+    ReceiptExtractor,
+    IntakeService,
+    UploadLinksService,
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_INTERCEPTOR, useClass: ContractInterceptor },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },

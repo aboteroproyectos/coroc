@@ -295,6 +295,25 @@ Confirmation code: ZL77889900`;
   });
 });
 
+describe('lectura de comprobantes: formularios y referencias (Fase 3)', () => {
+  const opts = { receivedOn: '2026-10-09', defaultCurrency: 'COP' as const };
+  it('formulario en tabla sin dos puntos: lee los nombres con confianza bajo el umbral', () => {
+    const x = extractFromText('BANCO DE BOGOTÁ\nComprobante de consignación\nBeneficiario Inversiones Coroc SAS\nRemitente Luz Ángela Martínez Rojas\nValor $ 38.000\nFecha 07/10/2026\nNúmero de comprobante R313821397', opts);
+    expect(x.receiverName).toEqual({ value: 'Inversiones Coroc SAS', confidence: 0.93 });
+    expect(x.payerName.value).toBe('Luz Ángela Martínez Rojas');
+    expect(x.reference.value).toBe('R313821397');
+    expect(x.amount.value).toBe(38_000);
+  });
+  it('referencia en el renglón siguiente a rótulos de varias palabras', () => {
+    const read = (label: string) => extractFromText(`Valor\n$ 60.000\n${label}\nA266305531`, opts).reference.value;
+    expect(read('Código de transacción')).toBe('A266305531');
+    expect(read('Número de giro')).toBe('A266305531');
+    expect(read('CUS / Referencia')).toBe('A266305531');
+    expect(read('Reference number')).toBe('A266305531');
+    expect(read('Autenticacáo')).toBe('A266305531');
+  });
+});
+
 describe('replayLoan y nombres de carpeta', () => {
   const plan = [1, 2, 3, 4].map((n) => ({ number: n, dueDate: `2026-10-0${n + 1}`, amount: 60000 }));
   it('aplica los pagos vigentes en orden de fecha y de registro', () => {

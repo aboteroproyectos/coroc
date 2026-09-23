@@ -30,6 +30,8 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 20
     env:
       TEST_DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
+      # En CI la lectura con OCR es obligatoria: sin Tesseract, las pruebas de CA-07 a CA-09 y CA-19 fallan en vez de omitirse.
+      COROC_REQUIRE_OCR: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -39,6 +41,8 @@ jobs:
       - run: npm ci
       - name: Chromium para los PDF (Playwright)
         run: npx playwright-core install --with-deps chromium-headless-shell
+      - name: Tesseract y Poppler para la lectura de comprobantes (Fase 3)
+        run: sudo apt-get update -q && sudo apt-get install -y -q tesseract-ocr tesseract-ocr-spa tesseract-ocr-por tesseract-ocr-eng poppler-utils
       - name: Compilar
         run: npm run build
       - name: Tipos (incluye pruebas)
@@ -47,7 +51,7 @@ jobs:
         run: npm run lint:i18n
       - name: Contrato OpenAPI
         run: npx --yes @redocly/cli@1 lint services/api/openapi.yaml --format=github-actions
-      - name: Pruebas (núcleo, aceptación CA-01…06/12/13/14/15/16/17/18, documentos, contrato)
+      - name: Pruebas (núcleo, aceptación CA-01…09/12…19, documentos, recepción, contrato)
         run: npm test
 
   docker:

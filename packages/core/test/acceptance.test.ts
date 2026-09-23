@@ -137,6 +137,8 @@ describe('Recepción de documentos', () => {
     // Captura distinta (otro hash) del mismo pago
     const key2 = logicalFingerprint({ reference: 'm-1234567', amount: 60_000, date: '2026-10-09', entity: 'NEQUI' });
     expect(isDuplicate('sha-b', key2, files, logical)).toBe('logical');
+    // El mismo comprobante leído de un PDF (con el nombre del banco) y de una foto (sin él) tiene la misma huella.
+    expect(logicalFingerprint({ reference: 'M1234567', amount: 60_000, date: '2026-10-09' })).toBe(key);
     const decision = decideAutoApply({ status: 'identified', clientId: 'c1', candidates: [] }, { loanId: 'l1', rule: 'single' }, { flags: [], autoEligible: true }, 'logical', 'auto_with_audit');
     expect(decision).toBe('duplicate');
   });

@@ -35,6 +35,20 @@ export interface AppConfig {
   linkTtlSeconds: number;
   /** Tamaño máximo de un `.coroc` que se sube para restaurar. */
   restoreMaxBytes: number;
+  /** Lectura de comprobantes (§13.2): OCR local con Tesseract o desactivado. */
+  ocr: { provider: 'tesseract' | 'none'; tesseract: string; pdftoppm: string; langs: string; maxPages: number };
+  /**
+   * Extracción de campos (§13.3, ADR-017): 'rules' (lector por reglas de @coroc/core) o 'claude' (IA con visión y
+   * salida JSON validada, verificada por las reglas). La clave de la API nunca pasa por la base de datos.
+   */
+  extraction: { provider: 'rules' | 'claude'; model: string; apiKey: string | null; timeoutMs: number };
+  /** Portal del deudor (§12.3): base del enlace personal de carga y su vigencia en días. */
+  portalUrlBase: string;
+  uploadLinkDays: number;
+  /** Correo entrante (§12.2): dominio de las direcciones `pagos-<empresa>@…` y secreto del webhook del proveedor. */
+  inboundEmail: { domain: string | null; secret: string | null };
+  /** WhatsApp Cloud API entrante (§12.1): firma de Meta, token de verificación y Graph API. */
+  whatsapp: { appSecret: string | null; verifyToken: string | null; graphUrl: string; graphVersion: string };
 }
 
 function required(name: string): string {
@@ -69,6 +83,28 @@ export function loadConfig(env = process.env): AppConfig {
     documentWorker: env.COROC_DOCUMENT_WORKER === 'off' ? 'off' : env.COROC_DOCUMENT_WORKER === 'inline' ? 'inline' : 'on',
     restoreMaxBytes: Number(env.COROC_RESTORE_MAX_BYTES ?? 20 * 1024 ** 3),
     linkTtlSeconds: Math.min(3600, Math.max(30, Number(env.COROC_LINK_TTL ?? 300))),
+    ocr: {
+      provider: env.COROC_OCR === 'none' ? 'none' : 'tesseract',
+      tesseract: env.COROC_TESSERACT_PATH || 'tesseract',
+      pdftoppm: env.COROC_PDFTOPPM_PATH || 'pdftoppm',
+      langs: env.COROC_OCR_LANGS || 'spa+por+eng',
+      maxPages: Math.min(10, Math.max(1, Number(env.COROC_OCR_MAX_PAGES ?? 3))),
+    },
+    extraction: {
+      provider: env.COROC_EXTRACTION === 'claude' ? 'claude' : 'rules',
+      model: env.COROC_EXTRACTION_MODEL || 'claude-opus-5',
+      apiKey: env.ANTHROPIC_API_KEY || null,
+      timeoutMs: Number(env.COROC_EXTRACTION_TIMEOUT_MS ?? 120_000),
+    },
+    portalUrlBase: (env.COROC_PORTAL_URL ?? `${(env.COROC_API_PUBLIC_URL ?? `http://localhost:${env.PORT ?? 3000}`).replace(/\/+$/, '')}/v1/public/upload/`),
+    uploadLinkDays: Math.min(730, Math.max(1, Number(env.COROC_UPLOAD_LINK_DAYS ?? 365))),
+    inboundEmail: { domain: env.COROC_INBOUND_EMAIL_DOMAIN?.toLowerCase() || null, secret: env.COROC_INBOUND_EMAIL_SECRET || null },
+    whatsapp: {
+      appSecret: env.COROC_WHATSAPP_APP_SECRET || null,
+      verifyToken: env.COROC_WHATSAPP_VERIFY_TOKEN || null,
+      graphUrl: (env.COROC_WHATSAPP_GRAPH_URL || 'https://graph.facebook.com').replace(/\/+$/, ''),
+      graphVersion: env.COROC_WHATSAPP_GRAPH_VERSION || 'v23.0',
+    },
   };
 }
 

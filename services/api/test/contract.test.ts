@@ -23,7 +23,7 @@ describe('Contrato OpenAPI 3.1 como fuente de verdad', () => {
     for (const f of src) {
       const text = fs.readFileSync(f, 'utf8');
       const controllers = [...text.matchAll(/@Controller\((?:'([^']*)')?\)/g)].map((c) => ({ at: c.index!, base: c[1] ?? '' }));
-      for (const m of text.matchAll(/@(Get|Post|Patch|Delete|Sse)\(([^)]*)\)\s*(?:@\w+\([^)]*\)\s*)*@Op\('([A-Za-z]+)'\)/g)) {
+      for (const m of text.matchAll(/@(Get|Post|Put|Patch|Delete|Sse)\(([^)]*)\)\s*(?:@\w+\([^)]*\)\s*)*@Op\('([A-Za-z]+)'\)/g)) {
         const base = controllers.filter((c) => c.at < m.index!).at(-1)?.base ?? '';
         const sub = m[2]!.replace(/'/g, '');
         const route = `/${[base, sub].filter(Boolean).join('/')}`.replace(/:(\w+)/g, '{$1}');
