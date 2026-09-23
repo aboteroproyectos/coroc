@@ -27,10 +27,10 @@ export const PORTAL_CSP = "default-src 'none'; style-src 'unsafe-inline'; img-sr
 
 const LANG_LINKS: [Lang, string][] = [['es', 'ES'], ['pt-BR', 'PT'], ['en', 'EN']];
 
-function page(lang: Lang, title: string, body: string, self?: string): string {
+export function page(lang: Lang, title: string, body: string, self?: string, opts: { index?: boolean } = {}): string {
   const nav = self ? `<nav>${LANG_LINKS.map(([l, label]) => `<a href="${esc(self)}?lang=${l}"${l === lang ? ' aria-current="true"' : ''}>${label}</a>`).join('')}</nav>` : '';
   return `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><title>COROC · ${esc(title)}</title><style>${CSS}</style></head>
+<meta name="robots" content="${opts.index ? 'index,follow' : 'noindex,nofollow'}"><meta name="referrer" content="no-referrer"><title>COROC · ${esc(title)}</title><style>${CSS}</style></head>
 <body><main><header><img src="${logo()}" alt="COROC">${nav}</header>${body}<footer>${esc(t(lang, 'portal.privacy'))}<br>${esc(t(lang, 'doc.common.generatedBy'))}</footer></main></body></html>`;
 }
 

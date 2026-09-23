@@ -881,5 +881,6 @@
   "offlineDiscard": "Descartar",
   "offlineQueueTitle": "Pagamentos registrados sem conexão",
   "offlineQueueHelp": "São enviados em ordem com a mesma chave: se algum já tinha chegado, o servidor não duplica. Se o servidor recusar algum (por exemplo, o empréstimo já foi quitado ou o cliente mudou de cobrador), ele fica em conflito com o motivo: revise o empréstimo e registre de novo se for o caso, ou descarte.",
-  "offlineSyncNow": "Enviar agora"
+  "offlineSyncNow": "Enviar agora",
+  "aboutPrivacyPolicy": "Política de privacidade"
 }

@@ -881,5 +881,6 @@
   "offlineDiscard": "Discard",
   "offlineQueueTitle": "Payments recorded offline",
   "offlineQueueHelp": "They are sent in order with the same key: if one had already arrived, the server does not duplicate it. If the server rejects one (for example, the loan is already paid off or the customer changed collector), it stays in conflict with the reason: review the loan and record it again if appropriate, or discard it.",
-  "offlineSyncNow": "Send now"
+  "offlineSyncNow": "Send now",
+  "aboutPrivacyPolicy": "Privacy policy"
 }

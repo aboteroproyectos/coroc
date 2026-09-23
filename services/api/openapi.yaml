@@ -2096,6 +2096,39 @@ paths:
               schema: { $ref: '#/components/schemas/ReceiptVerification' }
         '429': { $ref: '#/components/responses/Problem' }
 
+  /public/privacy:
+    get:
+      tags: [public]
+      operationId: privacyPolicy
+      summary: Política de privacidad pública (la enlazan Google Play, App Store, la app y el portal)
+      description: Con `Accept text/html` responde la página; si no, JSON. Idioma por `lang` o por Accept-Language.
+      security: []
+      parameters:
+        - { name: lang, in: query, schema: { $ref: '#/components/schemas/Lang' } }
+      responses:
+        '200':
+          description: Política vigente
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [version, lang, title, updated, intro, sections]
+                properties:
+                  version: { type: string, format: date }
+                  lang: { $ref: '#/components/schemas/Lang' }
+                  title: { type: string }
+                  updated: { type: string }
+                  intro: { type: string }
+                  sections:
+                    type: array
+                    items:
+                      type: object
+                      required: [h, p]
+                      properties:
+                        h: { type: string }
+                        p: { type: array, items: { type: string } }
+        '4XX': { $ref: '#/components/responses/Problem' }
+
   /webhooks/whatsapp:
     get:
       tags: [webhooks]

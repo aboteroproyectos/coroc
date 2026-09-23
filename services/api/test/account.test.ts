@@ -51,3 +51,27 @@ describe('Eliminación de cuentas desde la app (ADR-056)', () => {
     expect(again.body.code).toBe('COMPANY_CLOSED');
   });
 });
+
+describe('Política de privacidad pública (§20.4)', () => {
+  let t: T;
+  beforeAll(async () => {
+    t = await bootApp();
+  });
+  afterAll(async () => t.app.close());
+
+  it('se publica en los tres idiomas, en HTML indexable y en JSON, sin sesión', async () => {
+    for (const [lang, title, law] of [['es', 'Política de privacidad', 'Ley 1581 de 2012'], ['pt-BR', 'Política de privacidade', 'LGPD'], ['en', 'Privacy policy', 'Law 1581 of 2012']] as const) {
+      const json = await t.http().get('/v1/public/privacy').query({ lang }).set('Accept', 'application/json').expect(200);
+      expectContract('privacyPolicy', 200, json.body);
+      expect(json.body).toMatchObject({ lang, title });
+      expect(JSON.stringify(json.body)).toContain(law);
+      expect(JSON.stringify(json.body)).toMatch(/(no ofrece ni otorga|não oferece nem concede|does not offer or grant)/i);
+    }
+    const html = await t.http().get('/v1/public/privacy').set('Accept', 'text/html').set('Accept-Language', 'pt-BR,pt;q=0.9').expect(200);
+    expect(html.text).toContain('Política de privacidade');
+    expect(html.text).toContain('index,follow');
+    expect(html.text).not.toContain('<script');
+    expect(html.headers['content-security-policy']).toContain("default-src 'none'");
+    expect(html.headers['cache-control']).toBe('public, max-age=3600');
+  });
+});

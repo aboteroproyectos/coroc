@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../core/api/api_exception.dart';
@@ -1064,6 +1065,15 @@ class _About extends StatelessWidget {
         KeyValue(l.companyCode, company.slug),
         const SizedBox(height: CorocSpace.sm),
         Text(l.aboutPrivacy, style: Theme.of(context).textTheme.bodySmall),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+            onPressed: () => launchUrl(Uri.parse('${AppConfig.apiBaseUrl}/public/privacy?lang=${context.lang == 'pt' ? 'pt-BR' : context.lang}'), mode: LaunchMode.externalApplication),
+            icon: const Icon(Icons.privacy_tip_outlined),
+            label: Text(l.aboutPrivacyPolicy),
+          ),
+        ),
       ]),
     );
   }

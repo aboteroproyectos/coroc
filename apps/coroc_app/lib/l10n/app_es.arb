@@ -3970,5 +3970,9 @@
   "offlineSyncNow": "Enviar ahora",
   "@offlineSyncNow": {
     "description": "Fase 5 · Modo sin conexión"
+  },
+  "aboutPrivacyPolicy": "Política de privacidad",
+  "@aboutPrivacyPolicy": {
+    "description": "Fase 5 · Enlace a la política de privacidad pública"
   }
 }
