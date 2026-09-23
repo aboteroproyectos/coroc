@@ -19,6 +19,7 @@ import '../../design/widgets/common.dart';
 import '../documents/documents.dart';
 import '../loans/loan_providers.dart';
 import 'inbox_page.dart';
+import '../settings/support_section.dart' show IntakeTraceCard;
 
 final intakeItemProvider = FutureProvider.autoDispose.family<IntakeItem, String>((ref, id) => ref.watch(apiProvider).intakeItem(id));
 
@@ -515,6 +516,7 @@ class _IntakeFormState extends ConsumerState<_IntakeForm> {
                 trailing: it.receiptDocumentId == null ? null : TextButton(onPressed: () => openDocument(context, it.receiptDocumentId!), child: Text(l.intakeOpenReceipt)),
               ),
             ),
+          if (it.status != 'processing') ...[const SizedBox(height: CorocSpace.md), IntakeTraceCard(intakeId: it.id)],
           if (it.revertible && canRevert)
             Align(alignment: Alignment.centerRight, child: OutlinedButton.icon(onPressed: _busy ? null : _revert, icon: const Icon(Icons.undo), label: Text(l.intakeRevert))),
           Align(alignment: Alignment.centerRight, child: TextButton.icon(onPressed: () => openDocument(context, it.documentId), icon: const Icon(Icons.open_in_new, size: 18), label: Text(l.intakeOpenFile))),

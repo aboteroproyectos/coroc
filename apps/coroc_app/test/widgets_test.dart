@@ -13,8 +13,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'support.dart';
 
 /// App mínima con los tres idiomas y el tema de COROC, sin red ni almacenamiento de plataforma.
-Widget harness(Widget home, {MemorySessionStore? store, ThemeMode mode = ThemeMode.light}) => ProviderScope(
-      overrides: [sessionStoreProvider.overrideWithValue(store ?? MemorySessionStore())],
+Widget harness(Widget home, {MemorySessionStore? store, ThemeMode mode = ThemeMode.light, List<Override> overrides = const []}) => ProviderScope(
+      overrides: [sessionStoreProvider.overrideWithValue(store ?? MemorySessionStore()), ...overrides],
       child: Consumer(
         builder: (context, ref, _) => MaterialApp(
           theme: CorocTheme.light(),

@@ -20,7 +20,7 @@ const LOAN = { principal: 1_000_000, currency: 'COP', method: 'simple', rate: '0
 const client = (i: number) => ({ firstName: `Cliente ${i}`, lastName: 'Seguridad Prueba', phone: `+57310555${String(i).padStart(4, '0')}`, lang: 'es', idDocType: 'CC', idDocNumber: `55500${String(i).padStart(5, '0')}` });
 
 /** Operaciones de autoservicio: cualquier usuario con sesión las usa sobre sí mismo, sin permiso de la matriz. */
-const SELF_SERVICE = new Set(['logout', 'me', 'updateMe', 'changePassword', 'enrollMfa', 'confirmMfa', 'disableMfa', 'mySessions', 'revokeMySession']);
+const SELF_SERVICE = new Set(['logout', 'me', 'updateMe', 'changePassword', 'enrollMfa', 'confirmMfa', 'disableMfa', 'mySessions', 'revokeMySession', 'deleteMyAccount']);
 
 /** Rutas de la aplicación con su operación del contrato, su permiso y si son públicas (metadatos de los controladores). */
 function routes(t: T): Route[] {

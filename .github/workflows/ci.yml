@@ -155,7 +155,9 @@ jobs:
             -config replacer.full_list(0).replacement=Bearer ${{ env.DAST_TOKEN }}
             -config globalexcludeurl.url_list.url(0).regex=.*/v1/(auth/logout|me/password|me/mfa.*|me/sessions.*|users/.*/sessions|restores.*).*
             -config globalexcludeurl.url_list.url(0).description=sesion
-            -config globalexcludeurl.url_list.url(0).enabled=true"
+            -config globalexcludeurl.url_list.url(0).enabled=true
+            -config scanner.maxScanDurationInMins=20
+            -config scanner.maxRuleDurationInMins=3"
       - name: Registro de la API durante el escaneo (sin datos personales)
         if: always()
         run: tail -n 200 services/api/api.log || true

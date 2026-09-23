@@ -136,6 +136,22 @@
       "title": "Petición muy grande",
       "detail": "La petición supera el tamaño máximo permitido."
     },
+    "TASK_NOT_RETRYABLE": {
+      "title": "No se puede reintentar",
+      "detail": "Solo se reintentan tareas fallidas; un respaldo se vuelve a pedir desde Respaldos."
+    },
+    "OWNER_MUST_CLOSE_COMPANY": {
+      "title": "El Propietario cierra la empresa",
+      "detail": "Como Propietario, su cuenta se elimina cerrando la empresa desde Configuración."
+    },
+    "USER_NOT_DELETABLE": {
+      "title": "No se puede eliminar este usuario",
+      "detail": "El Propietario y su propio usuario no se eliminan desde aquí."
+    },
+    "COMPANY_CLOSED": {
+      "title": "Empresa cerrada",
+      "detail": "Esta empresa pidió el cierre de su cuenta. Si fue un error, escriba a soporte dentro de los 30 días."
+    },
     "FILE_TOO_LARGE": {
       "title": "Archivo muy grande",
       "detail": "El archivo supera el máximo de {mb} MB."

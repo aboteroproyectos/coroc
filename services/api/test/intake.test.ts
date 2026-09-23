@@ -4,6 +4,7 @@ import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import http from 'node:http';
 import type { AddressInfo } from 'node:net';
+import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { DocumentTasks } from '../src/documents/tasks.js';
 import { auth, bootApp, expectContract, newTenant, ownerSession, PASSWORD } from './helpers.js';
@@ -335,4 +336,31 @@ run('Recepción y lectura de comprobantes (§12–§14, CA-07 a CA-09)', () => {
     for (const p of people) expect((await payments(p.loan)).length).toBe(1);
     expect(p95).toBeLessThan(60_000);
   }, 300_000);
+
+  it('soporte: traza de un comprobante hasta el recibo y cola de fallidos con reintento', async () => {
+    const item = (await t.http().get('/v1/intake').set(auth(token)).query({ channel: 'upload_link', status: 'applied_auto', limit: 1 }).expect(200)).body.items[0];
+    const trace = await t.http().get(`/v1/intake/${item.id}/trace`).set(auth(token)).expect(200);
+    expectContract('traceIntake', 200, trace.body);
+    const by = Object.fromEntries(trace.body.steps.map((s: { step: string; status: string }) => [s.step, s.status]));
+    expect(by).toMatchObject({ received: 'done', read: 'done', identified: 'done', decided: 'done', payment: 'done', receipt: 'done' });
+    expect(trace.body.paymentSeconds).toBeLessThan(60);
+
+    // Una tarea de documentos que agotó sus intentos aparece en la cola de fallidos y se reintenta desde cero.
+    const admin = new pg.Client({ connectionString: process.env.DATABASE_ADMIN_URL });
+    await admin.connect();
+    const task = (await t.http().post(`/v1/loans/${loanId}/statements`).set(auth(token)).expect(202)).body;
+    await idle();
+    await admin.query("UPDATE coroc.document_tasks SET status = 'failed', attempts = 5, error = 'Chromium no respondió', finished_at = now() WHERE id = $1", [task.id]);
+    await admin.end();
+    const f = await t.http().get('/v1/support/failures').set(auth(token)).expect(200);
+    expectContract('listFailures', 200, f.body);
+    const failed = f.body.documentTasks.find((x: { id: string }) => x.id === task.id);
+    expect(failed).toMatchObject({ kind: 'statement', status: 'failed', detail: 'Chromium no respondió', retryable: true, contract: 'CT-000001' });
+    const retry = await t.http().post(`/v1/tasks/${task.id}/retry`).set(auth(token)).expect(202);
+    expectContract('retryTask', 202, retry.body);
+    await idle();
+    expect((await t.http().get(`/v1/tasks/${task.id}`).set(auth(token)).expect(200)).body.status).toBe('done');
+    await t.http().post(`/v1/tasks/${task.id}/retry`).set(auth(token)).expect(409);
+    expect((await t.http().get('/v1/support/failures').set(auth(token)).expect(200)).body.documentTasks.some((x: { id: string }) => x.id === task.id)).toBe(false);
+  }, 120_000);
 });

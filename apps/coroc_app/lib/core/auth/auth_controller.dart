@@ -116,6 +116,13 @@ class AuthController extends Notifier<AuthState> {
     state = const SignedOut();
   }
 
+  /// Tras eliminar la cuenta o cerrar la empresa: el servidor ya cerró las sesiones; aquí solo se olvidan los tokens.
+  Future<void> forgetSession() async {
+    await ref.read(sessionStoreProvider).saveRefreshToken(null);
+    ref.read(apiClientProvider).setAccessToken(null);
+    state = const SignedOut();
+  }
+
   void lock() {
     final s = state;
     if (s is SignedIn && !s.locked) state = SignedIn(s.session, locked: true);

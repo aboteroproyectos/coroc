@@ -136,6 +136,22 @@
       "title": "Requisição muito grande",
       "detail": "A requisição excede o tamanho máximo permitido."
     },
+    "TASK_NOT_RETRYABLE": {
+      "title": "Não é possível tentar de novo",
+      "detail": "Só tarefas com falha podem ser repetidas; um backup deve ser pedido de novo em Backups."
+    },
+    "OWNER_MUST_CLOSE_COMPANY": {
+      "title": "O Proprietário encerra a empresa",
+      "detail": "Como Proprietário, sua conta é excluída encerrando a empresa em Configurações."
+    },
+    "USER_NOT_DELETABLE": {
+      "title": "Não é possível excluir este usuário",
+      "detail": "O Proprietário e o seu próprio usuário não são excluídos aqui."
+    },
+    "COMPANY_CLOSED": {
+      "title": "Empresa encerrada",
+      "detail": "Esta empresa pediu o encerramento da conta. Se foi um erro, escreva ao suporte em até 30 dias."
+    },
     "FILE_TOO_LARGE": {
       "title": "Arquivo muito grande",
       "detail": "O arquivo excede o máximo de {mb} MB."

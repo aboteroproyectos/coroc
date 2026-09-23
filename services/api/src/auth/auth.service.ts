@@ -92,6 +92,11 @@ export class AuthService {
       await dummyVerify(input.password);
       throw new Problem(401, 'INVALID_CREDENTIALS');
     }
+    // Empresa en cierre (ADR-056): nadie ingresa; soporte la reabre dentro del plazo de gracia si fue un error.
+    if (tenant.closure_requested_at) {
+      await dummyVerify(input.password);
+      throw new Problem(403, 'COMPANY_CLOSED');
+    }
     const now = this.clock.now();
     const outcome = await this.db.tx({ tenantId: tenant.id }, async (tx) => {
       const u = await tx.one<Record<string, any>>('SELECT * FROM users WHERE username = $1 FOR UPDATE', [String(input.username).trim().toLowerCase()]);

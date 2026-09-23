@@ -25,3 +25,7 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = coroc, public AS $$
 $$;
 REVOKE ALL ON FUNCTION search_client_ids(text, text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION search_client_ids(text, text) TO coroc_app;
+
+-- Eliminación de cuentas (ADR-056): el usuario se anonimiza y la empresa queda cerrada con plazo de gracia.
+ALTER TABLE users ADD COLUMN deleted_at timestamptz;
+ALTER TABLE tenants ADD COLUMN closure_requested_at timestamptz;

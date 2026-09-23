@@ -22,9 +22,11 @@ import '../auth/login_page.dart' show CodeField;
 import '../loans/loan_providers.dart';
 import '../loans/loan_terms_form.dart' show percentToRate;
 import '../shell/app_shell.dart';
+import 'account_section.dart';
 import 'data_sections.dart';
 import 'intake_sections.dart';
 import 'messaging_sections.dart';
+import 'support_section.dart';
 
 void _toast(BuildContext context, String message) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 
@@ -73,6 +75,7 @@ class SettingsPage extends ConsumerWidget {
       if (u.can('compliance.view')) ...[gap, _RateCapsSection(canManage: u.can('compliance.manage'), country: auth.company.country)],
       gap,
       const FolderSection(),
+      if (u.can('audit.view')) ...[gap, SupportSection(canRetry: u.can('documents.upload'))],
       if (u.can('backup.create')) ...[gap, const BackupSection()],
       if (u.can('backup.restore')) ...[gap, const RestoreSection()],
       gap,
@@ -82,6 +85,8 @@ class SettingsPage extends ConsumerWidget {
       Card(child: ListTile(leading: const Icon(Icons.help_outline), title: Text(l.navHelp), trailing: const Icon(Icons.chevron_right), onTap: () => GoRouter.of(context).go('/help'))),
       gap,
       _About(company: auth.company),
+      gap,
+      DeleteAccountSection(user: u, companySlug: auth.company.slug),
     ]);
   }
 }
@@ -712,6 +717,18 @@ class _UserTile extends StatelessWidget {
         if (await _run(context, () => api.updateUser(user.id, active: !user.active))) container.invalidate(usersProvider);
       case 'sessions':
         if (await _run(context, () => api.revokeUserSessions(user.id)) && context.mounted) _toast(context, l.userSessionsRevoked);
+      case 'delete':
+        final yes = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: Text(l.userDeleteConfirm(user.name)),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.actionCancel)),
+              FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(l.userDelete)),
+            ],
+          ),
+        );
+        if (yes == true && context.mounted && await _run(context, () => api.deleteUser(user.id))) container.invalidate(usersProvider);
     }
   }
 
@@ -737,6 +754,7 @@ class _UserTile extends StatelessWidget {
               PopupMenuItem(value: 'role', child: Text(l.userChangeRole)),
               PopupMenuItem(value: 'toggle', child: Text(user.active ? l.userDeactivate : l.userActivate)),
               PopupMenuItem(value: 'sessions', child: Text(l.userRevokeSessions)),
+              if (user.role != 'owner') PopupMenuItem(value: 'delete', child: Text(l.userDelete)),
             ],
           ),
       ]),

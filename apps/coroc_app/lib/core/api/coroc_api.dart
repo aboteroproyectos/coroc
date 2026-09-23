@@ -1,6 +1,7 @@
 import 'package:uuid/uuid.dart';
 
 import '../models/models.dart';
+import '../models/support.dart' show Failures, IntakeTrace;
 import 'api_client.dart';
 import 'api_exception.dart';
 
@@ -216,4 +217,14 @@ class CorocApi {
       EmailSender.fromJson(await client.put('/company/email-sender', body: {'fromEmail': fromEmail, 'fromName': ?fromName, 'dkimSelector': ?dkimSelector}) as Json);
   Future<EmailSender> verifyEmailSender() async => EmailSender.fromJson(await client.post('/company/email-sender/verify') as Json);
   Future<void> deleteEmailSender() async => client.delete('/company/email-sender');
+
+  // ─── Soporte (Fase 5) ───
+  Future<Failures> failures({int days = 30}) async => Failures.fromJson(await client.get('/support/failures', query: {'days': days}) as Json);
+  Future<void> retryTask(String id) async => client.post('/tasks/$id/retry');
+  Future<IntakeTrace> traceIntake(String id) async => IntakeTrace.fromJson(await client.get('/intake/$id/trace') as Json);
+
+  // ─── Eliminación de cuentas (App Store 5.1.1(v), Google Play) ───
+  Future<void> deleteMyAccount(String password) async => client.delete('/me', body: {'password': password});
+  Future<void> deleteUser(String id) async => client.delete('/users/$id');
+  Future<void> closeCompany(String password, String confirmSlug) async => client.post('/company/closure', body: {'password': password, 'confirmSlug': confirmSlug});
 }

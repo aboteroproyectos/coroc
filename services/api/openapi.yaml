@@ -1,10 +1,10 @@
 openapi: 3.1.0
 info:
   title: COROC API
-  version: 0.5.0
+  version: 0.6.0
   summary: Gestión y cobro de préstamos personales
   description: |
-    Contrato de la API de COROC (§24.1-3 del prompt maestro). Versión 0.5.0: operaciones de las fases 1 a 4 implementadas y verificadas
+    Contrato de la API de COROC (§24.1-3 del prompt maestro). Versión 0.6.0: operaciones de las fases 1 a 5 implementadas y verificadas
     contra este contrato en cada prueba (el servidor valida las peticiones con él y las pruebas validan las respuestas).
 
     **Convenciones**
@@ -57,6 +57,8 @@ tags:
     description: Respaldo y restauración
   - name: public
     description: Portal del deudor y verificación de recibos (sin sesión)
+  - name: support
+    description: Soporte — cola de fallidos, reintentos y traza de un comprobante (Fase 5)
   - name: webhooks
     description: Eventos entrantes de WhatsApp y correo
 
@@ -225,6 +227,24 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/User' }
         '4XX': { $ref: '#/components/responses/Problem' }
+    delete:
+      tags: [auth]
+      operationId: deleteMyAccount
+      summary: Eliminar la propia cuenta (se anonimiza; el Propietario cierra la empresa)
+      description: 'Exigido por App Store y Google Play. El usuario queda como «Usuario eliminado» en los movimientos que registró, que siguen siendo prueba contable. El Propietario recibe 409 OWNER_MUST_CLOSE_COMPANY.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [password]
+              properties:
+                password: { type: string, minLength: 1, maxLength: 200 }
+      responses:
+        '204': { description: Cuenta eliminada; todas sus sesiones quedan cerradas }
+        '4XX': { $ref: '#/components/responses/Problem' }
   /me/password:
     post:
       tags: [auth]
@@ -386,6 +406,35 @@ paths:
         '204': { description: Desactivada }
         '4XX': { $ref: '#/components/responses/Problem' }
 
+  /company/closure:
+    post:
+      tags: [company]
+      operationId: closeCompany
+      summary: Cerrar la empresa y eliminar la cuenta del Propietario
+      description: 'Cierra todas las sesiones y bloquea el ingreso. Pasado el plazo de gracia (30 días) soporte purga los datos personales, conservando solo lo que la ley obliga a guardar.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [password, confirmSlug]
+              properties:
+                password: { type: string, minLength: 1, maxLength: 200 }
+                confirmSlug: { type: string, minLength: 1, maxLength: 40, description: 'Identificador de la empresa, escrito para confirmar' }
+      responses:
+        '202':
+          description: Cierre registrado
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [closureRequestedAt, purgeAfter]
+                properties:
+                  closureRequestedAt: { type: string, format: date-time }
+                  purgeAfter: { type: string, format: date-time }
+        '4XX': { $ref: '#/components/responses/Problem' }
   /company/whatsapp:
     get:
       tags: [company]
@@ -581,6 +630,14 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/User' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+    delete:
+      tags: [users]
+      operationId: deleteUser
+      summary: Eliminar a un usuario (se anonimiza y se cierran sus sesiones)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '204': { description: Usuario eliminado }
         '4XX': { $ref: '#/components/responses/Problem' }
   /users/{id}/sessions:
     delete:
@@ -1115,6 +1172,109 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Task' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+
+  /tasks/{id}/retry:
+    post:
+      tags: [support]
+      operationId: retryTask
+      summary: Reintentar desde cero una tarea de documentos fallida (los respaldos se vuelven a pedir)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '202':
+          description: Tarea de nuevo en cola
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Task' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+
+  /support/failures:
+    get:
+      tags: [support]
+      operationId: listFailures
+      summary: Cola de fallidos para soporte — tareas de documentos, mensajes y comprobantes ilegibles
+      description: 'Los detalles son técnicos y no contienen datos personales. Visible para Propietario, Administrador y Auditor.'
+      parameters:
+        - { name: days, in: query, schema: { type: integer, minimum: 1, maximum: 90, default: 30 } }
+      responses:
+        '200':
+          description: Fallidos recientes
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [days, documentTasks, messages, intake]
+                properties:
+                  days: { type: integer }
+                  documentTasks:
+                    type: array
+                    items:
+                      allOf:
+                        - { $ref: '#/components/schemas/Task' }
+                        - type: object
+                          required: [loanId, contract, attempts, detail, retryable]
+                          properties:
+                            loanId: { type: [string, 'null'], format: uuid }
+                            contract: { type: [string, 'null'] }
+                            attempts: { type: integer }
+                            detail: { type: [string, 'null'] }
+                            retryable: { type: boolean }
+                  messages:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, clientId, clientName, event, channel, attempts, detail, failedAt]
+                      properties:
+                        id: { type: string, format: uuid }
+                        clientId: { type: string, format: uuid }
+                        clientName: { type: string }
+                        event: { type: string }
+                        channel: { type: string }
+                        attempts: { type: integer }
+                        detail: { type: [string, 'null'] }
+                        failedAt: { type: [string, 'null'], format: date-time }
+                  intake:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, channel, fileName, detail, createdAt]
+                      properties:
+                        id: { type: string, format: uuid }
+                        channel: { type: string }
+                        fileName: { type: [string, 'null'] }
+                        detail: { type: [string, 'null'] }
+                        createdAt: { type: string, format: date-time }
+        '4XX': { $ref: '#/components/responses/Problem' }
+
+  /intake/{id}/trace:
+    get:
+      tags: [support]
+      operationId: traceIntake
+      summary: Traza de un comprobante — recibido, leído, identificado, decidido, pago, recibo y entrega
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Etapas con su hora
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [intakeId, status, steps, paymentSeconds, deliveredSeconds]
+                properties:
+                  intakeId: { type: string, format: uuid }
+                  status: { type: string }
+                  steps:
+                    type: array
+                    items:
+                      type: object
+                      required: [step, at, status, detail]
+                      properties:
+                        step: { type: string, enum: [received, read, identified, decided, payment, receipt, delivered] }
+                        at: { type: [string, 'null'], format: date-time }
+                        status: { type: string, enum: [done, pending, failed, skipped] }
+                        detail: { type: [string, 'null'] }
+                  paymentSeconds: { type: [integer, 'null'], description: Segundos desde que llegó hasta el pago registrado }
+                  deliveredSeconds: { type: [integer, 'null'], description: Segundos desde que llegó hasta que salió el recibo }
         '4XX': { $ref: '#/components/responses/Problem' }
 
   /intake:
