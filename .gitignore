@@ -24,3 +24,8 @@ apps/coroc_app/linux/
 apps/coroc_app/web/
 apps/coroc_app/.metadata
 apps/coroc_app/test/widget_test.dart
+# Generados localmente por `flutter create` / `flutter pub get`
+apps/coroc_app/.gitignore
+apps/coroc_app/pubspec.lock
+apps/coroc_app/.idea/
+apps/coroc_app/*.iml

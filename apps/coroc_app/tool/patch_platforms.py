@@ -103,4 +103,11 @@ edit('macos/Runner/Configs/AppInfo.xcconfig', lambda t: re.sub(r'^PRODUCT_NAME =
 # ─── Windows ───
 edit('windows/runner/main.cpp', lambda t: re.sub(r'window\.Create\(L"[^"]*"', 'window.Create(L"COROC"', t))
 
+
+# local_auth_windows (hasta 2.0.2) compila con /await y <experimental/coroutine>, que MSVC 14.51+ rechaza (STL1011)
+# salvo que se defina esta macro. Se agrega antes de incluir los complementos para que les aplique.
+SILENCE = '_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS'
+edit('windows/CMakeLists.txt', lambda t: t if SILENCE in t else t.replace(
+    'add_definitions(-DUNICODE -D_UNICODE)', f'add_definitions(-DUNICODE -D_UNICODE)\nadd_compile_definitions({SILENCE})', 1))
+
 print('Plataformas ajustadas para COROC.')
