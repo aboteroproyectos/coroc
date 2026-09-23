@@ -4,6 +4,7 @@ import { Clock } from '../common/clock.js';
 import { TenantCache } from '../company/tenant-cache.js';
 import { CONFIG, type AppConfig } from '../config.js';
 import { DbService } from '../db/db.service.js';
+import { DocumentTasks } from '../documents/tasks.js';
 import { LoanStateService } from '../loans/loan-state.service.js';
 
 /**
@@ -22,6 +23,7 @@ export class MaintenanceJobs implements OnApplicationBootstrap, OnModuleDestroy 
     private readonly state: LoanStateService,
     private readonly tenants: TenantCache,
     private readonly clock: Clock,
+    private readonly tasks: DocumentTasks,
     @Inject(CONFIG) private readonly config: AppConfig,
   ) {}
 
@@ -33,7 +35,40 @@ export class MaintenanceJobs implements OnApplicationBootstrap, OnModuleDestroy 
       total += await this.state.refreshStale({ tenantId: id }, this.clock.today(t.timezone));
     }
     if (total) this.log.log(`${total} préstamos puestos al día`);
+    await this.monthlyStatements();
     return total;
+  }
+
+  /**
+   * Estado de cuenta mensual de cada préstamo activo (§16.4), el primer día del mes en la zona de la empresa. La tarea
+   * guarda el período, así que correr este trabajo varias veces el mismo día no duplica documentos.
+   */
+  async monthlyStatements(): Promise<number> {
+    const ids = await this.db.tx(null, (tx) => tx.many<{ id: string }>('SELECT tenants_with_active_loans() AS id'));
+    let n = 0;
+    for (const { id } of ids) {
+      const t = await this.tenants.get(id);
+      const today = this.clock.today(t.timezone);
+      if (!today.endsWith('-01')) continue;
+      const d = new Date(`${today}T00:00:00Z`);
+      d.setUTCMonth(d.getUTCMonth() - 1);
+      const period = d.toISOString().slice(0, 7);
+      n += await this.db.tx({ tenantId: id }, (tx) =>
+        tx.exec(
+          `INSERT INTO document_tasks (tenant_id, kind, loan_id, params)
+           SELECT current_tenant(), 'statement', l.id, jsonb_build_object('reason', 'monthly', 'period', $1::text)
+             FROM loans l
+            WHERE l.status = 'active'
+              AND NOT EXISTS (SELECT 1 FROM document_tasks x WHERE x.loan_id = l.id AND x.kind = 'statement' AND x.params->>'period' = $1)`,
+          [period],
+        ),
+      );
+    }
+    if (n) {
+      this.log.log(`${n} estados de cuenta mensuales en cola`);
+      this.tasks.kick();
+    }
+    return n;
   }
 
   async onApplicationBootstrap(): Promise<void> {

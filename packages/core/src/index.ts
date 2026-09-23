@@ -9,3 +9,4 @@ export * from './intake.js';
 export * from './extraction.js';
 export * from './receipt.js';
 export * from './ledger.js';
+export * from './folder.js';

@@ -21,9 +21,9 @@ export async function bootApp(clockIso = '2026-10-09T14:00:00Z') {
 let n = 0;
 export const uniq = (p: string) => `${p}-${process.pid}-${++n}-${crypto.randomBytes(2).toString('hex')}`.slice(0, 40);
 
-export async function newTenant(opts: { country?: 'CO' | 'BR' | 'US'; slug?: string } = {}) {
+export async function newTenant(opts: { country?: 'CO' | 'BR' | 'US'; slug?: string; lang?: 'es' | 'pt-BR' | 'en' } = {}) {
   const slug = opts.slug ?? uniq('emp');
-  const r = await createTenant(process.env.DATABASE_ADMIN_URL!, { slug, name: `Empresa ${slug}`, country: opts.country ?? 'CO', owner: 'propietario', ownerName: 'Ana Dueña', email: 'ana@example.com', password: PASSWORD });
+  const r = await createTenant(process.env.DATABASE_ADMIN_URL!, { slug, name: `Empresa ${slug}`, country: opts.country ?? 'CO', lang: opts.lang, owner: 'propietario', ownerName: 'Ana Dueña', email: 'ana@example.com', password: PASSWORD });
   return { slug, ...r };
 }
 

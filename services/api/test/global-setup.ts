@@ -2,6 +2,9 @@
 // aplica las migraciones con el rol dueño y crea el rol de la API (sin BYPASSRLS), igual que en producción.
 // Requiere TEST_DATABASE_URL con un usuario que pueda crear bases y roles (en CI, el servicio postgres:16).
 import crypto from 'node:crypto';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import pg from 'pg';
 import { migrate } from '../src/db/migrate.js';
 
@@ -41,6 +44,10 @@ export default async function setup() {
     COROC_DATA_KEY: crypto.randomBytes(32).toString('base64'),
     COROC_BREACHED_CHECK: 'local',
     COROC_JOBS: 'off',
+    // Las tareas de documentos corren en el mismo proceso y las pruebas esperan a que terminen (DocumentTasks.idle).
+    COROC_DOCUMENT_WORKER: 'inline',
+    COROC_STORAGE_DIR: fs.mkdtempSync(path.join(os.tmpdir(), 'coroc-objects-')),
+    COROC_API_PUBLIC_URL: 'https://api.coroc.test',
     COROC_PUBLIC_URL: 'https://app.coroc.test',
   });
 

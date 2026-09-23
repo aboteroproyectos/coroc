@@ -30,6 +30,13 @@ import { LoansController } from './loans/loans.controller.js';
 import { LoansService } from './loans/loans.service.js';
 import { PaymentsService } from './loans/payments.service.js';
 import { UsersController } from './users/users.controller.js';
+import { ClientDocumentsController, DocumentsController, FilesController, FolderController, LoanDocumentsController, PublicReceiptsController, TasksController } from './documents/documents.controller.js';
+import { DocumentsService } from './documents/documents.service.js';
+import { DocumentFactory } from './documents/factory.js';
+import { LinkSigner } from './documents/links.js';
+import { DocumentTasks } from './documents/tasks.js';
+import { PdfRenderer } from './pdf/renderer.js';
+import { ObjectStore } from './storage/object-store.js';
 
 @Controller('health')
 class HealthController {
@@ -57,7 +64,8 @@ function requestMetaMiddleware(req: Request, _res: Response, next: NextFunction)
 }
 
 @Module({
-  controllers: [HealthController, AuthController, MeController, UsersController, CompanyController, RateCapsController, ClientsController, LoansController, DashboardController],
+  controllers: [HealthController, AuthController, MeController, UsersController, CompanyController, RateCapsController, ClientsController, LoansController, DashboardController,
+    DocumentsController, ClientDocumentsController, LoanDocumentsController, TasksController, FolderController, FilesController, PublicReceiptsController],
   providers: [
     { provide: CONFIG, useFactory: () => loadConfig() },
     Clock,
@@ -76,6 +84,12 @@ function requestMetaMiddleware(req: Request, _res: Response, next: NextFunction)
     ClientsService,
     DashboardService,
     MaintenanceJobs,
+    ObjectStore,
+    LinkSigner,
+    PdfRenderer,
+    DocumentTasks,
+    DocumentsService,
+    DocumentFactory,
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_INTERCEPTOR, useClass: ContractInterceptor },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },

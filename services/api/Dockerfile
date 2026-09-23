@@ -14,10 +14,14 @@ RUN npm run build -w @coroc/core && npm run build -w @coroc/api \
  && npm prune --omit=dev --workspace @coroc/core --workspace @coroc/api
 
 FROM node:22-bookworm-slim
-ENV NODE_ENV=production PORT=3000
+ENV NODE_ENV=production PORT=3000 PLAYWRIGHT_BROWSERS_PATH=/opt/coroc-browsers COROC_STORAGE_DIR=/var/lib/coroc/objects
 WORKDIR /app
-RUN groupadd -r coroc && useradd -r -g coroc coroc
+RUN groupadd -r coroc && useradd -r -g coroc coroc \
+ && mkdir -p /var/lib/coroc/objects && chown -R coroc:coroc /var/lib/coroc
 COPY --from=build /repo/node_modules ./node_modules
+# Chromium sin interfaz para los PDF (§4.2), en la versión que corresponde a playwright-core, con sus dependencias del sistema.
+RUN node node_modules/playwright-core/cli.js install --with-deps chromium-headless-shell \
+ && rm -rf /var/lib/apt/lists/*
 COPY --from=build /repo/packages/core/package.json ./packages/core/package.json
 COPY --from=build /repo/packages/core/dist ./packages/core/dist
 COPY --from=build /repo/services/api/package.json ./services/api/package.json
@@ -25,8 +29,10 @@ COPY --from=build /repo/services/api/dist ./services/api/dist
 COPY --from=build /repo/services/api/i18n ./services/api/i18n
 COPY --from=build /repo/services/api/db/migrations ./services/api/db/migrations
 COPY --from=build /repo/services/api/openapi.yaml ./services/api/openapi.yaml
+COPY --from=build /repo/services/api/assets ./services/api/assets
 USER coroc
 WORKDIR /app/services/api
+VOLUME /var/lib/coroc/objects
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s CMD node -e "fetch('http://127.0.0.1:'+process.env.PORT+'/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 CMD ["node", "dist/main.js"]

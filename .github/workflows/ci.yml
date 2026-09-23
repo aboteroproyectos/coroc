@@ -37,6 +37,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Chromium para los PDF (Playwright)
+        run: npx playwright-core install --with-deps chromium-headless-shell
       - name: Compilar
         run: npm run build
       - name: Tipos (incluye pruebas)
@@ -45,7 +47,7 @@ jobs:
         run: npm run lint:i18n
       - name: Contrato OpenAPI
         run: npx --yes @redocly/cli@1 lint services/api/openapi.yaml --format=github-actions
-      - name: Pruebas (núcleo, aceptación CA-01…06/12/14/16/17, contrato)
+      - name: Pruebas (núcleo, aceptación CA-01…06/12/13/14/15/16/17/18, documentos, contrato)
         run: npm test
 
   docker:

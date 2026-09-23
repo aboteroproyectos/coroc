@@ -97,7 +97,7 @@ describe('Ingreso, segundo factor y sesiones (§7.1)', () => {
     expect(breached.body.code).toBe('BREACHED_PASSWORD');
     const ok = await t.http().post('/v1/users').set(auth(o.token)).send({ username: 'cobrador1', name: 'Cobrador Uno', role: 'collector', password: 'Rutas-del-Norte-77' }).expect(201);
     expectContract('createUser', 201, ok.body);
-    expect(ok.body.permissions).toEqual(['company.view', 'clients.view', 'payments.register', 'dashboard.view']);
+    expect(ok.body.permissions).toEqual(['company.view', 'clients.view', 'payments.register', 'documents.upload', 'dashboard.view']);
     await t.http().post('/v1/users').set(auth(o.token)).send({ username: 'cobrador1', name: 'Otro', role: 'collector', password: 'Rutas-del-Norte-77' }).expect(409);
   });
 
