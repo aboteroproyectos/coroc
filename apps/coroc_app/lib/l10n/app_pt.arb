@@ -868,5 +868,18 @@
   "closeCompanyAction": "Encerrar a empresa",
   "closeCompanyDone": "A empresa foi encerrada. Você tem 30 dias para desistir escrevendo ao suporte.",
   "userDelete": "Excluir usuário",
-  "userDeleteConfirm": "Excluir {name}? As sessões são encerradas e os dados pessoais apagados; os pagamentos registrados são mantidos."
+  "userDeleteConfirm": "Excluir {name}? As sessões são encerradas e os dados pessoais apagados; os pagamentos registrados são mantidos.",
+  "offlineNoConnection": "Sem conexão",
+  "offlineShowingSaved": "Sem conexão: dados salvos em {time}",
+  "offlinePending": "{n, plural, =1{1 pagamento a enviar} other{{n} pagamentos a enviar}}",
+  "offlineConflicts": "{n, plural, =1{1 pagamento em conflito} other{{n} pagamentos em conflito}}",
+  "offlinePaymentQueued": "Pagamento salvo sem conexão",
+  "offlinePaymentQueuedHelp": "Será enviado automaticamente quando a rede voltar, sem duplicar. O recibo é gerado nesse momento.",
+  "offlinePaymentLabel": "Pagamento",
+  "offlineWaiting": "aguardando conexão",
+  "offlineConflictLabel": "Em conflito",
+  "offlineDiscard": "Descartar",
+  "offlineQueueTitle": "Pagamentos registrados sem conexão",
+  "offlineQueueHelp": "São enviados em ordem com a mesma chave: se algum já tinha chegado, o servidor não duplica. Se o servidor recusar algum (por exemplo, o empréstimo já foi quitado ou o cliente mudou de cobrador), ele fica em conflito com o motivo: revise o empréstimo e registre de novo se for o caso, ou descarte.",
+  "offlineSyncNow": "Enviar agora"
 }

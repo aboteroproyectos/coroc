@@ -3903,5 +3903,72 @@
         "type": "String"
       }
     }
+  },
+  "offlineNoConnection": "Sin conexión",
+  "@offlineNoConnection": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "offlineShowingSaved": "Sin conexión: datos guardados el {time}",
+  "@offlineShowingSaved": {
+    "description": "Fase 5 · Modo sin conexión",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "offlinePending": "{n, plural, =1{1 pago por enviar} other{{n} pagos por enviar}}",
+  "@offlinePending": {
+    "description": "Fase 5 · Modo sin conexión",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "offlineConflicts": "{n, plural, =1{1 pago en conflicto} other{{n} pagos en conflicto}}",
+  "@offlineConflicts": {
+    "description": "Fase 5 · Modo sin conexión",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "offlinePaymentQueued": "Pago guardado sin conexión",
+  "@offlinePaymentQueued": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "offlinePaymentQueuedHelp": "Se enviará solo cuando vuelva la red, sin duplicarse. El recibo se genera en ese momento.",
+  "@offlinePaymentQueuedHelp": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "offlinePaymentLabel": "Pago",
+  "@offlinePaymentLabel": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "offlineWaiting": "esperando conexión",
+  "@offlineWaiting": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "offlineConflictLabel": "En conflicto",
+  "@offlineConflictLabel": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "offlineDiscard": "Descartar",
+  "@offlineDiscard": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "offlineQueueTitle": "Pagos registrados sin conexión",
+  "@offlineQueueTitle": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "offlineQueueHelp": "Se envían en orden con su misma clave: si alguno ya había llegado, el servidor no lo duplica. Si el servidor rechaza uno (por ejemplo, el préstamo ya se pagó o el cliente cambió de cobrador), queda en conflicto con el motivo: revise el préstamo y regístrelo de nuevo si corresponde, o descártelo.",
+  "@offlineQueueHelp": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "offlineSyncNow": "Enviar ahora",
+  "@offlineSyncNow": {
+    "description": "Fase 5 · Modo sin conexión"
   }
 }

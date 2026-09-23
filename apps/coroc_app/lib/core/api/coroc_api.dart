@@ -86,6 +86,10 @@ class CorocApi {
         body: {'amount': amount, 'date': date, 'method': ?method, 'reference': ?reference, 'note': ?note, 'cash': cash},
       ) as Json);
 
+  /// Reenvío de un pago de la cola sin conexión: el resultado no hace falta, solo que el servidor lo acepte.
+  Future<void> replayPayment(String loanId, {required int amount, required String date, required String idempotencyKey, String? method, String? reference, bool cash = false, String? note}) async =>
+      client.post('/loans/$loanId/payments', headers: {'Idempotency-Key': idempotencyKey}, body: {'amount': amount, 'date': date, 'method': ?method, 'reference': ?reference, 'note': ?note, 'cash': cash});
+
   Future<void> reversePayment(String loanId, String entryId, String reason) async => client.post('/loans/$loanId/payments/$entryId/reversal', body: {'reason': reason});
 
   // ─── Dashboard (§17) ───

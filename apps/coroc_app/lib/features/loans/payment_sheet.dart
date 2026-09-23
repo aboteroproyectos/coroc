@@ -6,9 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/api/api_exception.dart';
+import '../../core/auth/auth_controller.dart';
 import '../../core/format.dart';
 import '../../core/l10n.dart';
 import '../../core/models/models.dart';
+import '../../core/offline/offline_store.dart';
+import '../../core/offline/offline_sync.dart';
 import '../../core/providers.dart';
 import '../../design/theme.dart';
 import '../../design/tokens.dart';
@@ -63,6 +66,7 @@ class _PaymentFormState extends ConsumerState<PaymentForm> {
   bool _busy = false;
   String? _error;
   PaymentResult? _result;
+  bool _queued = false;
 
   @override
   void initState() {
@@ -159,6 +163,28 @@ class _PaymentFormState extends ConsumerState<PaymentForm> {
         ..invalidate(dashboardProvider)
         ..invalidate(todayProvider);
       if (mounted) setState(() => _result = r);
+    } on ApiException catch (e) {
+      final auth = container.read(authProvider);
+      if (e.isNetwork && auth is SignedIn) {
+        // Sin conexión (ADR-055): el pago queda en la cola del equipo con su clave y se envía al volver la red.
+        await container.read(offlineProvider.notifier).enqueue(PendingPayment(
+              key: _idempotencyKey,
+              userId: auth.user.id,
+              loanId: widget.loanId,
+              amount: amount,
+              date: _date,
+              createdAt: DateTime.now(),
+              clientName: widget.clientName,
+              currency: widget.currency,
+              method: _methodText(l).isEmpty ? null : _methodText(l),
+              reference: _reference.text.trim().isEmpty ? null : _reference.text.trim(),
+              note: _note.text.trim().isEmpty ? null : _note.text.trim(),
+              cash: _method == 'cash',
+            ));
+        if (mounted) setState(() => _queued = true);
+      } else if (mounted) {
+        setState(() => _error = errorText(context, e));
+      }
     } catch (e) {
       if (mounted) setState(() => _error = errorText(context, e));
     } finally {
@@ -170,6 +196,20 @@ class _PaymentFormState extends ConsumerState<PaymentForm> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = Theme.of(context).textTheme;
+    if (_queued) {
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(CorocSpace.lg),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          const Icon(Icons.cloud_off_outlined, size: 40),
+          const SizedBox(height: CorocSpace.md),
+          Text(l.offlinePaymentQueued, style: t.titleMedium, textAlign: TextAlign.center),
+          const SizedBox(height: CorocSpace.sm),
+          Text(l.offlinePaymentQueuedHelp, style: t.bodyMedium, textAlign: TextAlign.center),
+          const SizedBox(height: CorocSpace.lg),
+          GoldButton(label: l.actionDone, onPressed: () => Navigator.of(context).pop(), expand: true),
+        ]),
+      );
+    }
     if (_result != null) {
       return SingleChildScrollView(
         padding: const EdgeInsets.all(CorocSpace.lg),

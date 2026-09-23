@@ -12,6 +12,7 @@ import '../inbox/inbox_page.dart' show InboxRealtime, intakeSummaryProvider;
 import '../inbox/share_receiver.dart';
 import '../messaging/messaging_common.dart' show MessagesRealtime, messagesSummaryProvider;
 import '../settings/data_sections.dart' show FolderAutoSync, showCreateBackupDialog;
+import 'offline_banner.dart';
 
 class _Dest {
   const _Dest(this.path, this.icon, this.selectedIcon, this.label, [this.permission]);
@@ -100,7 +101,8 @@ class AppShell extends ConsumerWidget {
       }),
     };
 
-    final body = ShareReceiver(child: InboxRealtime(child: MessagesRealtime(child: FolderAutoSync(child: Shortcuts(shortcuts: shortcuts, child: Actions(actions: actions, child: Focus(autofocus: true, child: child)))))));
+    final page = Column(children: [const OfflineBanner(), Expanded(child: child)]);
+    final body = ShareReceiver(child: InboxRealtime(child: MessagesRealtime(child: FolderAutoSync(child: Shortcuts(shortcuts: shortcuts, child: Actions(actions: actions, child: Focus(autofocus: true, child: page)))))));
 
     if (width >= CorocBreakpoints.desktop) {
       return Scaffold(

@@ -868,5 +868,18 @@
   "closeCompanyAction": "Close the company",
   "closeCompanyDone": "The company is closed. You have 30 days to change your mind by contacting support.",
   "userDelete": "Delete user",
-  "userDeleteConfirm": "Delete {name}? Their sessions are closed and personal data erased; payments they recorded are kept."
+  "userDeleteConfirm": "Delete {name}? Their sessions are closed and personal data erased; payments they recorded are kept.",
+  "offlineNoConnection": "Offline",
+  "offlineShowingSaved": "Offline: data saved {time}",
+  "offlinePending": "{n, plural, =1{1 payment to send} other{{n} payments to send}}",
+  "offlineConflicts": "{n, plural, =1{1 payment in conflict} other{{n} payments in conflict}}",
+  "offlinePaymentQueued": "Payment saved offline",
+  "offlinePaymentQueuedHelp": "It will be sent automatically when the connection returns, without duplicates. The receipt is generated then.",
+  "offlinePaymentLabel": "Payment",
+  "offlineWaiting": "waiting for connection",
+  "offlineConflictLabel": "In conflict",
+  "offlineDiscard": "Discard",
+  "offlineQueueTitle": "Payments recorded offline",
+  "offlineQueueHelp": "They are sent in order with the same key: if one had already arrived, the server does not duplicate it. If the server rejects one (for example, the loan is already paid off or the customer changed collector), it stays in conflict with the reason: review the loan and record it again if appropriate, or discard it.",
+  "offlineSyncNow": "Send now"
 }

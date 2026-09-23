@@ -38,6 +38,7 @@ dependencies:
     path: packages/coroc_share
   # Fase 4 · modo asistido: abrir WhatsApp o el correo con el texto listo (ADR-046)
   url_launcher: ^6.3.2
+  cryptography: ^2.9.0
 
 dev_dependencies:
   flutter_test:

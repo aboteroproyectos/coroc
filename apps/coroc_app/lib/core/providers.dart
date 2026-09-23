@@ -7,6 +7,7 @@ import 'api/api_client.dart';
 import 'api/coroc_api.dart';
 import 'auth/session_store.dart';
 import 'config.dart';
+import 'offline/offline_sync.dart';
 
 final sessionStoreProvider = Provider<SessionStore>((ref) => SessionStore());
 
@@ -68,6 +69,10 @@ final apiClientProvider = Provider<ApiClient>((ref) {
     store: ref.watch(sessionStoreProvider),
     language: () => ref.read(localeProvider).languageCode,
   );
+  // Modo sin conexión (ADR-055): lecturas cifradas en el equipo y aviso del estado de la red.
+  client
+    ..cache = ref.watch(offlineCacheProvider)
+    ..onConnectivity = (online, savedAt) => ref.read(offlineProvider.notifier).connectivity(online, savedAt);
   ref.onDispose(client.close);
   return client;
 });
