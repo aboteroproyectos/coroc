@@ -94,15 +94,19 @@ class _PaymentFormState extends ConsumerState<PaymentForm> {
       }
       try {
         final p = await ref.read(apiProvider).previewPayment(widget.loanId, amount, _date);
-        if (mounted) setState(() {
-          _preview = p;
-          _previewError = null;
-        });
+        if (mounted) {
+          setState(() {
+            _preview = p;
+            _previewError = null;
+          });
+        }
       } on ApiException catch (e) {
-        if (mounted) setState(() {
-          _preview = null;
-          _previewError = errorText(context, e);
-        });
+        if (mounted) {
+          setState(() {
+            _preview = null;
+            _previewError = errorText(context, e);
+          });
+        }
       }
     });
   }

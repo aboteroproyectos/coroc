@@ -5,6 +5,11 @@ analyzer:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
     - lib/l10n/gen/**
+    - build/**
+    - android/**
+    - ios/**
+    - windows/**
+    - macos/**
   language:
     strict-casts: true
     strict-raw-types: true

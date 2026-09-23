@@ -386,9 +386,13 @@ class _EnrollDialogState extends ConsumerState<_EnrollDialog> {
         child: FutureBuilder<MfaEnrollment>(
           future: _enrollment,
           builder: (context, snap) {
-            if (snap.hasError) return ErrorState(message: errorText(context, snap.error!), onRetry: () => setState(() {
-                  _enrollment = ref.read(apiProvider).enrollMfa();
-                }));
+            if (snap.hasError) {
+              return ErrorState(
+                  message: errorText(context, snap.error!),
+                  onRetry: () => setState(() {
+                        _enrollment = ref.read(apiProvider).enrollMfa();
+                      }));
+            }
             if (!snap.hasData) return const Center(child: Padding(padding: EdgeInsets.all(CorocSpace.xl), child: CircularProgressIndicator()));
             final e = snap.data!;
             return SingleChildScrollView(
