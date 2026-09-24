@@ -20,6 +20,10 @@ class ApiException implements Exception {
   bool get isNetwork => code == 'NETWORK';
   bool get isUnauthorized => status == 401;
 
+  /// 401 por una contraseña o un código errado al confirmar una acción (cambiar la contraseña, el segundo factor,
+  /// eliminar la cuenta): la sesión sigue siendo válida y no debe cerrarse.
+  bool get isCredentialCheck => status == 401 && (code == 'INVALID_CREDENTIALS' || code == 'MFA_INVALID');
+
   factory ApiException.network() => ApiException(status: 0, code: 'NETWORK');
 
   factory ApiException.fromBody(int status, String body) {

@@ -201,7 +201,6 @@ class _StepIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final narrow = MediaQuery.sizeOf(context).width < CorocBreakpoints.tablet;
     Widget dot(int i) {
       final done = i < current;
       final active = i == current;
@@ -223,16 +222,24 @@ class _StepIndicator extends StatelessWidget {
 
     return Semantics(
       label: labels[current],
-      child: Row(children: [
-        for (var i = 0; i < labels.length; i++) ...[
-          dot(i),
-          if (!narrow || i == current) ...[
-            const SizedBox(width: 8),
-            Text(labels[i], style: Theme.of(context).textTheme.labelLarge?.copyWith(color: i == current ? (dark ? CorocColors.gold300 : CorocColors.gold800) : scheme.onSurfaceVariant)),
+      // El ancho disponible (no el de la pantalla) decide si caben los nombres de los pasos: junto a la barra lateral
+      // el contenido es más angosto que la ventana.
+      child: LayoutBuilder(builder: (context, constraints) {
+        final narrow = constraints.maxWidth < CorocBreakpoints.tablet;
+        return Row(children: [
+          for (var i = 0; i < labels.length; i++) ...[
+            dot(i),
+            if (!narrow || i == current) ...[
+              const SizedBox(width: 8),
+              Flexible(
+                flex: 2,
+                child: Text(labels[i], maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.labelLarge?.copyWith(color: i == current ? (dark ? CorocColors.gold300 : CorocColors.gold800) : scheme.onSurfaceVariant)),
+              ),
+            ],
+            if (i < labels.length - 1) Expanded(child: Container(height: 1, margin: const EdgeInsets.symmetric(horizontal: 12), color: i < current ? CorocColors.gold500 : scheme.outlineVariant)),
           ],
-          if (i < labels.length - 1) Expanded(child: Container(height: 1, margin: const EdgeInsets.symmetric(horizontal: 12), color: i < current ? CorocColors.gold500 : scheme.outlineVariant)),
-        ],
-      ]),
+        ]);
+      }),
     );
   }
 }

@@ -26,8 +26,8 @@ lib/
 ├── design/      Sistema de diseño: colores, espacios, temas Marfil y Medianoche, logo, botón dorado, componentes
 ├── features/    auth · shell · dashboard · today · clients · new_client · loans · settings · help
 └── l10n/        app_es.arb (plantilla), app_pt.arb, app_en.arb
-test/            Formatos de dinero y tasas, cliente HTTP, CA-14 y diseño en teléfono
-tool/            patch_platforms.py y l10n_keys.py
+test/            Pantallas contra respuestas reales de la API (fixtures/api.json, fake_api.dart, app_harness.dart), formatos, cliente HTTP, CA-14, accesibilidad y contrato
+tool/            patch_platforms.py, l10n_keys.py, coverage_imports.py y coverage_report.sh (cobertura sin código generado)
 ```
 
 ## Convenciones

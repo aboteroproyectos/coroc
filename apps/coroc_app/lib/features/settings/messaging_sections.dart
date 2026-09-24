@@ -174,9 +174,7 @@ class _EmailSenderSectionState extends ConsumerState<EmailSenderSection> {
     if (ok == true) {
       await _run(() => ref.read(apiProvider).saveEmailSender(fromEmail: email.text.trim(), fromName: name.text.trim().isEmpty ? null : name.text.trim(), dkimSelector: selector.text.trim().isEmpty ? null : selector.text.trim()));
     }
-    for (final c in [email, name, selector]) {
-      c.dispose();
-    }
+    disposeAfterDialog([email, name, selector]);
   }
 
   Future<void> _run(Future<Object?> Function() action, {bool keep = false}) async {

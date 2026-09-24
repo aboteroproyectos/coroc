@@ -69,8 +69,18 @@ flutter gen-l10n
 dart run flutter_launcher_icons
 
 flutter run --dart-define=COROC_API=http://10.0.2.2:3000/v1   # emulador Android contra la API local
-flutter test
+flutter test --coverage
+tool/coverage_report.sh 75 --files     # cobertura sin código generado; falla bajo 75 %
 ```
+
+- **Pruebas de pantallas.** Usan `test/fixtures/api.json`, que guarda respuestas reales de la API. Si cambia el contrato, se regeneran contra una base recién preparada:
+  ```bash
+  cd services/api && npm run build
+  DAST_DATABASE_URL=postgres://… node scripts/dast.mjs prepare > /tmp/dast.env
+  (set -a; . /tmp/dast.env; set +a; node dist/main.js) &   # API con la empresa «dast»
+  node scripts/app-fixtures.mjs                              # escribe apps/coroc_app/test/fixtures/api.json
+  ```
+- Al agregar un archivo a `lib/`, `python3 tool/coverage_imports.py` actualiza `test/all_files_test.dart`. Si falta, la CI lo detecta.
 
 - La dirección de la API se fija al compilar con `--dart-define=COROC_API=https://api.miempresa.com/v1`.
 - Desde el emulador de Android, `localhost` del computador es `10.0.2.2`. En iOS, Windows y macOS sirve `http://localhost:3000/v1`.
@@ -86,7 +96,7 @@ flutter test
 | Rendimiento | 100.000 clientes y 2.000.000 de cuotas: dashboard, búsqueda, cobros de hoy, p95 con usuarios concurrentes y carga mixta. El informe queda como artefacto `informe-de-rendimiento` |
 | Seguridad · dependencias y DAST | `npm audit --omit=dev` (falla con vulnerabilidades moderadas o mayores) y OWASP ZAP sobre el contrato con una sesión real. Falla en inyección, XSS, SSRF, XXE, recorrido de rutas o ejecución de código (`.zap/rules.tsv`). El informe queda como artefacto `informe-zap` |
 | Imagen Docker | Construye `services/api/Dockerfile` |
-| App · análisis y pruebas | Genera las carpetas nativas y el código, verifica los textos en 3 idiomas, `flutter analyze`, `flutter test` (incluidas accesibilidad y contrato de la app) y el piso de cobertura |
+| App · análisis y pruebas | Genera las carpetas nativas y el código, verifica los textos en 3 idiomas, `flutter analyze`, `flutter test` (pantallas contra respuestas reales, accesibilidad y contrato de la app) y cobertura mínima de 75 % sin código generado |
 | App · Android | APK y App Bundle (artefacto `coroc-android`) |
 | App · Windows | Ejecutable (artefacto `coroc-windows`) |
 | App · macOS e iOS | En `main`, etiquetas `v*` o a pedido: `.app` de macOS e iOS sin firma |

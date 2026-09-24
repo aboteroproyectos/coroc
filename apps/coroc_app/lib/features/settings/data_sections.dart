@@ -81,7 +81,7 @@ class FolderSection extends ConsumerWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text(l.folderExplain, style: t.bodyMedium),
         const SizedBox(height: CorocSpace.md),
-        Row(children: [status, const Spacer()]),
+        Align(alignment: AlignmentDirectional.centerStart, child: status),
         if (s.displayPath != null) ...[const SizedBox(height: 8), KeyValue(l.folderLocation, s.displayPath!)],
         if (s.lastSync != null) KeyValue(l.folderLastSync, Dates.dateTime(s.lastSync!.toUtc().toIso8601String(), context.lang)),
         if (s.lastResult != null && (s.lastResult!.written + s.lastResult!.removed + s.lastResult!.renamed) > 0)

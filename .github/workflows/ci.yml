@@ -203,13 +203,15 @@ jobs:
       - name: Análisis estático
         working-directory: apps/coroc_app
         run: flutter analyze --no-fatal-infos
+      - name: Todos los archivos de lib/ cuentan en la cobertura
+        working-directory: apps/coroc_app
+        run: python3 tool/coverage_imports.py --check
       - name: Pruebas
         working-directory: apps/coroc_app
         run: flutter test --reporter expanded --coverage
-      - name: Cobertura de la app (piso que no puede bajar; código generado excluido)
+      - name: Cobertura de la app ≥ 75 % (código generado excluido)
         working-directory: apps/coroc_app
-        run: |
-          awk -F: '/^SF:/{g=($2 ~ /\.g\.dart|\.freezed\.dart|l10n\/gen/)} /^LF:/{if(!g)lf+=$2} /^LH:/{if(!g)lh+=$2} END{p=100*lh/lf; printf "Cobertura de la app: %.1f%% (%d/%d líneas)\n", p, lh, lf; exit (p < 25)}' coverage/lcov.info
+        run: tool/coverage_report.sh 75 --files
 
   android:
     name: App · Android

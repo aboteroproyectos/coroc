@@ -86,12 +86,12 @@ class ApiClient {
     }
     onConnectivity?.call(true, null);
     final text = utf8.decode(res.bodyBytes);
-    if (res.statusCode == 401 && auth && retry && await _refresh()) {
+    final err = res.statusCode >= 400 ? ApiException.fromBody(res.statusCode, text) : null;
+    if (err != null && err.isUnauthorized && !err.isCredentialCheck && auth && retry && await _refresh()) {
       return send(method, path, body: body, query: query, headers: headers, auth: auth, retry: false);
     }
-    if (res.statusCode >= 400) {
-      final err = ApiException.fromBody(res.statusCode, text);
-      if (res.statusCode == 401 && auth) onSessionLost?.call();
+    if (err != null) {
+      if (err.isUnauthorized && !err.isCredentialCheck && auth) onSessionLost?.call();
       throw err;
     }
     if (text.isEmpty) return null;

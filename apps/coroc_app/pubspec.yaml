@@ -53,6 +53,9 @@ dev_dependencies:
   yaml: ^3.1.2
   # Fase 5 · instalador MSIX firmado para Windows (ADR-059)
   msix: ^3.18.0
+  # Pruebas de pantallas: selector de archivos falso (subir comprobantes, documentos y respaldos sin diálogos del sistema)
+  file_selector_platform_interface: ^2.7.0
+  plugin_platform_interface: ^2.1.8
 
 flutter:
   uses-material-design: true

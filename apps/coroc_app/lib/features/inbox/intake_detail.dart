@@ -315,7 +315,7 @@ class _IntakeFormState extends ConsumerState<_IntakeForm> {
       ),
     );
     if (ok == true) await _act(() => ref.read(apiProvider).rejectIntake(it.id, reason.text.trim()), done: l.intakeStatusRejected);
-    reason.dispose();
+    disposeAfterDialog([reason]);
   }
 
   Future<void> _revert() async {

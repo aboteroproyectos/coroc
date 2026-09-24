@@ -82,7 +82,7 @@ El estado de cada requisito de §21 está en [04_CRITERIOS_DE_ACEPTACION.md](04_
 - **Cobertura con umbrales en CI:**
   - núcleo: 97 % de líneas (mínimo 90 %);
   - API: 88 % (mínimo 80 %);
-  - app: piso de 25 %.
+  - app: 83 % (mínimo 75 %; ver «Actualización: cobertura de la app»).
 
 ## Pruebas
 - **Núcleo:** 64 pruebas.
@@ -98,8 +98,25 @@ El estado de cada requisito de §21 está en [04_CRITERIOS_DE_ACEPTACION.md](04_
   - soporte;
   - contrato de la app.
 
+## Actualización: cobertura de la app
+La app pasa de 26 % a **83 %** de líneas, medida sobre todo `lib/` sin el código generado (modelos e idiomas), y la CI falla si baja de 75 %.
+
+- **Medición honesta:** `test/all_files_test.dart` importa todos los archivos de `lib/`, así que un archivo sin pruebas cuenta como 0 % en lugar de desaparecer del informe. `tool/coverage_imports.py --check` falla en la CI si falta uno.
+- **Pantallas contra respuestas reales:** `test/fixtures/api.json` guarda lo que devuelve la API real para cada lectura del contrato y para las escrituras de los datos de demostración. Lo genera `services/api/scripts/app-fixtures.mjs` (ver 06 §3). `test/fake_api.dart` sirve esas respuestas y anota cada petición, y `test/app_harness.dart` arranca la app completa (router, sesión restaurada, menú, capa de seguridad) en escritorio, tableta o teléfono.
+- **47 pruebas nuevas de pantallas (92 en total):**
+  - ingreso, segundo factor, activación obligatoria, recuperación, bloqueo y sesión vencida;
+  - Bandeja: revisión con confianza por campo, vista previa, aprobación con clave de idempotencia, corrección, búsqueda de cliente, rechazo, archivo, reverso, lote y teléfono;
+  - Configuración completa, de preferencias a cerrar la empresa;
+  - ficha del cliente: pagos (también sin conexión), reverso, visor, documentos, carga, estado de cuenta, mensajes y excepción horaria;
+  - asistente de nuevo cliente con duplicado y tope de tasa, y nuevo préstamo.
+
+Errores que encontraron las pruebas, ya corregidos:
+- **Una contraseña o un código errado cerraba la sesión.** El servidor responde 401 a la contraseña actual errada (cambiar la contraseña, eliminar la cuenta, cerrar la empresa) y al código de segundo factor errado. La app lo trataba como sesión vencida: intentaba renovarla y, al fallar de nuevo, sacaba al usuario. Ahora `INVALID_CREDENTIALS` y `MFA_INVALID` se muestran en el diálogo y la sesión sigue abierta (`api_client.dart`).
+- **Diálogos que liberaban su texto antes de cerrarse.** Rechazar un comprobante, agregar una cuenta receptora, conectar WhatsApp y configurar el remitente de correo fallaban durante la animación de cierre («TextEditingController used after being disposed»). Los controladores ahora se liberan al terminar la animación.
+- **Pasos del asistente desbordados en escritorio.** Junto a la barra lateral el contenido mide 920 px y los nombres de los pasos no cabían. Ahora el indicador decide por el ancho disponible y recorta los nombres.
+- **Estado de la carpeta COROC desbordado en teléfonos.** «No configurada en este equipo» no cabía en la tarjeta.
+
 ## Límites conocidos
-- **Cobertura global:** el requisito de ≥ 75 % se cumple en el servidor (núcleo 97 % y API 88 %), pero la app llega a 26 % sin el código generado. Las pantallas se prueban sobre todo por su lógica y sus componentes, no pantalla por pantalla. La CI impide que baje; subirla es trabajo pendiente.
 - **Lectores de pantalla y arranque en frío:** las etiquetas y la semántica están probadas de forma automática. Faltan la prueba manual con TalkBack, VoiceOver y Narrador y la medición del arranque en un teléfono de gama media (P-9).
 - **Prueba de penetración externa:** la suite automática y ZAP no la reemplazan (P-8).
 - **Publicación:** faltan las cuentas de desarrollador y los certificados (P-2) y el entorno público con la cuenta de demostración para la revisión (P-1).
