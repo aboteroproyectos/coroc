@@ -3974,5 +3974,29 @@
   "aboutPrivacyPolicy": "Política de privacidad",
   "@aboutPrivacyPolicy": {
     "description": "Fase 5 · Enlace a la política de privacidad pública"
+  },
+  "helpOfflineTitle": "Trabajar sin conexión",
+  "@helpOfflineTitle": {
+    "description": "Fase 5 · Ayuda"
+  },
+  "helpOfflineBody": "Sin red, COROC muestra los clientes, préstamos, planes, cobros de hoy y los documentos que abrió antes, con la hora en que se guardaron. Lo guardado va cifrado en el equipo y se borra al cerrar la sesión. Si registra un pago sin conexión, queda «por enviar» y sale solo al volver la red, sin duplicarse. Si el servidor lo rechaza (por ejemplo, el préstamo ya estaba pagado), queda «en conflicto» con el motivo: revise el préstamo y regístrelo de nuevo si corresponde, o descártelo. Crear clientes o préstamos requiere conexión.",
+  "@helpOfflineBody": {
+    "description": "Fase 5 · Ayuda"
+  },
+  "helpSupportTitle": "Soporte: lo que falló",
+  "@helpSupportTitle": {
+    "description": "Fase 5 · Ayuda"
+  },
+  "helpSupportBody": "En Configuración › Soporte están los documentos que no se generaron, los mensajes que no salieron y los comprobantes que no se pudieron leer en los últimos 30 días, con su motivo técnico. «Reintentar» los vuelve a poner en cola. En la Bandeja, cada comprobante muestra su recorrido: cuándo llegó, cuándo se leyó, a quién se asignó, cuándo se registró el pago y cuándo salió el recibo.",
+  "@helpSupportBody": {
+    "description": "Fase 5 · Ayuda"
+  },
+  "helpDeleteAccountTitle": "Eliminar la cuenta",
+  "@helpDeleteAccountTitle": {
+    "description": "Fase 5 · Ayuda"
+  },
+  "helpDeleteAccountBody": "En Configuración › Eliminar mi cuenta, con su contraseña. Su usuario se elimina y se cierran sus sesiones; los pagos que registró se conservan como prueba contable a nombre de «Usuario eliminado». El Propietario elimina la cuenta cerrando la empresa: nadie más podrá ingresar y, pasados 30 días, se borran los datos personales salvo lo que la ley obliga a guardar. Descargue antes un respaldo. La política de privacidad está en Configuración › Acerca de COROC.",
+  "@helpDeleteAccountBody": {
+    "description": "Fase 5 · Ayuda"
   }
 }

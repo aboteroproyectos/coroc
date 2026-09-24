@@ -882,5 +882,11 @@
   "offlineQueueTitle": "Pagamentos registrados sem conexão",
   "offlineQueueHelp": "São enviados em ordem com a mesma chave: se algum já tinha chegado, o servidor não duplica. Se o servidor recusar algum (por exemplo, o empréstimo já foi quitado ou o cliente mudou de cobrador), ele fica em conflito com o motivo: revise o empréstimo e registre de novo se for o caso, ou descarte.",
   "offlineSyncNow": "Enviar agora",
-  "aboutPrivacyPolicy": "Política de privacidade"
+  "aboutPrivacyPolicy": "Política de privacidade",
+  "helpOfflineTitle": "Trabalhar sem conexão",
+  "helpOfflineBody": "Sem rede, o COROC mostra os clientes, empréstimos, planos, cobranças de hoje e os documentos abertos antes, com o horário em que foram salvos. O que fica salvo é criptografado no aparelho e apagado ao sair. Se registrar um pagamento sem conexão, ele fica «a enviar» e sai sozinho quando a rede voltar, sem duplicar. Se o servidor recusar (por exemplo, o empréstimo já estava quitado), ele fica «em conflito» com o motivo: revise o empréstimo e registre de novo se for o caso, ou descarte. Criar clientes ou empréstimos exige conexão.",
+  "helpSupportTitle": "Suporte: o que falhou",
+  "helpSupportBody": "Em Configurações › Suporte ficam os documentos que não foram gerados, as mensagens que não saíram e os comprovantes que não puderam ser lidos nos últimos 30 dias, com o motivo técnico. «Tentar de novo» os coloca de volta na fila. Na Caixa de entrada, cada comprovante mostra o seu percurso: quando chegou, quando foi lido, a quem foi atribuído, quando o pagamento foi registrado e quando o recibo saiu.",
+  "helpDeleteAccountTitle": "Excluir a conta",
+  "helpDeleteAccountBody": "Em Configurações › Excluir minha conta, com a sua senha. O usuário é excluído e as sessões são encerradas; os pagamentos registrados são mantidos como prova contábil em nome de «Usuário excluído». O Proprietário exclui a conta encerrando a empresa: ninguém mais poderá entrar e, após 30 dias, os dados pessoais são apagados, exceto o que a lei exige guardar. Baixe um backup antes. A política de privacidade está em Configurações › Sobre o COROC."
 }

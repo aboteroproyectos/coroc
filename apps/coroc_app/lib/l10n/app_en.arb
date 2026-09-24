@@ -882,5 +882,11 @@
   "offlineQueueTitle": "Payments recorded offline",
   "offlineQueueHelp": "They are sent in order with the same key: if one had already arrived, the server does not duplicate it. If the server rejects one (for example, the loan is already paid off or the customer changed collector), it stays in conflict with the reason: review the loan and record it again if appropriate, or discard it.",
   "offlineSyncNow": "Send now",
-  "aboutPrivacyPolicy": "Privacy policy"
+  "aboutPrivacyPolicy": "Privacy policy",
+  "helpOfflineTitle": "Working offline",
+  "helpOfflineBody": "Offline, COROC shows the customers, loans, plans, today's collections and the documents you opened before, with the time they were saved. Saved data is encrypted on the device and deleted on sign-out. If you record a payment offline, it stays “to send” and goes out automatically when the connection returns, without duplicates. If the server rejects it (for example, the loan was already paid off), it stays “in conflict” with the reason: review the loan and record it again if appropriate, or discard it. Creating customers or loans requires a connection.",
+  "helpSupportTitle": "Support: what failed",
+  "helpSupportBody": "Settings › Support lists the documents that were not generated, the messages that did not go out and the receipts that could not be read in the last 30 days, with the technical reason. “Retry” puts them back in the queue. In the Inbox, each receipt shows its journey: when it arrived, when it was read, who it was assigned to, when the payment was recorded and when the receipt went out.",
+  "helpDeleteAccountTitle": "Deleting the account",
+  "helpDeleteAccountBody": "In Settings › Delete my account, with your password. Your user is deleted and your sessions are closed; payments you recorded are kept as accounting evidence under “Deleted user”. The Owner deletes the account by closing the company: no one else can sign in and, after 30 days, personal data is erased except what the law requires to keep. Download a backup first. The privacy policy is in Settings › About COROC."
 }

@@ -82,14 +82,36 @@ flutter test
 
 | Trabajo | Qué hace |
 |---|---|
-| Núcleo y API | `npm ci`, compilación, tipos, textos en 3 idiomas, Redocly, Chromium sin interfaz, Tesseract y todas las pruebas con PostgreSQL 16 (incluidos los PDF, CA-07 a CA-09 y CA-19 con OCR real) |
+| Núcleo y API | `npm ci`, compilación, tipos, textos en 3 idiomas, Redocly, Chromium sin interfaz, Tesseract y todas las pruebas con PostgreSQL 16 (incluidos los PDF, CA-07 a CA-09 y CA-19 con OCR real, y la suite de penetración). Falla si la cobertura baja de 90 % en el núcleo o de 80 % en la API |
+| Rendimiento | 100.000 clientes y 2.000.000 de cuotas: dashboard, búsqueda, cobros de hoy, p95 con usuarios concurrentes y carga mixta. El informe queda como artefacto `informe-de-rendimiento` |
+| Seguridad · dependencias y DAST | `npm audit --omit=dev` (falla con vulnerabilidades moderadas o mayores) y OWASP ZAP sobre el contrato con una sesión real. Falla en inyección, XSS, SSRF, XXE, recorrido de rutas o ejecución de código (`.zap/rules.tsv`). El informe queda como artefacto `informe-zap` |
 | Imagen Docker | Construye `services/api/Dockerfile` |
-| App · análisis y pruebas | Genera las carpetas nativas y el código, verifica los 656 textos en 3 idiomas, `flutter analyze` y `flutter test` |
+| App · análisis y pruebas | Genera las carpetas nativas y el código, verifica los textos en 3 idiomas, `flutter analyze`, `flutter test` (incluidas accesibilidad y contrato de la app) y el piso de cobertura |
 | App · Android | APK y App Bundle (artefacto `coroc-android`) |
 | App · Windows | Ejecutable (artefacto `coroc-windows`) |
 | App · macOS e iOS | En `main`, etiquetas `v*` o a pedido: `.app` de macOS e iOS sin firma |
 
 Los instaladores quedan como artefactos de cada ejecución, en la pestaña Actions del repositorio.
+
+### Publicación (`.github/workflows/release.yml`, ADR-059)
+
+Se ejecuta con una etiqueta `v*` (por ejemplo `git tag v0.5.0 && git push origin v0.5.0`) o a mano desde Actions. En los pull requests que cambian el flujo, corre en seco.
+
+| Plataforma | Con secretos | Sin secretos |
+|---|---|---|
+| Android | App Bundle y APK firmados con la clave de subida; borrador en la pista interna de Google Play | Firmados con la clave de depuración |
+| iOS | IPA firmado y subido a TestFlight | Compilación sin firma |
+| macOS | DMG firmado con Developer ID, notarizado y grapado | DMG sin firma |
+| Windows | MSIX firmado con el certificado de la empresa | MSIX para Microsoft Store (lo firma la tienda) |
+
+La lista de secretos está al inicio del flujo. `COROC_API_URL` es la dirección que la app usará en producción. Con una etiqueta, los instaladores quedan en una versión en borrador de GitHub.
+
+Para crear la clave de subida de Android:
+```bash
+keytool -genkeypair -v -keystore upload-keystore.jks -keyalg RSA -keysize 4096 -validity 10000 -alias upload
+base64 -w0 upload-keystore.jks   # → ANDROID_KEYSTORE_BASE64
+```
+Active «Firma de apps de Google Play» para que Google guarde la clave de firma definitiva.
 
 ## 5. Producción
 
@@ -124,6 +146,16 @@ Los instaladores quedan como artefactos de cada ejecución, en la pestaña Actio
    - `COROC_DELIVERY_LINK_DAYS` (30): vigencia del enlace de descarga del recibo en los mensajes;
    - `COROC_MESSAGE_WORKER=on` (predeterminado) despacha los mensajes en la instancia cada 30 segundos; `off` para instancias que solo atienden peticiones. El trabajo de cada hora programa los recordatorios y los avisos de cuota vencida.
 7. **Contenedor:** la imagen de `services/api/Dockerfile` corre sin root y expone `/health`. Detrás de HTTPS con TLS 1.2 o superior (Caddy, balanceador de la nube o similar). Para los eventos en vivo, desactive el búfer del proxy en `/v1/events`.
-8. **Respaldo de la base:** respaldo automático diario del proveedor con retención de 30 días, más `pg_dump` semanal cifrado fuera de la nube principal. El respaldo `.coroc` por empresa (Configuración › Respaldo) complementa esto, pero no lo reemplaza. Respalde también el volumen o el depósito de archivos.
+8. **Fase 5:**
+   - migración `0006_fase5.sql`: índices y función de búsqueda (ADR-051) y columnas para eliminar cuentas (ADR-056);
+   - `COROC_PRIVACY_CONTACT`: correo de privacidad publicado en `/v1/public/privacy` (por defecto `privacidad@coroc.app`);
+   - el balanceador puede enviar `X-Request-Id`; la API lo devuelve y lo escribe en el registro de acceso (ADR-053);
+   - **cierre de empresa:** a los 30 días de `tenants.closure_requested_at`, soporte hace tres pasos:
+     1. exporta lo que la ley obliga a conservar (libro y recibos);
+     2. purga los datos en una transacción como `coroc_owner`: `BEGIN; SELECT set_config('app.tenant_id', '<id>', true); SELECT coroc.purge_tenant_data('<id>'); COMMIT;`;
+     3. borra el prefijo de la empresa en el almacenamiento de archivos (`t/<id>/`).
+
+     Para revertir un cierre dentro del plazo: `UPDATE coroc.tenants SET closure_requested_at = NULL WHERE id = '<id>'`.
+9. **Respaldo de la base:** respaldo automático diario del proveedor con retención de 30 días, más `pg_dump` semanal cifrado fuera de la nube principal. El respaldo `.coroc` por empresa (Configuración › Respaldo) complementa esto, pero no lo reemplaza. Respalde también el volumen o el depósito de archivos.
 
 Queda pendiente decidir la nube, la región y el dominio (pregunta P-1).
