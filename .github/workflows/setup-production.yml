@@ -14,6 +14,11 @@ on:
       tenant_slug:
         description: 'Identificador corto de la empresa, en minúsculas y con guiones (p. ej. inversiones-coroc)'
         required: false
+      tenant_country:
+        description: 'País donde presta: define moneda, idioma, horario y reglas (CO = pesos, BR = reales, US = dólares)'
+        type: choice
+        options: [CO, BR, US]
+        default: CO
       owner_username:
         description: 'Usuario del Propietario para entrar a la app (p. ej. andres)'
         required: false
@@ -49,6 +54,7 @@ jobs:
       FLY_ORG: ${{ vars.FLY_ORG || 'personal' }}
       TENANT_NAME: ${{ inputs.tenant_name }}
       TENANT_SLUG: ${{ inputs.tenant_name && inputs.tenant_slug || '' }}
+      TENANT_COUNTRY: ${{ inputs.tenant_country }}
       OWNER_USERNAME: ${{ inputs.owner_username }}
       OWNER_NAME: ${{ inputs.owner_name }}
       OWNER_EMAIL: ${{ inputs.owner_email }}

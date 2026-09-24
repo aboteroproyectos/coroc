@@ -73,6 +73,8 @@ Invente estas dos y escríbalas en «Claves de COROC». **No las olvide:**
    - **Nombre de la empresa**: por ejemplo `Inversiones Coroc S.A.S.`
    - **Identificador corto**: el mismo nombre en minúsculas y con guiones, sin tildes: `inversiones-coroc`. Es el que
      escribirá al entrar a la app.
+   - **País**: donde presta y cobra. **CO** si cobra en pesos colombianos, **BR** si cobra en reales (Pix), **US** si
+     cobra en dólares. Define la moneda, el idioma de los mensajes al cliente, la zona horaria y las reglas legales.
    - **Usuario del Propietario**: por ejemplo `andres`.
    - **Nombre completo** y **correo** del Propietario.
 4. Oprima el botón verde **Run workflow**. Aparece una fila con un círculo amarillo girando: tarda unos 15 minutos.
