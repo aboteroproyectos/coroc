@@ -44,8 +44,7 @@ class FakeApi {
     return r.isEmpty || r.last.body.isEmpty ? null : jsonDecode(r.last.body) as Json;
   }
 
-  static http.Response json(int status, Object? body) =>
-      http.Response.bytes(utf8.encode(body == null ? '' : jsonEncode(body)), status, headers: {'content-type': 'application/json; charset=utf-8'});
+  static http.Response json(int status, Object? body) => http.Response.bytes(utf8.encode(body == null ? '' : jsonEncode(body)), status, headers: {'content-type': 'application/json; charset=utf-8'});
   static http.Response problem(int status, String code, [String detail = 'Detalle del error']) =>
       json(status, {'type': 'about:blank', 'title': 'Error $code', 'status': status, 'detail': detail, 'code': code});
 
@@ -82,18 +81,18 @@ class FakeApi {
   }
 
   http.Client client() => MockClient.streaming((req, body) async {
-        final bytes = await body.toBytes();
-        final copy = http.Request(req.method, req.url)
-          ..headers.addAll(req.headers)
-          ..bodyBytes = bytes;
-        requests.add(copy);
-        // Eventos en vivo: la conexión queda abierta como en el servidor real (sin reconexiones durante la prueba).
-        if (req.url.path.endsWith('/events')) {
-          return http.StreamedResponse(events.stream, 200, headers: {'content-type': 'text/event-stream'});
-        }
-        final res = handle(copy);
-        return http.StreamedResponse(Stream.value(res.bodyBytes), res.statusCode, headers: res.headers);
-      });
+    final bytes = await body.toBytes();
+    final copy = http.Request(req.method, req.url)
+      ..headers.addAll(req.headers)
+      ..bodyBytes = bytes;
+    requests.add(copy);
+    // Eventos en vivo: la conexión queda abierta como en el servidor real (sin reconexiones durante la prueba).
+    if (req.url.path.endsWith('/events')) {
+      return http.StreamedResponse(events.stream, 200, headers: {'content-type': 'text/event-stream'});
+    }
+    final res = handle(copy);
+    return http.StreamedResponse(Stream.value(res.bodyBytes), res.statusCode, headers: res.headers);
+  });
 
   http.Response handle(http.Request req) {
     final path = req.url.path.replaceFirst('/v1', '');

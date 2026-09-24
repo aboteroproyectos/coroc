@@ -54,13 +54,23 @@ void main() {
     expect(m.decision.localAt, '2026-10-13T07:00');
     expect(m.rule, const DecisionReason(code: 'HOLIDAY_SKIPPED', detail: '2026-10-12'));
     expect(m.assisted?.whatsappUrl, startsWith('https://wa.me/573157778810'));
-    final page = MessagePage.fromJson({'items': [_scheduled], 'nextCursor': null});
+    final page = MessagePage.fromJson({
+      'items': [_scheduled],
+      'nextCursor': null,
+    });
     expect(page.items.single.contract, 'CT-000001');
   });
 
   testWidgets('CA-10 en pantalla: el recordatorio muestra cuándo sale y por qué se reprogramó', (tester) async {
     final m = CorocMessage.fromJson(_scheduled);
-    await tester.pumpWidget(harness(Scaffold(body: ListView(children: [MessageTile(message: m)])), store: MemorySessionStore(savedLocale: 'es')));
+    await tester.pumpWidget(
+      harness(
+        Scaffold(
+          body: ListView(children: [MessageTile(message: m)]),
+        ),
+        store: MemorySessionStore(savedLocale: 'es'),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.textContaining('María José Pérez Gómez · Recordatorio de cuota · CT-000001'), findsOneWidget);
     expect(find.text('Programado'), findsOneWidget);
@@ -83,7 +93,14 @@ void main() {
         ],
       },
     });
-    await tester.pumpWidget(harness(Scaffold(body: ListView(children: [MessageTile(message: m)])), store: MemorySessionStore(savedLocale: 'es')));
+    await tester.pumpWidget(
+      harness(
+        Scaffold(
+          body: ListView(children: [MessageTile(message: m)]),
+        ),
+        store: MemorySessionStore(savedLocale: 'es'),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.text('Bloqueado por regla'), findsOneWidget);
     expect(find.textContaining('Bloqueado: ya hubo un contacto de cobranza el'), findsOneWidget);
@@ -92,10 +109,17 @@ void main() {
 
   testWidgets('las reglas y el validador también hablan portugués', (tester) async {
     late AppLocalizations l;
-    await tester.pumpWidget(harness(Builder(builder: (context) {
-      l = context.l10n;
-      return const SizedBox.shrink();
-    }), store: MemorySessionStore(savedLocale: 'pt')));
+    await tester.pumpWidget(
+      harness(
+        Builder(
+          builder: (context) {
+            l = context.l10n;
+            return const SizedBox.shrink();
+          },
+        ),
+        store: MemorySessionStore(savedLocale: 'pt'),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(reasonText(l, const DecisionReason(code: 'OPTED_OUT', detail: 'whatsapp'), 'pt'), 'o cliente pediu para não receber mais por WhatsApp');
     expect(issueText(l, const TemplateIssue(code: 'UNKNOWN_VARIABLE', match: 'cedula')), 'A variável {{cedula}} não existe.');

@@ -22,7 +22,19 @@ enum FolderStatus { loading, notConfigured, ready, needsPermission }
 
 @immutable
 class FolderState {
-  const FolderState({this.status = FolderStatus.loading, this.displayPath, this.syncing = false, this.lastSync, this.lastResult, this.error, this.untracked = const [], this.subfolders = const [], this.rootFolders = const [], this.watching = true, this.sentToInbox = 0});
+  const FolderState({
+    this.status = FolderStatus.loading,
+    this.displayPath,
+    this.syncing = false,
+    this.lastSync,
+    this.lastResult,
+    this.error,
+    this.untracked = const [],
+    this.subfolders = const [],
+    this.rootFolders = const [],
+    this.watching = true,
+    this.sentToInbox = 0,
+  });
   final FolderStatus status;
   final String? displayPath;
   final bool syncing;
@@ -31,26 +43,42 @@ class FolderState {
   final Object? error;
   final List<UntrackedFile> untracked;
   final List<String> subfolders;
+
   /// _Sin asignar, _Entrada, _Informes, _Respaldos en el idioma de la empresa.
   final List<String> rootFolders;
+
   /// Carpeta vigilada (§12.5, escritorio): las imágenes y PDF nuevos van solos a la Bandeja.
   final bool watching;
+
   /// Comprobantes enviados a la Bandeja desde la carpeta en esta sesión.
   final int sentToInbox;
 
-  FolderState copyWith({FolderStatus? status, String? displayPath, bool? syncing, DateTime? lastSync, SyncResult? lastResult, Object? error, bool clearError = false, List<UntrackedFile>? untracked, List<String>? subfolders, List<String>? rootFolders, bool? watching, int? sentToInbox}) => FolderState(
-        status: status ?? this.status,
-        displayPath: displayPath ?? this.displayPath,
-        syncing: syncing ?? this.syncing,
-        lastSync: lastSync ?? this.lastSync,
-        lastResult: lastResult ?? this.lastResult,
-        error: clearError ? null : (error ?? this.error),
-        untracked: untracked ?? this.untracked,
-        subfolders: subfolders ?? this.subfolders,
-        rootFolders: rootFolders ?? this.rootFolders,
-        watching: watching ?? this.watching,
-        sentToInbox: sentToInbox ?? this.sentToInbox,
-      );
+  FolderState copyWith({
+    FolderStatus? status,
+    String? displayPath,
+    bool? syncing,
+    DateTime? lastSync,
+    SyncResult? lastResult,
+    Object? error,
+    bool clearError = false,
+    List<UntrackedFile>? untracked,
+    List<String>? subfolders,
+    List<String>? rootFolders,
+    bool? watching,
+    int? sentToInbox,
+  }) => FolderState(
+    status: status ?? this.status,
+    displayPath: displayPath ?? this.displayPath,
+    syncing: syncing ?? this.syncing,
+    lastSync: lastSync ?? this.lastSync,
+    lastResult: lastResult ?? this.lastResult,
+    error: clearError ? null : (error ?? this.error),
+    untracked: untracked ?? this.untracked,
+    subfolders: subfolders ?? this.subfolders,
+    rootFolders: rootFolders ?? this.rootFolders,
+    watching: watching ?? this.watching,
+    sentToInbox: sentToInbox ?? this.sentToInbox,
+  );
 }
 
 /// Documentos del repositorio para el espejo local, con la sesión de la app.
@@ -333,10 +361,10 @@ class FolderController extends Notifier<FolderState> {
   }
 
   static List<String> _defaultRoots(String lang) => switch (lang) {
-        'en' => const ['_Unassigned', '_Inbox', '_Reports', '_Backups'],
-        'pt-BR' => const ['_Sem atribuicao', '_Entrada', '_Relatorios', '_Backups'],
-        _ => const ['_Sin asignar', '_Entrada', '_Informes', '_Respaldos'],
-      };
+    'en' => const ['_Unassigned', '_Inbox', '_Reports', '_Backups'],
+    'pt-BR' => const ['_Sem atribuicao', '_Entrada', '_Relatorios', '_Backups'],
+    _ => const ['_Sin asignar', '_Entrada', '_Informes', '_Respaldos'],
+  };
 }
 
 final folderProvider = NotifierProvider<FolderController, FolderState>(FolderController.new);

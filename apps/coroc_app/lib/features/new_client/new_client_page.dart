@@ -138,57 +138,70 @@ class _NewClientPageState extends ConsumerState<NewClientPage> {
     final steps = [l.wizardStepClient, l.wizardStepLoan, l.wizardStepConfirm];
 
     // Un solo Form para toda la página: evita claves globales duplicadas durante la transición entre pasos.
-    return Form(key: _form, child: PageScaffold(maxWidth: 920, children: [
-      PageHeader(
-        overline: l.newClient,
-        title: steps[_step],
-        subtitle: l.wizardStepOf(_step + 1, steps.length),
-        actions: [TextButton.icon(onPressed: _cancel, icon: const Icon(Icons.close), label: Text(l.actionCancel))],
+    return Form(
+      key: _form,
+      child: PageScaffold(
+        maxWidth: 920,
+        children: [
+          PageHeader(
+            overline: l.newClient,
+            title: steps[_step],
+            subtitle: l.wizardStepOf(_step + 1, steps.length),
+            actions: [TextButton.icon(onPressed: _cancel, icon: const Icon(Icons.close), label: Text(l.actionCancel))],
+          ),
+          _StepIndicator(labels: steps, current: _step),
+          const SizedBox(height: CorocSpace.lg),
+          AnimatedSwitcher(
+            duration: MediaQuery.of(context).disableAnimations ? Duration.zero : CorocMotion.normal,
+            child: KeyedSubtree(
+              key: ValueKey(_step),
+              child: switch (_step) {
+                0 => SectionCard(
+                  child: ClientFields(data: _data, error: _error, onChanged: () => setState(() {})),
+                ),
+                1 => SectionCard(child: LoanTermsForm(controller: _terms)),
+                _ => _ConfirmStep(
+                  data: _data,
+                  terms: _terms,
+                  consents: _consents,
+                  method: _consentMethod,
+                  onConsent: (k, v) => setState(() => _consents[k] = v),
+                  onMethod: (m) => setState(() => _consentMethod = m),
+                ),
+              },
+            ),
+          ),
+          if (_error != null) ...[
+            const SizedBox(height: CorocSpace.md),
+            Semantics(
+              liveRegion: true,
+              child: StatusDot(label: errorText(context, _error!), tone: StatusTone.error),
+            ),
+          ],
+          const SizedBox(height: CorocSpace.lg),
+          ListenableBuilder(
+            listenable: _terms,
+            builder: (context, _) {
+              final canNext = switch (_step) {
+                0 => true,
+                1 => _terms.toLoanInput() != null && _terms.compliant,
+                _ => _consents['personal_data'] == true,
+              };
+              return Row(
+                children: [
+                  if (_step > 0) OutlinedButton.icon(onPressed: _busy ? null : _back, icon: const Icon(Icons.arrow_back), label: Text(l.actionBack)),
+                  const Spacer(),
+                  if (_step < 2)
+                    GoldButton(label: l.actionNext, icon: Icons.arrow_forward, onPressed: canNext ? _next : null)
+                  else
+                    GoldButton(label: l.newClientCreate, icon: Icons.check, busy: _busy, onPressed: canNext ? () => _submit() : null),
+                ],
+              );
+            },
+          ),
+        ],
       ),
-      _StepIndicator(labels: steps, current: _step),
-      const SizedBox(height: CorocSpace.lg),
-      AnimatedSwitcher(
-        duration: MediaQuery.of(context).disableAnimations ? Duration.zero : CorocMotion.normal,
-        child: KeyedSubtree(
-          key: ValueKey(_step),
-          child: switch (_step) {
-            0 => SectionCard(child: ClientFields(data: _data, error: _error, onChanged: () => setState(() {}))),
-            1 => SectionCard(child: LoanTermsForm(controller: _terms)),
-            _ => _ConfirmStep(
-                data: _data,
-                terms: _terms,
-                consents: _consents,
-                method: _consentMethod,
-                onConsent: (k, v) => setState(() => _consents[k] = v),
-                onMethod: (m) => setState(() => _consentMethod = m),
-              ),
-          },
-        ),
-      ),
-      if (_error != null) ...[
-        const SizedBox(height: CorocSpace.md),
-        Semantics(liveRegion: true, child: StatusDot(label: errorText(context, _error!), tone: StatusTone.error)),
-      ],
-      const SizedBox(height: CorocSpace.lg),
-      ListenableBuilder(
-        listenable: _terms,
-        builder: (context, _) {
-          final canNext = switch (_step) {
-            0 => true,
-            1 => _terms.toLoanInput() != null && _terms.compliant,
-            _ => _consents['personal_data'] == true,
-          };
-          return Row(children: [
-            if (_step > 0) OutlinedButton.icon(onPressed: _busy ? null : _back, icon: const Icon(Icons.arrow_back), label: Text(l.actionBack)),
-            const Spacer(),
-            if (_step < 2)
-              GoldButton(label: l.actionNext, icon: Icons.arrow_forward, onPressed: canNext ? _next : null)
-            else
-              GoldButton(label: l.newClientCreate, icon: Icons.check, busy: _busy, onPressed: canNext ? () => _submit() : null),
-          ]);
-        },
-      ),
-    ]));
+    );
   }
 }
 
@@ -216,7 +229,10 @@ class _StepIndicator extends StatelessWidget {
         ),
         child: done
             ? const Icon(Icons.check, size: 18, color: CorocColors.navy800)
-            : Text('${i + 1}', style: TextStyle(fontWeight: FontWeight.w600, color: active ? CorocColors.navy800 : scheme.onSurfaceVariant)),
+            : Text(
+                '${i + 1}',
+                style: TextStyle(fontWeight: FontWeight.w600, color: active ? CorocColors.navy800 : scheme.onSurfaceVariant),
+              ),
       );
     }
 
@@ -224,22 +240,34 @@ class _StepIndicator extends StatelessWidget {
       label: labels[current],
       // El ancho disponible (no el de la pantalla) decide si caben los nombres de los pasos: junto a la barra lateral
       // el contenido es más angosto que la ventana.
-      child: LayoutBuilder(builder: (context, constraints) {
-        final narrow = constraints.maxWidth < CorocBreakpoints.tablet;
-        return Row(children: [
-          for (var i = 0; i < labels.length; i++) ...[
-            dot(i),
-            if (!narrow || i == current) ...[
-              const SizedBox(width: 8),
-              Flexible(
-                flex: 2,
-                child: Text(labels[i], maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.labelLarge?.copyWith(color: i == current ? (dark ? CorocColors.gold300 : CorocColors.gold800) : scheme.onSurfaceVariant)),
-              ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final narrow = constraints.maxWidth < CorocBreakpoints.tablet;
+          return Row(
+            children: [
+              for (var i = 0; i < labels.length; i++) ...[
+                dot(i),
+                if (!narrow || i == current) ...[
+                  const SizedBox(width: 8),
+                  Flexible(
+                    flex: 2,
+                    child: Text(
+                      labels[i],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(color: i == current ? (dark ? CorocColors.gold300 : CorocColors.gold800) : scheme.onSurfaceVariant),
+                    ),
+                  ),
+                ],
+                if (i < labels.length - 1)
+                  Expanded(
+                    child: Container(height: 1, margin: const EdgeInsets.symmetric(horizontal: 12), color: i < current ? CorocColors.gold500 : scheme.outlineVariant),
+                  ),
+              ],
             ],
-            if (i < labels.length - 1) Expanded(child: Container(height: 1, margin: const EdgeInsets.symmetric(horizontal: 12), color: i < current ? CorocColors.gold500 : scheme.outlineVariant)),
-          ],
-        ]);
-      }),
+          );
+        },
+      ),
     );
   }
 }
@@ -262,69 +290,88 @@ class _ConfirmStep extends StatelessWidget {
     final hasEmail = data.email.text.trim().isNotEmpty;
     final n = int.tryParse(terms.installments.text.trim()) ?? 0;
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      SectionCard(
-        title: l.consentsTitle,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            value: consents['personal_data'],
-            onChanged: (v) => onConsent('personal_data', v ?? false),
-            title: Text('${l.consentPersonalData} *'),
-            subtitle: Text(l.consentPersonalDataHelp),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SectionCard(
+          title: l.consentsTitle,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                value: consents['personal_data'],
+                onChanged: (v) => onConsent('personal_data', v ?? false),
+                title: Text('${l.consentPersonalData} *'),
+                subtitle: Text(l.consentPersonalDataHelp),
+              ),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                value: consents['whatsapp'],
+                onChanged: (v) => onConsent('whatsapp', v ?? false),
+                title: Text(l.consentWhatsapp),
+                subtitle: Text(l.consentChannelHelp),
+              ),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                value: hasEmail && consents['email'] == true,
+                onChanged: hasEmail ? (v) => onConsent('email', v ?? false) : null,
+                title: Text(l.consentEmail),
+                subtitle: Text(hasEmail ? l.consentChannelHelp : l.consentEmailMissing),
+              ),
+              const SizedBox(height: CorocSpace.sm),
+              Wrap(
+                spacing: CorocSpace.md,
+                runSpacing: CorocSpace.sm,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(l.consentMethod),
+                  SegmentedButton<String>(
+                    showSelectedIcon: false,
+                    segments: [
+                      ButtonSegment(value: 'signed', label: Text(l.consentMethodSigned)),
+                      ButtonSegment(value: 'verbal', label: Text(l.consentMethodVerbal)),
+                    ],
+                    selected: {method},
+                    onSelectionChanged: (v) => onMethod(v.first),
+                  ),
+                ],
+              ),
+            ],
           ),
-          CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            value: consents['whatsapp'],
-            onChanged: (v) => onConsent('whatsapp', v ?? false),
-            title: Text(l.consentWhatsapp),
-            subtitle: Text(l.consentChannelHelp),
+        ),
+        const SizedBox(height: CorocSpace.md),
+        SectionCard(
+          title: l.wizardSummary,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              KeyValue(l.fieldName, '${data.firstName.text.trim()} ${data.lastName.text.trim()}', emphasize: true),
+              KeyValue(l.fieldPhone, data.phone.text.trim()),
+              if (data.idDocNumber.text.trim().isNotEmpty) KeyValue(l.fieldIdDoc, '${data.idDocType.text.trim()} ${data.idDocNumber.text.trim()}'),
+              const Divider(height: CorocSpace.lg),
+              if (Money.parse(terms.principal.text, terms.currency) case final principal?) KeyValue(l.cardPrincipal, m(principal)),
+              KeyValue(l.termsInstallments, '$n · ${frequencyLabel(l, terms.frequency)}'),
+              KeyValue(l.termsMethod, methodLabel(l, terms.method)),
+              if (p != null) ...[
+                KeyValue(l.previewInstallment, m(p.regularInstallment), emphasize: true),
+                KeyValue(l.previewTotal, m(p.totalPayable)),
+                KeyValue(l.previewProfit, m(p.totalInterest)),
+                KeyValue(l.previewEffectiveRate, percent(p.effectiveAnnualRate, context.lang)),
+                if (p.installments.isNotEmpty) KeyValue(l.termsFirstDue, Dates.medium(p.installments.first.dueDate, context.lang)),
+              ],
+              const SizedBox(height: CorocSpace.sm),
+              Row(
+                children: [
+                  Icon(Icons.folder_outlined, size: 18, color: Theme.of(context).colorScheme.tertiary),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(l.wizardFolderNote, style: Theme.of(context).textTheme.bodySmall)),
+                ],
+              ),
+            ],
           ),
-          CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            value: hasEmail && consents['email'] == true,
-            onChanged: hasEmail ? (v) => onConsent('email', v ?? false) : null,
-            title: Text(l.consentEmail),
-            subtitle: Text(hasEmail ? l.consentChannelHelp : l.consentEmailMissing),
-          ),
-          const SizedBox(height: CorocSpace.sm),
-          Wrap(spacing: CorocSpace.md, runSpacing: CorocSpace.sm, crossAxisAlignment: WrapCrossAlignment.center, children: [
-            Text(l.consentMethod),
-            SegmentedButton<String>(
-              showSelectedIcon: false,
-              segments: [ButtonSegment(value: 'signed', label: Text(l.consentMethodSigned)), ButtonSegment(value: 'verbal', label: Text(l.consentMethodVerbal))],
-              selected: {method},
-              onSelectionChanged: (v) => onMethod(v.first),
-            ),
-          ]),
-        ]),
-      ),
-      const SizedBox(height: CorocSpace.md),
-      SectionCard(
-        title: l.wizardSummary,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          KeyValue(l.fieldName, '${data.firstName.text.trim()} ${data.lastName.text.trim()}', emphasize: true),
-          KeyValue(l.fieldPhone, data.phone.text.trim()),
-          if (data.idDocNumber.text.trim().isNotEmpty) KeyValue(l.fieldIdDoc, '${data.idDocType.text.trim()} ${data.idDocNumber.text.trim()}'),
-          const Divider(height: CorocSpace.lg),
-          if (Money.parse(terms.principal.text, terms.currency) case final principal?) KeyValue(l.cardPrincipal, m(principal)),
-          KeyValue(l.termsInstallments, '$n · ${frequencyLabel(l, terms.frequency)}'),
-          KeyValue(l.termsMethod, methodLabel(l, terms.method)),
-          if (p != null) ...[
-            KeyValue(l.previewInstallment, m(p.regularInstallment), emphasize: true),
-            KeyValue(l.previewTotal, m(p.totalPayable)),
-            KeyValue(l.previewProfit, m(p.totalInterest)),
-            KeyValue(l.previewEffectiveRate, percent(p.effectiveAnnualRate, context.lang)),
-            if (p.installments.isNotEmpty) KeyValue(l.termsFirstDue, Dates.medium(p.installments.first.dueDate, context.lang)),
-          ],
-          const SizedBox(height: CorocSpace.sm),
-          Row(children: [
-            Icon(Icons.folder_outlined, size: 18, color: Theme.of(context).colorScheme.tertiary),
-            const SizedBox(width: 8),
-            Expanded(child: Text(l.wizardFolderNote, style: Theme.of(context).textTheme.bodySmall)),
-          ]),
-        ]),
-      ),
-    ]);
+        ),
+      ],
+    );
   }
 }

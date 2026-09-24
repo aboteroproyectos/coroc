@@ -45,7 +45,9 @@ class GoldButton extends StatelessWidget {
         else if (icon != null)
           Icon(icon, size: 20, color: CorocColors.navy800),
         if (busy || icon != null) const SizedBox(width: 10),
-        Flexible(child: Text(label, style: text, overflow: TextOverflow.ellipsis)),
+        Flexible(
+          child: Text(label, style: text, overflow: TextOverflow.ellipsis),
+        ),
       ],
     );
     return Semantics(

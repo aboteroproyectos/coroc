@@ -22,12 +22,7 @@ abstract final class CorocColors {
   static const info = Color(0xFF2B5CAB);
 
   /// Degradado de marca: solo botón primario, isotipo, anillo de progreso y cifra protagonista (§5.2).
-  static const brandGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [gold700, gold500, gold300, gold700],
-    stops: [0, 0.45, 0.70, 1],
-  );
+  static const brandGradient = LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [gold700, gold500, gold300, gold700], stops: [0, 0.45, 0.70, 1]);
 }
 
 abstract final class CorocRadii {

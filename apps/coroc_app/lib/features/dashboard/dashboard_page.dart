@@ -62,10 +62,9 @@ class RealtimeListener extends ConsumerWidget {
       if (e.type == 'payment.posted') {
         final amount = (e.data['amount'] as num?)?.toInt() ?? 0;
         final currency = ref.read(sessionProvider)?.company.currency ?? 'COP';
-        ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(
-          content: Text(context.l10n.realtimePayment(e.data['clientName'] as String? ?? '', Money.format(amount, currency))),
-          duration: const Duration(seconds: 4),
-        ));
+        ScaffoldMessenger.maybeOf(
+          context,
+        )?.showSnackBar(SnackBar(content: Text(context.l10n.realtimePayment(e.data['clientName'] as String? ?? '', Money.format(amount, currency))), duration: const Duration(seconds: 4)));
       }
       if (e.type == 'security.lockout') {
         ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(context.l10n.realtimeLockout(e.data['username'] as String? ?? ''))));
@@ -114,11 +113,7 @@ class DashboardPage extends ConsumerWidget {
               if (user?.can('clients.create') ?? false) GoldButton(label: l.newClient, icon: Icons.add, onPressed: () => context.go('/clients/new')),
             ],
           ),
-          AsyncBody<Dashboard>(
-            value: data,
-            onRetry: () => ref.invalidate(dashboardProvider),
-            builder: (d) => _DashboardBody(d),
-          ),
+          AsyncBody<Dashboard>(value: data, onRetry: () => ref.invalidate(dashboardProvider), builder: (d) => _DashboardBody(d)),
         ],
       ),
     );
@@ -142,35 +137,83 @@ class _DashboardBody extends ConsumerWidget {
     final pendingToday = d.expectedToday;
     final ratio = (d.collectedToday + pendingToday) == 0 ? 0.0 : d.collectedToday / (d.collectedToday + pendingToday);
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      if (d.refreshing) ...[
-        Card(child: ListTile(leading: const Icon(Icons.sync), title: Text(l.dashboardRefreshing))),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (d.refreshing) ...[
+          Card(
+            child: ListTile(leading: const Icon(Icons.sync), title: Text(l.dashboardRefreshing)),
+          ),
+          const SizedBox(height: CorocSpace.md),
+        ],
+        LayoutBuilder(
+          builder: (context, c) {
+            final cols = c.maxWidth >= 1000 ? 4 : (c.maxWidth >= 560 ? 2 : 1);
+            final w = (c.maxWidth - (cols - 1) * CorocSpace.md) / cols;
+            return Wrap(
+              spacing: CorocSpace.md,
+              runSpacing: CorocSpace.md,
+              children: [for (final k in kpis) SizedBox(width: w, child: k)],
+            );
+          },
+        ),
         const SizedBox(height: CorocSpace.md),
+        LayoutBuilder(
+          builder: (context, c) {
+            final hero = _HeroCard(collected: d.collectedToday, pending: pendingToday, ratio: ratio, currency: d.currency);
+            final aging = _AgingCard(d);
+            if (c.maxWidth < 900) {
+              return Column(
+                children: [
+                  hero,
+                  const SizedBox(height: CorocSpace.md),
+                  aging,
+                ],
+              );
+            }
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(flex: 3, child: hero),
+                const SizedBox(width: CorocSpace.md),
+                Expanded(flex: 2, child: aging),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: CorocSpace.md),
+        LayoutBuilder(
+          builder: (context, c) {
+            final trend = SectionCard(
+              title: l.trendTitle(d.trend.length),
+              trailing: Text(m(d.trend.fold(0, (s, p) => s + p.amount)), style: Theme.of(context).textTheme.titleSmall),
+              child: SizedBox(
+                height: 220,
+                child: TrendChart(points: d.trend, currency: d.currency),
+              ),
+            );
+            const today = _TodayCard();
+            if (c.maxWidth < 900) {
+              return Column(
+                children: [
+                  trend,
+                  const SizedBox(height: CorocSpace.md),
+                  today,
+                ],
+              );
+            }
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(flex: 3, child: trend),
+                const SizedBox(width: CorocSpace.md),
+                const Expanded(flex: 2, child: today),
+              ],
+            );
+          },
+        ),
       ],
-      LayoutBuilder(builder: (context, c) {
-        final cols = c.maxWidth >= 1000 ? 4 : (c.maxWidth >= 560 ? 2 : 1);
-        final w = (c.maxWidth - (cols - 1) * CorocSpace.md) / cols;
-        return Wrap(spacing: CorocSpace.md, runSpacing: CorocSpace.md, children: [for (final k in kpis) SizedBox(width: w, child: k)]);
-      }),
-      const SizedBox(height: CorocSpace.md),
-      LayoutBuilder(builder: (context, c) {
-        final hero = _HeroCard(collected: d.collectedToday, pending: pendingToday, ratio: ratio, currency: d.currency);
-        final aging = _AgingCard(d);
-        if (c.maxWidth < 900) return Column(children: [hero, const SizedBox(height: CorocSpace.md), aging]);
-        return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Expanded(flex: 3, child: hero), const SizedBox(width: CorocSpace.md), Expanded(flex: 2, child: aging)]);
-      }),
-      const SizedBox(height: CorocSpace.md),
-      LayoutBuilder(builder: (context, c) {
-        final trend = SectionCard(
-          title: l.trendTitle(d.trend.length),
-          trailing: Text(m(d.trend.fold(0, (s, p) => s + p.amount)), style: Theme.of(context).textTheme.titleSmall),
-          child: SizedBox(height: 220, child: TrendChart(points: d.trend, currency: d.currency)),
-        );
-        const today = _TodayCard();
-        if (c.maxWidth < 900) return Column(children: [trend, const SizedBox(height: CorocSpace.md), today]);
-        return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Expanded(flex: 3, child: trend), const SizedBox(width: CorocSpace.md), const Expanded(flex: 2, child: today)]);
-      }),
-    ]);
+    );
   }
 }
 
@@ -189,13 +232,26 @@ class _Kpi extends StatelessWidget {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(CorocSpace.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [Icon(icon, size: 18, color: scheme.tertiary), const SizedBox(width: 8), Expanded(child: Overline(label))]),
-          const SizedBox(height: CorocSpace.md),
-          FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: CountUp(value: value, format: format, style: t.displaySmall)),
-          const SizedBox(height: 6),
-          Text(sub, style: t.bodySmall, maxLines: 2, overflow: TextOverflow.ellipsis),
-        ]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 18, color: scheme.tertiary),
+                const SizedBox(width: 8),
+                Expanded(child: Overline(label)),
+              ],
+            ),
+            const SizedBox(height: CorocSpace.md),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: CountUp(value: value, format: format, style: t.displaySmall),
+            ),
+            const SizedBox(height: 6),
+            Text(sub, style: t.bodySmall, maxLines: 2, overflow: TextOverflow.ellipsis),
+          ],
+        ),
       ),
     );
   }
@@ -224,25 +280,39 @@ class _HeroCard extends StatelessWidget {
           ProgressRing(
             progress: ratio,
             size: 132,
-            center: Column(mainAxisSize: MainAxisSize.min, children: [
-              Text('${(ratio * 100).round()} %', style: t.headlineSmall?.copyWith(color: CorocColors.ivory, fontFamily: 'Inter')),
-              Text(l.heroOfToday, style: t.labelSmall?.copyWith(color: CorocColors.inkMutedDark)),
-            ]),
+            center: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '${(ratio * 100).round()} %',
+                  style: t.headlineSmall?.copyWith(color: CorocColors.ivory, fontFamily: 'Inter'),
+                ),
+                Text(l.heroOfToday, style: t.labelSmall?.copyWith(color: CorocColors.inkMutedDark)),
+              ],
+            ),
           ),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 360),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-              Overline(l.heroCollectedToday, color: CorocColors.inkMutedDark),
-              const SizedBox(height: 8),
-              ShaderMask(
-                shaderCallback: (r) => CorocColors.brandGradient.createShader(r),
-                child: CountUp(value: collected, format: (v) => Money.format(v, currency), style: t.displayMedium?.copyWith(color: Colors.white)),
-              ),
-              const SizedBox(height: 6),
-              Text(l.heroPendingToday(Money.format(pending, currency)), style: t.bodyMedium?.copyWith(color: CorocColors.ivory)),
-              const SizedBox(height: CorocSpace.md),
-              GoldButton(label: l.heroSeeToday, icon: Icons.arrow_forward, onPressed: () => context.go('/today')),
-            ]),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Overline(l.heroCollectedToday, color: CorocColors.inkMutedDark),
+                const SizedBox(height: 8),
+                ShaderMask(
+                  shaderCallback: (r) => CorocColors.brandGradient.createShader(r),
+                  child: CountUp(
+                    value: collected,
+                    format: (v) => Money.format(v, currency),
+                    style: t.displayMedium?.copyWith(color: Colors.white),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(l.heroPendingToday(Money.format(pending, currency)), style: t.bodyMedium?.copyWith(color: CorocColors.ivory)),
+                const SizedBox(height: CorocSpace.md),
+                GoldButton(label: l.heroSeeToday, icon: Icons.arrow_forward, onPressed: () => context.go('/today')),
+              ],
+            ),
           ),
         ],
       ),
@@ -268,34 +338,43 @@ class _AgingCard extends StatelessWidget {
     final max = rows.map((r) => r.$2.amount).fold<int>(0, math.max);
     return SectionCard(
       title: l.agingTitle,
-      child: Column(children: [
-        for (final r in rows)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Row(children: [
-              SizedBox(
-                width: 120,
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  StatusDot(label: r.$1, tone: r.$3),
-                  Text(l.loansCount(r.$2.loans), style: t.bodySmall),
-                ]),
-              ),
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: max == 0 ? 0 : r.$2.amount / max,
-                    minHeight: 10,
-                    backgroundColor: Theme.of(context).colorScheme.outlineVariant,
-                    color: CorocColors.gold500,
+      child: Column(
+        children: [
+          for (final r in rows)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 120,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        StatusDot(label: r.$1, tone: r.$3),
+                        Text(l.loansCount(r.$2.loans), style: t.bodySmall),
+                      ],
+                    ),
                   ),
-                ),
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(value: max == 0 ? 0 : r.$2.amount / max, minHeight: 10, backgroundColor: Theme.of(context).colorScheme.outlineVariant, color: CorocColors.gold500),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: 96,
+                    child: Text(
+                      Money.compact(r.$2.amount, d.currency),
+                      textAlign: TextAlign.end,
+                      style: t.titleSmall?.copyWith(fontFamily: 'Inter'),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              SizedBox(width: 96, child: Text(Money.compact(r.$2.amount, d.currency), textAlign: TextAlign.end, style: t.titleSmall?.copyWith(fontFamily: 'Inter'))),
-            ]),
-          ),
-      ]),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -314,18 +393,29 @@ class _TodayCard extends ConsumerWidget {
         value: today,
         onRetry: () => ref.invalidate(todayProvider),
         builder: (d) => d.items.isEmpty
-            ? Padding(padding: const EdgeInsets.symmetric(vertical: CorocSpace.lg), child: Text(l.todayEmpty, textAlign: TextAlign.center))
-            : Column(children: [
-                for (final i in d.items.take(5))
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: CircleAvatar(backgroundColor: CorocColors.gold300, child: Text(initials(i.clientName), style: const TextStyle(color: CorocColors.navy800, fontWeight: FontWeight.w600))),
-                    title: Text(i.clientName, overflow: TextOverflow.ellipsis),
-                    subtitle: Text('${i.contract} · ${l.installmentN(i.installmentNumber ?? 0)}'),
-                    trailing: Text(Money.format(i.amountToCollect, i.currency), style: Theme.of(context).textTheme.titleSmall?.copyWith(fontFamily: 'Inter')),
-                    onTap: () => context.go('/clients/${i.clientId}'),
-                  ),
-              ]),
+            ? Padding(
+                padding: const EdgeInsets.symmetric(vertical: CorocSpace.lg),
+                child: Text(l.todayEmpty, textAlign: TextAlign.center),
+              )
+            : Column(
+                children: [
+                  for (final i in d.items.take(5))
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: CircleAvatar(
+                        backgroundColor: CorocColors.gold300,
+                        child: Text(
+                          initials(i.clientName),
+                          style: const TextStyle(color: CorocColors.navy800, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      title: Text(i.clientName, overflow: TextOverflow.ellipsis),
+                      subtitle: Text('${i.contract} · ${l.installmentN(i.installmentNumber ?? 0)}'),
+                      trailing: Text(Money.format(i.amountToCollect, i.currency), style: Theme.of(context).textTheme.titleSmall?.copyWith(fontFamily: 'Inter')),
+                      onTap: () => context.go('/clients/${i.clientId}'),
+                    ),
+                ],
+              ),
       ),
     );
   }
@@ -355,48 +445,65 @@ class _TrendChartState extends State<TrendChart> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
-    return LayoutBuilder(builder: (context, c) {
-      final size = Size(c.maxWidth, c.maxHeight);
-      final h = _hover;
-      return MouseRegion(
-        onHover: (e) => setState(() => _hover = _hit(e.localPosition, size)),
-        onExit: (_) => setState(() => _hover = null),
-        child: GestureDetector(
-          onTapDown: (e) => setState(() => _hover = _hit(e.localPosition, size)),
-          child: Stack(children: [
-            CustomPaint(
-              size: size,
-              painter: _TrendPainter(
-                points: widget.points,
-                currency: widget.currency,
-                lang: context.lang,
-                grid: scheme.outlineVariant,
-                label: scheme.onSurfaceVariant,
-                bar: CorocColors.gold500,
-                barToday: CorocColors.gold700,
-                hover: h,
-                labelStyle: t.bodySmall!,
-              ),
-            ),
-            if (h != null)
-              Positioned(
-                top: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(color: scheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
-                  child: Text('${Dates.dayMonth(widget.points[h].date, context.lang)} · ${Money.format(widget.points[h].amount, widget.currency)}', style: t.bodySmall?.copyWith(color: scheme.onSurface)),
+    return LayoutBuilder(
+      builder: (context, c) {
+        final size = Size(c.maxWidth, c.maxHeight);
+        final h = _hover;
+        return MouseRegion(
+          onHover: (e) => setState(() => _hover = _hit(e.localPosition, size)),
+          onExit: (_) => setState(() => _hover = null),
+          child: GestureDetector(
+            onTapDown: (e) => setState(() => _hover = _hit(e.localPosition, size)),
+            child: Stack(
+              children: [
+                CustomPaint(
+                  size: size,
+                  painter: _TrendPainter(
+                    points: widget.points,
+                    currency: widget.currency,
+                    lang: context.lang,
+                    grid: scheme.outlineVariant,
+                    label: scheme.onSurfaceVariant,
+                    bar: CorocColors.gold500,
+                    barToday: CorocColors.gold700,
+                    hover: h,
+                    labelStyle: t.bodySmall!,
+                  ),
                 ),
-              ),
-          ]),
-        ),
-      );
-    });
+                if (h != null)
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(color: scheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                      child: Text(
+                        '${Dates.dayMonth(widget.points[h].date, context.lang)} · ${Money.format(widget.points[h].amount, widget.currency)}',
+                        style: t.bodySmall?.copyWith(color: scheme.onSurface),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }
 
 class _TrendPainter extends CustomPainter {
-  _TrendPainter({required this.points, required this.currency, required this.lang, required this.grid, required this.label, required this.bar, required this.barToday, required this.hover, required this.labelStyle});
+  _TrendPainter({
+    required this.points,
+    required this.currency,
+    required this.lang,
+    required this.grid,
+    required this.label,
+    required this.bar,
+    required this.barToday,
+    required this.hover,
+    required this.labelStyle,
+  });
   final List<TrendPoint> points;
   final String currency;
   final String lang;
@@ -408,7 +515,14 @@ class _TrendPainter extends CustomPainter {
   final TextStyle labelStyle;
 
   void _text(Canvas canvas, String s, Offset at, {TextAlign align = TextAlign.left, double width = 80}) {
-    final tp = TextPainter(text: TextSpan(text: s, style: labelStyle.copyWith(color: label)), textDirection: TextDirection.ltr, textAlign: align)..layout(minWidth: width, maxWidth: width);
+    final tp = TextPainter(
+      text: TextSpan(
+        text: s,
+        style: labelStyle.copyWith(color: label),
+      ),
+      textDirection: TextDirection.ltr,
+      textAlign: align,
+    )..layout(minWidth: width, maxWidth: width);
     tp.paint(canvas, at);
   }
 
@@ -456,4 +570,3 @@ class _TrendPainter extends CustomPainter {
   @override
   bool shouldRepaint(_TrendPainter old) => old.points != points || old.hover != hover || old.grid != grid;
 }
-

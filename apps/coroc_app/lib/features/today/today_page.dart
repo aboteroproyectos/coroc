@@ -40,10 +40,13 @@ class _TodayPageState extends ConsumerState<TodayPage> {
         },
         children: [
           PageHeader(title: l.navToday, subtitle: l.todaySubtitle),
-          Wrap(spacing: 8, children: [
-            for (final f in [('all', l.filterAll), ('due_today', l.todayDueToday), ('overdue', l.todayOverdue)])
-              ChoiceChip(label: Text(f.$2), selected: _filter == f.$1, onSelected: (_) => setState(() => _filter = f.$1)),
-          ]),
+          Wrap(
+            spacing: 8,
+            children: [
+              for (final f in [('all', l.filterAll), ('due_today', l.todayDueToday), ('overdue', l.todayOverdue)])
+                ChoiceChip(label: Text(f.$2), selected: _filter == f.$1, onSelected: (_) => setState(() => _filter = f.$1)),
+            ],
+          ),
           const SizedBox(height: CorocSpace.md),
           AsyncBody<TodayCollections>(
             value: data,
@@ -53,17 +56,16 @@ class _TodayPageState extends ConsumerState<TodayPage> {
               if (items.isEmpty) return EmptyState(icon: Icons.task_alt, title: l.todayEmpty);
               final total = items.fold<int>(0, (s, i) => s + i.amountToCollect);
               return Card(
-                child: Column(children: [
-                  ListTile(
-                    title: Text(l.todayCount(items.length)),
-                    trailing: Text(Money.format(total, items.first.currency), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontFamily: 'Inter')),
-                  ),
-                  const Divider(),
-                  for (final i in items) ...[
-                    _TodayRow(item: i, canPay: canPay),
+                child: Column(
+                  children: [
+                    ListTile(
+                      title: Text(l.todayCount(items.length)),
+                      trailing: Text(Money.format(total, items.first.currency), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontFamily: 'Inter')),
+                    ),
                     const Divider(),
+                    for (final i in items) ...[_TodayRow(item: i, canPay: canPay), const Divider()],
                   ],
-                ]),
+                ),
               );
             },
           ),
@@ -85,23 +87,37 @@ class _TodayRow extends ConsumerWidget {
     final overdue = item.status == 'overdue';
     return ListTile(
       onTap: () => context.go('/clients/${item.clientId}'),
-      leading: CircleAvatar(backgroundColor: CorocColors.gold300, child: Text(initials(item.clientName), style: const TextStyle(color: CorocColors.navy800, fontWeight: FontWeight.w600))),
+      leading: CircleAvatar(
+        backgroundColor: CorocColors.gold300,
+        child: Text(
+          initials(item.clientName),
+          style: const TextStyle(color: CorocColors.navy800, fontWeight: FontWeight.w600),
+        ),
+      ),
       title: Text(item.clientName, overflow: TextOverflow.ellipsis),
-      subtitle: Wrap(spacing: 12, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
-        Text('${item.contract} · ${l.installmentN(item.installmentNumber ?? 0)}'),
-        StatusDot(label: overdue ? l.daysPastDue(item.daysPastDue) : l.todayDueToday, tone: overdue ? StatusTone.error : StatusTone.info),
-      ]),
-      trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-        Text(Money.format(item.amountToCollect, item.currency), style: t.titleSmall?.copyWith(fontFamily: 'Inter')),
-        if (canPay) ...[
-          const SizedBox(width: 8),
-          IconButton.filledTonal(
-            tooltip: l.actionRegisterPayment,
-            icon: const Icon(Icons.payments_outlined),
-            onPressed: () => showPaymentSheet(context, ref, loanId: item.loanId, currency: item.currency, suggested: item.amountToCollect, clientName: item.clientName),
-          ),
+      subtitle: Wrap(
+        spacing: 12,
+        runSpacing: 4,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text('${item.contract} · ${l.installmentN(item.installmentNumber ?? 0)}'),
+          StatusDot(label: overdue ? l.daysPastDue(item.daysPastDue) : l.todayDueToday, tone: overdue ? StatusTone.error : StatusTone.info),
         ],
-      ]),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(Money.format(item.amountToCollect, item.currency), style: t.titleSmall?.copyWith(fontFamily: 'Inter')),
+          if (canPay) ...[
+            const SizedBox(width: 8),
+            IconButton.filledTonal(
+              tooltip: l.actionRegisterPayment,
+              icon: const Icon(Icons.payments_outlined),
+              onPressed: () => showPaymentSheet(context, ref, loanId: item.loanId, currency: item.currency, suggested: item.amountToCollect, clientName: item.clientName),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

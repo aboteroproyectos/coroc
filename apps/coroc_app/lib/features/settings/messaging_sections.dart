@@ -16,11 +16,11 @@ final emailSenderProvider = FutureProvider.autoDispose<EmailSender>((ref) => ref
 void _toast(BuildContext context, String text) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
 
 String presetName(AppLocalizations l, String id) => switch (id) {
-      'CO_LEY_2300_2023' => l.presetColombia,
-      'BR_CDC_TEMPLATE' => l.presetBrazil,
-      'US_FDCPA_REG_F_TEMPLATE' => l.presetUsa,
-      _ => id,
-    };
+  'CO_LEY_2300_2023' => l.presetColombia,
+  'BR_CDC_TEMPLATE' => l.presetBrazil,
+  'US_FDCPA_REG_F_TEMPLATE' => l.presetUsa,
+  _ => id,
+};
 
 /// Franjas agrupadas por horario: «Lun, Mar, Mié, Jue, Vie 07:00–19:00 · Sáb 08:00–15:00».
 String windowsText(AppLocalizations l, List<ContactWindow> ws) {
@@ -47,7 +47,9 @@ class _ComplianceSectionState extends ConsumerState<ComplianceSection> {
   Future<void> _save({String? preset, bool? counselReviewed, bool? transactionalImmediate, String? reminderTime, bool? dailyReminders}) async {
     setState(() => _busy = true);
     try {
-      await ref.read(apiProvider).saveContactRules(preset: preset, counselReviewed: counselReviewed, transactionalImmediate: transactionalImmediate, reminderTime: reminderTime, dailyReminders: dailyReminders);
+      await ref
+          .read(apiProvider)
+          .saveContactRules(preset: preset, counselReviewed: counselReviewed, transactionalImmediate: transactionalImmediate, reminderTime: reminderTime, dailyReminders: dailyReminders);
       ref.invalidate(contactRulesProvider);
       if (mounted) _toast(context, context.l10n.saved);
     } catch (e) {
@@ -70,67 +72,73 @@ class _ComplianceSectionState extends ConsumerState<ComplianceSection> {
           final enabled = widget.canEdit && !_busy;
           final chosen = r.presets.where((p) => p.id == r.preset).firstOrNull;
           final pendingReview = chosen != null && chosen.requiresCounselReview && r.counselReviewedAt == null;
-          return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(l.complianceHelp, style: t.bodySmall),
-            const SizedBox(height: CorocSpace.md),
-            DropdownMenu<String>(
-              enabled: enabled,
-              initialSelection: r.preset,
-              label: Text(l.compliancePreset),
-              onSelected: (v) => v == null || v == r.preset ? null : _save(preset: v),
-              dropdownMenuEntries: [for (final p in r.presets) DropdownMenuEntry(value: p.id, label: presetName(l, p.id))],
-            ),
-            const SizedBox(height: 8),
-            KeyValue(l.complianceApplied, presetName(l, r.effective.id)),
-            KeyValue(l.complianceWindows, windowsText(l, r.effective.windows)),
-            KeyValue(l.complianceLimits, [
-              if (r.effective.noHolidays) l.complianceNoHolidays,
-              l.complianceMaxPerDay(r.effective.maxCollectionPerDay),
-              if (r.effective.singleChannelPerWeek) l.complianceSingleChannel,
-            ].join(' · ')),
-            KeyValue(l.complianceLegal, r.effective.legalReference),
-            if (pendingReview) ...[
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l.complianceHelp, style: t.bodySmall),
+              const SizedBox(height: CorocSpace.md),
+              DropdownMenu<String>(
+                enabled: enabled,
+                initialSelection: r.preset,
+                label: Text(l.compliancePreset),
+                onSelected: (v) => v == null || v == r.preset ? null : _save(preset: v),
+                dropdownMenuEntries: [for (final p in r.presets) DropdownMenuEntry(value: p.id, label: presetName(l, p.id))],
+              ),
               const SizedBox(height: 8),
-              Text(l.compliancePendingReview, style: t.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error)),
-            ],
-            if (chosen?.requiresCounselReview ?? false)
+              KeyValue(l.complianceApplied, presetName(l, r.effective.id)),
+              KeyValue(l.complianceWindows, windowsText(l, r.effective.windows)),
+              KeyValue(
+                l.complianceLimits,
+                [
+                  if (r.effective.noHolidays) l.complianceNoHolidays,
+                  l.complianceMaxPerDay(r.effective.maxCollectionPerDay),
+                  if (r.effective.singleChannelPerWeek) l.complianceSingleChannel,
+                ].join(' · '),
+              ),
+              KeyValue(l.complianceLegal, r.effective.legalReference),
+              if (pendingReview) ...[const SizedBox(height: 8), Text(l.compliancePendingReview, style: t.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error))],
+              if (chosen?.requiresCounselReview ?? false)
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(l.complianceCounselReviewed),
+                  subtitle: Text(r.counselReviewedAt == null ? l.complianceCounselHelp : Dates.medium(r.counselReviewedAt!, context.lang)),
+                  value: r.counselReviewedAt != null,
+                  onChanged: enabled && widget.isOwner ? (v) => _save(counselReviewed: v) : null,
+                ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text(l.complianceCounselReviewed),
-                subtitle: Text(r.counselReviewedAt == null ? l.complianceCounselHelp : Dates.medium(r.counselReviewedAt!, context.lang)),
-                value: r.counselReviewedAt != null,
-                onChanged: enabled && widget.isOwner ? (v) => _save(counselReviewed: v) : null,
+                title: Text(l.complianceTransactionalImmediate),
+                subtitle: Text(l.complianceTransactionalImmediateHelp),
+                value: r.transactionalImmediate,
+                onChanged: enabled ? (v) => _save(transactionalImmediate: v) : null,
               ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l.complianceTransactionalImmediate),
-              subtitle: Text(l.complianceTransactionalImmediateHelp),
-              value: r.transactionalImmediate,
-              onChanged: enabled ? (v) => _save(transactionalImmediate: v) : null,
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l.complianceDailyReminders),
-              subtitle: Text(l.complianceDailyRemindersHelp),
-              value: r.dailyReminders,
-              onChanged: enabled ? (v) => _save(dailyReminders: v) : null,
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l.complianceReminderTime),
-              subtitle: Text(l.complianceReminderTimeHelp),
-              trailing: OutlinedButton(
-                onPressed: enabled
-                    ? () async {
-                        final parts = r.reminderTime.split(':');
-                        final picked = await showTimePicker(context: context, initialTime: TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1])));
-                        if (picked != null) _save(reminderTime: '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}');
-                      }
-                    : null,
-                child: Text(r.reminderTime),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l.complianceDailyReminders),
+                subtitle: Text(l.complianceDailyRemindersHelp),
+                value: r.dailyReminders,
+                onChanged: enabled ? (v) => _save(dailyReminders: v) : null,
               ),
-            ),
-          ]);
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l.complianceReminderTime),
+                subtitle: Text(l.complianceReminderTimeHelp),
+                trailing: OutlinedButton(
+                  onPressed: enabled
+                      ? () async {
+                          final parts = r.reminderTime.split(':');
+                          final picked = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1])),
+                          );
+                          if (picked != null) _save(reminderTime: '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}');
+                        }
+                      : null,
+                  child: Text(r.reminderTime),
+                ),
+              ),
+            ],
+          );
         },
       ),
     );
@@ -160,19 +168,40 @@ class _EmailSenderSectionState extends ConsumerState<EmailSenderSection> {
         title: Text(l.emailSenderTitle),
         content: SizedBox(
           width: 460,
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            TextField(controller: email, keyboardType: TextInputType.emailAddress, autofocus: true, decoration: corocInput(context, label: l.emailSenderFrom)),
-            const SizedBox(height: CorocSpace.md),
-            TextField(controller: name, decoration: corocInput(context, label: l.emailSenderName)),
-            const SizedBox(height: CorocSpace.md),
-            TextField(controller: selector, decoration: corocInput(context, label: l.emailSenderSelector, helper: l.emailSenderSelectorHelp)),
-          ]),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: email,
+                keyboardType: TextInputType.emailAddress,
+                autofocus: true,
+                decoration: corocInput(context, label: l.emailSenderFrom),
+              ),
+              const SizedBox(height: CorocSpace.md),
+              TextField(
+                controller: name,
+                decoration: corocInput(context, label: l.emailSenderName),
+              ),
+              const SizedBox(height: CorocSpace.md),
+              TextField(
+                controller: selector,
+                decoration: corocInput(context, label: l.emailSenderSelector, helper: l.emailSenderSelectorHelp),
+              ),
+            ],
+          ),
         ),
-        actions: [TextButton(onPressed: () => Navigator.pop(c, false), child: Text(l.actionCancel)), FilledButton(onPressed: () => Navigator.pop(c, email.text.contains('@')), child: Text(l.actionSave))],
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c, false), child: Text(l.actionCancel)),
+          FilledButton(onPressed: () => Navigator.pop(c, email.text.contains('@')), child: Text(l.actionSave)),
+        ],
       ),
     );
     if (ok == true) {
-      await _run(() => ref.read(apiProvider).saveEmailSender(fromEmail: email.text.trim(), fromName: name.text.trim().isEmpty ? null : name.text.trim(), dkimSelector: selector.text.trim().isEmpty ? null : selector.text.trim()));
+      await _run(
+        () => ref
+            .read(apiProvider)
+            .saveEmailSender(fromEmail: email.text.trim(), fromName: name.text.trim().isEmpty ? null : name.text.trim(), dkimSelector: selector.text.trim().isEmpty ? null : selector.text.trim()),
+      );
     }
     disposeAfterDialog([email, name, selector]);
   }
@@ -201,41 +230,66 @@ class _EmailSenderSectionState extends ConsumerState<EmailSenderSection> {
         onRetry: () => ref.invalidate(emailSenderProvider),
         builder: (s) {
           final records = (_checked?.fromEmail == s.fromEmail ? _checked?.records : null) ?? s.records;
-          return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(l.emailSenderHelp, style: t.bodySmall),
-            const SizedBox(height: 8),
-            if (s.provider == 'none')
-              Text(l.emailProviderMissing, style: t.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error))
-            else
-              KeyValue(l.emailProvider, s.provider == 'postmark' ? 'Postmark' : s.provider == 'smtp' ? 'SMTP' : l.emailProviderLocal),
-            KeyValue(l.emailSenderCurrent, s.verified ? '${s.fromName ?? ''} <${s.fromEmail}>'.trim() : s.defaultFrom),
-            if (s.configured) ...[
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l.emailSenderHelp, style: t.bodySmall),
               const SizedBox(height: 8),
-              if (s.verified) StatusDot(label: l.emailSenderVerified, tone: StatusTone.ok) else StatusDot(label: l.emailSenderPending(s.fromEmail ?? ''), tone: StatusTone.warn),
-              const SizedBox(height: 8),
-              Wrap(spacing: 12, children: [
-                StatusDot(label: 'SPF', tone: s.spf ? StatusTone.ok : StatusTone.error),
-                StatusDot(label: 'DKIM', tone: s.dkim ? StatusTone.ok : StatusTone.error),
-                StatusDot(label: 'DMARC', tone: s.dmarc ? StatusTone.ok : StatusTone.error),
-              ]),
-              for (final r in records.where((r) => !r.ok))
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('${r.kind.toUpperCase()} · ${r.type} · ${r.host}', style: t.labelMedium),
-                    SelectableText(r.expected, style: t.bodySmall?.copyWith(fontFamily: 'monospace')),
-                  ]),
+              if (s.provider == 'none')
+                Text(l.emailProviderMissing, style: t.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error))
+              else
+                KeyValue(
+                  l.emailProvider,
+                  s.provider == 'postmark'
+                      ? 'Postmark'
+                      : s.provider == 'smtp'
+                      ? 'SMTP'
+                      : l.emailProviderLocal,
                 ),
+              KeyValue(l.emailSenderCurrent, s.verified ? '${s.fromName ?? ''} <${s.fromEmail}>'.trim() : s.defaultFrom),
+              if (s.configured) ...[
+                const SizedBox(height: 8),
+                if (s.verified) StatusDot(label: l.emailSenderVerified, tone: StatusTone.ok) else StatusDot(label: l.emailSenderPending(s.fromEmail ?? ''), tone: StatusTone.warn),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 12,
+                  children: [
+                    StatusDot(label: 'SPF', tone: s.spf ? StatusTone.ok : StatusTone.error),
+                    StatusDot(label: 'DKIM', tone: s.dkim ? StatusTone.ok : StatusTone.error),
+                    StatusDot(label: 'DMARC', tone: s.dmarc ? StatusTone.ok : StatusTone.error),
+                  ],
+                ),
+                for (final r in records.where((r) => !r.ok))
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('${r.kind.toUpperCase()} · ${r.type} · ${r.host}', style: t.labelMedium),
+                        SelectableText(r.expected, style: t.bodySmall?.copyWith(fontFamily: 'monospace')),
+                      ],
+                    ),
+                  ),
+              ],
+              if (widget.canEdit) ...[
+                const SizedBox(height: CorocSpace.md),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    OutlinedButton(onPressed: _busy ? null : () => _edit(s), child: Text(s.configured ? l.actionEdit : l.emailSenderConfigure)),
+                    if (s.configured)
+                      FilledButton.icon(
+                        onPressed: _busy ? null : () => _run(() => ref.read(apiProvider).verifyEmailSender(), keep: true),
+                        icon: const Icon(Icons.dns_outlined, size: 18),
+                        label: Text(l.emailSenderVerify),
+                      ),
+                    if (s.configured) TextButton(onPressed: _busy ? null : () => _run(() => ref.read(apiProvider).deleteEmailSender()), child: Text(l.emailSenderUseDefault)),
+                  ],
+                ),
+              ],
             ],
-            if (widget.canEdit) ...[
-              const SizedBox(height: CorocSpace.md),
-              Wrap(spacing: 8, runSpacing: 8, children: [
-                OutlinedButton(onPressed: _busy ? null : () => _edit(s), child: Text(s.configured ? l.actionEdit : l.emailSenderConfigure)),
-                if (s.configured) FilledButton.icon(onPressed: _busy ? null : () => _run(() => ref.read(apiProvider).verifyEmailSender(), keep: true), icon: const Icon(Icons.dns_outlined, size: 18), label: Text(l.emailSenderVerify)),
-                if (s.configured) TextButton(onPressed: _busy ? null : () => _run(() => ref.read(apiProvider).deleteEmailSender()), child: Text(l.emailSenderUseDefault)),
-              ]),
-            ],
-          ]);
+          );
         },
       ),
     );

@@ -27,7 +27,9 @@ class ClientMessagesTab extends ConsumerWidget {
     final query = (statuses: '', clientId: client.id);
     final page = ref.watch(messagesProvider(query));
     final pad = MediaQuery.sizeOf(context).width < CorocBreakpoints.tablet ? CorocSpace.md : CorocSpace.xl;
-    return ListView(padding: EdgeInsets.fromLTRB(pad, CorocSpace.md, pad, CorocSpace.xxl), children: [
+    return ListView(
+      padding: EdgeInsets.fromLTRB(pad, CorocSpace.md, pad, CorocSpace.xxl),
+      children: [
         if (client.emailStatus != null) ...[
           Card(
             color: Theme.of(context).colorScheme.errorContainer,
@@ -47,9 +49,13 @@ class ClientMessagesTab extends ConsumerWidget {
           onRetry: () => ref.invalidate(messagesProvider(query)),
           builder: (p) => p.items.isEmpty
               ? EmptyState(icon: Icons.forum_outlined, title: l.messagesEmpty)
-              : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [for (final m in p.items) MessageTile(key: ValueKey(m.id), message: m, showClient: false)]),
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [for (final m in p.items) MessageTile(key: ValueKey(m.id), message: m, showClient: false)],
+                ),
         ),
-      ]);
+      ],
+    );
   }
 }
 
@@ -77,12 +83,9 @@ class _ComposeState extends ConsumerState<_Compose> {
     setState(() => _busy = true);
     final l = context.l10n;
     try {
-      final m = await ref.read(apiProvider).composeMessage(
-            loanId: widget.loan.id,
-            event: _event,
-            channel: _channel,
-            body: _event == 'manual' && _text.text.trim().isNotEmpty ? _text.text.trim() : null,
-          );
+      final m = await ref
+          .read(apiProvider)
+          .composeMessage(loanId: widget.loan.id, event: _event, channel: _channel, body: _event == 'manual' && _text.text.trim().isNotEmpty ? _text.text.trim() : null);
       ref.invalidate(messagesProvider);
       ref.invalidate(messagesSummaryProvider);
       _text.clear();
@@ -102,33 +105,52 @@ class _ComposeState extends ConsumerState<_Compose> {
     final l = context.l10n;
     return SectionCard(
       title: l.composeTitle,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text(l.composeHelp, style: Theme.of(context).textTheme.bodySmall),
-        const SizedBox(height: CorocSpace.md),
-        Wrap(spacing: CorocSpace.md, runSpacing: CorocSpace.sm, crossAxisAlignment: WrapCrossAlignment.center, children: [
-          DropdownMenu<String>(
-            initialSelection: _event,
-            label: Text(l.composeEvent),
-            onSelected: (v) => setState(() => _event = v ?? _event),
-            dropdownMenuEntries: [for (final e in const ['reminder', 'overdue', 'statement', 'welcome', 'manual']) DropdownMenuEntry(value: e, label: eventLabel(l, e))],
-          ),
-          SegmentedButton<String>(
-            showSelectedIcon: false,
-            segments: [
-              ButtonSegment(value: 'whatsapp', label: Text(l.channelWhatsapp), icon: const Icon(Icons.chat_outlined)),
-              ButtonSegment(value: 'email', label: Text(l.channelEmail), icon: const Icon(Icons.mail_outline), enabled: widget.client.email != null),
-            ],
-            selected: {_channel},
-            onSelectionChanged: (s) => setState(() => _channel = s.first),
-          ),
-        ]),
-        if (_event == 'manual') ...[
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.composeHelp, style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: CorocSpace.md),
-          TextField(controller: _text, minLines: 2, maxLines: 6, maxLength: 1024, decoration: corocInput(context, label: l.composeText, helper: l.composeTextHelp('{{nombre}}', '{{saldo}}'))),
+          Wrap(
+            spacing: CorocSpace.md,
+            runSpacing: CorocSpace.sm,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              DropdownMenu<String>(
+                initialSelection: _event,
+                label: Text(l.composeEvent),
+                onSelected: (v) => setState(() => _event = v ?? _event),
+                dropdownMenuEntries: [
+                  for (final e in const ['reminder', 'overdue', 'statement', 'welcome', 'manual']) DropdownMenuEntry(value: e, label: eventLabel(l, e)),
+                ],
+              ),
+              SegmentedButton<String>(
+                showSelectedIcon: false,
+                segments: [
+                  ButtonSegment(value: 'whatsapp', label: Text(l.channelWhatsapp), icon: const Icon(Icons.chat_outlined)),
+                  ButtonSegment(value: 'email', label: Text(l.channelEmail), icon: const Icon(Icons.mail_outline), enabled: widget.client.email != null),
+                ],
+                selected: {_channel},
+                onSelectionChanged: (s) => setState(() => _channel = s.first),
+              ),
+            ],
+          ),
+          if (_event == 'manual') ...[
+            const SizedBox(height: CorocSpace.md),
+            TextField(
+              controller: _text,
+              minLines: 2,
+              maxLines: 6,
+              maxLength: 1024,
+              decoration: corocInput(context, label: l.composeText, helper: l.composeTextHelp('{{nombre}}', '{{saldo}}')),
+            ),
+          ],
+          const SizedBox(height: CorocSpace.sm),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: FilledButton.icon(onPressed: _busy ? null : _send, icon: const Icon(Icons.outbox_outlined), label: Text(l.composeQueue)),
+          ),
         ],
-        const SizedBox(height: CorocSpace.sm),
-        Align(alignment: Alignment.centerLeft, child: FilledButton.icon(onPressed: _busy ? null : _send, icon: const Icon(Icons.outbox_outlined), label: Text(l.composeQueue))),
-      ]),
+      ),
     );
   }
 }
@@ -149,7 +171,10 @@ class _ContactException extends ConsumerWidget {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.exceptionNeedsDocument)));
       return;
     }
-    final r = await showDialog<({List<ContactWindow> windows, String documentId})>(context: context, builder: (_) => _ExceptionDialog(docs: docs));
+    final r = await showDialog<({List<ContactWindow> windows, String documentId})>(
+      context: context,
+      builder: (_) => _ExceptionDialog(docs: docs),
+    );
     if (r == null) return;
     try {
       await ref.read(apiProvider).setContactException(client.id, r.windows, r.documentId);
@@ -165,28 +190,34 @@ class _ContactException extends ConsumerWidget {
     final ex = client.contactException;
     return SectionCard(
       title: l.exceptionTitle,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text(l.exceptionHelp, style: Theme.of(context).textTheme.bodySmall),
-        const SizedBox(height: 8),
-        if (ex == null) Text(l.exceptionNone) else KeyValue(l.exceptionWindows, _windows(l, ex.windows)),
-        if (ex?.grantedAt != null) KeyValue(l.exceptionGranted, Dates.medium(ex!.grantedAt!, context.lang)),
-        if (canEdit)
-          Wrap(spacing: 8, children: [
-            OutlinedButton(onPressed: () => _edit(context, ref), child: Text(ex == null ? l.exceptionAdd : l.actionEdit)),
-            if (ex != null)
-              TextButton(
-                onPressed: () async {
-                  try {
-                    await ref.read(apiProvider).removeContactException(client.id);
-                    ref.invalidate(clientProvider(client.id));
-                  } catch (e) {
-                    if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorText(context, e))));
-                  }
-                },
-                child: Text(l.actionDelete),
-              ),
-          ]),
-      ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.exceptionHelp, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: 8),
+          if (ex == null) Text(l.exceptionNone) else KeyValue(l.exceptionWindows, _windows(l, ex.windows)),
+          if (ex?.grantedAt != null) KeyValue(l.exceptionGranted, Dates.medium(ex!.grantedAt!, context.lang)),
+          if (canEdit)
+            Wrap(
+              spacing: 8,
+              children: [
+                OutlinedButton(onPressed: () => _edit(context, ref), child: Text(ex == null ? l.exceptionAdd : l.actionEdit)),
+                if (ex != null)
+                  TextButton(
+                    onPressed: () async {
+                      try {
+                        await ref.read(apiProvider).removeContactException(client.id);
+                        ref.invalidate(clientProvider(client.id));
+                      } catch (e) {
+                        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorText(context, e))));
+                      }
+                    },
+                    child: Text(l.actionDelete),
+                  ),
+              ],
+            ),
+        ],
+      ),
     );
   }
 }
@@ -219,36 +250,45 @@ class _ExceptionDialogState extends State<_ExceptionDialog> {
       title: Text(l.exceptionTitle),
       content: SizedBox(
         width: 460,
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text(l.exceptionDays, style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 6),
-          Wrap(spacing: 6, runSpacing: 6, children: [
-            for (var d = 1; d <= 7; d++)
-              FilterChip(label: Text(weekdayName(l, d)), selected: _days.contains(d), onSelected: (v) => setState(() => v ? _days.add(d) : _days.remove(d))),
-          ]),
-          const SizedBox(height: CorocSpace.md),
-          Row(children: [
-            Expanded(child: OutlinedButton(onPressed: () => pick(true), child: Text('${l.exceptionFrom} ${_fmt(_start)}'))),
-            const SizedBox(width: 8),
-            Expanded(child: OutlinedButton(onPressed: () => pick(false), child: Text('${l.exceptionTo} ${_fmt(_end)}'))),
-          ]),
-          const SizedBox(height: CorocSpace.md),
-          DropdownMenu<String>(
-            initialSelection: _doc,
-            expandedInsets: EdgeInsets.zero,
-            label: Text(l.exceptionEvidence),
-            helperText: l.exceptionEvidenceHelp,
-            onSelected: (v) => setState(() => _doc = v ?? _doc),
-            dropdownMenuEntries: [for (final d in widget.docs) DropdownMenuEntry(value: d.id, label: d.name)],
-          ),
-        ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l.exceptionDays, style: Theme.of(context).textTheme.labelLarge),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [for (var d = 1; d <= 7; d++) FilterChip(label: Text(weekdayName(l, d)), selected: _days.contains(d), onSelected: (v) => setState(() => v ? _days.add(d) : _days.remove(d)))],
+            ),
+            const SizedBox(height: CorocSpace.md),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(onPressed: () => pick(true), child: Text('${l.exceptionFrom} ${_fmt(_start)}')),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton(onPressed: () => pick(false), child: Text('${l.exceptionTo} ${_fmt(_end)}')),
+                ),
+              ],
+            ),
+            const SizedBox(height: CorocSpace.md),
+            DropdownMenu<String>(
+              initialSelection: _doc,
+              expandedInsets: EdgeInsets.zero,
+              label: Text(l.exceptionEvidence),
+              helperText: l.exceptionEvidenceHelp,
+              onSelected: (v) => setState(() => _doc = v ?? _doc),
+              dropdownMenuEntries: [for (final d in widget.docs) DropdownMenuEntry(value: d.id, label: d.name)],
+            ),
+          ],
+        ),
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: Text(l.actionCancel)),
         FilledButton(
-          onPressed: valid
-              ? () => Navigator.pop(context, (windows: [for (final d in (_days.toList()..sort())) ContactWindow(day: d, start: _fmt(_start), end: _fmt(_end))], documentId: _doc))
-              : null,
+          onPressed: valid ? () => Navigator.pop(context, (windows: [for (final d in (_days.toList()..sort())) ContactWindow(day: d, start: _fmt(_start), end: _fmt(_end))], documentId: _doc)) : null,
           child: Text(l.actionSave),
         ),
       ],

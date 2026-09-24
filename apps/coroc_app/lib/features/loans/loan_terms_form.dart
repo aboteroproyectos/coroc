@@ -52,6 +52,7 @@ class LoanTermsController extends ChangeNotifier {
   Set<int> collectionDays = {1, 2, 3, 4, 5, 6};
   bool excludeHolidays = true;
   LoanPreview? preview;
+
   /// El usuario confirmó este préstamo por encima del tope (solo si la empresa lo permite, ADR-061).
   bool acknowledgeCap = false;
 
@@ -171,144 +172,212 @@ class _LoanTermsFormState extends ConsumerState<LoanTermsForm> {
     final l = context.l10n;
     final t = Theme.of(context).textTheme;
     const gap = SizedBox(height: CorocSpace.md);
-    Widget pair(Widget a, Widget b) => LayoutBuilder(builder: (context, cns) {
-          if (cns.maxWidth < 560) return Column(children: [a, gap, b]);
-          return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Expanded(child: a), const SizedBox(width: CorocSpace.md), Expanded(child: b)]);
-        });
+    Widget pair(Widget a, Widget b) => LayoutBuilder(
+      builder: (context, cns) {
+        if (cns.maxWidth < 560) return Column(children: [a, gap, b]);
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: a),
+            const SizedBox(width: CorocSpace.md),
+            Expanded(child: b),
+          ],
+        );
+      },
+    );
     final days = weekdayShort(l);
     final p = c.preview;
     String m(int v) => Money.format(v, c.currency);
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      pair(
-        TextField(controller: c.principal, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: corocInput(context, label: '${l.fieldPrincipal} *', helper: c.currency), onChanged: (_) => _changed()),
-        TextField(controller: c.installments, keyboardType: TextInputType.number, decoration: corocInput(context, label: '${l.fieldInstallments} *'), onChanged: (_) => _changed()),
-      ),
-      gap,
-      Wrap(spacing: CorocSpace.md, runSpacing: CorocSpace.sm, crossAxisAlignment: WrapCrossAlignment.center, children: [
-        SegmentedButton<String>(
-          showSelectedIcon: false,
-          segments: [ButtonSegment(value: 'simple', label: Text(l.methodSimple)), ButtonSegment(value: 'french', label: Text(l.methodFrench))],
-          selected: {c.method},
-          onSelectionChanged: (v) {
-            c.method = v.first;
-            _changed();
-          },
-        ),
-        SegmentedButton<String>(
-          showSelectedIcon: false,
-          segments: [ButtonSegment(value: 'daily', label: Text(l.freqDaily)), ButtonSegment(value: 'weekly', label: Text(l.freqWeekly)), ButtonSegment(value: 'monthly', label: Text(l.freqMonthly))],
-          selected: {c.frequency},
-          onSelectionChanged: (v) {
-            c.frequency = v.first;
-            _changed();
-          },
-        ),
-      ]),
-      gap,
-      TextField(
-        controller: c.rate,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: corocInput(context, label: '${l.fieldRate} *', helper: c.method == 'french' ? l.rateHelpFrench : l.rateHelpSimple, suffix: const Padding(padding: EdgeInsets.all(14), child: Text('%'))),
-        onChanged: (_) => _changed(),
-      ),
-      gap,
-      Wrap(spacing: CorocSpace.sm, runSpacing: CorocSpace.sm, children: [
-        OutlinedButton.icon(onPressed: () => _pick(false), icon: const Icon(Icons.event), label: Text('${l.fieldDisbursement}: ${Dates.medium(c.disbursementDate, context.lang)}')),
-        OutlinedButton.icon(onPressed: () => _pick(true), icon: const Icon(Icons.event_repeat), label: Text('${l.fieldFirstDue}: ${c.firstDueDate == null ? l.automatic : Dates.medium(c.firstDueDate!, context.lang)}')),
-        if (c.firstDueDate != null)
-          IconButton(
-            tooltip: l.automatic,
-            onPressed: () {
-              c.firstDueDate = null;
-              _changed();
-            },
-            icon: const Icon(Icons.close),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        pair(
+          TextField(
+            controller: c.principal,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: corocInput(context, label: '${l.fieldPrincipal} *', helper: c.currency),
+            onChanged: (_) => _changed(),
           ),
-      ]),
-      if (c.frequency == 'daily') ...[
+          TextField(
+            controller: c.installments,
+            keyboardType: TextInputType.number,
+            decoration: corocInput(context, label: '${l.fieldInstallments} *'),
+            onChanged: (_) => _changed(),
+          ),
+        ),
         gap,
-        Text(l.fieldCollectionDays, style: t.bodyMedium),
-        const SizedBox(height: 8),
-        Wrap(spacing: 6, runSpacing: 6, children: [
-          for (var d = 1; d <= 7; d++)
-            FilterChip(
-              label: Text(days[d - 1]),
-              selected: c.collectionDays.contains(d),
-              onSelected: (on) {
-                if (on) {
-                  c.collectionDays.add(d);
-                } else if (c.collectionDays.length > 1) {
-                  c.collectionDays.remove(d);
-                }
+        Wrap(
+          spacing: CorocSpace.md,
+          runSpacing: CorocSpace.sm,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            SegmentedButton<String>(
+              showSelectedIcon: false,
+              segments: [
+                ButtonSegment(value: 'simple', label: Text(l.methodSimple)),
+                ButtonSegment(value: 'french', label: Text(l.methodFrench)),
+              ],
+              selected: {c.method},
+              onSelectionChanged: (v) {
+                c.method = v.first;
                 _changed();
               },
             ),
-        ]),
-      ],
-      if (c.frequency == 'monthly') ...[
+            SegmentedButton<String>(
+              showSelectedIcon: false,
+              segments: [
+                ButtonSegment(value: 'daily', label: Text(l.freqDaily)),
+                ButtonSegment(value: 'weekly', label: Text(l.freqWeekly)),
+                ButtonSegment(value: 'monthly', label: Text(l.freqMonthly)),
+              ],
+              selected: {c.frequency},
+              onSelectionChanged: (v) {
+                c.frequency = v.first;
+                _changed();
+              },
+            ),
+          ],
+        ),
         gap,
         TextField(
-          keyboardType: TextInputType.number,
-          decoration: corocInput(context, label: l.fieldMonthlyDay, helper: l.fieldMonthlyDayHelp),
+          controller: c.rate,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: corocInput(
+            context,
+            label: '${l.fieldRate} *',
+            helper: c.method == 'french' ? l.rateHelpFrench : l.rateHelpSimple,
+            suffix: const Padding(padding: EdgeInsets.all(14), child: Text('%')),
+          ),
+          onChanged: (_) => _changed(),
+        ),
+        gap,
+        Wrap(
+          spacing: CorocSpace.sm,
+          runSpacing: CorocSpace.sm,
+          children: [
+            OutlinedButton.icon(onPressed: () => _pick(false), icon: const Icon(Icons.event), label: Text('${l.fieldDisbursement}: ${Dates.medium(c.disbursementDate, context.lang)}')),
+            OutlinedButton.icon(
+              onPressed: () => _pick(true),
+              icon: const Icon(Icons.event_repeat),
+              label: Text('${l.fieldFirstDue}: ${c.firstDueDate == null ? l.automatic : Dates.medium(c.firstDueDate!, context.lang)}'),
+            ),
+            if (c.firstDueDate != null)
+              IconButton(
+                tooltip: l.automatic,
+                onPressed: () {
+                  c.firstDueDate = null;
+                  _changed();
+                },
+                icon: const Icon(Icons.close),
+              ),
+          ],
+        ),
+        if (c.frequency == 'daily') ...[
+          gap,
+          Text(l.fieldCollectionDays, style: t.bodyMedium),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (var d = 1; d <= 7; d++)
+                FilterChip(
+                  label: Text(days[d - 1]),
+                  selected: c.collectionDays.contains(d),
+                  onSelected: (on) {
+                    if (on) {
+                      c.collectionDays.add(d);
+                    } else if (c.collectionDays.length > 1) {
+                      c.collectionDays.remove(d);
+                    }
+                    _changed();
+                  },
+                ),
+            ],
+          ),
+        ],
+        if (c.frequency == 'monthly') ...[
+          gap,
+          TextField(
+            keyboardType: TextInputType.number,
+            decoration: corocInput(context, label: l.fieldMonthlyDay, helper: l.fieldMonthlyDayHelp),
+            onChanged: (v) {
+              final d = int.tryParse(v);
+              c.monthlyDay = d != null && d >= 1 && d <= 31 ? d : null;
+              _changed();
+            },
+          ),
+        ],
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          value: c.excludeHolidays,
           onChanged: (v) {
-            final d = int.tryParse(v);
-            c.monthlyDay = d != null && d >= 1 && d <= 31 ? d : null;
+            c.excludeHolidays = v;
             _changed();
           },
+          title: Text(l.fieldExcludeHolidays),
         ),
-      ],
-      SwitchListTile(
-        contentPadding: EdgeInsets.zero,
-        value: c.excludeHolidays,
-        onChanged: (v) {
-          c.excludeHolidays = v;
-          _changed();
-        },
-        title: Text(l.fieldExcludeHolidays),
-      ),
-      if (widget.showContract) TextField(controller: c.contract, decoration: corocInput(context, label: l.fieldContract, helper: l.fieldContractHelp), onChanged: (_) => c.touch()),
-      const SizedBox(height: CorocSpace.lg),
-      // ─── Vista previa en vivo ───
-      Container(
-        padding: const EdgeInsets.all(CorocSpace.lg),
-        decoration: BoxDecoration(border: Border.all(color: Theme.of(context).colorScheme.outline), borderRadius: BorderRadius.circular(CorocRadii.card)),
-        child: _loading && p == null
-            ? const Center(child: Padding(padding: EdgeInsets.all(CorocSpace.md), child: CircularProgressIndicator()))
-            : p == null
-                ? Text(_previewError ?? l.previewHint, style: t.bodyMedium?.copyWith(color: _previewError == null ? null : Theme.of(context).colorScheme.error))
-                : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        if (widget.showContract)
+          TextField(
+            controller: c.contract,
+            decoration: corocInput(context, label: l.fieldContract, helper: l.fieldContractHelp),
+            onChanged: (_) => c.touch(),
+          ),
+        const SizedBox(height: CorocSpace.lg),
+        // ─── Vista previa en vivo ───
+        Container(
+          padding: const EdgeInsets.all(CorocSpace.lg),
+          decoration: BoxDecoration(
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
+            borderRadius: BorderRadius.circular(CorocRadii.card),
+          ),
+          child: _loading && p == null
+              ? const Center(
+                  child: Padding(padding: EdgeInsets.all(CorocSpace.md), child: CircularProgressIndicator()),
+                )
+              : p == null
+              ? Text(_previewError ?? l.previewHint, style: t.bodyMedium?.copyWith(color: _previewError == null ? null : Theme.of(context).colorScheme.error))
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                     Overline(l.previewTitle),
                     const SizedBox(height: CorocSpace.md),
-                    Wrap(spacing: CorocSpace.xl, runSpacing: CorocSpace.md, children: [
-                      _Figure(label: l.previewInstallment, value: m(p.regularInstallment), gold: true),
-                      _Figure(label: l.previewTotal, value: m(p.totalPayable)),
-                      _Figure(label: l.previewProfit, value: m(p.totalInterest)),
-                      _Figure(label: l.previewEffectiveRate, value: percent(p.effectiveAnnualRate, context.lang)),
-                    ]),
+                    Wrap(
+                      spacing: CorocSpace.xl,
+                      runSpacing: CorocSpace.md,
+                      children: [
+                        _Figure(label: l.previewInstallment, value: m(p.regularInstallment), gold: true),
+                        _Figure(label: l.previewTotal, value: m(p.totalPayable)),
+                        _Figure(label: l.previewProfit, value: m(p.totalInterest)),
+                        _Figure(label: l.previewEffectiveRate, value: percent(p.effectiveAnnualRate, context.lang)),
+                      ],
+                    ),
                     const SizedBox(height: CorocSpace.md),
                     _CapNotice(
-                        check: p.rateCap,
-                        acknowledged: c.acknowledgeCap,
-                        onAcknowledge: (v) {
-                          c.acknowledgeCap = v;
-                          c.touch();
-                          setState(() {});
-                        },
-                        onUseMax: p.rateCap.maxRate == null
-                        ? null
-                        : () {
-                            c.rate.text = rateToPercentText(p.rateCap.maxRate!, context.lang);
-                            _changed();
-                          }),
+                      check: p.rateCap,
+                      acknowledged: c.acknowledgeCap,
+                      onAcknowledge: (v) {
+                        c.acknowledgeCap = v;
+                        c.touch();
+                        setState(() {});
+                      },
+                      onUseMax: p.rateCap.maxRate == null
+                          ? null
+                          : () {
+                              c.rate.text = rateToPercentText(p.rateCap.maxRate!, context.lang);
+                              _changed();
+                            },
+                    ),
                     const SizedBox(height: CorocSpace.md),
-                    for (final i in (_showAll ? p.installments : p.installments.take(5)))
-                      KeyValue('${l.installmentN(i.number)} · ${Dates.medium(i.dueDate, context.lang)}', m(i.amount)),
+                    for (final i in (_showAll ? p.installments : p.installments.take(5))) KeyValue('${l.installmentN(i.number)} · ${Dates.medium(i.dueDate, context.lang)}', m(i.amount)),
                     if (p.installments.length > 5)
                       TextButton(onPressed: () => setState(() => _showAll = !_showAll), child: Text(_showAll ? l.previewShowLess : l.previewShowAll(p.installments.length))),
-                  ]),
-      ),
-    ]);
+                  ],
+                ),
+        ),
+      ],
+    );
   }
 }
 
@@ -320,11 +389,18 @@ class _Figure extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-      Overline(label),
-      const SizedBox(height: 4),
-      Text(value, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontFamily: 'Inter', fontWeight: FontWeight.w400, color: gold ? (dark ? CorocColors.gold300 : CorocColors.gold800) : null)),
-    ]);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Overline(label),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontFamily: 'Inter', fontWeight: FontWeight.w400, color: gold ? (dark ? CorocColors.gold300 : CorocColors.gold800) : null),
+        ),
+      ],
+    );
   }
 }
 
@@ -353,13 +429,13 @@ class _CapNotice extends StatelessWidget {
       return ack == null ? dot : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [dot, const SizedBox(height: 8), ack]);
     }
     if (check.ok) return StatusDot(label: l.capOk(percent(check.cap ?? 0, context.lang)), tone: StatusTone.ok);
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      StatusDot(label: l.capExceeded(percent(check.effectiveAnnual, context.lang), percent(check.cap ?? 0, context.lang)), tone: StatusTone.error),
-      if (onUseMax != null) ...[
-        const SizedBox(height: 8),
-        OutlinedButton(onPressed: onUseMax, child: Text(l.capUseMax(rateToPercentText(check.maxRate!, context.lang)))),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        StatusDot(label: l.capExceeded(percent(check.effectiveAnnual, context.lang), percent(check.cap ?? 0, context.lang)), tone: StatusTone.error),
+        if (onUseMax != null) ...[const SizedBox(height: 8), OutlinedButton(onPressed: onUseMax, child: Text(l.capUseMax(rateToPercentText(check.maxRate!, context.lang))))],
+        if (ack != null) ...[const SizedBox(height: 8), ack],
       ],
-      if (ack != null) ...[const SizedBox(height: 8), ack],
-    ]);
+    );
   }
 }

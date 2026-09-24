@@ -30,20 +30,22 @@ void main() {
 
     final seen = <String>[];
     final unknown = <String>[];
-    final api = CorocApi(ApiClient(
-      baseUrl: 'https://api.test/v1',
-      store: MemorySessionStore(),
-      language: () => 'es',
-      client: MockClient((req) async {
-        final match = ops.where((o) => o.method == req.method && o.path.hasMatch(req.url.path)).toList();
-        if (match.isEmpty) {
-          unknown.add('${req.method} ${req.url.path}');
-        } else {
-          seen.add(match.first.id);
-        }
-        return http.Response('{}', 200, headers: {'content-type': 'application/json'});
-      }),
-    ));
+    final api = CorocApi(
+      ApiClient(
+        baseUrl: 'https://api.test/v1',
+        store: MemorySessionStore(),
+        language: () => 'es',
+        client: MockClient((req) async {
+          final match = ops.where((o) => o.method == req.method && o.path.hasMatch(req.url.path)).toList();
+          if (match.isEmpty) {
+            unknown.add('${req.method} ${req.url.path}');
+          } else {
+            seen.add(match.first.id);
+          }
+          return http.Response('{}', 200, headers: {'content-type': 'application/json'});
+        }),
+      ),
+    );
     Stream<List<int>> open() => Stream.value(const [1, 2, 3]);
     final calls = <Future<Object?> Function()>[
       () => api.login(tenant: 't', username: 'u', password: 'p', deviceId: 'd'),

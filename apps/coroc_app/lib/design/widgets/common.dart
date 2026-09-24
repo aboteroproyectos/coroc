@@ -26,7 +26,12 @@ class SectionCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (title != null) ...[
-              Row(children: [Expanded(child: Text(title!, style: Theme.of(context).textTheme.titleMedium)), ?trailing]),
+              Row(
+                children: [
+                  Expanded(child: Text(title!, style: Theme.of(context).textTheme.titleMedium)),
+                  ?trailing,
+                ],
+              ),
               const SizedBox(height: CorocSpace.md),
             ],
             child,
@@ -76,7 +81,10 @@ class ProgressRing extends StatelessWidget {
           tween: Tween(begin: 0, end: p),
           duration: MediaQuery.of(context).disableAnimations ? Duration.zero : CorocMotion.countUp,
           curve: CorocMotion.curve,
-          builder: (context, v, child) => CustomPaint(painter: _RingPainter(v, stroke, track), child: Center(child: child)),
+          builder: (context, v, child) => CustomPaint(
+            painter: _RingPainter(v, stroke, track),
+            child: Center(child: child),
+          ),
           child: center,
         ),
       ),
@@ -94,10 +102,16 @@ class _RingPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
     final arc = rect.deflate(stroke / 2);
-    canvas.drawArc(arc, 0, math.pi * 2, false, Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = stroke
-      ..color = track);
+    canvas.drawArc(
+      arc,
+      0,
+      math.pi * 2,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = stroke
+        ..color = track,
+    );
     if (value <= 0) return;
     final paint = Paint()
       ..style = PaintingStyle.stroke
@@ -126,21 +140,34 @@ class StatusDot extends StatelessWidget {
   final StatusTone tone;
 
   static Color colorOf(StatusTone t, Brightness b) => switch (t) {
-        StatusTone.ok => b == Brightness.dark ? const Color(0xFF7FD1A8) : CorocColors.success,
-        StatusTone.warn => b == Brightness.dark ? const Color(0xFFF0C27A) : CorocColors.warning,
-        StatusTone.error => b == Brightness.dark ? const Color(0xFFF2B8B5) : CorocColors.error,
-        StatusTone.info => b == Brightness.dark ? const Color(0xFFA9C4F5) : CorocColors.info,
-        StatusTone.neutral => b == Brightness.dark ? CorocColors.inkMutedDark : CorocColors.inkMutedLight,
-      };
+    StatusTone.ok => b == Brightness.dark ? const Color(0xFF7FD1A8) : CorocColors.success,
+    StatusTone.warn => b == Brightness.dark ? const Color(0xFFF0C27A) : CorocColors.warning,
+    StatusTone.error => b == Brightness.dark ? const Color(0xFFF2B8B5) : CorocColors.error,
+    StatusTone.info => b == Brightness.dark ? const Color(0xFFA9C4F5) : CorocColors.info,
+    StatusTone.neutral => b == Brightness.dark ? CorocColors.inkMutedDark : CorocColors.inkMutedLight,
+  };
 
   @override
   Widget build(BuildContext context) {
     final c = colorOf(tone, Theme.of(context).brightness);
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      Container(width: 8, height: 8, decoration: BoxDecoration(color: c, shape: BoxShape.circle)),
-      const SizedBox(width: 8),
-      Flexible(child: Text(label, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis)),
-    ]);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: c, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c, fontWeight: FontWeight.w600),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -166,7 +193,9 @@ class AsyncBody<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     return value.when(
       data: builder,
-      loading: () => const Center(child: Padding(padding: EdgeInsets.all(CorocSpace.xl), child: CircularProgressIndicator())),
+      loading: () => const Center(
+        child: Padding(padding: EdgeInsets.all(CorocSpace.xl), child: CircularProgressIndicator()),
+      ),
       error: (e, _) => ErrorState(message: errorText(context, e), onRetry: onRetry),
     );
   }
@@ -182,15 +211,15 @@ class ErrorState extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(CorocSpace.xl),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.cloud_off_outlined, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
-          const SizedBox(height: CorocSpace.md),
-          Text(message, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
-          if (onRetry != null) ...[
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.cloud_off_outlined, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(height: CorocSpace.md),
-            OutlinedButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh), label: Text(context.l10n.actionRetry)),
+            Text(message, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
+            if (onRetry != null) ...[const SizedBox(height: CorocSpace.md), OutlinedButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh), label: Text(context.l10n.actionRetry))],
           ],
-        ]),
+        ),
       ),
     );
   }
@@ -209,13 +238,16 @@ class EmptyState extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(CorocSpace.xl),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, size: 40, color: Theme.of(context).colorScheme.tertiary),
-          const SizedBox(height: CorocSpace.md),
-          Text(title, style: t.titleMedium, textAlign: TextAlign.center),
-          if (message != null) ...[const SizedBox(height: CorocSpace.sm), Text(message!, style: t.bodyMedium, textAlign: TextAlign.center)],
-          if (action != null) ...[const SizedBox(height: CorocSpace.lg), action!],
-        ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 40, color: Theme.of(context).colorScheme.tertiary),
+            const SizedBox(height: CorocSpace.md),
+            Text(title, style: t.titleMedium, textAlign: TextAlign.center),
+            if (message != null) ...[const SizedBox(height: CorocSpace.sm), Text(message!, style: t.bodyMedium, textAlign: TextAlign.center)],
+            if (action != null) ...[const SizedBox(height: CorocSpace.lg), action!],
+          ],
+        ),
       ),
     );
   }
@@ -232,18 +264,38 @@ class PageHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
-    final head = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      if (overline != null) ...[Overline(overline!), const SizedBox(height: 6)],
-      Text(title, style: t.headlineMedium),
-      if (subtitle != null) ...[const SizedBox(height: 4), Text(subtitle!, style: t.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))],
-    ]);
+    final head = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (overline != null) ...[Overline(overline!), const SizedBox(height: 6)],
+        Text(title, style: t.headlineMedium),
+        if (subtitle != null) ...[const SizedBox(height: 4), Text(subtitle!, style: t.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))],
+      ],
+    );
     return Padding(
       padding: const EdgeInsets.only(bottom: CorocSpace.lg),
-      child: LayoutBuilder(builder: (context, c) {
-        if (actions.isEmpty) return head;
-        if (c.maxWidth < 560) return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [head, const SizedBox(height: CorocSpace.md), Wrap(spacing: 8, runSpacing: 8, children: actions)]);
-        return Row(crossAxisAlignment: CrossAxisAlignment.end, children: [Expanded(child: head), Wrap(spacing: 8, runSpacing: 8, children: actions)]);
-      }),
+      child: LayoutBuilder(
+        builder: (context, c) {
+          if (actions.isEmpty) return head;
+          if (c.maxWidth < 560) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                head,
+                const SizedBox(height: CorocSpace.md),
+                Wrap(spacing: 8, runSpacing: 8, children: actions),
+              ],
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(child: head),
+              Wrap(spacing: 8, runSpacing: 8, children: actions),
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -260,11 +312,18 @@ class KeyValue extends StatelessWidget {
     final t = Theme.of(context).textTheme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Expanded(child: Text(label, style: t.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))),
-        const SizedBox(width: 12),
-        Flexible(child: Text(value, textAlign: TextAlign.end, style: emphasize ? t.titleSmall : t.bodyMedium)),
-      ]),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Text(label, style: t.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          ),
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(value, textAlign: TextAlign.end, style: emphasize ? t.titleSmall : t.bodyMedium),
+          ),
+        ],
+      ),
     );
   }
 }

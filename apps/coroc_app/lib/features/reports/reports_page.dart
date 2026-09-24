@@ -58,98 +58,140 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
       (type: 'messages', icon: Icons.forum_outlined, title: l.reportMessages, body: l.reportMessagesBody, period: true, pdf: true),
     ];
 
-    return PageScaffold(maxWidth: 1100, onRefresh: () async => ref.invalidate(recentReportsProvider), children: [
-      PageHeader(title: l.navReports, subtitle: l.reportsSubtitle),
-      SectionCard(
-        title: l.reportFilters,
-        child: Wrap(spacing: CorocSpace.md, runSpacing: CorocSpace.md, crossAxisAlignment: WrapCrossAlignment.center, children: [
-          _DateField(label: l.reportFrom, value: _from, onChanged: (v) => setState(() => _from = v)),
-          _DateField(label: l.reportTo, value: _to, onChanged: (v) => setState(() => _to = v)),
-          DropdownMenu<String>(
-            label: Text(l.fieldLanguage),
-            initialSelection: lang,
-            onSelected: (v) => setState(() => _lang = v),
-            dropdownMenuEntries: [for (final c in supportedLanguages) DropdownMenuEntry(value: c, label: languageName(l, c))],
-          ),
-          DropdownMenu<String>(
-            label: Text(l.reportCurrency),
-            initialSelection: currency,
-            onSelected: (v) => setState(() => _currency = v),
-            dropdownMenuEntries: const [DropdownMenuEntry(value: 'COP', label: 'COP'), DropdownMenuEntry(value: 'BRL', label: 'BRL'), DropdownMenuEntry(value: 'USD', label: 'USD')],
-          ),
-          if (collectors.isNotEmpty)
-            DropdownMenu<String>(
-              label: Text(l.reportCollector),
-              initialSelection: _collectorId ?? '',
-              onSelected: (v) => setState(() => _collectorId = (v == null || v.isEmpty) ? null : v),
-              dropdownMenuEntries: [DropdownMenuEntry(value: '', label: l.reportAllCollectors), for (final c in collectors) DropdownMenuEntry(value: c.id, label: c.name)],
-            ),
-        ]),
-      ),
-      const SizedBox(height: CorocSpace.lg),
-      LayoutBuilder(builder: (context, c) {
-        final cols = c.maxWidth >= 900 ? 2 : 1;
-        final w = (c.maxWidth - (cols - 1) * CorocSpace.md) / cols;
-        return Wrap(spacing: CorocSpace.md, runSpacing: CorocSpace.md, children: [
-          for (final r in reports)
-            SizedBox(
-              width: w,
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(CorocSpace.lg),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Icon(r.icon, color: Theme.of(context).colorScheme.tertiary),
-                      const SizedBox(width: CorocSpace.md),
-                      Expanded(
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text(r.title, style: t.titleMedium),
-                          const SizedBox(height: 4),
-                          Text(r.body, style: t.bodySmall),
-                          if (r.period) Text(l.reportUsesPeriod, style: t.bodySmall?.copyWith(color: Theme.of(context).colorScheme.tertiary)),
-                        ]),
-                      ),
-                    ]),
-                    const SizedBox(height: CorocSpace.md),
-                    if (_running == r.type)
-                      Row(children: [
-                        const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
-                        const SizedBox(width: 12),
-                        Text(l.reportGenerating(_progress)),
-                      ])
-                    else
-                      Wrap(spacing: 8, runSpacing: 8, children: [
-                        if (r.pdf) FilledButton.tonal(onPressed: _running != null ? null : () => _generate(r, 'pdf', lang, currency), child: const Text('PDF')),
-                        OutlinedButton(onPressed: _running != null ? null : () => _generate(r, 'xlsx', lang, currency), child: const Text('XLSX')),
-                        OutlinedButton(onPressed: _running != null ? null : () => _generate(r, 'csv', lang, currency), child: const Text('CSV')),
-                      ]),
-                  ]),
-                ),
+    return PageScaffold(
+      maxWidth: 1100,
+      onRefresh: () async => ref.invalidate(recentReportsProvider),
+      children: [
+        PageHeader(title: l.navReports, subtitle: l.reportsSubtitle),
+        SectionCard(
+          title: l.reportFilters,
+          child: Wrap(
+            spacing: CorocSpace.md,
+            runSpacing: CorocSpace.md,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              _DateField(label: l.reportFrom, value: _from, onChanged: (v) => setState(() => _from = v)),
+              _DateField(label: l.reportTo, value: _to, onChanged: (v) => setState(() => _to = v)),
+              DropdownMenu<String>(
+                label: Text(l.fieldLanguage),
+                initialSelection: lang,
+                onSelected: (v) => setState(() => _lang = v),
+                dropdownMenuEntries: [for (final c in supportedLanguages) DropdownMenuEntry(value: c, label: languageName(l, c))],
               ),
-            ),
-        ]);
-      }),
-      const SizedBox(height: CorocSpace.lg),
-      SectionCard(
-        title: l.reportRecent,
-        child: AsyncBody<List<CorocDocument>>(
-          value: ref.watch(recentReportsProvider),
-          onRetry: () => ref.invalidate(recentReportsProvider),
-          builder: (list) => list.isEmpty
-              ? Padding(padding: const EdgeInsets.all(CorocSpace.md), child: Text(l.reportNoneYet, style: t.bodyMedium))
-              : Column(children: [
-                  for (final d in list)
-                    ListTile(
-                      leading: Icon(docIcon(d), color: Theme.of(context).colorScheme.tertiary),
-                      title: Text(d.name, overflow: TextOverflow.ellipsis),
-                      subtitle: Text('${d.fileName.split('.').last.toUpperCase()} · ${Dates.dateTime(d.createdAt, context.lang)} · ${fileSize(d.size)}'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => _open(context, d),
-                    ),
-                ]),
+              DropdownMenu<String>(
+                label: Text(l.reportCurrency),
+                initialSelection: currency,
+                onSelected: (v) => setState(() => _currency = v),
+                dropdownMenuEntries: const [
+                  DropdownMenuEntry(value: 'COP', label: 'COP'),
+                  DropdownMenuEntry(value: 'BRL', label: 'BRL'),
+                  DropdownMenuEntry(value: 'USD', label: 'USD'),
+                ],
+              ),
+              if (collectors.isNotEmpty)
+                DropdownMenu<String>(
+                  label: Text(l.reportCollector),
+                  initialSelection: _collectorId ?? '',
+                  onSelected: (v) => setState(() => _collectorId = (v == null || v.isEmpty) ? null : v),
+                  dropdownMenuEntries: [
+                    DropdownMenuEntry(value: '', label: l.reportAllCollectors),
+                    for (final c in collectors) DropdownMenuEntry(value: c.id, label: c.name),
+                  ],
+                ),
+            ],
+          ),
         ),
-      ),
-    ]);
+        const SizedBox(height: CorocSpace.lg),
+        LayoutBuilder(
+          builder: (context, c) {
+            final cols = c.maxWidth >= 900 ? 2 : 1;
+            final w = (c.maxWidth - (cols - 1) * CorocSpace.md) / cols;
+            return Wrap(
+              spacing: CorocSpace.md,
+              runSpacing: CorocSpace.md,
+              children: [
+                for (final r in reports)
+                  SizedBox(
+                    width: w,
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(CorocSpace.lg),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(r.icon, color: Theme.of(context).colorScheme.tertiary),
+                                const SizedBox(width: CorocSpace.md),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(r.title, style: t.titleMedium),
+                                      const SizedBox(height: 4),
+                                      Text(r.body, style: t.bodySmall),
+                                      if (r.period) Text(l.reportUsesPeriod, style: t.bodySmall?.copyWith(color: Theme.of(context).colorScheme.tertiary)),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: CorocSpace.md),
+                            if (_running == r.type)
+                              Row(
+                                children: [
+                                  const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                                  const SizedBox(width: 12),
+                                  Text(l.reportGenerating(_progress)),
+                                ],
+                              )
+                            else
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  if (r.pdf) FilledButton.tonal(onPressed: _running != null ? null : () => _generate(r, 'pdf', lang, currency), child: const Text('PDF')),
+                                  OutlinedButton(onPressed: _running != null ? null : () => _generate(r, 'xlsx', lang, currency), child: const Text('XLSX')),
+                                  OutlinedButton(onPressed: _running != null ? null : () => _generate(r, 'csv', lang, currency), child: const Text('CSV')),
+                                ],
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: CorocSpace.lg),
+        SectionCard(
+          title: l.reportRecent,
+          child: AsyncBody<List<CorocDocument>>(
+            value: ref.watch(recentReportsProvider),
+            onRetry: () => ref.invalidate(recentReportsProvider),
+            builder: (list) => list.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.all(CorocSpace.md),
+                    child: Text(l.reportNoneYet, style: t.bodyMedium),
+                  )
+                : Column(
+                    children: [
+                      for (final d in list)
+                        ListTile(
+                          leading: Icon(docIcon(d), color: Theme.of(context).colorScheme.tertiary),
+                          title: Text(d.name, overflow: TextOverflow.ellipsis),
+                          subtitle: Text('${d.fileName.split('.').last.toUpperCase()} · ${Dates.dateTime(d.createdAt, context.lang)} · ${fileSize(d.size)}'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => _open(context, d),
+                        ),
+                    ],
+                  ),
+          ),
+        ),
+      ],
+    );
   }
 
   Future<void> _open(BuildContext context, CorocDocument d) async {
@@ -166,13 +208,16 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
       _progress = 0;
     });
     try {
-      final task = await ref.read(apiProvider).requestReport(
-            type: r.type, format: format, lang: lang == 'pt' ? 'pt-BR' : lang, currency: currency, collectorId: _collectorId,
-            from: r.period ? _from : null, to: r.period ? _to : null,
-          );
-      final id = await waitForTask(ref, task.id, onProgress: (p) {
-        if (mounted) setState(() => _progress = p);
-      });
+      final task = await ref
+          .read(apiProvider)
+          .requestReport(type: r.type, format: format, lang: lang == 'pt' ? 'pt-BR' : lang, currency: currency, collectorId: _collectorId, from: r.period ? _from : null, to: r.period ? _to : null);
+      final id = await waitForTask(
+        ref,
+        task.id,
+        onProgress: (p) {
+          if (mounted) setState(() => _progress = p);
+        },
+      );
       ref.invalidate(recentReportsProvider);
       if (!mounted) return;
       if (id == null) {
@@ -205,7 +250,10 @@ class _DateField extends StatelessWidget {
           final d = await showDatePicker(context: context, initialDate: DateTime.parse(value), firstDate: DateTime(2020), lastDate: DateTime.now().add(const Duration(days: 365)));
           if (d != null) onChanged('${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}');
         },
-        child: InputDecorator(decoration: corocInput(context, label: label, suffix: const Icon(Icons.event_outlined)), child: Text(Dates.medium(value, context.lang))),
+        child: InputDecorator(
+          decoration: corocInput(context, label: label, suffix: const Icon(Icons.event_outlined)),
+          child: Text(Dates.medium(value, context.lang)),
+        ),
       ),
     );
   }
