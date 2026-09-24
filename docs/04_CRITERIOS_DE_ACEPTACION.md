@@ -1,6 +1,39 @@
 # COROC · Estado de los criterios de aceptación (§22)
 
-Corte: 23 de septiembre de 2026 · Fase 4.
+Corte: 23 de septiembre de 2026 · Fase 5.
+
+## Fase 5: endurecimiento y publicación (§21, §23)
+
+Las veinte CA siguen en verde en cada cambio. Las comprueban:
+- el núcleo (64 pruebas);
+- la API con PostgreSQL 16 real (105 pruebas, más 5 de rendimiento);
+- la app (45 pruebas).
+
+La Fase 5 agrega §21, verificado así:
+
+| Requisito de §21 | Estado | Evidencia |
+|---|---|---|
+| Dashboard < 1,5 s con 50.000 clientes | ✅ 196 ms con **100.000** clientes y 2.000.000 de cuotas; p95 de 538 ms con 10 a la vez | `perf.test.ts` (trabajo «Rendimiento» en CI, informe como artefacto) |
+| Búsqueda de clientes < 300 ms | ✅ 23–69 ms; p95 de 192 ms con 10 a la vez (ADR-051) | `perf.test.ts` |
+| Comprobante → pago < 60 s (p95, camino automático) | ✅ p95 de 4,4 s con 20 comprobantes a la vez por el portal, con OCR real | `intake.test.ts` · «§21: 20 comprobantes a la vez» |
+| Carga mixta sin errores | ✅ 300 peticiones, 25 a la vez, cero errores; p95 < 3 s con servidor y cliente en un solo proceso | `perf.test.ts` |
+| Colas con reintentos y cola de fallidos visible para soporte | ✅ Reintentos exponenciales (Fases 2 a 4); `GET /support/failures`, reintento y Configuración › Soporte (ADR-054) | `intake.test.ts` · «soporte»; `support_test.dart` |
+| Traza por documento hasta el recibo enviado | ✅ `GET /intake/{id}/trace` con las siete etapas y el tiempo al pago | `intake.test.ts` · «soporte» |
+| Offline: consulta en caché, operaciones en cola, conflictos documentados | ✅ Lecturas y documentos cifrados; pagos en cola idempotente; conflictos con motivo (ADR-055) | `offline_test.dart` |
+| WCAG 2.2 AA, texto al 200 %, objetivos ≥ 44 pt | ✅ Contraste, áreas táctiles de 48 px (Android) y 44 pt (iOS) y etiquetas en claro y oscuro; 200 % sin desbordes | `accessibility_test.dart`, `support_test.dart` |
+| Lectores de pantalla (TalkBack, VoiceOver, Narrador) | ⚠️ Etiquetas, encabezados y región viva verificados con el árbol de semántica; falta la prueba manual en dispositivos | — |
+| Análisis estático sin advertencias | ✅ `flutter analyze`, `tsc` estricto, Redocly y lint de textos | CI |
+| Cobertura ≥ 90 % en motor financiero, cumplimiento y extracción | ✅ 97,4 % de líneas en `@coroc/core` (umbral 90 % en CI) | `packages/core/vitest.config.ts` |
+| Cobertura ≥ 75 % global | ⚠️ API 88 % y núcleo 97 %; la app llega a 26 % (sin código generado). En CI hay un piso para que no baje | `services/api/vitest.config.ts`, trabajo «App · análisis y pruebas» |
+| Seguridad (ASVS L2) | ✅ Suite de penetración sobre el contrato, `npm audit` sin hallazgos y ZAP sin hallazgos de inyección, XSS ni SSRF (118 reglas en PASS). ⚠️ Falta la prueba de un tercero | `security.test.ts`, trabajo «Seguridad · dependencias y DAST» |
+| Disponibilidad del backend 99,9 % | ⏳ Depende del despliegue (P-1). La API es sin estado, con salud en `/health` e id de petición | `06_EJECUCION_Y_DESPLIEGUE.md` |
+| Arranque en frío < 2,5 s y listas a 60 fps | ⏳ Listas virtualizadas desde la Fase 1; la medición en un teléfono de gama media queda para la prueba en dispositivos | — |
+
+§20.4, tiendas:
+- Política de privacidad pública en tres idiomas (ADR-058).
+- Eliminación de cuenta desde la app (ADR-056), verificada en `account.test.ts`.
+- Fichas y declaraciones (`11_FICHAS_DE_TIENDA.md`).
+- Firma y publicación en CI (ADR-059), que esperan las cuentas y los certificados (P-2).
 
 ## Fase 4: cierre por el servidor
 
@@ -136,7 +169,8 @@ Otras verificaciones de la Fase 1:
 npm ci && npm run build
 npx playwright-core install chromium-headless-shell   # PDF de la Fase 2 (o COROC_CHROMIUM_PATH=/ruta/al/ejecutable)
 TEST_DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/postgres npm test
-(cd services/api && PERF=1 TEST_DATABASE_URL=... npx vitest run test/perf.test.ts)   # 50.000 clientes
+(cd services/api && PERF=1 TEST_DATABASE_URL=... npx vitest run test/perf.test.ts)   # 100.000 clientes
+COVERAGE=1 TEST_DATABASE_URL=... npm test                                              # con umbrales de cobertura
 
 # Fases 1 y 2: app Flutter (ver apps/coroc_app/README.md)
 cd apps/coroc_app && flutter test

@@ -1,7 +1,7 @@
 name: coroc
 description: "COROC · Gestión y cobro de préstamos personales (Android, iOS, Windows y macOS)."
 publish_to: none
-version: 0.1.0+1
+version: 0.5.0+5
 
 environment:
   sdk: ^3.8.0
@@ -38,6 +38,8 @@ dependencies:
     path: packages/coroc_share
   # Fase 4 · modo asistido: abrir WhatsApp o el correo con el texto listo (ADR-046)
   url_launcher: ^6.3.2
+  # Fase 5 · caché y cola sin conexión cifradas con AES-256-GCM (ADR-055)
+  cryptography: ^2.9.0
 
 dev_dependencies:
   flutter_test:
@@ -47,6 +49,10 @@ dev_dependencies:
   freezed: ^3.0.6
   json_serializable: ^6.9.5
   flutter_launcher_icons: ^0.14.3
+  # Fase 5 · la prueba de contrato de la app lee services/api/openapi.yaml
+  yaml: ^3.1.2
+  # Fase 5 · instalador MSIX firmado para Windows (ADR-059)
+  msix: ^3.18.0
 
 flutter:
   uses-material-design: true
@@ -84,3 +90,13 @@ flutter_launcher_icons:
   macos:
     generate: true
     image_path: assets/icon/icon-1024.png
+
+# Instalador MSIX de Windows (ADR-059). El editor y el certificado llegan en el flujo de publicación desde los secretos.
+msix_config:
+  display_name: COROC
+  publisher_display_name: COROC
+  identity_name: co.coroc.coroc
+  logo_path: assets/icon/icon-1024.png
+  capabilities: internetClient
+  languages: es-co, pt-br, en-us
+  install_certificate: false

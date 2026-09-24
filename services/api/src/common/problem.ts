@@ -37,6 +37,9 @@ function fromPg(err: { code?: string; constraint?: string }): Problem | null {
     case '40001':
     case '40P01':
       return new Problem(409, 'VERSION_CONFLICT');
+    case '22021': // bytes inválidos en un texto (p. ej. U+0000): es un dato de entrada, no un error interno
+    case '22P05':
+      return new Problem(422, 'VALIDATION_FAILED');
     case '23P01':
       if (err.constraint?.startsWith('rate_caps')) return new Problem(409, 'RATE_CAP_OVERLAP');
       return null;
@@ -59,6 +62,11 @@ export class ProblemFilter implements ExceptionFilter {
       p = fromPg(exception as { code?: string });
       // Una violación de RLS nunca debería ocurrir en uso normal: se registra (sin datos personales) para investigarla.
       if (p && (exception as { code?: string }).code === '42501') this.log.warn(`RLS/permiso denegado en ${req.method} ${req.route?.path ?? ''}: ${(exception as unknown as Error).message}`);
+    }
+    // Errores del lector de cuerpos de Express (body-parser): cuerpo demasiado grande o JSON malformado.
+    if (!p && exception && typeof exception === 'object' && typeof (exception as { type?: unknown }).type === 'string' && (exception as { type: string }).type.startsWith('entity.')) {
+      const type = (exception as { type: string }).type;
+      p = type === 'entity.too.large' ? new Problem(413, 'PAYLOAD_TOO_LARGE') : new Problem(400, 'VALIDATION_FAILED');
     }
     if (!p && exception instanceof HttpException) {
       const status = exception.getStatus();

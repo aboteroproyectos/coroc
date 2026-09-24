@@ -32,6 +32,8 @@ jobs:
       TEST_DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
       # En CI la lectura con OCR es obligatoria: sin Tesseract, las pruebas de CA-07 a CA-09 y CA-19 fallan en vez de omitirse.
       COROC_REQUIRE_OCR: '1'
+      # Umbrales de cobertura: núcleo ≥ 90 %, API ≥ 80 % de líneas (vitest.config.ts de cada paquete).
+      COVERAGE: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -53,6 +55,124 @@ jobs:
         run: npx --yes @redocly/cli@1 lint services/api/openapi.yaml --format=github-actions
       - name: Pruebas (núcleo, aceptación CA-01…09/12…19, documentos, recepción, contrato)
         run: npm test
+
+  # ─── Rendimiento (§21): 100.000 clientes y 2.000.000 de cuotas, latencias p95 con peticiones concurrentes ───
+  perf:
+    name: Rendimiento
+    runs-on: ubuntu-latest
+    needs: api
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
+      PERF: '1'
+      PERF_REPORT: perf-report.json
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Chromium para los PDF (Playwright)
+        run: npx playwright-core install --with-deps chromium-headless-shell
+      - run: npm run build -w @coroc/core
+      - name: Carga de 100.000 clientes y mediciones
+        working-directory: services/api
+        run: npx vitest run test/perf.test.ts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: informe-de-rendimiento
+          path: services/api/perf-report.json
+          if-no-files-found: ignore
+
+  # ─── Seguridad (§20): auditoría de dependencias y escaneo dinámico con OWASP ZAP sobre el contrato OpenAPI ───
+  dast:
+    name: Seguridad · dependencias y DAST
+    runs-on: ubuntu-latest
+    needs: api
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Auditoría de dependencias de producción (ninguna vulnerabilidad moderada o mayor)
+        run: npm audit --omit=dev --audit-level=moderate
+      - run: npm run build
+      - name: Base, empresa de prueba y API en marcha
+        working-directory: services/api
+        env:
+          DAST_DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
+        run: |
+          node scripts/dast.mjs prepare > dast.env
+          set -a; . ./dast.env; set +a
+          NO_COLOR=1 nohup node dist/main.js > api.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:3000/health && break; sleep 1; done
+          node scripts/dast.mjs token | sed 's/^DAST_TOKEN=//' > token.txt
+          echo "::add-mask::$(cat token.txt)"
+          echo "DAST_TOKEN=$(cat token.txt)" >> "$GITHUB_ENV"
+          # ZAP lee el contrato por HTTP, con la dirección local de la API y sin las operaciones que cerrarían su propia
+          # sesión o la empresa (ZAP llama cada operación al importarlo, antes de aplicar sus exclusiones).
+          node scripts/dast.mjs contract /tmp/contrato/openapi.yaml
+          echo "Sesión antes del escaneo: $(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $(cat token.txt)" http://localhost:3000/v1/me)"
+          (cd /tmp/contrato && nohup python3 -m http.server 8088 > /dev/null 2>&1 &)
+          sleep 1
+          curl -sf http://localhost:8088/openapi.yaml > /dev/null
+      - name: OWASP ZAP · escaneo de la API con sesión
+        uses: zaproxy/action-api-scan@v0.9.0
+        env:
+          # Encabezado de sesión que ZAP agrega a cada petición a la API (mecanismo nativo de los scripts de ZAP).
+          ZAP_AUTH_HEADER: Authorization
+          ZAP_AUTH_HEADER_VALUE: Bearer ${{ env.DAST_TOKEN }}
+          ZAP_AUTH_HEADER_SITE: localhost
+        with:
+          target: http://localhost:8088/openapi.yaml
+          format: openapi
+          rules_file_name: .zap/rules.tsv
+          allow_issue_writing: false
+          fail_action: true
+          artifact_name: informe-zap
+          # -I: las advertencias no fallan el trabajo; fallan las reglas marcadas FAIL en .zap/rules.tsv (inyección, XSS,
+          # SSRF…). Se excluyen las operaciones que cerrarían la sesión del propio escáner o la empresa.
+          cmd_options: >-
+            -I -O http://localhost:3000/v1
+            -z "-config globalexcludeurl.url_list.url(0).regex=.*/v1/(auth/logout|me|me/password|me/mfa.*|me/sessions.*|users/.*|company/closure|restores.*)$
+            -config globalexcludeurl.url_list.url(0).description=sesion
+            -config globalexcludeurl.url_list.url(0).enabled=true
+            -config scanner.maxScanDurationInMins=20
+            -config scanner.maxRuleDurationInMins=3"
+      - name: Cobertura del escaneo (estados HTTP de la API, con sesión)
+        if: always()
+        run: |
+          echo "Sesión después del escaneo: $(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $DAST_TOKEN" http://localhost:3000/v1/me)"
+          grep -oE '(GET|POST|PUT|PATCH|DELETE) /v1/[^ ]* [0-9]{3}' services/api/api.log | awk '{print $NF}' | sort | uniq -c | sort -rn || true
+          echo "Rutas con 2xx:"; grep -oE '(GET|POST|PUT|PATCH|DELETE) /v1/[^ ]* 2[0-9]{2}' services/api/api.log | sort | uniq -c | sort -rn | head -20 || true
+          echo "Rutas con 401:"; grep -oE '(GET|POST|PUT|PATCH|DELETE) /v1/[^ ]* 401' services/api/api.log | sed -E 's#/[0-9a-f-]{36}#/{id}#g' | sort | uniq -c | sort -rn | head -10 || true
+          ok=$(grep -cE ' /v1/[^ ]* 2[0-9]{2} ' services/api/api.log || true)
+          echo "Respuestas 2xx con sesión: $ok"
+          test "$ok" -gt 50
+      - name: Errores 5xx de la API durante el escaneo (sin datos personales)
+        if: always()
+        run: grep -E ' 5[0-9]{2} ' services/api/api.log | head -50 || true
 
   docker:
     name: Imagen Docker de la API
@@ -85,7 +205,11 @@ jobs:
         run: flutter analyze --no-fatal-infos
       - name: Pruebas
         working-directory: apps/coroc_app
-        run: flutter test --reporter expanded
+        run: flutter test --reporter expanded --coverage
+      - name: Cobertura de la app (piso que no puede bajar; código generado excluido)
+        working-directory: apps/coroc_app
+        run: |
+          awk -F: '/^SF:/{g=($2 ~ /\.g\.dart|\.freezed\.dart|l10n\/gen/)} /^LF:/{if(!g)lf+=$2} /^LH:/{if(!g)lh+=$2} END{p=100*lh/lf; printf "Cobertura de la app: %.1f%% (%d/%d líneas)\n", p, lh, lf; exit (p < 25)}' coverage/lcov.info
 
   android:
     name: App · Android

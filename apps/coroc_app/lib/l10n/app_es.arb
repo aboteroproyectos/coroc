@@ -3711,5 +3711,292 @@
   "helpOptOutBody": "Ningún mensaje sale sin la autorización del deudor para ese canal (WhatsApp o correo), registrada con fecha y método en su ficha. El deudor puede dejar de recibir mensajes cuando quiera: respondiendo SALIR, SAIR o STOP por WhatsApp, con el botón de su portal o con el enlace de baja del correo. La exclusión se aplica de inmediato y bloquea lo que estaba pendiente.\n\nSi un correo rebota, la dirección se marca como inválida en la ficha del cliente y no se vuelve a usar hasta que la corrijas. Los mensajes nunca contienen amenazas, preguntas sobre la causa del impago, menciones a terceros ni piden números completos de tarjeta, cuenta o documento: el validador de plantillas lo impide.",
   "@helpOptOutBody": {
     "description": "Fase 4 · Mensajería y cumplimiento"
+  },
+  "supportTitle": "Soporte: lo que falló",
+  "@supportTitle": {
+    "description": "Fase 5 · Soporte"
+  },
+  "supportHelp": "Documentos, mensajes y comprobantes que no se pudieron completar en los últimos 30 días. Los detalles son técnicos y no contienen datos de los clientes.",
+  "@supportHelp": {
+    "description": "Fase 5 · Soporte"
+  },
+  "supportEmpty": "Nada falló. Todo está al día.",
+  "@supportEmpty": {
+    "description": "Fase 5 · Soporte"
+  },
+  "supportDocuments": "Documentos",
+  "@supportDocuments": {
+    "description": "Fase 5 · Soporte"
+  },
+  "supportMessages": "Mensajes",
+  "@supportMessages": {
+    "description": "Fase 5 · Soporte"
+  },
+  "supportReceipts": "Comprobantes ilegibles",
+  "@supportReceipts": {
+    "description": "Fase 5 · Soporte"
+  },
+  "supportRetry": "Reintentar",
+  "@supportRetry": {
+    "description": "Fase 5 · Soporte"
+  },
+  "supportRetried": "En cola de nuevo",
+  "@supportRetried": {
+    "description": "Fase 5 · Soporte"
+  },
+  "supportNotRetryable": "Pida el respaldo otra vez",
+  "@supportNotRetryable": {
+    "description": "Fase 5 · Soporte"
+  },
+  "supportAttempts": "{n} intentos",
+  "@supportAttempts": {
+    "description": "Fase 5 · Soporte",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "taskKindSchedule": "Plan de pagos",
+  "@taskKindSchedule": {
+    "description": "Fase 5 · Soporte"
+  },
+  "taskKindReceipt": "Recibo",
+  "@taskKindReceipt": {
+    "description": "Fase 5 · Soporte"
+  },
+  "taskKindReceiptVoid": "Anulación de recibo",
+  "@taskKindReceiptVoid": {
+    "description": "Fase 5 · Soporte"
+  },
+  "taskKindStatement": "Estado de cuenta",
+  "@taskKindStatement": {
+    "description": "Fase 5 · Soporte"
+  },
+  "taskKindPayoff": "Paz y salvo",
+  "@taskKindPayoff": {
+    "description": "Fase 5 · Soporte"
+  },
+  "taskKindReport": "Informe",
+  "@taskKindReport": {
+    "description": "Fase 5 · Soporte"
+  },
+  "taskKindBackup": "Respaldo",
+  "@taskKindBackup": {
+    "description": "Fase 5 · Soporte"
+  },
+  "traceTitle": "Recorrido del comprobante",
+  "@traceTitle": {
+    "description": "Fase 5 · Soporte"
+  },
+  "traceReceived": "Recibido",
+  "@traceReceived": {
+    "description": "Fase 5 · Soporte"
+  },
+  "traceRead": "Leído",
+  "@traceRead": {
+    "description": "Fase 5 · Soporte"
+  },
+  "traceIdentified": "Cliente identificado",
+  "@traceIdentified": {
+    "description": "Fase 5 · Soporte"
+  },
+  "traceDecided": "Decisión",
+  "@traceDecided": {
+    "description": "Fase 5 · Soporte"
+  },
+  "tracePayment": "Pago registrado",
+  "@tracePayment": {
+    "description": "Fase 5 · Soporte"
+  },
+  "traceReceipt": "Recibo generado",
+  "@traceReceipt": {
+    "description": "Fase 5 · Soporte"
+  },
+  "traceDelivered": "Recibo enviado al cliente",
+  "@traceDelivered": {
+    "description": "Fase 5 · Soporte"
+  },
+  "tracePending": "Pendiente",
+  "@tracePending": {
+    "description": "Fase 5 · Soporte"
+  },
+  "traceSkipped": "No aplica",
+  "@traceSkipped": {
+    "description": "Fase 5 · Soporte"
+  },
+  "traceFailed": "Falló",
+  "@traceFailed": {
+    "description": "Fase 5 · Soporte"
+  },
+  "traceSeconds": "Pago registrado {s} s después de llegar",
+  "@traceSeconds": {
+    "description": "Fase 5 · Soporte",
+    "placeholders": {
+      "s": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteAccountTitle": "Eliminar mi cuenta",
+  "@deleteAccountTitle": {
+    "description": "Fase 5 · Eliminación de cuenta"
+  },
+  "deleteAccountHelp": "Su usuario se elimina y se cierran todas sus sesiones. Los pagos que registró se conservan como prueba contable, a nombre de «Usuario eliminado».",
+  "@deleteAccountHelp": {
+    "description": "Fase 5 · Eliminación de cuenta"
+  },
+  "deleteAccountBody": "Esta acción no se puede deshacer. Escriba su contraseña para confirmar.",
+  "@deleteAccountBody": {
+    "description": "Fase 5 · Eliminación de cuenta"
+  },
+  "deleteAccountPassword": "Contraseña",
+  "@deleteAccountPassword": {
+    "description": "Fase 5 · Eliminación de cuenta"
+  },
+  "deleteAccountAction": "Eliminar mi cuenta",
+  "@deleteAccountAction": {
+    "description": "Fase 5 · Eliminación de cuenta"
+  },
+  "deleteAccountDone": "Su cuenta fue eliminada.",
+  "@deleteAccountDone": {
+    "description": "Fase 5 · Eliminación de cuenta"
+  },
+  "closeCompanyTitle": "Cerrar la empresa y eliminar la cuenta",
+  "@closeCompanyTitle": {
+    "description": "Fase 5 · Eliminación de cuenta"
+  },
+  "closeCompanyHelp": "Como Propietario, su cuenta se elimina cerrando la empresa: se cierran todas las sesiones y nadie más puede ingresar. Tiene 30 días para arrepentirse escribiendo a soporte; después se borran los datos personales y solo se conserva lo que la ley obliga a guardar. Antes, descargue un respaldo.",
+  "@closeCompanyHelp": {
+    "description": "Fase 5 · Eliminación de cuenta"
+  },
+  "closeCompanyBody": "Nadie de la empresa podrá volver a ingresar. Escriba su contraseña y el identificador de la empresa para confirmar.",
+  "@closeCompanyBody": {
+    "description": "Fase 5 · Eliminación de cuenta"
+  },
+  "closeCompanyConfirm": "Escriba «{slug}»",
+  "@closeCompanyConfirm": {
+    "description": "Fase 5 · Eliminación de cuenta",
+    "placeholders": {
+      "slug": {
+        "type": "String"
+      }
+    }
+  },
+  "closeCompanyAction": "Cerrar la empresa",
+  "@closeCompanyAction": {
+    "description": "Fase 5 · Eliminación de cuenta"
+  },
+  "closeCompanyDone": "La empresa quedó cerrada. Tiene 30 días para arrepentirse escribiendo a soporte.",
+  "@closeCompanyDone": {
+    "description": "Fase 5 · Eliminación de cuenta"
+  },
+  "userDelete": "Eliminar usuario",
+  "@userDelete": {
+    "description": "Fase 5 · Eliminación de cuenta"
+  },
+  "userDeleteConfirm": "¿Eliminar a {name}? Se cierran sus sesiones y sus datos personales se borran; los pagos que registró se conservan.",
+  "@userDeleteConfirm": {
+    "description": "Fase 5 · Eliminación de cuenta",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "offlineNoConnection": "Sin conexión",
+  "@offlineNoConnection": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "offlineShowingSaved": "Sin conexión: datos guardados el {time}",
+  "@offlineShowingSaved": {
+    "description": "Fase 5 · Modo sin conexión",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "offlinePending": "{n, plural, =1{1 pago por enviar} other{{n} pagos por enviar}}",
+  "@offlinePending": {
+    "description": "Fase 5 · Modo sin conexión",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "offlineConflicts": "{n, plural, =1{1 pago en conflicto} other{{n} pagos en conflicto}}",
+  "@offlineConflicts": {
+    "description": "Fase 5 · Modo sin conexión",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "offlinePaymentQueued": "Pago guardado sin conexión",
+  "@offlinePaymentQueued": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "offlinePaymentQueuedHelp": "Se enviará solo cuando vuelva la red, sin duplicarse. El recibo se genera en ese momento.",
+  "@offlinePaymentQueuedHelp": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "offlinePaymentLabel": "Pago",
+  "@offlinePaymentLabel": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "offlineWaiting": "esperando conexión",
+  "@offlineWaiting": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "offlineConflictLabel": "En conflicto",
+  "@offlineConflictLabel": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "offlineDiscard": "Descartar",
+  "@offlineDiscard": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "offlineQueueTitle": "Pagos registrados sin conexión",
+  "@offlineQueueTitle": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "offlineQueueHelp": "Se envían en orden con su misma clave: si alguno ya había llegado, el servidor no lo duplica. Si el servidor rechaza uno (por ejemplo, el préstamo ya se pagó o el cliente cambió de cobrador), queda en conflicto con el motivo: revise el préstamo y regístrelo de nuevo si corresponde, o descártelo.",
+  "@offlineQueueHelp": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "offlineSyncNow": "Enviar ahora",
+  "@offlineSyncNow": {
+    "description": "Fase 5 · Modo sin conexión"
+  },
+  "aboutPrivacyPolicy": "Política de privacidad",
+  "@aboutPrivacyPolicy": {
+    "description": "Fase 5 · Enlace a la política de privacidad pública"
+  },
+  "helpOfflineTitle": "Trabajar sin conexión",
+  "@helpOfflineTitle": {
+    "description": "Fase 5 · Ayuda"
+  },
+  "helpOfflineBody": "Sin red, COROC muestra los clientes, préstamos, planes, cobros de hoy y los documentos que abrió antes, con la hora en que se guardaron. Lo guardado va cifrado en el equipo y se borra al cerrar la sesión. Si registra un pago sin conexión, queda «por enviar» y sale solo al volver la red, sin duplicarse. Si el servidor lo rechaza (por ejemplo, el préstamo ya estaba pagado), queda «en conflicto» con el motivo: revise el préstamo y regístrelo de nuevo si corresponde, o descártelo. Crear clientes o préstamos requiere conexión.",
+  "@helpOfflineBody": {
+    "description": "Fase 5 · Ayuda"
+  },
+  "helpSupportTitle": "Soporte: lo que falló",
+  "@helpSupportTitle": {
+    "description": "Fase 5 · Ayuda"
+  },
+  "helpSupportBody": "En Configuración › Soporte están los documentos que no se generaron, los mensajes que no salieron y los comprobantes que no se pudieron leer en los últimos 30 días, con su motivo técnico. «Reintentar» los vuelve a poner en cola. En la Bandeja, cada comprobante muestra su recorrido: cuándo llegó, cuándo se leyó, a quién se asignó, cuándo se registró el pago y cuándo salió el recibo.",
+  "@helpSupportBody": {
+    "description": "Fase 5 · Ayuda"
+  },
+  "helpDeleteAccountTitle": "Eliminar la cuenta",
+  "@helpDeleteAccountTitle": {
+    "description": "Fase 5 · Ayuda"
+  },
+  "helpDeleteAccountBody": "En Configuración › Eliminar mi cuenta, con su contraseña. Su usuario se elimina y se cierran sus sesiones; los pagos que registró se conservan como prueba contable a nombre de «Usuario eliminado». El Propietario elimina la cuenta cerrando la empresa: nadie más podrá ingresar y, pasados 30 días, se borran los datos personales salvo lo que la ley obliga a guardar. Descargue antes un respaldo. La política de privacidad está en Configuración › Acerca de COROC.",
+  "@helpDeleteAccountBody": {
+    "description": "Fase 5 · Ayuda"
   }
 }

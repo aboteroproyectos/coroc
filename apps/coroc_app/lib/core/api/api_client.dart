@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import '../auth/session_store.dart';
+import '../offline/offline_store.dart';
 import 'api_exception.dart';
 
 typedef LanguageGetter = String Function();
@@ -23,6 +24,10 @@ class ApiClient {
 
   String? _accessToken;
   Future<bool>? _refreshing;
+
+  /// Modo sin conexión (ADR-055): lecturas guardadas cifradas y aviso del estado de la red.
+  OfflineCache? cache;
+  void Function(bool online, DateTime? savedAt)? onConnectivity;
 
   /// La capa de sesión recibe los tokens nuevos después de cada renovación.
   void Function(Map<String, dynamic> session)? onSessionRefreshed;
@@ -58,17 +63,28 @@ class ApiClient {
   Future<dynamic> delete(String path, {Object? body}) => send('DELETE', path, body: body);
   Future<dynamic> put(String path, {Object? body, Map<String, String>? headers}) => send('PUT', path, body: body, headers: headers);
 
+  /// Clave de la lectura en el caché: la ruta con la consulta en orden estable.
+  static String cacheKey(String path, Map<String, Object?>? query) {
+    final q = (query ?? const {}).entries.where((e) => e.value != null && '${e.value}'.isNotEmpty).map((e) => '${e.key}=${e.value}').toList()..sort();
+    return q.isEmpty ? path : '$path?${q.join('&')}';
+  }
+
   Future<dynamic> send(String method, String path, {Object? body, Map<String, Object?>? query, Map<String, String>? headers, bool auth = true, bool retry = true}) async {
     final req = http.Request(method, uri(path, query))..headers.addAll(await _headers(auth: auth, extra: headers));
     if (body != null) req.body = jsonEncode(body);
+    final key = method == 'GET' && cache != null && OfflineCache.cacheable(cacheKey(path, query)) ? cacheKey(path, query) : null;
     http.Response res;
     try {
       res = await http.Response.fromStream(await _http.send(req).timeout(const Duration(seconds: 30)));
-    } on TimeoutException {
-      throw ApiException.network();
-    } on http.ClientException {
+    } on Object catch (e) {
+      if (e is! TimeoutException && e is! http.ClientException && e is! SocketException) rethrow;
+      // Sin red: se responde con la última lectura guardada, si la hay, y se avisa que se está sin conexión.
+      final hit = key == null ? null : await _cached(key);
+      onConnectivity?.call(false, hit?.at);
+      if (hit != null) return hit.body;
       throw ApiException.network();
     }
+    onConnectivity?.call(true, null);
     final text = utf8.decode(res.bodyBytes);
     if (res.statusCode == 401 && auth && retry && await _refresh()) {
       return send(method, path, body: body, query: query, headers: headers, auth: auth, retry: false);
@@ -79,7 +95,23 @@ class ApiClient {
       throw err;
     }
     if (text.isEmpty) return null;
-    return jsonDecode(text);
+    final decoded = jsonDecode(text);
+    if (key != null) {
+      try {
+        await cache!.put(key, decoded, DateTime.now());
+      } on Object {
+        // El caché es una ayuda: si el almacén falla, la app sigue funcionando en línea.
+      }
+    }
+    return decoded;
+  }
+
+  Future<({Object? body, DateTime at})?> _cached(String key) async {
+    try {
+      return await cache!.get(key);
+    } on Object {
+      return null;
+    }
   }
 
   /// Renovación con el token rotativo; varias peticiones simultáneas comparten una sola renovación.
@@ -147,7 +179,13 @@ class ApiClient {
 
   /// Descarga en memoria (documentos pequeños para el visor).
   Future<List<int>> downloadBytes(String path) async {
-    final res = await _http.get(fileUri(path)).timeout(const Duration(seconds: 60));
+    final http.Response res;
+    try {
+      res = await _http.get(fileUri(path)).timeout(const Duration(seconds: 60));
+    } on Object catch (e) {
+      if (e is TimeoutException || e is http.ClientException || e is SocketException) throw ApiException.network();
+      rethrow;
+    }
     if (res.statusCode != 200) throw ApiException.fromBody(res.statusCode, utf8.decode(res.bodyBytes));
     return res.bodyBytes;
   }
@@ -160,11 +198,20 @@ class ApiClient {
       ..headers['Content-Type'] = 'application/octet-stream'
       ..contentLength = length;
     var sent = 0;
-    unawaited(open().listen((chunk) {
-      req.sink.add(chunk);
-      sent += chunk.length;
-      onProgress?.call(sent, length);
-    }, onDone: req.sink.close, onError: (Object e) => req.sink.addError(e), cancelOnError: true).asFuture<void>().catchError((_) {}));
+    // El cuerpo se cierra siempre al terminar el archivo (o al fallar su lectura), para que la petición concluya.
+    unawaited(() async {
+      try {
+        await for (final chunk in open()) {
+          req.sink.add(chunk);
+          sent += chunk.length;
+          onProgress?.call(sent, length);
+        }
+      } on Object catch (e) {
+        req.sink.addError(e);
+      } finally {
+        await req.sink.close();
+      }
+    }());
     http.Response res;
     try {
       res = await http.Response.fromStream(await _http.send(req).timeout(const Duration(minutes: 30)));

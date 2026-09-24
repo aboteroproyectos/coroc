@@ -327,3 +327,112 @@ La sincronización corre al abrir la app, cada 2 minutos y con cada evento `docu
 - variables desconocidas, llaves sin cerrar y textos de más de 1.024 caracteres (el límite del cuerpo de una plantilla de WhatsApp).
 
 Se aplica al guardar una plantilla y al escribir un mensaje manual. La app muestra el motivo mientras se escribe. **Consecuencias:** ante la duda bloquea y el usuario reescribe. Las plantillas de COROC pasan el validador en los tres idiomas (prueba del núcleo).
+
+## Fase 5
+
+### ADR-051 · Búsqueda de clientes indexada a pesar de RLS
+**Contexto:** con 100.000 clientes, la búsqueda tardaba 471 ms (p95 con 10 usuarios a la vez). `LIKE` no es `LEAKPROOF`, así que PostgreSQL evalúa primero la política de RLS y no usa los índices trigrama.
+
+**Decisión:** una función `search_client_ids(p_like, p_digits)`, `SECURITY DEFINER` y propiedad de un rol con `BYPASSRLS`:
+- filtra por empresa de forma explícita (`tenant_id = current_tenant()`);
+- busca en el texto, el contrato, los dos teléfonos y los dígitos del documento, cada uno con su índice trigrama;
+- devuelve solo identificadores.
+
+La consulta exterior sigue pasando por RLS, así que el Cobrador sigue viendo solo lo suyo.
+
+**Consecuencias:**
+- Búsqueda en 23–69 ms, y 192 ms en el p95 con 10 a la vez.
+- La función es un punto de confianza: está en la migración 0006 y la cubren las pruebas de aislamiento (`security.test.ts`).
+
+### ADR-052 · Suite de penetración sobre el contrato
+**Decisión:** `security.test.ts` recorre las operaciones del contrato OpenAPI a partir de los metadatos de los controladores y comprueba:
+- que toda operación no pública exige sesión;
+- que cada operación con sesión declara su permiso o es de autoservicio (lista cerrada);
+- que cada rol recibe 403 donde la matriz de §7.2 no le da permiso;
+- que ninguna operación con `{id}` deja a otra empresa leer, cambiar o borrar recursos ajenos (IDOR).
+
+Además:
+- **Tokens manipulados:** alg none, otra clave, rol cambiado y vencido.
+- **Otros ataques:** encabezados, inyección SQL y de rutas, cuerpos enormes, CORS y límite de intentos.
+
+Complementos:
+- `npm audit --omit=dev` sin vulnerabilidades moderadas o mayores;
+- OWASP ZAP (API scan) con sesión real sobre el contrato. Falla en inyección, XSS, SSRF, XXE, recorrido de rutas y ejecución de código.
+
+**Consecuencias:** cada operación nueva queda cubierta sin escribir pruebas a mano. La suite ya encontró dos errores 500: un cuerpo JSON enorme (ahora 413) y bytes nulos en la búsqueda (ahora 422). La prueba de penetración de un tercero sigue pendiente antes de producción.
+
+### ADR-053 · Id de petición, registro de acceso y `no-store`
+**Decisión:**
+- Cada respuesta lleva `X-Request-Id`: se respeta el del balanceador si es seguro (8–64 caracteres `[A-Za-z0-9._-]`); si no, se genera uno.
+- El registro de acceso anota el id, el método, la ruta sin la consulta (las búsquedas llevan nombres), el estado y la duración.
+- Las respuestas de la API llevan `Cache-Control: no-store` (ASVS 8.2.1). Los recursos que deben guardarse en caché lo declaran ellos mismos.
+
+**Consecuencias:** un caso de soporte se sigue por su id en los registros, sin datos personales.
+
+### ADR-054 · Cola de fallidos y traza del comprobante
+**Decisión:**
+- **Cola de fallidos:** `GET /support/failures` reúne lo que falló en los últimos días: tareas de documentos, mensajes y comprobantes ilegibles, con el motivo técnico y sin datos personales. La ven el Propietario, el Administrador y el Auditor.
+- **Reintento:** `POST /tasks/{id}/retry` reintenta desde cero. Un respaldo no se reintenta, porque su clave derivada ya se borró; se pide de nuevo.
+- **Traza:** `GET /intake/{id}/trace` da las etapas de un comprobante con su hora: recibido, leído, identificado, decidido, pago, recibo y entrega. También da los segundos hasta el pago.
+
+**Consecuencias:** se cumple §21 (cola visible para soporte y traza por documento). En la app, Configuración › Soporte y «Recorrido del comprobante» en la Bandeja.
+
+### ADR-055 · Modo sin conexión cifrado y cola de pagos idempotente
+**Contexto:** ADR-023 dejaba la app sin datos de clientes en el equipo. §21 pide consultar clientes, planes y documentos sin conexión y encolar lo hecho sin red.
+
+**Decisión:**
+- **Lecturas guardadas:**
+  - se guarda una lista cerrada de lecturas: clientes, préstamo, plan, libro, recibos, cobros de hoy, tablero, lista de documentos y los últimos 30 documentos abiertos;
+  - van cifradas con AES-256-GCM, con una clave aleatoria en el almacén seguro del sistema, y el nombre del archivo es dato autenticado;
+  - sin red, la app muestra lo guardado con su hora en un aviso que se anuncia a los lectores de pantalla.
+- **Pagos sin conexión:** se guardan en una cola cifrada con su clave de idempotencia y se reenvían en orden al volver la red, cada minuto o con «Enviar ahora».
+- **Resolución de conflictos:** el servidor manda y el libro contable siempre se valida en él.
+  - La misma clave impide duplicar un pago que sí había llegado.
+  - Un rechazo (préstamo pagado, monto mayor al saldo, cliente reasignado, sin permiso) deja el pago «En conflicto» con el motivo del servidor, y la persona lo revisa o lo descarta. Nada se descarta solo.
+  - Sin red, con error 5xx o con la sesión vencida, el pago sigue en cola.
+- **Borrado:** al salir se borran las lecturas; los pagos pendientes se conservan para su usuario. Al eliminar la cuenta se borra todo.
+
+**Consecuencias:**
+- Reemplaza la parte de ADR-023 sobre el caché.
+- Dependencia nueva: `cryptography` (Dart puro).
+- Solo se registran pagos sin conexión; crear clientes o préstamos sigue exigiendo conexión, porque dependen de numeraciones y del tope de tasa en el servidor.
+
+### ADR-056 · Eliminación de cuentas desde la app
+**Decisión:**
+- **Usuario:** con su contraseña, elimina su cuenta desde Configuración (`DELETE /me`). El Administrador puede eliminar a otro usuario (`DELETE /users/{id}`).
+  - El usuario se **anonimiza**: queda como «Usuario eliminado» y se borran su correo, su usuario, su contraseña y su segundo factor.
+  - Sus sesiones se cierran.
+  - Los movimientos que registró siguen siendo prueba contable.
+- **Propietario:** no elimina su usuario; cierra la empresa (`POST /company/closure`) con su contraseña y escribiendo el identificador de la empresa.
+  - Se cierran todas las sesiones y nadie más ingresa (403 `COMPANY_CLOSED`).
+  - Pasados 30 días de gracia, soporte purga los datos personales y conserva lo que la ley obliga a guardar.
+
+**Consecuencias:** se cumplen App Store 5.1.1(v) y Google Play. La purga final es un procedimiento de soporte (`06_EJECUCION_Y_DESPLIEGUE.md`), no automático, para que un error del Propietario sea reversible dentro del plazo.
+
+### ADR-057 · Orden de bloqueos: préstamo → recibo
+**Contexto:** con cobertura de código activa, el reverso de un pago fallaba con 409 tras 1 s, el tiempo de detección de interbloqueos de PostgreSQL. La tarea del recibo bloqueaba la fila del recibo y generaba el PDF. Al guardar el documento, su llave foránea esperaba el préstamo que el reverso ya tenía bloqueado, mientras el reverso esperaba el recibo.
+
+**Decisión:**
+- El PDF se genera **fuera** de la transacción que bloquea.
+- Todas las transacciones bloquean en el mismo orden: primero el préstamo (`FOR SHARE` en la tarea, `FOR UPDATE` en pagos y reversos) y después el recibo.
+- Si el pago se reversó mientras se generaba el PDF, se vuelve a generar con el sello ANULADO.
+
+**Consecuencias:** desaparece el interbloqueo, y un render lento no retiene filas.
+
+### ADR-058 · Política de privacidad pública servida por la API
+**Decisión:** `GET /v1/public/privacy` en español, portugués e inglés, en HTML indexable o JSON. El contacto se configura con `COROC_PRIVACY_CONTACT`. Es la URL que se declara en las tres tiendas; la app la enlaza desde «Acerca de».
+
+La política describe qué datos, para qué, con quién, cuánto tiempo y cómo ejercer los derechos. Las respuestas de Data safety y App Privacy se derivan de ella (`11_FICHAS_DE_TIENDA.md`).
+
+**Consecuencias:** un cambio de la política es un cambio de código revisable, con su fecha de vigencia.
+
+### ADR-059 · Firma y publicación en CI, condicionadas a los secretos
+**Decisión:** el flujo `release.yml` se ejecuta con una etiqueta `v*` o a mano, y en seco en los PR que lo cambian. Genera:
+- Android: App Bundle y APK firmados con la clave de subida (`key.properties` a partir de los secretos) y subida a la pista interna de Google Play;
+- iOS: IPA firmado y TestFlight;
+- macOS: DMG firmado con Developer ID, notarizado con `notarytool` y grapado;
+- Windows: MSIX firmado (paquete `msix`) o para Microsoft Store.
+
+Cada plataforma firma solo si sus secretos existen; si no, compila sin firma y lo avisa. Los instaladores quedan en una versión en borrador de GitHub.
+
+**Consecuencias:** publicar depende solo de cargar los secretos cuando existan las cuentas (P-2). Ningún secreto vive en el repositorio (`key.properties` y `*.jks` están en `.gitignore`).

@@ -65,6 +65,9 @@ class _HelpPageState extends State<HelpPage> {
       (icon: Icons.schedule, title: l.helpContactRulesTitle, body: l.helpContactRulesBody),
       (icon: Icons.chat_outlined, title: l.helpWhatsappModesTitle, body: l.helpWhatsappModesBody),
       (icon: Icons.unsubscribe_outlined, title: l.helpOptOutTitle, body: l.helpOptOutBody),
+      (icon: Icons.cloud_off_outlined, title: l.helpOfflineTitle, body: l.helpOfflineBody),
+      (icon: Icons.support_agent, title: l.helpSupportTitle, body: l.helpSupportBody),
+      (icon: Icons.delete_forever_outlined, title: l.helpDeleteAccountTitle, body: l.helpDeleteAccountBody),
     ];
     final q = _fold(_q.trim());
     final shown = q.isEmpty ? topics : topics.where((t) => _fold('${t.title} ${t.body}').contains(q)).toList();

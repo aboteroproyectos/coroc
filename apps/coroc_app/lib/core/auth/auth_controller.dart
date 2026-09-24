@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/api_exception.dart';
 import '../models/models.dart';
 import '../providers.dart';
+import '../offline/offline_sync.dart';
 
 sealed class AuthState {
   const AuthState();
@@ -111,6 +112,26 @@ class AuthController extends Notifier<AuthState> {
     } on ApiException {
       // Sin conexión: la sesión igual se cierra en este dispositivo.
     }
+    await ref.read(sessionStoreProvider).saveRefreshToken(null);
+    ref.read(apiClientProvider).setAccessToken(null);
+    // Las lecturas guardadas se borran al salir; los pagos pendientes se conservan para enviarlos al volver a ingresar.
+    await _clearOffline(queue: false);
+    state = const SignedOut();
+  }
+
+  Future<void> _clearOffline({required bool queue}) async {
+    try {
+      await ref.read(offlineCacheProvider).clear();
+      await ref.read(offlineDocumentsProvider).clear();
+      if (queue) await ref.read(paymentQueueProvider).clear();
+    } on Object {
+      // Sin almacén en esta plataforma: no hay nada que borrar.
+    }
+  }
+
+  /// Tras eliminar la cuenta o cerrar la empresa: el servidor ya cerró las sesiones; aquí solo se olvidan los tokens.
+  Future<void> forgetSession() async {
+    await _clearOffline(queue: true);
     await ref.read(sessionStoreProvider).saveRefreshToken(null);
     ref.read(apiClientProvider).setAccessToken(null);
     state = const SignedOut();

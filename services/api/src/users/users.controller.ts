@@ -27,7 +27,7 @@ export class UsersController {
   list(@Auth() a: AuthContext) {
     return this.db.tx(this.ctx(a), async (tx) => {
       const lang = await this.companyLang(tx);
-      return (await tx.many('SELECT * FROM users ORDER BY active DESC, name')).map((u) => userJson(u, lang));
+      return (await tx.many('SELECT * FROM users WHERE deleted_at IS NULL ORDER BY active DESC, name')).map((u) => userJson(u, lang));
     });
   }
 

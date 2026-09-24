@@ -71,7 +71,7 @@ export class PostmarkProvider extends EmailProvider {
 /** SMTP propio o de Amazon SES (email-smtp.<región>.amazonaws.com) con nodemailer. */
 export class SmtpProvider extends EmailProvider {
   readonly name = 'smtp' as const;
-  private readonly transport: nodemailer.Transporter;
+  private readonly transport: ReturnType<typeof nodemailer.createTransport>;
   constructor(cfg: AppConfig['email']) {
     super();
     this.transport = nodemailer.createTransport(cfg.smtpUrl!);

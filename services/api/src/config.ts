@@ -67,6 +67,8 @@ export interface AppConfig {
   /** Mensajería (§11): vigencia del enlace seguro de descarga del recibo (días) y despachador en este proceso. */
   deliveryLinkDays: number;
   messageWorker: 'on' | 'off' | 'inline';
+  /** Contacto de privacidad publicado en la política (§20.4). */
+  privacyContact: string;
 }
 
 function required(name: string): string {
@@ -135,6 +137,7 @@ export function loadConfig(env = process.env): AppConfig {
     },
     deliveryLinkDays: Math.min(365, Math.max(1, Number(env.COROC_DELIVERY_LINK_DAYS ?? 30))),
     messageWorker: env.COROC_MESSAGE_WORKER === 'off' ? 'off' : env.COROC_MESSAGE_WORKER === 'inline' ? 'inline' : 'on',
+    privacyContact: env.COROC_PRIVACY_CONTACT || 'privacidad@coroc.app',
   };
 }
 

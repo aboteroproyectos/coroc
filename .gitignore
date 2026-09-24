@@ -29,3 +29,9 @@ apps/coroc_app/.gitignore
 apps/coroc_app/pubspec.lock
 apps/coroc_app/.idea/
 apps/coroc_app/*.iml
+services/api/dast.env
+services/api/token.txt
+services/api/api.log
+services/api/perf-report.json
+apps/coroc_app/android/key.properties
+apps/coroc_app/android/*.jks

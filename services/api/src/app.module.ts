@@ -8,6 +8,9 @@ import { AuthService } from './auth/auth.service.js';
 import { ClientsController } from './clients/clients.controller.js';
 import { ClientsService } from './clients/clients.service.js';
 import { AccessService } from './common/access.js';
+import { SupportController } from './support/support.controller.js';
+import { AccountController } from './auth/account.controller.js';
+import { PrivacyController } from './public/privacy.controller.js';
 import { Clock } from './common/clock.js';
 import { requestMeta } from './common/context.js';
 import { ContractInterceptor } from './common/contract.interceptor.js';
@@ -81,7 +84,7 @@ function requestMetaMiddleware(req: Request, _res: Response, next: NextFunction)
   controllers: [HealthController, AuthController, MeController, UsersController, CompanyController, RateCapsController, ClientsController, LoansController, DashboardController,
     DocumentsController, ClientDocumentsController, LoanDocumentsController, TasksController, FolderController, FilesController, PublicReceiptsController, ReportsController, BackupsController, RestoresController,
     IntakeController, UploadLinksController, PortalController, WebhooksController, WhatsAppAccountController,
-    MessagesController, TemplatesController, ContactRulesController, ContactExceptionController, EmailSenderController],
+    MessagesController, TemplatesController, ContactRulesController, ContactExceptionController, EmailSenderController, SupportController, AccountController, PrivacyController],
   providers: [
     { provide: CONFIG, useFactory: () => loadConfig() },
     Clock,

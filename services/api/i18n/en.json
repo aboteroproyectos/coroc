@@ -132,6 +132,26 @@
       "title": "Internal error",
       "detail": "An unexpected error occurred. The technical team was notified."
     },
+    "PAYLOAD_TOO_LARGE": {
+      "title": "Request too large",
+      "detail": "The request exceeds the maximum allowed size."
+    },
+    "TASK_NOT_RETRYABLE": {
+      "title": "Cannot retry",
+      "detail": "Only failed tasks can be retried; request a backup again from Backups."
+    },
+    "OWNER_MUST_CLOSE_COMPANY": {
+      "title": "The Owner closes the company",
+      "detail": "As the Owner, your account is deleted by closing the company in Settings."
+    },
+    "USER_NOT_DELETABLE": {
+      "title": "This user cannot be deleted",
+      "detail": "The Owner and your own user cannot be deleted here."
+    },
+    "COMPANY_CLOSED": {
+      "title": "Company closed",
+      "detail": "This company requested to close its account. If this was a mistake, contact support within 30 days."
+    },
     "FILE_TOO_LARGE": {
       "title": "File too large",
       "detail": "The file exceeds the {mb} MB limit."

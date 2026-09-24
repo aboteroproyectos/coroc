@@ -89,16 +89,28 @@ export class DocumentFactory implements OnModuleInit {
   private async receipt(task: TaskRow, voidTask: boolean): Promise<string> {
     const tenant = await this.tenants.get(task.tenant_id);
     const stamp = this.clock.localStamp(tenant.timezone);
-    const out = await this.db.tx({ tenantId: task.tenant_id }, async (tx) => {
+    const ctx = { tenantId: task.tenant_id };
+    // El PDF se genera fuera de la transacción que bloquea: un render lento no retiene filas (ADR-057).
+    const pre = await this.db.tx(ctx, (tx) => tx.one<Record<string, any>>('SELECT * FROM receipts WHERE entry_id = $1', [task.entry_id]));
+    if (!pre) throw new Error('Recibo no encontrado');
+    const render = async (voided: boolean) => this.pdf.render(await receiptHtml({ ...(pre.data as ReceiptData), voided }, companyOf(tenant)));
+    let voided = !!pre.voided_at;
+    let body = (!voidTask && pre.document_id) || (voidTask && pre.void_document_id) ? null : await render(voided);
+    const out = await this.db.tx(ctx, async (tx) => {
+      // Mismo orden de bloqueo que el registro y el reverso de pagos (préstamo → recibo): sin interbloqueos.
+      await tx.exec('SELECT 1 FROM loans WHERE id = $1 FOR SHARE', [pre.loan_id]);
       const rc = await tx.one<Record<string, any>>('SELECT * FROM receipts WHERE entry_id = $1 FOR UPDATE', [task.entry_id]);
       if (!rc) throw new Error('Recibo no encontrado');
       const client = (await tx.one<Record<string, any>>('SELECT c.* FROM clients c JOIN loans l ON l.client_id = c.id WHERE l.id = $1', [rc.loan_id]))!;
-      const voided = !!rc.voided_at;
       if (!voidTask && rc.document_id) return { id: rc.document_id as string, client, created: false };
       if (voidTask && rc.void_document_id) return { id: rc.void_document_id as string, client, created: false };
+      // Si el pago se reversó mientras se generaba el PDF, se vuelve a generar con el sello ANULADO.
+      if (!body || !!rc.voided_at !== voided) {
+        voided = !!rc.voided_at;
+        body = await render(voided);
+      }
       const data = rc.data as ReceiptData;
       const lang = data.lang;
-      const body = await this.pdf.render(await receiptHtml({ ...data, voided }, companyOf(tenant)));
       const doc = await this.docs.save(tx, tenant.id, {
         clientId: client.id, loanId: rc.loan_id, kind: 'receipt_out', name: `${RECEIPT_TEXT[lang]!.receiptNo} ${rc.number}${voided ? ` · ${RECEIPT_TEXT[lang]!.void}` : ''}`,
         fileName: documentFileName(tenant.lang, { stamp, kind: 'receipt_out', number: rc.number, contract: data.contract, voided, ext: 'pdf' }),
