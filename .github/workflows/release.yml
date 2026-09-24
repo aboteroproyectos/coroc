@@ -11,7 +11,8 @@ name: Publicación
 #            APPLE_PROVISIONING_PROFILE_BASE64 (App Store), APPLE_TEAM_ID,
 #            APPSTORE_API_KEY_ID, APPSTORE_API_ISSUER_ID, APPSTORE_API_KEY_P8 (App Store Connect),
 #            MACOS_DEVELOPER_ID_P12_BASE64, MACOS_DEVELOPER_ID_PASSWORD (Developer ID Application, para el DMG).
-#   Windows: WINDOWS_CERTIFICATE_PFX_BASE64, WINDOWS_CERTIFICATE_PASSWORD, WINDOWS_PUBLISHER (CN=… del certificado).
+#   Windows: WINDOWS_CERTIFICATE_PFX_BASE64, WINDOWS_CERTIFICATE_PASSWORD, WINDOWS_PUBLISHER (CN=… del certificado) para
+#            descarga directa; o WINDOWS_STORE_PUBLISHER (Partner Center › Identidad del producto) para Microsoft Store.
 #   Todas:   COROC_API_URL (dirección pública de la API que usará la app, p. ej. https://api.coroc.app/v1).
 
 on:
@@ -209,6 +210,7 @@ jobs:
     runs-on: windows-latest
     env:
       HAS_CERT: ${{ secrets.WINDOWS_CERTIFICATE_PFX_BASE64 != '' }}
+      HAS_STORE: ${{ secrets.WINDOWS_STORE_PUBLISHER != '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/flutter-setup
@@ -228,12 +230,17 @@ jobs:
             --certificate-password "${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}" --publisher "${{ secrets.WINDOWS_PUBLISHER }}"
           rm -f "$RUNNER_TEMP/coroc.pfx"
       - name: MSIX para Microsoft Store (lo firma la tienda)
-        if: env.HAS_CERT != 'true'
+        if: env.HAS_CERT != 'true' && env.HAS_STORE == 'true'
+        shell: bash
+        working-directory: apps/coroc_app
+        run: dart run msix:create --build-windows false --store --publisher "${{ secrets.WINDOWS_STORE_PUBLISHER }}"
+      - name: MSIX de prueba (certificado de prueba del paquete msix)
+        if: env.HAS_CERT != 'true' && env.HAS_STORE != 'true'
         shell: bash
         working-directory: apps/coroc_app
         run: |
-          dart run msix:create --build-windows false --store
-          echo "::warning::MSIX sin firma propia (solo válido para subir a Microsoft Store); faltan los secretos WINDOWS_CERTIFICATE_* (P-2)."
+          dart run msix:create --build-windows false
+          echo "::warning::MSIX firmado con el certificado de prueba (solo para instalar en equipos de prueba); faltan los secretos WINDOWS_CERTIFICATE_* o WINDOWS_STORE_PUBLISHER (P-2)."
       - uses: actions/upload-artifact@v4
         with:
           name: coroc-windows
