@@ -93,7 +93,7 @@ tool/coverage_report.sh 85 --files     # cobertura sin código generado; la CI f
 
 | Trabajo | Qué hace |
 |---|---|
-| Núcleo y API | `npm ci`, compilación, tipos, textos en 3 idiomas, Redocly, Chromium sin interfaz, Tesseract, MinIO y todas las pruebas con PostgreSQL 16 (incluidos los PDF, CA-07 a CA-09 y CA-19 con OCR real, la suite de penetración y el almacén S3). Falla si la cobertura baja de 90 % en el núcleo o de 80 % en la API |
+| Núcleo y API | `npm ci`, compilación, tipos, textos en 3 idiomas, Redocly, Chromium sin interfaz, Tesseract, un servidor S3 local (s3rver) y todas las pruebas con PostgreSQL 16 (incluidos los PDF, CA-07 a CA-09 y CA-19 con OCR real, la suite de penetración y el almacén S3). Falla si la cobertura baja de 90 % en el núcleo o de 80 % en la API |
 | Rendimiento | 100.000 clientes y 2.000.000 de cuotas: dashboard, búsqueda, cobros de hoy, p95 con usuarios concurrentes y carga mixta. El informe queda como artefacto `informe-de-rendimiento` |
 | Seguridad · dependencias y DAST | `npm audit --omit=dev` (falla con vulnerabilidades moderadas o mayores) y OWASP ZAP sobre el contrato con una sesión real. Falla en inyección, XSS, SSRF, XXE, recorrido de rutas o ejecución de código (`.zap/rules.tsv`). El informe queda como artefacto `informe-zap` |
 | Imagen Docker | Construye `services/api/Dockerfile` |

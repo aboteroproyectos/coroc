@@ -53,18 +53,19 @@ jobs:
         run: npm run lint:i18n
       - name: Contrato OpenAPI
         run: npx --yes @redocly/cli@1 lint services/api/openapi.yaml --format=github-actions
-      - name: Almacén compatible con S3 (MinIO) para probar el modo de producción con Cloudflare R2 (ADR-060)
+      - name: Almacén compatible con S3 (s3rver) para probar el modo de producción con Cloudflare R2 (ADR-060)
+        # MinIO dejó de publicar imágenes gratuitas (quay.io y Docker Hub niegan la descarga); s3rver habla la misma
+        # API S3 y se instala con npm.
         run: |
-          # quay.io a veces niega la descarga sin sesión; Docker Hub publica la misma imagen.
-          for image in quay.io/minio/minio docker.io/minio/minio; do docker pull -q "$image" && break; done
-          docker run -d --name minio -p 9000:9000 -e MINIO_ROOT_USER=coroc-ci -e MINIO_ROOT_PASSWORD=coroc-ci-minio "$image" server /data
-          for i in $(seq 1 30); do curl -sf http://127.0.0.1:9000/minio/health/live && exit 0; sleep 1; done
-          docker logs minio; exit 1
+          mkdir -p "$RUNNER_TEMP/s3"
+          npx --yes s3rver@3 -d "$RUNNER_TEMP/s3" -a 127.0.0.1 -p 9000 --silent > "$RUNNER_TEMP/s3rver.log" 2>&1 &
+          for i in $(seq 1 30); do curl -sf -o /dev/null http://127.0.0.1:9000/ && exit 0; sleep 1; done
+          cat "$RUNNER_TEMP/s3rver.log"; exit 1
       - name: Pruebas (núcleo, aceptación CA-01…09/12…19, documentos, recepción, contrato, almacén S3)
         env:
           COROC_TEST_S3_ENDPOINT: http://127.0.0.1:9000
-          AWS_ACCESS_KEY_ID: coroc-ci
-          AWS_SECRET_ACCESS_KEY: coroc-ci-minio
+          AWS_ACCESS_KEY_ID: S3RVER
+          AWS_SECRET_ACCESS_KEY: S3RVER
         run: npm test
 
   # ─── Rendimiento (§21): 100.000 clientes y 2.000.000 de cuotas, latencias p95 con peticiones concurrentes ───
