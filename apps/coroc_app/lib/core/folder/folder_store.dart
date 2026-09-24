@@ -13,11 +13,13 @@ abstract class FolderStore {
   String get displayPath;
   Future<void> ensureDir(List<String> dir);
   Future<void> writeBytes(List<String> dir, String name, List<int> bytes, {String mime = 'application/octet-stream'});
+
   /// Copia un archivo local grande (p. ej. un respaldo de varios GB) sin cargarlo en memoria.
   Future<void> copyFile(List<String> dir, String name, File source, {String mime = 'application/octet-stream'});
   Future<bool> exists(List<String> dir, String name);
   Future<void> deleteFile(List<String> dir, String name);
   Future<Uint8List?> readBytes(List<String> dir, String name);
+
   /// Renombra una carpeta de primer nivel (carpeta de un cliente que cambió de nombre, §16.3). Devuelve si pudo.
   Future<bool> renameDir(String from, String to);
   Future<List<String>> listFiles(List<String> dir);
@@ -86,14 +88,20 @@ class IoFolderStore extends FolderStore {
   Future<List<String>> listFiles(List<String> dir) async {
     final d = Directory(_path(dir));
     if (!await d.exists()) return const [];
-    return [await for (final e in d.list()) if (e is File) p.basename(e.path)];
+    return [
+      await for (final e in d.list())
+        if (e is File) p.basename(e.path),
+    ];
   }
 
   @override
   Future<List<String>> listDirs(List<String> dir) async {
     final d = Directory(_path(dir));
     if (!await d.exists()) return const [];
-    return [await for (final e in d.list()) if (e is Directory) p.basename(e.path)];
+    return [
+      await for (final e in d.list())
+        if (e is Directory) p.basename(e.path),
+    ];
   }
 }
 
@@ -152,14 +160,20 @@ class SafFolderStore extends FolderStore {
   Future<List<String>> listFiles(List<String> dir) async {
     final d = await _util.child(treeUri, dir);
     if (d == null) return const [];
-    return [for (final f in await _util.list(d.uri)) if (!f.isDir) f.name];
+    return [
+      for (final f in await _util.list(d.uri))
+        if (!f.isDir) f.name,
+    ];
   }
 
   @override
   Future<List<String>> listDirs(List<String> dir) async {
     final d = dir.isEmpty ? null : await _util.child(treeUri, dir);
     if (dir.isNotEmpty && d == null) return const [];
-    return [for (final f in await _util.list(d?.uri ?? treeUri)) if (f.isDir) f.name];
+    return [
+      for (final f in await _util.list(d?.uri ?? treeUri))
+        if (f.isDir) f.name,
+    ];
   }
 }
 
@@ -213,12 +227,18 @@ class MemoryFolderStore extends FolderStore {
   @override
   Future<List<String>> listFiles(List<String> dir) async {
     final prefix = dir.isEmpty ? '' : '${_k(dir)}/';
-    return [for (final k in files.keys) if (k.startsWith(prefix) && !k.substring(prefix.length).contains('/')) k.substring(prefix.length)];
+    return [
+      for (final k in files.keys)
+        if (k.startsWith(prefix) && !k.substring(prefix.length).contains('/')) k.substring(prefix.length),
+    ];
   }
 
   @override
   Future<List<String>> listDirs(List<String> dir) async {
     final prefix = dir.isEmpty ? '' : '${_k(dir)}/';
-    return [for (final k in dirs) if (k.startsWith(prefix) && k.length > prefix.length && !k.substring(prefix.length).contains('/')) k.substring(prefix.length)];
+    return [
+      for (final k in dirs)
+        if (k.startsWith(prefix) && k.length > prefix.length && !k.substring(prefix.length).contains('/')) k.substring(prefix.length),
+    ];
   }
 }

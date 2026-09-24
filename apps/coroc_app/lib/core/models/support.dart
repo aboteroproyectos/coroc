@@ -4,14 +4,14 @@ typedef Json = Map<String, dynamic>;
 class FailedTask {
   const FailedTask({required this.id, required this.kind, this.contract, this.detail, required this.attempts, required this.retryable, this.finishedAt});
   factory FailedTask.fromJson(Json j) => FailedTask(
-        id: j['id'] as String,
-        kind: j['kind'] as String,
-        contract: j['contract'] as String?,
-        detail: j['detail'] as String?,
-        attempts: (j['attempts'] as num).toInt(),
-        retryable: j['retryable'] as bool,
-        finishedAt: j['finishedAt'] as String?,
-      );
+    id: j['id'] as String,
+    kind: j['kind'] as String,
+    contract: j['contract'] as String?,
+    detail: j['detail'] as String?,
+    attempts: (j['attempts'] as num).toInt(),
+    retryable: j['retryable'] as bool,
+    finishedAt: j['finishedAt'] as String?,
+  );
   final String id;
   final String kind;
   final String? contract;
@@ -24,13 +24,13 @@ class FailedTask {
 class FailedMessage {
   const FailedMessage({required this.id, required this.clientName, required this.event, required this.channel, this.detail, this.failedAt});
   factory FailedMessage.fromJson(Json j) => FailedMessage(
-        id: j['id'] as String,
-        clientName: j['clientName'] as String,
-        event: j['event'] as String,
-        channel: j['channel'] as String,
-        detail: j['detail'] as String?,
-        failedAt: j['failedAt'] as String?,
-      );
+    id: j['id'] as String,
+    clientName: j['clientName'] as String,
+    event: j['event'] as String,
+    channel: j['channel'] as String,
+    detail: j['detail'] as String?,
+    failedAt: j['failedAt'] as String?,
+  );
   final String id;
   final String clientName;
   final String event;
@@ -41,13 +41,8 @@ class FailedMessage {
 
 class FailedIntake {
   const FailedIntake({required this.id, required this.channel, this.fileName, this.detail, required this.createdAt});
-  factory FailedIntake.fromJson(Json j) => FailedIntake(
-        id: j['id'] as String,
-        channel: j['channel'] as String,
-        fileName: j['fileName'] as String?,
-        detail: j['detail'] as String?,
-        createdAt: j['createdAt'] as String,
-      );
+  factory FailedIntake.fromJson(Json j) =>
+      FailedIntake(id: j['id'] as String, channel: j['channel'] as String, fileName: j['fileName'] as String?, detail: j['detail'] as String?, createdAt: j['createdAt'] as String);
   final String id;
   final String channel;
   final String? fileName;
@@ -58,11 +53,11 @@ class FailedIntake {
 class Failures {
   const Failures({required this.days, required this.tasks, required this.messages, required this.intake});
   factory Failures.fromJson(Json j) => Failures(
-        days: (j['days'] as num).toInt(),
-        tasks: (j['documentTasks'] as List).cast<Json>().map(FailedTask.fromJson).toList(),
-        messages: (j['messages'] as List).cast<Json>().map(FailedMessage.fromJson).toList(),
-        intake: (j['intake'] as List).cast<Json>().map(FailedIntake.fromJson).toList(),
-      );
+    days: (j['days'] as num).toInt(),
+    tasks: (j['documentTasks'] as List).cast<Json>().map(FailedTask.fromJson).toList(),
+    messages: (j['messages'] as List).cast<Json>().map(FailedMessage.fromJson).toList(),
+    intake: (j['intake'] as List).cast<Json>().map(FailedIntake.fromJson).toList(),
+  );
   final int days;
   final List<FailedTask> tasks;
   final List<FailedMessage> messages;
@@ -82,10 +77,10 @@ class TraceStep {
 class IntakeTrace {
   const IntakeTrace({required this.steps, this.paymentSeconds, this.deliveredSeconds});
   factory IntakeTrace.fromJson(Json j) => IntakeTrace(
-        steps: (j['steps'] as List).cast<Json>().map(TraceStep.fromJson).toList(),
-        paymentSeconds: (j['paymentSeconds'] as num?)?.toInt(),
-        deliveredSeconds: (j['deliveredSeconds'] as num?)?.toInt(),
-      );
+    steps: (j['steps'] as List).cast<Json>().map(TraceStep.fromJson).toList(),
+    paymentSeconds: (j['paymentSeconds'] as num?)?.toInt(),
+    deliveredSeconds: (j['deliveredSeconds'] as num?)?.toInt(),
+  );
   final List<TraceStep> steps;
   final int? paymentSeconds;
   final int? deliveredSeconds;

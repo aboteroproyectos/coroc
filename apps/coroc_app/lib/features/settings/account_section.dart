@@ -29,15 +29,29 @@ class DeleteAccountSection extends ConsumerWidget {
           title: Text(_owner ? l.closeCompanyTitle : l.deleteAccountTitle),
           content: SizedBox(
             width: 460,
-            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              Text(_owner ? l.closeCompanyBody : l.deleteAccountBody),
-              const SizedBox(height: CorocSpace.md),
-              TextField(controller: password, obscureText: true, autofillHints: const [AutofillHints.password], decoration: InputDecoration(labelText: l.deleteAccountPassword), onChanged: (_) => setState(() {})),
-              if (_owner) ...[
-                const SizedBox(height: CorocSpace.sm),
-                TextField(controller: slug, decoration: InputDecoration(labelText: l.closeCompanyConfirm(companySlug)), onChanged: (_) => setState(() {})),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(_owner ? l.closeCompanyBody : l.deleteAccountBody),
+                const SizedBox(height: CorocSpace.md),
+                TextField(
+                  controller: password,
+                  obscureText: true,
+                  autofillHints: const [AutofillHints.password],
+                  decoration: InputDecoration(labelText: l.deleteAccountPassword),
+                  onChanged: (_) => setState(() {}),
+                ),
+                if (_owner) ...[
+                  const SizedBox(height: CorocSpace.sm),
+                  TextField(
+                    controller: slug,
+                    decoration: InputDecoration(labelText: l.closeCompanyConfirm(companySlug)),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ],
               ],
-            ]),
+            ),
           ),
           actions: [
             TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.actionCancel)),
@@ -70,19 +84,22 @@ class DeleteAccountSection extends ConsumerWidget {
     final l = context.l10n;
     return SectionCard(
       title: _owner ? l.closeCompanyTitle : l.deleteAccountTitle,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text(_owner ? l.closeCompanyHelp : l.deleteAccountHelp, style: Theme.of(context).textTheme.bodySmall),
-        const SizedBox(height: CorocSpace.md),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error, minimumSize: const Size(48, 48)),
-            onPressed: () => _start(context, ref),
-            icon: const Icon(Icons.delete_forever_outlined),
-            label: Text(_owner ? l.closeCompanyAction : l.deleteAccountAction),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(_owner ? l.closeCompanyHelp : l.deleteAccountHelp, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: CorocSpace.md),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error, minimumSize: const Size(48, 48)),
+              onPressed: () => _start(context, ref),
+              icon: const Icon(Icons.delete_forever_outlined),
+              label: Text(_owner ? l.closeCompanyAction : l.deleteAccountAction),
+            ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 }

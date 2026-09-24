@@ -36,12 +36,16 @@ class OfflineBanner extends ConsumerWidget {
             constraints: const BoxConstraints(minHeight: 48),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: CorocSpace.lg, vertical: CorocSpace.sm),
-              child: Row(children: [
-                Icon(s.online ? Icons.sync : Icons.cloud_off_outlined, color: conflict ? scheme.onErrorContainer : scheme.onSecondaryContainer),
-                const SizedBox(width: CorocSpace.md),
-                Expanded(child: Text(parts.join(' · '), style: TextStyle(color: conflict ? scheme.onErrorContainer : scheme.onSecondaryContainer))),
-                if (s.pending.isNotEmpty) Icon(Icons.chevron_right, color: conflict ? scheme.onErrorContainer : scheme.onSecondaryContainer),
-              ]),
+              child: Row(
+                children: [
+                  Icon(s.online ? Icons.sync : Icons.cloud_off_outlined, color: conflict ? scheme.onErrorContainer : scheme.onSecondaryContainer),
+                  const SizedBox(width: CorocSpace.md),
+                  Expanded(
+                    child: Text(parts.join(' · '), style: TextStyle(color: conflict ? scheme.onErrorContainer : scheme.onSecondaryContainer)),
+                  ),
+                  if (s.pending.isNotEmpty) Icon(Icons.chevron_right, color: conflict ? scheme.onErrorContainer : scheme.onSecondaryContainer),
+                ],
+              ),
             ),
           ),
         ),
@@ -59,34 +63,38 @@ class PendingPaymentsDialog extends ConsumerWidget {
     final s = ref.watch(offlineProvider);
     final ctrl = ref.read(offlineProvider.notifier);
     Widget tile(PendingPayment p) => ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: Icon(p.inConflict ? Icons.error_outline : Icons.schedule),
-          title: Text([p.clientName ?? l.offlinePaymentLabel, Money.format(p.amount, p.currency ?? 'COP')].join(' · ')),
-          subtitle: Text(p.inConflict ? '${l.offlineConflictLabel}: ${p.conflictMessage ?? p.conflictCode}' : '${Dates.medium(p.date, context.lang)} · ${l.offlineWaiting}'),
-          trailing: p.inConflict
-              ? TextButton(style: TextButton.styleFrom(minimumSize: const Size(48, 48)), onPressed: () => ctrl.discard(p.key), child: Text(l.offlineDiscard))
-              : null,
-        );
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(p.inConflict ? Icons.error_outline : Icons.schedule),
+      title: Text([p.clientName ?? l.offlinePaymentLabel, Money.format(p.amount, p.currency ?? 'COP')].join(' · ')),
+      subtitle: Text(p.inConflict ? '${l.offlineConflictLabel}: ${p.conflictMessage ?? p.conflictCode}' : '${Dates.medium(p.date, context.lang)} · ${l.offlineWaiting}'),
+      trailing: p.inConflict
+          ? TextButton(
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: () => ctrl.discard(p.key),
+              child: Text(l.offlineDiscard),
+            )
+          : null,
+    );
     return AlertDialog(
       title: Text(l.offlineQueueTitle),
       content: SizedBox(
         width: 480,
         child: SingleChildScrollView(
-          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(l.offlineQueueHelp, style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: CorocSpace.md),
-            for (final p in s.conflicts) tile(p),
-            for (final p in s.waiting) tile(p),
-          ]),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l.offlineQueueHelp, style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(height: CorocSpace.md),
+              for (final p in s.conflicts) tile(p),
+              for (final p in s.waiting) tile(p),
+            ],
+          ),
         ),
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: Text(l.actionClose)),
-        FilledButton.icon(
-          onPressed: s.syncing || s.waiting.isEmpty ? null : () => unawaited(ctrl.flush()),
-          icon: const Icon(Icons.sync),
-          label: Text(l.offlineSyncNow),
-        ),
+        FilledButton.icon(onPressed: s.syncing || s.waiting.isEmpty ? null : () => unawaited(ctrl.flush()), icon: const Icon(Icons.sync), label: Text(l.offlineSyncNow)),
       ],
     );
   }

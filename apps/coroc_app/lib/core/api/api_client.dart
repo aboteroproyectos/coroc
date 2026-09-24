@@ -192,7 +192,14 @@ class ApiClient {
 
   /// Envía un archivo por flujo (`application/octet-stream`), con avance. `open` se vuelve a llamar si hay que reintentar
   /// tras renovar la sesión.
-  Future<dynamic> upload(String path, {required Stream<List<int>> Function() open, required int length, Map<String, Object?>? query, void Function(int sent, int total)? onProgress, bool retry = true}) async {
+  Future<dynamic> upload(
+    String path, {
+    required Stream<List<int>> Function() open,
+    required int length,
+    Map<String, Object?>? query,
+    void Function(int sent, int total)? onProgress,
+    bool retry = true,
+  }) async {
     final req = http.StreamedRequest('POST', uri(path, query))
       ..headers.addAll(await _headers())
       ..headers['Content-Type'] = 'application/octet-stream'

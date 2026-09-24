@@ -108,41 +108,59 @@ class _ClientsPageState extends ConsumerState<ClientsPage> {
           SliverPadding(
             padding: EdgeInsets.fromLTRB(pad, pad, pad, 0),
             sliver: SliverToBoxAdapter(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                PageHeader(
-                  title: l.navClients,
-                  subtitle: l.clientsSubtitle,
-                  actions: [if (canCreate) GoldButton(label: l.newClient, icon: Icons.add, onPressed: () => context.go('/clients/new'))],
-                ),
-                TextField(
-                  controller: _search,
-                  focusNode: _focus,
-                  decoration: corocInput(context, label: l.clientsSearch, hint: l.clientsSearchHint, prefix: const Icon(Icons.search)),
-                  onChanged: (_) {
-                    _debounce?.cancel();
-                    _debounce = Timer(const Duration(milliseconds: 250), _reload);
-                  },
-                ),
-                const SizedBox(height: CorocSpace.md),
-                Wrap(spacing: 8, runSpacing: 8, children: [
-                  for (final f in [(null, l.filterAll), ('current', l.clientCurrent), ('overdue', l.clientOverdue), ('closed', l.clientClosed)])
-                    ChoiceChip(label: Text(f.$2), selected: _status == f.$1, onSelected: (_) {
-                      _status = f.$1;
-                      _reload();
-                    }),
-                  const SizedBox(width: 8),
-                  for (final f in [('daily', l.freqDaily), ('weekly', l.freqWeekly), ('monthly', l.freqMonthly)])
-                    FilterChip(label: Text(f.$2), selected: _frequency == f.$1, onSelected: (on) {
-                      _frequency = on ? f.$1 : null;
-                      _reload();
-                    }),
-                ]),
-                const SizedBox(height: CorocSpace.md),
-              ]),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  PageHeader(
+                    title: l.navClients,
+                    subtitle: l.clientsSubtitle,
+                    actions: [if (canCreate) GoldButton(label: l.newClient, icon: Icons.add, onPressed: () => context.go('/clients/new'))],
+                  ),
+                  TextField(
+                    controller: _search,
+                    focusNode: _focus,
+                    decoration: corocInput(context, label: l.clientsSearch, hint: l.clientsSearchHint, prefix: const Icon(Icons.search)),
+                    onChanged: (_) {
+                      _debounce?.cancel();
+                      _debounce = Timer(const Duration(milliseconds: 250), _reload);
+                    },
+                  ),
+                  const SizedBox(height: CorocSpace.md),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final f in [(null, l.filterAll), ('current', l.clientCurrent), ('overdue', l.clientOverdue), ('closed', l.clientClosed)])
+                        ChoiceChip(
+                          label: Text(f.$2),
+                          selected: _status == f.$1,
+                          onSelected: (_) {
+                            _status = f.$1;
+                            _reload();
+                          },
+                        ),
+                      const SizedBox(width: 8),
+                      for (final f in [('daily', l.freqDaily), ('weekly', l.freqWeekly), ('monthly', l.freqMonthly)])
+                        FilterChip(
+                          label: Text(f.$2),
+                          selected: _frequency == f.$1,
+                          onSelected: (on) {
+                            _frequency = on ? f.$1 : null;
+                            _reload();
+                          },
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: CorocSpace.md),
+                ],
+              ),
             ),
           ),
           if (_error != null && _items.isEmpty)
-            SliverFillRemaining(hasScrollBody: false, child: ErrorState(message: errorText(context, _error!), onRetry: _reload))
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: ErrorState(message: errorText(context, _error!), onRetry: _reload),
+            )
           else if (_items.isEmpty && !_loading)
             SliverFillRemaining(
               hasScrollBody: false,
@@ -159,7 +177,10 @@ class _ClientsPageState extends ConsumerState<ClientsPage> {
                 itemCount: _items.length + (_loading ? 1 : 0),
                 separatorBuilder: (_, _) => const SizedBox(height: 8),
                 itemBuilder: (context, i) => i >= _items.length
-                    ? const Padding(padding: EdgeInsets.all(CorocSpace.lg), child: Center(child: CircularProgressIndicator()))
+                    ? const Padding(
+                        padding: EdgeInsets.all(CorocSpace.lg),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
                     : _ClientTile(item: _items[i]),
               ),
             ),
@@ -184,28 +205,47 @@ class _ClientTile extends StatelessWidget {
         onTap: () => context.go('/clients/${item.id}'),
         child: Padding(
           padding: const EdgeInsets.all(CorocSpace.md),
-          child: Row(children: [
-            CircleAvatar(radius: 22, backgroundColor: CorocColors.gold300, child: Text(initials(item.fullName), style: const TextStyle(color: CorocColors.navy800, fontWeight: FontWeight.w600))),
-            const SizedBox(width: CorocSpace.md),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(item.fullName, style: t.titleSmall, overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 2),
-                Text([item.code, ...item.contracts, frequencyLabel(l, item.frequency)].where((s) => s != '—').join(' · '), style: t.bodySmall, overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 6),
-                Wrap(spacing: 12, runSpacing: 4, children: [
-                  StatusDot(label: item.status == 'overdue' ? '$label · ${l.daysPastDue(item.daysPastDue)}' : label, tone: tone),
-                  if (item.next != null) Text(l.nextInstallmentShort(Dates.dayMonth(item.next!.dueDate, context.lang), Money.format(item.next!.outstanding, item.currency)), style: t.bodySmall),
-                ]),
-              ]),
-            ),
-            const SizedBox(width: CorocSpace.md),
-            Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              Overline(l.balance),
-              const SizedBox(height: 4),
-              Text(Money.format(item.balance, item.currency), style: t.titleMedium?.copyWith(fontFamily: 'Inter')),
-            ]),
-          ]),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 22,
+                backgroundColor: CorocColors.gold300,
+                child: Text(
+                  initials(item.fullName),
+                  style: const TextStyle(color: CorocColors.navy800, fontWeight: FontWeight.w600),
+                ),
+              ),
+              const SizedBox(width: CorocSpace.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(item.fullName, style: t.titleSmall, overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 2),
+                    Text([item.code, ...item.contracts, frequencyLabel(l, item.frequency)].where((s) => s != '—').join(' · '), style: t.bodySmall, overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 4,
+                      children: [
+                        StatusDot(label: item.status == 'overdue' ? '$label · ${l.daysPastDue(item.daysPastDue)}' : label, tone: tone),
+                        if (item.next != null) Text(l.nextInstallmentShort(Dates.dayMonth(item.next!.dueDate, context.lang), Money.format(item.next!.outstanding, item.currency)), style: t.bodySmall),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: CorocSpace.md),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Overline(l.balance),
+                  const SizedBox(height: 4),
+                  Text(Money.format(item.balance, item.currency), style: t.titleMedium?.copyWith(fontFamily: 'Inter')),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -62,17 +62,20 @@ class _LockPageState extends ConsumerState<LockPage> {
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(CorocSpace.xl),
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              const CorocLogo(height: 120),
-              const SizedBox(height: CorocSpace.xl),
-              Text(l.lockTitle, style: t.headlineSmall, textAlign: TextAlign.center),
-              const SizedBox(height: CorocSpace.sm),
-              Text(_available ? l.lockSubtitle : l.lockNoBiometrics, style: t.bodyMedium, textAlign: TextAlign.center),
-              const SizedBox(height: CorocSpace.xl),
-              if (_available) GoldButton(label: l.lockUnlock, icon: Icons.fingerprint, onPressed: _unlock, busy: _busy),
-              const SizedBox(height: CorocSpace.sm),
-              TextButton(onPressed: () => ref.read(authProvider.notifier).logout(), child: Text(l.actionLogout)),
-            ]),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CorocLogo(height: 120),
+                const SizedBox(height: CorocSpace.xl),
+                Text(l.lockTitle, style: t.headlineSmall, textAlign: TextAlign.center),
+                const SizedBox(height: CorocSpace.sm),
+                Text(_available ? l.lockSubtitle : l.lockNoBiometrics, style: t.bodyMedium, textAlign: TextAlign.center),
+                const SizedBox(height: CorocSpace.xl),
+                if (_available) GoldButton(label: l.lockUnlock, icon: Icons.fingerprint, onPressed: _unlock, busy: _busy),
+                const SizedBox(height: CorocSpace.sm),
+                TextButton(onPressed: () => ref.read(authProvider.notifier).logout(), child: Text(l.actionLogout)),
+              ],
+            ),
           ),
         ),
       ),

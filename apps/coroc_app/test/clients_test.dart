@@ -26,7 +26,13 @@ void serveDocumentWithoutPreview(FakeApi api, {bool versions = false}) {
     doc['version'] = 2;
     doc['versions'] = [
       {...base, 'version': 2},
-      {...base, 'id': 'aaaaaaaa-0000-4000-8000-0000000000d1', 'version': 1, 'superseded': true, 'meta': {...base['meta'] as Json, 'voided': true}},
+      {
+        ...base,
+        'id': 'aaaaaaaa-0000-4000-8000-0000000000d1',
+        'version': 1,
+        'superseded': true,
+        'meta': {...base['meta'] as Json, 'voided': true},
+      },
     ];
   }
   api.overrides['GET /documents/{id}'] = (_) => FakeApi.json(200, doc);
@@ -66,7 +72,9 @@ void main() {
     await tapOn(tester, find.byTooltip(l.docInfo));
     await tester.enterText(find.widgetWithText(TextField, l.docTags), 'pagado, revisado');
     await tapOn(tester, find.widgetWithText(FilledButton, l.actionSave));
-    expect(api.lastBody('PATCH', '/documents/{id}'), {'tags': ['pagado', 'revisado']});
+    expect(api.lastBody('PATCH', '/documents/{id}'), {
+      'tags': ['pagado', 'revisado'],
+    });
     await tapOn(tester, find.byTooltip(l.docVersions));
     await tapOn(tester, find.text(l.docVersionN(1)));
     expect(api.sent('POST', '/documents/{id}/link').last.url.path, contains('aaaaaaaa-0000-4000-8000-0000000000d1'));
@@ -220,16 +228,34 @@ void main() {
     final api = FakeApi();
     api.overrides['GET /documents'] = (_) => FakeApi.json(200, {'items': <Object>[], 'nextCursor': null});
     final client = jsonDecode(jsonEncode(api.get('/clients/${api.id('client')}'))) as Json;
-    client['contactException'] = {'windows': [{'day': 6, 'start': '09:00', 'end': '12:00'}], 'documentId': api.id('document'), 'grantedAt': '2026-09-20T10:00:00.000Z'};
+    client['contactException'] = {
+      'windows': [
+        {'day': 6, 'start': '09:00', 'end': '12:00'},
+      ],
+      'documentId': api.id('document'),
+      'grantedAt': '2026-09-20T10:00:00.000Z',
+    };
     client['emailStatus'] = 'bounced';
     api.overrides['GET /clients/{id}'] = (_) => FakeApi.json(200, client);
     final app = await bootApp(tester, api: api);
     await app.go('/clients/${api.id('client')}');
     await openTab(tester, l.tabMessages);
     expect(find.text(l.emailBounced), findsOneWidget);
-    await tapOn(tester, find.descendant(of: find.ancestor(of: find.text(l.exceptionTitle), matching: find.byType(SectionCard)), matching: find.text(l.actionEdit)));
+    await tapOn(
+      tester,
+      find.descendant(
+        of: find.ancestor(of: find.text(l.exceptionTitle), matching: find.byType(SectionCard)),
+        matching: find.text(l.actionEdit),
+      ),
+    );
     expect(find.text(l.exceptionNeedsDocument), findsOneWidget);
-    await tapOn(tester, find.descendant(of: find.ancestor(of: find.text(l.exceptionTitle), matching: find.byType(SectionCard)), matching: find.text(l.actionDelete)));
+    await tapOn(
+      tester,
+      find.descendant(
+        of: find.ancestor(of: find.text(l.exceptionTitle), matching: find.byType(SectionCard)),
+        matching: find.text(l.actionDelete),
+      ),
+    );
     expect(api.sent('DELETE', '/clients/{id}/contact-exception'), hasLength(1));
     await app.finish();
   });
@@ -256,6 +282,4 @@ void main() {
     expect(find.text(l.loanAboveCap), findsOneWidget);
     await app.finish();
   });
-
 }
-

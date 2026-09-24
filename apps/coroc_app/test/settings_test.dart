@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:coroc/app.dart';
 import 'package:coroc/core/auth/auth_controller.dart';
 import 'package:coroc/core/l10n.dart';
@@ -5,6 +7,7 @@ import 'package:coroc/design/widgets/brand.dart';
 import 'package:coroc/design/widgets/common.dart';
 import 'package:coroc/features/shell/app_shell.dart';
 import 'package:coroc/features/loans/loan_providers.dart';
+import 'package:file_selector_platform_interface/file_selector_platform_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -14,7 +17,10 @@ import 'fake_api.dart';
 final l = lookupAppLocalizations(const Locale('es'));
 
 /// Un control dentro de la tarjeta de Configuración con ese título.
-Finder inSection(String title, Finder f) => find.descendant(of: find.ancestor(of: find.text(title), matching: find.byType(SectionCard)).first, matching: f);
+Finder inSection(String title, Finder f) => find.descendant(
+  of: find.ancestor(of: find.text(title), matching: find.byType(SectionCard)).first,
+  matching: f,
+);
 
 Future<void> pickMenu<T>(WidgetTester tester, Finder menu, String entry) async {
   await tapOn(tester, menu);
@@ -49,9 +55,16 @@ void main() {
   testWidgets('seguridad: cambio de contraseña validado y cierre de sesión en otro equipo', (tester) async {
     final api = FakeApi();
     api.overrides['GET /me/sessions'] = (_) => FakeApi.json(200, [
-          ...(api.gets['/me/sessions'] as List<dynamic>),
-          {'id': 'aaaaaaaa-0000-4000-8000-000000000001', 'deviceId': 'tableta-1', 'deviceName': 'Tableta de la oficina', 'createdAt': '2026-09-01T10:00:00.000Z', 'lastUsedAt': '2026-09-20T10:00:00.000Z', 'current': false},
-        ]);
+      ...(api.gets['/me/sessions'] as List<dynamic>),
+      {
+        'id': 'aaaaaaaa-0000-4000-8000-000000000001',
+        'deviceId': 'tableta-1',
+        'deviceName': 'Tableta de la oficina',
+        'createdAt': '2026-09-01T10:00:00.000Z',
+        'lastUsedAt': '2026-09-20T10:00:00.000Z',
+        'current': false,
+      },
+    ]);
     final app = await bootApp(tester, api: api);
     await app.go('/settings');
     expect(find.text(l.mfaOwnerRequired), findsOneWidget);
@@ -96,9 +109,8 @@ void main() {
     final api = FakeApi();
     (api.session['user'] as Json)['mfaEnabled'] = false;
     var attempts = 0;
-    api.overrides['POST /me/mfa/enroll'] = (_) => ++attempts == 1
-        ? FakeApi.problem(503, 'UNAVAILABLE')
-        : FakeApi.json(200, {'secret': 'JBSWY3DPEHPK3PXP', 'otpauthUri': 'otpauth://totp/COROC:admin?secret=JBSWY3DPEHPK3PXP&issuer=COROC'});
+    api.overrides['POST /me/mfa/enroll'] = (_) =>
+        ++attempts == 1 ? FakeApi.problem(503, 'UNAVAILABLE') : FakeApi.json(200, {'secret': 'JBSWY3DPEHPK3PXP', 'otpauthUri': 'otpauth://totp/COROC:admin?secret=JBSWY3DPEHPK3PXP&issuer=COROC'});
     final app = await bootApp(tester, api: api, role: 'admin');
     await app.go('/settings');
     await tapOn(tester, find.text(l.actionEnable));
@@ -140,7 +152,16 @@ void main() {
     final api = FakeApi();
     var attempts = 0;
     api.overrides['PATCH /company'] = (_) => ++attempts == 1
-        ? FakeApi.json(422, {'type': 'about:blank', 'title': 'Datos no válidos', 'status': 422, 'code': 'VALIDATION', 'detail': 'Revise el correo.', 'errors': [{'field': 'email', 'message': 'Correo no válido'}]})
+        ? FakeApi.json(422, {
+            'type': 'about:blank',
+            'title': 'Datos no válidos',
+            'status': 422,
+            'code': 'VALIDATION',
+            'detail': 'Revise el correo.',
+            'errors': [
+              {'field': 'email', 'message': 'Correo no válido'},
+            ],
+          })
         : FakeApi.json(200, api.get('/company'));
     final app = await bootApp(tester, api: api);
     await app.go('/settings');
@@ -170,13 +191,17 @@ void main() {
     expect(api.sent('DELETE', '/receiving-accounts/{id}'), hasLength(1));
 
     await tapOn(tester, find.text(l.autoModePrior));
-    expect(api.lastBody('PATCH', '/company'), {'settings': {'supervisionMode': 'prior_approval'}});
+    expect(api.lastBody('PATCH', '/company'), {
+      'settings': {'supervisionMode': 'prior_approval'},
+    });
     await tester.ensureVisible(find.byType(Slider));
     await tester.drag(find.byType(Slider), const Offset(-120, 0));
     await settle(tester);
     expect((api.lastBody('PATCH', '/company')!['settings'] as Json)['confidenceThreshold'], lessThan(0.95));
     await pickMenu<int>(tester, inSection(l.autoTitle, find.byType(DropdownMenu<int>)).first, '60');
-    expect(api.lastBody('PATCH', '/company'), {'settings': {'maxReceiptAgeDays': 60}});
+    expect(api.lastBody('PATCH', '/company'), {
+      'settings': {'maxReceiptAgeDays': 60},
+    });
     await app.finish();
   });
 
@@ -244,7 +269,13 @@ void main() {
     final api = FakeApi();
     final sender = {
       ...api.get('/company/email-sender'),
-      'configured': true, 'provider': 'postmark', 'fromEmail': 'cobros@dast.co', 'fromName': 'Cobros DAST', 'domain': 'dast.co', 'dkimSelector': 'coroc', 'spf': true,
+      'configured': true,
+      'provider': 'postmark',
+      'fromEmail': 'cobros@dast.co',
+      'fromName': 'Cobros DAST',
+      'domain': 'dast.co',
+      'dkimSelector': 'coroc',
+      'spf': true,
       'records': [
         {'kind': 'spf', 'type': 'TXT', 'host': 'dast.co', 'expected': 'v=spf1 include:spf.mtasv.net ~all', 'ok': true},
         {'kind': 'dkim', 'type': 'TXT', 'host': 'coroc._domainkey.dast.co', 'expected': 'k=rsa; p=MIGf', 'ok': false},
@@ -299,9 +330,16 @@ void main() {
     final now = DateTime.now();
     String iso(DateTime d) => d.toIso8601String().substring(0, 10);
     api.overrides['GET /compliance/rate-caps'] = (_) => FakeApi.json(200, [
-          {'id': 'aaaaaaaa-0000-4000-8000-00000000000c', 'country': 'US', 'effectiveAnnual': 0.25, 'validFrom': iso(DateTime(now.year, now.month, 1)), 'validTo': iso(DateTime(now.year, now.month + 1, 0)), 'source': 'Ley estatal'},
-          {'id': 'aaaaaaaa-0000-4000-8000-00000000000d', 'country': 'US', 'effectiveAnnual': 0.24, 'validFrom': '2025-01-01', 'validTo': '2025-01-31', 'source': 'Ley estatal'},
-        ]);
+      {
+        'id': 'aaaaaaaa-0000-4000-8000-00000000000c',
+        'country': 'US',
+        'effectiveAnnual': 0.25,
+        'validFrom': iso(DateTime(now.year, now.month, 1)),
+        'validTo': iso(DateTime(now.year, now.month + 1, 0)),
+        'source': 'Ley estatal',
+      },
+      {'id': 'aaaaaaaa-0000-4000-8000-00000000000d', 'country': 'US', 'effectiveAnnual': 0.24, 'validFrom': '2025-01-01', 'validTo': '2025-01-31', 'source': 'Ley estatal'},
+    ]);
     final app = await bootApp(tester, api: api);
     await app.go('/settings');
     expect(find.text(l.rateCapCurrent), findsOneWidget);
@@ -431,4 +469,59 @@ void main() {
     await admin.finish();
   });
 
+  testWidgets('restaurar un respaldo: archivo, contraseña, resumen y confirmación con el nombre de la empresa', (tester) async {
+    final api = FakeApi();
+    final summary = {
+      'company': 'Empresa DAST',
+      'createdAt': '2026-09-20 10:00',
+      'format': 'coroc-backup',
+      'schema': '0007',
+      'counts': {'clients': 2, 'loans': 2},
+      'documents': 8,
+      'bytes': 643285,
+    };
+    Json info(String status) => {'id': 'aaaaaaaa-0000-4000-8000-0000000000e1', 'status': status, 'size': 16, 'summary': summary, 'createdAt': '2026-09-24T10:00:00.000Z'};
+    api.overrides['POST /restores'] = (_) => FakeApi.json(201, info('uploaded'));
+    api.overrides['POST /restores/{id}/verify'] = (_) => FakeApi.json(200, info('verified'));
+    api.overrides['POST /restores/{id}/apply'] = (_) => FakeApi.json(200, info('applied'));
+    final app = await bootApp(tester, api: api);
+    await app.go('/settings');
+
+    // Cancelar el selector de archivos no hace nada.
+    await tapOn(tester, find.text(l.restoreStart));
+    expect(api.sent('POST', '/restores'), isEmpty);
+
+    app.files.file = XFile.fromData(utf8.encode('respaldo cifrado'), name: 'COROC_Respaldo.coroc', length: 16);
+    await tapOn(tester, find.text(l.restoreStart));
+    expect(utf8.decode(api.sent('POST', '/restores').single.bodyBytes), 'respaldo cifrado');
+    await tester.enterText(find.descendant(of: find.byType(AlertDialog), matching: find.byType(TextField)), 'Respaldo-Seguro-2026');
+    await tapOn(tester, find.text(l.actionContinue));
+    expect(api.lastBody('POST', '/restores/{id}/verify'), {'password': 'Respaldo-Seguro-2026'});
+
+    expect(find.text(l.restoreSummary(2, 2, 8)), findsOneWidget);
+    final apply = find.widgetWithText(FilledButton, l.restoreApply);
+    expect(tester.widget<FilledButton>(apply).onPressed, isNull);
+    await tester.enterText(find.descendant(of: find.byType(AlertDialog), matching: find.byType(TextField)), 'empresa dast');
+    await settle(tester, frames: 2);
+    await tapOn(tester, apply);
+    expect(api.lastBody('POST', '/restores/{id}/apply'), {'password': 'Respaldo-Seguro-2026', 'confirmName': 'empresa dast'});
+    expect(find.text(l.restoreDoneTitle), findsOneWidget);
+    await tapOn(tester, find.widgetWithText(FilledButton, l.actionDone));
+    await app.finish();
+  });
+
+  testWidgets('restaurar: una contraseña errada se informa y no se aplica nada', (tester) async {
+    final api = FakeApi();
+    api.overrides['POST /restores'] = (_) => FakeApi.json(201, {'id': 'aaaaaaaa-0000-4000-8000-0000000000e2', 'status': 'uploaded', 'createdAt': '2026-09-24T10:00:00.000Z'});
+    api.overrides['POST /restores/{id}/verify'] = (_) => FakeApi.problem(422, 'BACKUP_PASSWORD_INVALID', 'La contraseña del respaldo no es correcta.');
+    final app = await bootApp(tester, api: api);
+    await app.go('/settings');
+    app.files.file = XFile.fromData(utf8.encode('respaldo'), name: 'otro.coroc', length: 8);
+    await tapOn(tester, find.text(l.restoreStart));
+    await tester.enterText(find.descendant(of: find.byType(AlertDialog), matching: find.byType(TextField)), 'errada');
+    await tapOn(tester, find.text(l.actionContinue));
+    expect(find.text('La contraseña del respaldo no es correcta.'), findsOneWidget);
+    expect(api.sent('POST', '/restores/{id}/apply'), isEmpty);
+    await app.finish();
+  });
 }

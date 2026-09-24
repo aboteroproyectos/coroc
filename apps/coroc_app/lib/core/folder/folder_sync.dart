@@ -8,6 +8,7 @@ import 'folder_store.dart';
 /// Lo que la sincronización necesita de la API. En la app es [CorocApi]; en las pruebas, un doble.
 abstract class FolderSource {
   Future<FolderManifest> manifest({String? since, String? after});
+
   /// Contenido del documento (vía enlace firmado).
   Future<List<int>> content(String documentId);
 }
@@ -25,9 +26,11 @@ class SyncResult {
 /// Archivo que alguien puso a mano en la carpeta de un cliente (escritorio, §16.3): se ofrece para importar.
 class UntrackedFile {
   const UntrackedFile({required this.clientId, required this.contract, required this.subfolder, required this.dir, required this.name});
+
   /// Cliente de la carpeta donde se dejó el archivo; null si se dejó en `_Entrada` (§12.5).
   final String? clientId;
   final String? contract;
+
   /// Índice de la subcarpeta (0–4) o -1 si está directamente en la carpeta del cliente.
   final int subfolder;
   final List<String> dir;
@@ -229,9 +232,11 @@ class _Index {
   }
 
   Map<String, dynamic> toJson() => {
-        'version': 1,
-        'since': since,
-        'files': {for (final e in files.entries) e.key: {'path': e.value.path, 'sha256': e.value.sha256}},
-        'clients': clients,
-      };
+    'version': 1,
+    'since': since,
+    'files': {
+      for (final e in files.entries) e.key: {'path': e.value.path, 'sha256': e.value.sha256},
+    },
+    'clients': clients,
+  };
 }

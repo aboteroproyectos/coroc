@@ -30,18 +30,8 @@ class ApiException implements Exception {
     try {
       final json = jsonDecode(body);
       if (json is Map<String, dynamic>) {
-        final errors = (json['errors'] as List<dynamic>? ?? const [])
-            .whereType<Map<String, dynamic>>()
-            .map((e) => FieldError(e['field'] as String? ?? '', e['message'] as String? ?? ''))
-            .toList();
-        return ApiException(
-          status: status,
-          code: json['code'] as String? ?? 'INTERNAL',
-          title: json['title'] as String? ?? '',
-          detail: json['detail'] as String?,
-          fieldErrors: errors,
-          extra: json,
-        );
+        final errors = (json['errors'] as List<dynamic>? ?? const []).whereType<Map<String, dynamic>>().map((e) => FieldError(e['field'] as String? ?? '', e['message'] as String? ?? '')).toList();
+        return ApiException(status: status, code: json['code'] as String? ?? 'INTERNAL', title: json['title'] as String? ?? '', detail: json['detail'] as String?, fieldErrors: errors, extra: json);
       }
     } on FormatException {
       // Respuesta sin JSON (proxy o servidor caído): se trata como error interno.

@@ -36,11 +36,15 @@ Future<void> askForFolder(BuildContext context, WidgetRef ref) async {
       title: Text(l.folderAskTitle),
       content: SizedBox(
         width: 460,
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(l.folderAskBody),
-          const SizedBox(height: CorocSpace.md),
-          Text(Platform.isAndroid ? l.folderAskAndroid : (Platform.isIOS ? l.folderAskIos : l.folderAskDesktop), style: Theme.of(context).textTheme.bodySmall),
-        ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l.folderAskBody),
+            const SizedBox(height: CorocSpace.md),
+            Text(Platform.isAndroid ? l.folderAskAndroid : (Platform.isIOS ? l.folderAskIos : l.folderAskDesktop), style: Theme.of(context).textTheme.bodySmall),
+          ],
+        ),
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.folderAskLater)),
@@ -78,61 +82,76 @@ class FolderSection extends ConsumerWidget {
     };
     return SectionCard(
       title: l.folderTitle,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text(l.folderExplain, style: t.bodyMedium),
-        const SizedBox(height: CorocSpace.md),
-        Align(alignment: AlignmentDirectional.centerStart, child: status),
-        if (s.displayPath != null) ...[const SizedBox(height: 8), KeyValue(l.folderLocation, s.displayPath!)],
-        if (s.lastSync != null) KeyValue(l.folderLastSync, Dates.dateTime(s.lastSync!.toUtc().toIso8601String(), context.lang)),
-        if (s.lastResult != null && (s.lastResult!.written + s.lastResult!.removed + s.lastResult!.renamed) > 0)
-          KeyValue(l.folderLastResult, l.folderResult(s.lastResult!.written, s.lastResult!.removed)),
-        if (s.error != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(errorText(context, s.error!), style: t.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error))),
-        const SizedBox(height: CorocSpace.md),
-        Wrap(spacing: 8, runSpacing: 8, children: [
-          if (s.status == FolderStatus.ready) ...[
-            FilledButton.tonalIcon(onPressed: s.syncing ? null : () => c.sync(), icon: const Icon(Icons.sync), label: Text(l.folderSyncNow)),
-            if (!Platform.isIOS) OutlinedButton.icon(onPressed: () => _connect(context, ref), icon: const Icon(Icons.drive_file_move_outline), label: Text(l.folderChange)),
-            if (!Platform.isIOS) TextButton(onPressed: () => c.disconnect(), child: Text(l.folderDisconnect)),
-          ] else
-            FilledButton.icon(onPressed: () => _connect(context, ref), icon: const Icon(Icons.create_new_folder_outlined), label: Text(s.status == FolderStatus.needsPermission ? l.folderReauthorize : l.folderAskCreate)),
-        ]),
-        // Carpeta vigilada (§12.5): en escritorio, las fotos y PDF que se dejen en _Entrada o en la carpeta de un cliente
-        // van solos a la Bandeja.
-        if (s.status == FolderStatus.ready && FolderController.isDesktop) ...[
-          const SizedBox(height: CorocSpace.sm),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            value: s.watching,
-            onChanged: (v) => c.setWatching(v),
-            title: Text(l.folderWatch),
-            subtitle: Text(s.sentToInbox > 0 ? '${l.folderWatchHelp} ${l.folderSentToInbox(s.sentToInbox)}' : l.folderWatchHelp),
-          ),
-        ],
-        if (s.untracked.isNotEmpty) ...[
-          const Divider(height: CorocSpace.xl),
-          Overline(l.folderUntrackedTitle(s.untracked.length)),
-          const SizedBox(height: 4),
-          Text(l.folderUntrackedHelp, style: t.bodySmall),
-          for (final f in s.untracked.take(20))
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.note_add_outlined),
-              title: Text(f.name, overflow: TextOverflow.ellipsis),
-              subtitle: Text(f.dir.join(' › '), overflow: TextOverflow.ellipsis),
-              trailing: TextButton(
-                onPressed: () async {
-                  try {
-                    await c.import(f);
-                    if (context.mounted) _toast(context, l.docUploaded(f.name));
-                  } catch (e) {
-                    if (context.mounted) _toast(context, errorText(context, e));
-                  }
-                },
-                child: Text(l.folderImport),
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.folderExplain, style: t.bodyMedium),
+          const SizedBox(height: CorocSpace.md),
+          Align(alignment: AlignmentDirectional.centerStart, child: status),
+          if (s.displayPath != null) ...[const SizedBox(height: 8), KeyValue(l.folderLocation, s.displayPath!)],
+          if (s.lastSync != null) KeyValue(l.folderLastSync, Dates.dateTime(s.lastSync!.toUtc().toIso8601String(), context.lang)),
+          if (s.lastResult != null && (s.lastResult!.written + s.lastResult!.removed + s.lastResult!.renamed) > 0)
+            KeyValue(l.folderLastResult, l.folderResult(s.lastResult!.written, s.lastResult!.removed)),
+          if (s.error != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(errorText(context, s.error!), style: t.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error)),
             ),
+          const SizedBox(height: CorocSpace.md),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              if (s.status == FolderStatus.ready) ...[
+                FilledButton.tonalIcon(onPressed: s.syncing ? null : () => c.sync(), icon: const Icon(Icons.sync), label: Text(l.folderSyncNow)),
+                if (!Platform.isIOS) OutlinedButton.icon(onPressed: () => _connect(context, ref), icon: const Icon(Icons.drive_file_move_outline), label: Text(l.folderChange)),
+                if (!Platform.isIOS) TextButton(onPressed: () => c.disconnect(), child: Text(l.folderDisconnect)),
+              ] else
+                FilledButton.icon(
+                  onPressed: () => _connect(context, ref),
+                  icon: const Icon(Icons.create_new_folder_outlined),
+                  label: Text(s.status == FolderStatus.needsPermission ? l.folderReauthorize : l.folderAskCreate),
+                ),
+            ],
+          ),
+          // Carpeta vigilada (§12.5): en escritorio, las fotos y PDF que se dejen en _Entrada o en la carpeta de un cliente
+          // van solos a la Bandeja.
+          if (s.status == FolderStatus.ready && FolderController.isDesktop) ...[
+            const SizedBox(height: CorocSpace.sm),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              value: s.watching,
+              onChanged: (v) => c.setWatching(v),
+              title: Text(l.folderWatch),
+              subtitle: Text(s.sentToInbox > 0 ? '${l.folderWatchHelp} ${l.folderSentToInbox(s.sentToInbox)}' : l.folderWatchHelp),
+            ),
+          ],
+          if (s.untracked.isNotEmpty) ...[
+            const Divider(height: CorocSpace.xl),
+            Overline(l.folderUntrackedTitle(s.untracked.length)),
+            const SizedBox(height: 4),
+            Text(l.folderUntrackedHelp, style: t.bodySmall),
+            for (final f in s.untracked.take(20))
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.note_add_outlined),
+                title: Text(f.name, overflow: TextOverflow.ellipsis),
+                subtitle: Text(f.dir.join(' › '), overflow: TextOverflow.ellipsis),
+                trailing: TextButton(
+                  onPressed: () async {
+                    try {
+                      await c.import(f);
+                      if (context.mounted) _toast(context, l.docUploaded(f.name));
+                    } catch (e) {
+                      if (context.mounted) _toast(context, errorText(context, e));
+                    }
+                  },
+                  child: Text(l.folderImport),
+                ),
+              ),
+          ],
         ],
-      ]),
+      ),
     );
   }
 }
@@ -203,13 +222,25 @@ Future<void> showCreateBackupDialog(BuildContext context, WidgetRef ref) async {
         title: Text(l.backupCreate),
         content: SizedBox(
           width: 460,
-          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(l.backupCreateExplain),
-            const SizedBox(height: CorocSpace.md),
-            TextField(controller: pw, obscureText: true, decoration: corocInput(context, label: l.backupPassword, helper: l.backupPasswordHelp)),
-            const SizedBox(height: CorocSpace.md),
-            TextField(controller: pw2, obscureText: true, decoration: corocInput(context, label: l.backupPasswordConfirm, error: error)),
-          ]),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l.backupCreateExplain),
+              const SizedBox(height: CorocSpace.md),
+              TextField(
+                controller: pw,
+                obscureText: true,
+                decoration: corocInput(context, label: l.backupPassword, helper: l.backupPasswordHelp),
+              ),
+              const SizedBox(height: CorocSpace.md),
+              TextField(
+                controller: pw2,
+                obscureText: true,
+                decoration: corocInput(context, label: l.backupPasswordConfirm, error: error),
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.actionCancel)),
@@ -266,22 +297,23 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
     }
     return SectionCard(
       title: l.backupTitle,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text(l.backupExplain, style: t.bodyMedium),
-        const SizedBox(height: CorocSpace.md),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: GoldButton(label: l.backupCreate, icon: Icons.backup_outlined, onPressed: running ? null : () => showCreateBackupDialog(context, ref)),
-        ),
-        const SizedBox(height: CorocSpace.md),
-        AsyncBody<List<BackupInfo>>(
-          value: list,
-          onRetry: () => ref.invalidate(backupsProvider),
-          builder: (items) => items.isEmpty
-              ? Text(l.backupNone, style: t.bodySmall)
-              : Column(children: [for (final b in items.take(10)) _tile(context, b)]),
-        ),
-      ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.backupExplain, style: t.bodyMedium),
+          const SizedBox(height: CorocSpace.md),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: GoldButton(label: l.backupCreate, icon: Icons.backup_outlined, onPressed: running ? null : () => showCreateBackupDialog(context, ref)),
+          ),
+          const SizedBox(height: CorocSpace.md),
+          AsyncBody<List<BackupInfo>>(
+            value: list,
+            onRetry: () => ref.invalidate(backupsProvider),
+            builder: (items) => items.isEmpty ? Text(l.backupNone, style: t.bodySmall) : Column(children: [for (final b in items.take(10)) _tile(context, b)]),
+          ),
+        ],
+      ),
     );
   }
 
@@ -299,20 +331,36 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
       contentPadding: EdgeInsets.zero,
       leading: const Icon(Icons.inventory_2_outlined),
       title: Text(b.fileName ?? Dates.dateTime(b.createdAt, context.lang), overflow: TextOverflow.ellipsis),
-      subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Wrap(spacing: 8, children: [
-          StatusDot(label: label, tone: tone),
-          if (b.size != null) Text(fileSize(b.size!)),
-          if (counts.isNotEmpty) Text(l.backupCounts(counts['clients'] ?? 0, counts['loans'] ?? 0, counts['documents'] ?? 0)),
-        ]),
-        if (b.running) Padding(padding: const EdgeInsets.only(top: 6), child: LinearProgressIndicator(value: b.progress / 100)),
-        if (dl != null) Padding(padding: const EdgeInsets.only(top: 6), child: LinearProgressIndicator(value: dl < 0 ? null : dl)),
-      ]),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 8,
+            children: [
+              StatusDot(label: label, tone: tone),
+              if (b.size != null) Text(fileSize(b.size!)),
+              if (counts.isNotEmpty) Text(l.backupCounts(counts['clients'] ?? 0, counts['loans'] ?? 0, counts['documents'] ?? 0)),
+            ],
+          ),
+          if (b.running)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: LinearProgressIndicator(value: b.progress / 100),
+            ),
+          if (dl != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: LinearProgressIndicator(value: dl < 0 ? null : dl),
+            ),
+        ],
+      ),
       trailing: b.running
           ? TextButton(onPressed: () => _cancel(b), child: Text(l.actionCancel))
           : b.status == 'done' && dl == null
-              ? Builder(builder: (btn) => IconButton(tooltip: l.backupDownload, icon: const Icon(Icons.download_outlined), onPressed: () => _download(btn, b)))
-              : null,
+          ? Builder(
+              builder: (btn) => IconButton(tooltip: l.backupDownload, icon: const Icon(Icons.download_outlined), onPressed: () => _download(btn, b)),
+            )
+          : null,
     );
   }
 
@@ -334,9 +382,15 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
       final link = await ref.read(apiProvider).backupLink(b.id);
       final tmp = File(p.join((await getTemporaryDirectory()).path, 'coroc-backups', b.fileName ?? '${b.id}.coroc'));
       if (await tmp.exists()) await tmp.delete();
-      await ref.read(apiClientProvider).download(link.path, tmp, onProgress: (r, total) {
-        if (mounted && total > 0) setState(() => _downloading[b.id] = r / total);
-      });
+      await ref
+          .read(apiClientProvider)
+          .download(
+            link.path,
+            tmp,
+            onProgress: (r, total) {
+              if (mounted && total > 0) setState(() => _downloading[b.id] = r / total);
+            },
+          );
       final saved = await ref.read(folderProvider.notifier).saveToRoot(3, b.fileName ?? p.basename(tmp.path), tmp);
       if (!mounted) return;
       if (saved != null) _toast(context, l.docSaved(saved));
@@ -350,7 +404,12 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
         }
       } else if (btn.mounted) {
         final box = btn.findRenderObject() as RenderBox?;
-        await SharePlus.instance.share(ShareParams(files: [XFile(tmp.path, mimeType: 'application/octet-stream')], sharePositionOrigin: box == null ? null : box.localToGlobal(Offset.zero) & box.size));
+        await SharePlus.instance.share(
+          ShareParams(
+            files: [XFile(tmp.path, mimeType: 'application/octet-stream')],
+            sharePositionOrigin: box == null ? null : box.localToGlobal(Offset.zero) & box.size,
+          ),
+        );
       }
       await tmp.delete().catchError((_) => tmp);
     } catch (e) {
@@ -394,29 +453,36 @@ class _RestoreSectionState extends ConsumerState<RestoreSection> {
     final t = Theme.of(context).textTheme;
     return SectionCard(
       title: l.restoreTitle,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text(l.restoreExplain, style: t.bodyMedium),
-        const SizedBox(height: CorocSpace.md),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: OutlinedButton.icon(onPressed: _busy ? null : _start, icon: const Icon(Icons.settings_backup_restore), label: Text(l.restoreStart)),
-        ),
-        if (_upload != null) ...[
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.restoreExplain, style: t.bodyMedium),
           const SizedBox(height: CorocSpace.md),
-          Text(l.restoreUploading((_upload! * 100).round())),
-          const SizedBox(height: 6),
-          LinearProgressIndicator(value: _upload),
-        ] else if (_busy) ...[
-          const SizedBox(height: CorocSpace.md),
-          const LinearProgressIndicator(),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: OutlinedButton.icon(onPressed: _busy ? null : _start, icon: const Icon(Icons.settings_backup_restore), label: Text(l.restoreStart)),
+          ),
+          if (_upload != null) ...[
+            const SizedBox(height: CorocSpace.md),
+            Text(l.restoreUploading((_upload! * 100).round())),
+            const SizedBox(height: 6),
+            LinearProgressIndicator(value: _upload),
+          ] else if (_busy) ...[
+            const SizedBox(height: CorocSpace.md),
+            const LinearProgressIndicator(),
+          ],
         ],
-      ]),
+      ),
     );
   }
 
   Future<void> _start() async {
     final l = context.l10n;
-    final file = await openFile(acceptedTypeGroups: [XTypeGroup(label: l.restoreFileType, extensions: const ['coroc'], uniformTypeIdentifiers: const ['public.data'])]);
+    final file = await openFile(
+      acceptedTypeGroups: [
+        XTypeGroup(label: l.restoreFileType, extensions: const ['coroc'], uniformTypeIdentifiers: const ['public.data']),
+      ],
+    );
     if (file == null || !mounted) return;
     setState(() {
       _busy = true;
@@ -425,9 +491,13 @@ class _RestoreSectionState extends ConsumerState<RestoreSection> {
     final api = ref.read(apiProvider);
     try {
       final length = await file.length();
-      final up = await api.uploadRestore(open: file.openRead, length: length, onProgress: (s, total) {
-        if (mounted) setState(() => _upload = total == 0 ? null : s / total);
-      });
+      final up = await api.uploadRestore(
+        open: file.openRead,
+        length: length,
+        onProgress: (s, total) {
+          if (mounted) setState(() => _upload = total == 0 ? null : s / total);
+        },
+      );
       if (!mounted) return;
       setState(() => _upload = null);
       // 1) Contraseña → verificación de integridad y simulación.
@@ -472,7 +542,15 @@ class _RestoreSectionState extends ConsumerState<RestoreSection> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(title),
-        content: SizedBox(width: 420, child: TextField(controller: c, obscureText: obscure, autofocus: true, decoration: corocInput(context, label: label))),
+        content: SizedBox(
+          width: 420,
+          child: TextField(
+            controller: c,
+            obscureText: obscure,
+            autofocus: true,
+            decoration: corocInput(context, label: label),
+          ),
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: Text(l.actionCancel)),
           FilledButton(onPressed: () => Navigator.pop(context, c.text), child: Text(l.actionContinue)),
@@ -492,17 +570,26 @@ class _RestoreSectionState extends ConsumerState<RestoreSection> {
           title: Text(l.restoreConfirmTitle),
           content: SizedBox(
             width: 480,
-            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              Text(l.restoreSummary(s.counts['clients'] ?? 0, s.counts['loans'] ?? 0, s.documents), style: Theme.of(context).textTheme.titleSmall),
-              const SizedBox(height: 8),
-              KeyValue(l.restoreFrom, s.company),
-              KeyValue(l.restoreCreatedAt, s.createdAt),
-              KeyValue(l.docSize, fileSize(s.bytes)),
-              const SizedBox(height: CorocSpace.md),
-              Text(l.restoreWarning(company)),
-              const SizedBox(height: CorocSpace.md),
-              TextField(controller: c, autofocus: true, onChanged: (_) => setLocal(() {}), decoration: corocInput(context, label: l.restoreTypeName)),
-            ]),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(l.restoreSummary(s.counts['clients'] ?? 0, s.counts['loans'] ?? 0, s.documents), style: Theme.of(context).textTheme.titleSmall),
+                const SizedBox(height: 8),
+                KeyValue(l.restoreFrom, s.company),
+                KeyValue(l.restoreCreatedAt, s.createdAt),
+                KeyValue(l.docSize, fileSize(s.bytes)),
+                const SizedBox(height: CorocSpace.md),
+                Text(l.restoreWarning(company)),
+                const SizedBox(height: CorocSpace.md),
+                TextField(
+                  controller: c,
+                  autofocus: true,
+                  onChanged: (_) => setLocal(() {}),
+                  decoration: corocInput(context, label: l.restoreTypeName),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(onPressed: () => Navigator.pop(context), child: Text(l.actionCancel)),

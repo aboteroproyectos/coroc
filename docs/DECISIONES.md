@@ -448,7 +448,7 @@ Cada plataforma firma solo si sus secretos existen; si no, compila sin firma y l
 - **Migraciones en cada despliegue:** en el `release_command`, con el rol dueño, antes de cambiar las máquinas. Si una falla, sigue la versión anterior.
   - La credencial del dueño es un secreto de la app. La API la borra de su entorno al arrancar, para que Chromium y Tesseract no la hereden.
   - Queda como mejora separar las migraciones en una app propia.
-- **Archivos:** Cloudflare R2, compatible con S3. Los archivos ya van cifrados por la aplicación (ADR-031). El almacén S3 se prueba contra MinIO en la CI.
+- **Archivos:** Cloudflare R2, compatible con S3. Los archivos ya van cifrados por la aplicación (ADR-031). El almacén S3 se prueba en la CI contra s3rver, un servidor compatible con S3 (MinIO dejó de publicar imágenes gratuitas).
 - **Despliegue:** automático cuando la CI termina en verde en `main` (`deploy.yml`), con comprobación de salud posterior. Sin `FLY_API_TOKEN`, el flujo se omite con un aviso.
 - **Copias:**
   - instantáneas diarias del proveedor;

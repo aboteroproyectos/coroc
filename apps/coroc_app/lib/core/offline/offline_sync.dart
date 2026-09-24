@@ -24,12 +24,8 @@ class OfflineState {
   List<PendingPayment> get conflicts => pending.where((p) => p.inConflict).toList();
   List<PendingPayment> get waiting => pending.where((p) => !p.inConflict).toList();
 
-  OfflineState copyWith({bool? online, DateTime? savedAt, bool clearSavedAt = false, List<PendingPayment>? pending, bool? syncing}) => OfflineState(
-        online: online ?? this.online,
-        savedAt: clearSavedAt ? null : (savedAt ?? this.savedAt),
-        pending: pending ?? this.pending,
-        syncing: syncing ?? this.syncing,
-      );
+  OfflineState copyWith({bool? online, DateTime? savedAt, bool clearSavedAt = false, List<PendingPayment>? pending, bool? syncing}) =>
+      OfflineState(online: online ?? this.online, savedAt: clearSavedAt ? null : (savedAt ?? this.savedAt), pending: pending ?? this.pending, syncing: syncing ?? this.syncing);
 }
 
 /// Cola de pagos sin conexión y estado de la red (ADR-055).

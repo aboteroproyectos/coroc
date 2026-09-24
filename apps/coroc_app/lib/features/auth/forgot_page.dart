@@ -50,16 +50,29 @@ class _ForgotPageState extends ConsumerState<ForgotPage> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return AuthFrame(title: l.forgotTitle, subtitle: _sent ? l.forgotSent : l.forgotSubtitle, children: [
-      if (!_sent) ...[
-        TextField(controller: _tenant, decoration: corocInput(context, label: l.loginCompany), autocorrect: false),
-        const SizedBox(height: CorocSpace.md),
-        TextField(controller: _user, decoration: corocInput(context, label: l.loginUsername, error: _error), autocorrect: false, onSubmitted: (_) => _send()),
-        const SizedBox(height: CorocSpace.lg),
-        GoldButton(label: l.forgotSubmit, onPressed: _send, busy: _busy, expand: true),
+    return AuthFrame(
+      title: l.forgotTitle,
+      subtitle: _sent ? l.forgotSent : l.forgotSubtitle,
+      children: [
+        if (!_sent) ...[
+          TextField(
+            controller: _tenant,
+            decoration: corocInput(context, label: l.loginCompany),
+            autocorrect: false,
+          ),
+          const SizedBox(height: CorocSpace.md),
+          TextField(
+            controller: _user,
+            decoration: corocInput(context, label: l.loginUsername, error: _error),
+            autocorrect: false,
+            onSubmitted: (_) => _send(),
+          ),
+          const SizedBox(height: CorocSpace.lg),
+          GoldButton(label: l.forgotSubmit, onPressed: _send, busy: _busy, expand: true),
+        ],
+        const SizedBox(height: CorocSpace.sm),
+        TextButton(onPressed: () => context.go('/login'), child: Text(l.forgotBack)),
       ],
-      const SizedBox(height: CorocSpace.sm),
-      TextButton(onPressed: () => context.go('/login'), child: Text(l.forgotBack)),
-    ]);
+    );
   }
 }

@@ -43,11 +43,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       SignedOut() => public ? null : '/login',
       MfaChallenge() => loc == '/login/mfa' ? null : '/login/mfa',
       EnrollRequired() => loc == '/login/enroll' ? null : '/login/enroll',
-      SignedIn(:final session) => (public || loc.startsWith('/login') || loc == '/splash')
-          ? '/dashboard'
-          : (loc == '/clients/new' && !session.user.can('clients.create'))
-              ? '/clients'
-              : null,
+      SignedIn(:final session) =>
+        (public || loc.startsWith('/login') || loc == '/splash')
+            ? '/dashboard'
+            : (loc == '/clients/new' && !session.user.can('clients.create'))
+            ? '/clients'
+            : null,
     };
   }
 
@@ -71,11 +72,20 @@ final routerProvider = Provider<GoRouter>((ref) {
             pageBuilder: (_, s) => _fade(s, ClientsPage(focusSearch: s.uri.queryParameters['focus'] == '1')),
             routes: [
               GoRoute(path: 'new', pageBuilder: (_, s) => _fade(s, const NewClientPage())),
-              GoRoute(path: ':id', pageBuilder: (_, s) => _fade(s, ClientPage(clientId: s.pathParameters['id']!))),
-              GoRoute(path: ':id/loans/new', pageBuilder: (_, s) => _fade(s, NewLoanPage(clientId: s.pathParameters['id']!))),
+              GoRoute(
+                path: ':id',
+                pageBuilder: (_, s) => _fade(s, ClientPage(clientId: s.pathParameters['id']!)),
+              ),
+              GoRoute(
+                path: ':id/loans/new',
+                pageBuilder: (_, s) => _fade(s, NewLoanPage(clientId: s.pathParameters['id']!)),
+              ),
             ],
           ),
-          GoRoute(path: '/inbox', pageBuilder: (_, s) => _fade(s, InboxPage(focusId: s.uri.queryParameters['id']))),
+          GoRoute(
+            path: '/inbox',
+            pageBuilder: (_, s) => _fade(s, InboxPage(focusId: s.uri.queryParameters['id'])),
+          ),
           GoRoute(
             path: '/messages',
             pageBuilder: (_, s) => _fade(s, const MessagesPage()),
@@ -96,11 +106,14 @@ final routerProvider = Provider<GoRouter>((ref) {
 });
 
 CustomTransitionPage<void> _fade(GoRouterState state, Widget child) => CustomTransitionPage<void>(
-      key: state.pageKey,
-      child: child,
-      transitionDuration: CorocMotion.normal,
-      transitionsBuilder: (context, animation, _, child) => FadeTransition(opacity: CurvedAnimation(parent: animation, curve: CorocMotion.curve), child: child),
-    );
+  key: state.pageKey,
+  child: child,
+  transitionDuration: CorocMotion.normal,
+  transitionsBuilder: (context, animation, _, child) => FadeTransition(
+    opacity: CurvedAnimation(parent: animation, curve: CorocMotion.curve),
+    child: child,
+  ),
+);
 
 class CorocApp extends ConsumerWidget {
   const CorocApp({super.key});
@@ -115,12 +128,7 @@ class CorocApp extends ConsumerWidget {
       themeMode: ref.watch(themeModeProvider),
       locale: ref.watch(localeProvider),
       supportedLocales: const [Locale('es'), Locale('pt'), Locale('en')],
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
       routerConfig: ref.watch(routerProvider),
       builder: (context, child) => _SecurityLayer(child: child ?? const SizedBox.shrink()),
     );
@@ -181,11 +189,21 @@ class _SecurityLayerState extends ConsumerState<_SecurityLayer> with WidgetsBind
           _arm();
           return KeyEventResult.ignored;
         },
-        child: Stack(children: [
-          widget.child,
-          if (locked) const Positioned.fill(child: LockPage()),
-          if (_obscured) Positioned.fill(child: ColoredBox(color: CorocColors.navy900, child: Center(child: Theme(data: ThemeData.dark(), child: const CorocLogo(height: 140))))),
-        ]),
+        child: Stack(
+          children: [
+            widget.child,
+            if (locked) const Positioned.fill(child: LockPage()),
+            if (_obscured)
+              Positioned.fill(
+                child: ColoredBox(
+                  color: CorocColors.navy900,
+                  child: Center(
+                    child: Theme(data: ThemeData.dark(), child: const CorocLogo(height: 140)),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -196,4 +214,3 @@ class _Splash extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const Scaffold(body: Center(child: CorocLogo(height: 160)));
 }
-

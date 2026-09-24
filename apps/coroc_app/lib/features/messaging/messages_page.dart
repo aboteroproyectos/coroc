@@ -14,11 +14,11 @@ import 'messaging_common.dart';
 enum MessagesTab { ready, scheduled, blocked, history }
 
 String _statuses(MessagesTab t) => switch (t) {
-      MessagesTab.ready => 'ready',
-      MessagesTab.scheduled => 'scheduled',
-      MessagesTab.blocked => 'blocked',
-      MessagesTab.history => 'sent,delivered,read,failed,cancelled',
-    };
+  MessagesTab.ready => 'ready',
+  MessagesTab.scheduled => 'scheduled',
+  MessagesTab.blocked => 'blocked',
+  MessagesTab.history => 'sent,delivered,read,failed,cancelled',
+};
 
 /// Mensajería (§11, pantalla 9): «Por enviar hoy» del modo asistido, programados, bloqueados con la regla aplicada e
 /// historial con los estados de entrega.
@@ -46,48 +46,51 @@ class _MessagesPageState extends ConsumerState<MessagesPage> {
     }
 
     return PageScaffold(
-        maxWidth: 1000,
-        onRefresh: refresh,
-        children: [
-          PageHeader(
-            title: l.navMessages,
-            subtitle: l.messagesSubtitle,
-            actions: [OutlinedButton.icon(onPressed: () => context.go('/messages/templates'), icon: const Icon(Icons.edit_note), label: Text(l.templatesTitle))],
-          ),
-          if (account != null && account.suspended) ...[
-            _Banner(icon: Icons.warning_amber_rounded, text: l.whatsappSuspendedBanner, tone: StatusTone.error),
-            const SizedBox(height: CorocSpace.md),
-          ] else if (account != null && !account.cloud) ...[
-            _Banner(icon: Icons.touch_app_outlined, text: l.messagesAssistedHelp, tone: StatusTone.info),
-            const SizedBox(height: CorocSpace.md),
-          ],
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SegmentedButton<MessagesTab>(
-              showSelectedIcon: false,
-              segments: [
-                ButtonSegment(value: MessagesTab.ready, label: Text('${l.messagesTabReady} (${summary.ready})'), icon: const Icon(Icons.outbox_outlined)),
-                ButtonSegment(value: MessagesTab.scheduled, label: Text('${l.messagesTabScheduled} (${summary.scheduled})'), icon: const Icon(Icons.schedule)),
-                ButtonSegment(value: MessagesTab.blocked, label: Text('${l.messagesTabBlocked} (${summary.blocked})'), icon: const Icon(Icons.block)),
-                ButtonSegment(value: MessagesTab.history, label: Text(l.messagesTabHistory), icon: const Icon(Icons.history)),
-              ],
-              selected: {_tab},
-              onSelectionChanged: (s) => setState(() => _tab = s.first),
-            ),
-          ),
+      maxWidth: 1000,
+      onRefresh: refresh,
+      children: [
+        PageHeader(
+          title: l.navMessages,
+          subtitle: l.messagesSubtitle,
+          actions: [OutlinedButton.icon(onPressed: () => context.go('/messages/templates'), icon: const Icon(Icons.edit_note), label: Text(l.templatesTitle))],
+        ),
+        if (account != null && account.suspended) ...[
+          _Banner(icon: Icons.warning_amber_rounded, text: l.whatsappSuspendedBanner, tone: StatusTone.error),
           const SizedBox(height: CorocSpace.md),
-          AsyncBody<MessagePage>(
-            value: page,
-            onRetry: refresh,
-            builder: (p) => p.items.isEmpty
-                ? EmptyState(
-                    icon: _tab == MessagesTab.ready ? Icons.mark_email_read_outlined : Icons.forum_outlined,
-                    title: _tab == MessagesTab.ready ? l.messagesEmptyReady : l.messagesEmpty,
-                    message: _tab == MessagesTab.ready ? l.messagesEmptyReadyHelp : null,
-                  )
-                : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [for (final m in p.items) MessageTile(key: ValueKey(m.id), message: m)]),
-          ),
+        ] else if (account != null && !account.cloud) ...[
+          _Banner(icon: Icons.touch_app_outlined, text: l.messagesAssistedHelp, tone: StatusTone.info),
+          const SizedBox(height: CorocSpace.md),
         ],
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SegmentedButton<MessagesTab>(
+            showSelectedIcon: false,
+            segments: [
+              ButtonSegment(value: MessagesTab.ready, label: Text('${l.messagesTabReady} (${summary.ready})'), icon: const Icon(Icons.outbox_outlined)),
+              ButtonSegment(value: MessagesTab.scheduled, label: Text('${l.messagesTabScheduled} (${summary.scheduled})'), icon: const Icon(Icons.schedule)),
+              ButtonSegment(value: MessagesTab.blocked, label: Text('${l.messagesTabBlocked} (${summary.blocked})'), icon: const Icon(Icons.block)),
+              ButtonSegment(value: MessagesTab.history, label: Text(l.messagesTabHistory), icon: const Icon(Icons.history)),
+            ],
+            selected: {_tab},
+            onSelectionChanged: (s) => setState(() => _tab = s.first),
+          ),
+        ),
+        const SizedBox(height: CorocSpace.md),
+        AsyncBody<MessagePage>(
+          value: page,
+          onRetry: refresh,
+          builder: (p) => p.items.isEmpty
+              ? EmptyState(
+                  icon: _tab == MessagesTab.ready ? Icons.mark_email_read_outlined : Icons.forum_outlined,
+                  title: _tab == MessagesTab.ready ? l.messagesEmptyReady : l.messagesEmpty,
+                  message: _tab == MessagesTab.ready ? l.messagesEmptyReadyHelp : null,
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [for (final m in p.items) MessageTile(key: ValueKey(m.id), message: m)],
+                ),
+        ),
+      ],
     );
   }
 }
@@ -108,7 +111,15 @@ class _Banner extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(CorocSpace.md),
         decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(CorocRadii.card)),
-        child: Row(children: [Icon(icon, color: fg), const SizedBox(width: 12), Expanded(child: Text(text, style: TextStyle(color: fg)))]),
+        child: Row(
+          children: [
+            Icon(icon, color: fg),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(text, style: TextStyle(color: fg)),
+            ),
+          ],
+        ),
       ),
     );
   }
