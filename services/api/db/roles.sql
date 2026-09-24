@@ -9,9 +9,21 @@
 --                    NO hereda sus políticas (INHERIT FALSE). Nunca superusuario, nunca BYPASSRLS.
 -- Reemplace las contraseñas por secretos del gestor de secretos de la nube.
 -- ════════════════════════════════════════════════════════════════════════════
+-- Lo mismo, con verificación previa y contraseñas aleatorias, lo hace `node scripts/prepare-db.mjs` (ADR-060).
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+CREATE EXTENSION IF NOT EXISTS citext;
 CREATE ROLE coroc_owner LOGIN BYPASSRLS PASSWORD :'owner_password';
 CREATE ROLE coroc_api LOGIN NOBYPASSRLS PASSWORD :'api_password';
+-- El dueño no tiene CREATEROLE: los roles de permisos se crean aquí y él los administra sin heredarlos.
+CREATE ROLE coroc_app NOLOGIN NOBYPASSRLS;
+CREATE ROLE coroc_collector NOLOGIN NOBYPASSRLS;
+GRANT coroc_app TO coroc_owner WITH ADMIN TRUE, INHERIT FALSE, SET FALSE;
+GRANT coroc_collector TO coroc_owner WITH ADMIN TRUE, INHERIT FALSE, SET FALSE;
 GRANT CREATE ON DATABASE coroc TO coroc_owner;
--- Después de la primera migración (que crea coroc_app y coroc_collector):
---   GRANT coroc_app TO coroc_api;
---   GRANT coroc_collector TO coroc_api WITH INHERIT FALSE, SET TRUE;
+-- Desde PostgreSQL 15, public no admite objetos de cualquiera: ahí vive la tabla de migraciones.
+GRANT USAGE, CREATE ON SCHEMA public TO coroc_owner;
+GRANT coroc_app TO coroc_api;
+GRANT coroc_collector TO coroc_api WITH INHERIT FALSE, SET TRUE;
+-- Después: DATABASE_ADMIN_URL=postgres://coroc_owner:…@…/coroc node dist/db/migrate.js

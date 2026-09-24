@@ -43,6 +43,8 @@ export interface LoanInput extends LoanTermsInput {
   contract?: string;
   lateFee?: LateFeePolicy;
   expectedMethod?: string;
+  /** Confirma un préstamo por encima del tope cuando la empresa lo permite (ADR-061). */
+  acknowledgeRateCap?: boolean;
 }
 
 const termsJson = (x: LoanTerms, s?: Schedule) => ({
@@ -61,6 +63,11 @@ const termsJson = (x: LoanTerms, s?: Schedule) => ({
 });
 
 /** Motor financiero en el servidor (§9): plan, tasa efectiva anual real y tope legal, siempre con @coroc/core. */
+/** La empresa eligió «solo advertir» por encima del tope de tasa (ADR-061). */
+export function rateCapOverridable(tenant: TenantInfo): boolean {
+  return tenant.settings.rateCapPolicy === 'warn';
+}
+
 @Injectable()
 export class LoansService {
   constructor(
@@ -115,31 +122,47 @@ export class LoansService {
       totalPayable: s.totalPayable,
       totalInterest: s.totalInterest,
       effectiveAnnualRate: ea,
-      rateCap: check ? { ok: check.ok, effectiveAnnual: check.effectiveAnnual, cap: check.cap, ...(check.maxRate ? { maxRate: check.maxRate } : {}), missing: false } : { ok: tenant.country !== 'CO', effectiveAnnual: ea, cap: null, missing: true },
+      rateCap: {
+        ...(check ? { ok: check.ok, effectiveAnnual: check.effectiveAnnual, cap: check.cap, ...(check.maxRate ? { maxRate: check.maxRate } : {}), missing: false } : { ok: tenant.country !== 'CO', effectiveAnnual: ea, cap: null, missing: true }),
+        overridable: rateCapOverridable(tenant),
+      },
     };
   }
 
   /**
    * Crea el préstamo con su plan y el desembolso en el libro. Rechaza la tasa por encima del tope vigente (§9.6, CA-12)
-   * y, en Colombia, exige que el tope esté registrado.
+   * y, en Colombia, exige que el tope esté registrado. Si el Propietario eligió «solo advertir» (ADR-061), el préstamo
+   * se crea cuando la petición lo confirma con `acknowledgeRateCap`, y queda marcado y en la bitácora de auditoría.
    */
   async create(tx: Tx, auth: AuthContext, tenant: TenantInfo, clientId: string, input: LoanInput, lang: Lang) {
     const terms = this.toTerms(input, tenant);
     const s = this.schedule(terms, lang);
     const cap = await this.caps.current(tx, tenant.country, terms.disbursementDate);
-    if (!cap && tenant.country === 'CO') throw new Problem(422, 'RATE_CAP_MISSING');
+    const overridable = rateCapOverridable(tenant);
+    const override = overridable && input.acknowledgeRateCap === true;
+    const breaches: string[] = [];
     let ea = loanEffectiveAnnualRate(terms);
+    if (!cap && tenant.country === 'CO') {
+      if (!override) throw new Problem(422, 'RATE_CAP_MISSING', {}, [], { rateCap: { ok: false, effectiveAnnual: ea, cap: null, missing: true, overridable } });
+      breaches.push('missing');
+    }
     if (cap) {
       const check = checkRateCap(terms, cap.effectiveAnnual);
       ea = check.effectiveAnnual;
       if (!check.ok) {
-        throw new Problem(422, 'RATE_CAP_EXCEEDED', { effectiveAnnual: pct(lang, check.effectiveAnnual), cap: pct(lang, check.cap), maxRate: pct(lang, Number(check.maxRate)) }, [], {
-          rateCap: { ok: false, effectiveAnnual: check.effectiveAnnual, cap: check.cap, maxRate: check.maxRate },
-        });
+        if (!override) {
+          throw new Problem(422, 'RATE_CAP_EXCEEDED', { effectiveAnnual: pct(lang, check.effectiveAnnual), cap: pct(lang, check.cap), maxRate: pct(lang, Number(check.maxRate)) }, [], {
+            rateCap: { ok: false, effectiveAnnual: check.effectiveAnnual, cap: check.cap, maxRate: check.maxRate, missing: false, overridable },
+          });
+        }
+        breaches.push('rate');
       }
       if (input.lateFee) {
         const daily = input.lateFee.type === 'percent_daily' ? input.lateFee.value : String(Number(input.lateFee.value) / Math.max(1, s.regularInstallment));
-        if (!dailyLateFeeWithinCap(daily, cap.effectiveAnnual)) throw new Problem(422, 'LATE_FEE_EXCEEDS_CAP');
+        if (!dailyLateFeeWithinCap(daily, cap.effectiveAnnual)) {
+          if (!override) throw new Problem(422, 'LATE_FEE_EXCEEDS_CAP', {}, [], { rateCap: { overridable } });
+          breaches.push('late_fee');
+        }
       }
     }
     const contract = input.contract?.trim() || (await tx.one<{ n: string }>("SELECT next_number(current_tenant(), 'contract') AS n"))!.n;
@@ -147,12 +170,12 @@ export class LoansService {
     const loan = await tx.one<{ id: string }>(
       `INSERT INTO loans (tenant_id, client_id, contract, currency, principal, method, rate, installments_count, frequency, disbursement_date,
                           first_due_date, collection_days, exclude_holidays, monthly_day, rounding_unit, late_fee, total_payable,
-                          effective_annual_rate, rate_cap_id, expected_method, created_by)
-       VALUES (current_tenant(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20) RETURNING id`,
+                          effective_annual_rate, rate_cap_id, expected_method, created_by, rate_cap_override)
+       VALUES (current_tenant(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21) RETURNING id`,
       [
         clientId, contract, terms.currency, terms.principal, terms.method, terms.rate, terms.installments, terms.frequency, terms.disbursementDate,
         s.terms.firstDueDate, terms.collectionDays, terms.excludeHolidays, terms.monthlyDay ?? null, terms.roundingUnit, input.lateFee ? JSON.stringify(input.lateFee) : null,
-        s.totalPayable, ea.toFixed(8), cap?.id ?? null, input.expectedMethod ?? null, auth.userId,
+        s.totalPayable, ea.toFixed(8), cap?.id ?? null, input.expectedMethod ?? null, auth.userId, breaches.length > 0,
       ],
     );
     const col = <K extends keyof (typeof s.installments)[number]>(k: K) => s.installments.map((i) => i[k]);
@@ -172,6 +195,9 @@ export class LoansService {
     // «Bienvenida + plan de pagos» (§11.3), sujeta al consentimiento y a las reglas de contacto; el plan va adjunto.
     await this.messaging.enqueueTx(tx, auth.tenantId, { event: 'welcome', loanId: loan!.id, documentTaskId: scheduleTask, dedupeKey: `welcome:${loan!.id}`, createdBy: auth.userId });
     await this.audit.log(tx, 'loan.created', 'loan', loan!.id, { after: { contract, ...termsJson(terms), totalPayable: s.totalPayable, effectiveAnnualRate: ea } });
+    if (breaches.length) {
+      await this.audit.log(tx, 'loan.rate_cap_override', 'loan', loan!.id, { after: { contract, breaches, effectiveAnnualRate: ea, cap: cap?.effectiveAnnual ?? null, rateCapId: cap?.id ?? null } });
+    }
     return { loaded, replay: r };
   }
 
@@ -195,6 +221,7 @@ export class LoansService {
       totalPayable: l.loan.total_payable,
       totalInterest,
       effectiveAnnualRate: Number(l.loan.effective_annual_rate),
+      rateCapOverride: l.loan.rate_cap_override === true,
       status: l.loan.status,
       summary: {
         totalInstallments: s.totalInstallments,

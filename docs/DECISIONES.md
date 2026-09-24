@@ -105,7 +105,7 @@ Regla 3 del prompt maestro: toda decisión no especificada se toma con criterio 
 **Contexto:** §7.1 fija 15 minutos tras 5 intentos fallidos. Un atacante paciente podría seguir probando indefinidamente. **Decisión:** cada bloqueo nuevo dura el doble del anterior (15, 30, 60 minutos…) hasta un máximo de 24 horas. Un ingreso correcto o el cambio de contraseña reinician la cuenta. Cada bloqueo queda en la bitácora y avisa en vivo al Propietario. **Consecuencias:** el primer bloqueo cumple §7.1 al pie de la letra y los siguientes frenan los ataques lentos.
 
 ### ADR-026 · Tope de tasa obligatorio en Colombia
-**Decisión:** en empresas de Colombia no se puede crear un préstamo si no hay tasa de usura vigente registrada para la fecha de desembolso (`RATE_CAP_MISSING`). En Brasil y Estados Unidos el tope es opcional: si existe se aplica y, si no, la vista previa lo informa. La mora también se limita al tope (`LATE_FEE_EXCEEDS_CAP`). Las vigencias no se pueden solapar (restricción de exclusión en la base). **Consecuencias:** es imposible prestar por encima de la usura por olvido.
+**Decisión:** en empresas de Colombia no se puede crear un préstamo si no hay tasa de usura vigente registrada para la fecha de desembolso (`RATE_CAP_MISSING`). En Brasil y Estados Unidos el tope es opcional: si existe se aplica y, si no, la vista previa lo informa. La mora también se limita al tope (`LATE_FEE_EXCEEDS_CAP`). Las vigencias no se pueden solapar (restricción de exclusión en la base). **Consecuencias:** es imposible prestar por encima de la usura por olvido. La ADR-061 permite, por decisión expresa del Propietario, superar el tope confirmando cada préstamo.
 
 ### ADR-027 · CA-05 y CA-06 en una empresa sin tope
 **Contexto:** las condiciones de CA-01 (20 % sobre el capital en 20 cuotas diarias) equivalen a una tasa efectiva anual muy superior a la usura colombiana, así que por ADR-026 ese préstamo no se puede crear en una empresa de Colombia. **Decisión:** CA-01 a CA-04 se verifican con la vista previa en una empresa de Colombia, y CA-05, CA-06 y CA-18 con el mismo préstamo creado en una empresa de Estados Unidos, donde no hay tope registrado. **Consecuencias:** se verifica la aritmética exacta que piden los criterios sin debilitar el control legal. Queda como pregunta para el Propietario si las tasas reales de sus préstamos diarios cumplen la usura (P-6).
@@ -436,3 +436,39 @@ La política describe qué datos, para qué, con quién, cuánto tiempo y cómo 
 Cada plataforma firma solo si sus secretos existen; si no, compila sin firma y lo avisa. Los instaladores quedan en una versión en borrador de GitHub.
 
 **Consecuencias:** publicar depende solo de cargar los secretos cuando existan las cuentas (P-2). Ningún secreto vive en el repositorio (`key.properties` y `*.jks` están en `.gitignore`).
+
+### ADR-060 · Producción en Fly.io (São Paulo), Fly Postgres y Cloudflare R2
+**Contexto:** P-1. El Propietario eligió un PaaS gestionado. Aún no tiene dominio.
+
+**Decisión:**
+- **API:** la misma imagen Docker en Fly.io, región `gru` (São Paulo, la más cercana a Colombia que ofrece la plataforma), con 2 vCPU compartidas y 2 GB para Chromium y el OCR. Una máquina siempre encendida al inicio, con verificación de salud en `/health` (`fly.toml`). La plataforma no guarda en búfer las conexiones SSE, y el ping de 25 s las mantiene abiertas.
+- **Base:** PostgreSQL 16 en Fly Postgres, con 2 nodos y red privada (`flycast`). Sirve cualquier otro gestionado que permita crear un rol con BYPASSRLS: `scripts/prepare-db.mjs --check` lo verifica.
+  - La preparación única crea los roles con el superusuario y aplica las migraciones como `coroc_owner`.
+  - Así se corrigió el procedimiento de `roles.sql`: el dueño no puede crear roles ni, desde PostgreSQL 15, crear objetos en `public`.
+- **Migraciones en cada despliegue:** en el `release_command`, con el rol dueño, antes de cambiar las máquinas. Si una falla, sigue la versión anterior.
+  - La credencial del dueño es un secreto de la app. La API la borra de su entorno al arrancar, para que Chromium y Tesseract no la hereden.
+  - Queda como mejora separar las migraciones en una app propia.
+- **Archivos:** Cloudflare R2, compatible con S3. Los archivos ya van cifrados por la aplicación (ADR-031). El almacén S3 se prueba contra MinIO en la CI.
+- **Despliegue:** automático cuando la CI termina en verde en `main` (`deploy.yml`), con comprobación de salud posterior. Sin `FLY_API_TOKEN`, el flujo se omite con un aviso.
+- **Copias:**
+  - instantáneas diarias del proveedor;
+  - `pg_dump` semanal cifrado con AES-256 en R2, fuera de Fly.io (`backup-db.yml`).
+- **Dominio:** es un parámetro. Mientras no exista se usa `https://coroc-api.fly.dev`, que también es la dirección por defecto de las apps en `release.yml`. Cambiarlo son tres pasos (06 §6).
+
+**Consecuencias:** producción queda a un `fly deploy` de distancia cuando existan las cuentas. El costo inicial es bajo, unos USD 40–80 al mes con la base en dos nodos. Para escalar a varias máquinas basta Redis (Upstash, `fly redis create`) y `fly scale count`. Si más adelante se requiere AWS, la misma imagen y las mismas variables sirven: solo cambian la base gestionada y el orquestador.
+
+### ADR-061 · Préstamos por encima del tope de tasa por decisión del Propietario
+**Contexto:** ante P-6, el Propietario pidió poder usar tasas más altas que el tope si lo desea. En Colombia cobrar por encima de la usura es delito (art. 305 del Código Penal) y el deudor puede reclamar los intereses cobrados de más, así que el cambio no puede ocurrir por descuido.
+
+**Decisión:** cada empresa tiene una política ante el tope (`settings.rateCapPolicy`):
+- `block` (predeterminada): igual que la ADR-026. No se crea un préstamo por encima del tope, ni sin tope registrado en Colombia, ni con mora por encima del tope.
+- `warn`: la vista previa sigue mostrando la tasa efectiva, el tope y la tasa máxima que cumple, e informa `overridable`. El préstamo se crea solo si la petición trae `acknowledgeRateCap: true`, que la app envía cuando el usuario marca la confirmación en ese préstamo. Sin ella responde igual que con `block`.
+
+Garantías:
+- **Quién decide:** solo el Propietario cambia la política (`PUT /compliance/rate-cap-policy`). Para activar `warn` debe aceptar la responsabilidad (`acceptResponsibility`), después de leer la advertencia legal en la app. La política no se cambia por `PATCH /company`.
+- **Rastro:** el cambio de política queda en la auditoría (`compliance.rate_cap_policy`) con quién y cuándo. Cada préstamo por encima del tope queda con `rate_cap_override` y un evento `loan.rate_cap_override` con la tasa efectiva, el tope y qué se superó (`rate`, `missing` o `late_fee`).
+- **Visibilidad:** la ficha del cliente señala «Creado por encima del tope legal».
+- **Confirmación ligada a las condiciones:** si cambian las condiciones del préstamo, la app pide confirmar de nuevo.
+
+**Consecuencias:** COROC sirve para los préstamos diarios de tasas altas que describe el Propietario. La responsabilidad legal queda documentada en la empresa y el control sigue activo por defecto. Los préstamos marcados se pueden listar para una revisión legal. CA-12 sigue en verde con la política predeterminada.
+

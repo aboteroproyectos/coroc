@@ -245,5 +245,17 @@ void main() {
     expect(api.lastBody('PATCH', '/clients/{id}'), containsPair('city', 'Envigado'));
     await app.finish();
   });
+
+  testWidgets('un préstamo creado por encima del tope se señala en la ficha', (tester) async {
+    final api = FakeApi();
+    final client = jsonDecode(jsonEncode(api.get('/clients/${api.id('client')}'))) as Json;
+    ((client['loans'] as List).first as Json)['rateCapOverride'] = true;
+    api.overrides['GET /clients/{id}'] = (_) => FakeApi.json(200, client);
+    final app = await bootApp(tester, api: api);
+    await app.go('/clients/${api.id('client')}');
+    expect(find.text(l.loanAboveCap), findsOneWidget);
+    await app.finish();
+  });
+
 }
 

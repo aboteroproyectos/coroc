@@ -1,0 +1,59 @@
+# Copia semanal de la base, cifrada, fuera de Fly.io (docs/06 §5.9 y §6, ADR-060).
+# Complementa las instantáneas diarias del proveedor: pg_dump por el túnel de flyctl, cifrado con AES-256 y guardado en
+# Cloudflare R2, en un depósito distinto al de los documentos. Sin los secretos se omite con un aviso.
+#   Secretos: FLY_API_TOKEN (con acceso a la app de la base), BACKUP_DATABASE_URL (coroc_owner por el túnel, p. ej.
+#             postgres://coroc_owner:…@127.0.0.1:15432/coroc), BACKUP_PASSPHRASE, R2_ACCESS_KEY_ID,
+#             R2_SECRET_ACCESS_KEY y R2_ENDPOINT.
+#   Variables: FLY_DB_APP (por defecto coroc-db) y R2_BACKUP_BUCKET (por defecto coroc-db-backups).
+# Restaurar: openssl enc -d -aes-256-cbc -pbkdf2 -iter 600000 -in copia.dump.enc -out copia.dump && pg_restore …
+name: Copia de la base
+
+on:
+  schedule:
+    - cron: '17 7 * * 0'   # domingos, 02:17 en Colombia
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    name: pg_dump cifrado a R2
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      BACKUP_DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+      FLY_DB_APP: ${{ vars.FLY_DB_APP || 'coroc-db' }}
+      BUCKET: ${{ vars.R2_BACKUP_BUCKET || 'coroc-db-backups' }}
+    steps:
+      - name: ¿Están los secretos?
+        id: gate
+        run: |
+          for v in FLY_API_TOKEN BACKUP_DATABASE_URL BACKUP_PASSPHRASE AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY R2_ENDPOINT; do
+            if [ -z "${!v}" ]; then echo "::notice::Falta $v: la copia se omite."; echo "ready=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+          done
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+        if: steps.gate.outputs.ready == 'true'
+      - name: Cliente de PostgreSQL 16
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          sudo apt-get install -y -q postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -q postgresql-client-16
+      - name: Copia cifrada
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          flyctl proxy 15432:5432 --app "$FLY_DB_APP" &
+          for i in $(seq 1 30); do pg_isready -h 127.0.0.1 -p 15432 -q && break; sleep 2; done
+          name="coroc_$(date -u +%Y-%m-%d_%H%M).dump.enc"
+          /usr/lib/postgresql/16/bin/pg_dump --format=custom --no-owner --dbname "$BACKUP_DATABASE_URL" \
+            | openssl enc -aes-256-cbc -pbkdf2 -iter 600000 -salt -pass env:BACKUP_PASSPHRASE -out "$name"
+          test -s "$name"
+          aws s3 cp "$name" "s3://$BUCKET/$name" --endpoint-url "$R2_ENDPOINT" --region auto --only-show-errors
+          echo "✔ $name ($(du -h "$name" | cut -f1)) en $BUCKET"

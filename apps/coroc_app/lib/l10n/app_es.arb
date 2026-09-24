@@ -1126,6 +1126,47 @@
       }
     }
   },
+  "capOverrideAck": "Confirmo este préstamo por encima del tope legal y asumo la responsabilidad.",
+  "@capOverrideAck": {
+    "description": "Casilla para confirmar un préstamo por encima del tope (ADR-061)"
+  },
+  "loanAboveCap": "Creado por encima del tope legal",
+  "@loanAboveCap": {
+    "description": "Aviso en la ficha de un préstamo creado por encima del tope"
+  },
+  "rateCapPolicyTitle": "Permitir préstamos por encima del tope",
+  "@rateCapPolicyTitle": {
+    "description": "Interruptor de la política del tope (Propietario)"
+  },
+  "rateCapPolicyOff": "COROC impide crear préstamos por encima del tope legal.",
+  "@rateCapPolicyOff": {
+    "description": "Estado: bloqueado"
+  },
+  "rateCapPolicyOn": "Se pueden crear préstamos por encima del tope confirmando cada uno. Activado el {date}.",
+  "@rateCapPolicyOn": {
+    "description": "Estado: permitido con confirmación",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rateCapPolicyOwnerOnly": "Solo el Propietario puede cambiar esta opción.",
+  "@rateCapPolicyOwnerOnly": {
+    "description": "Aviso para roles distintos del Propietario"
+  },
+  "rateCapPolicyWarning": "En Colombia, cobrar intereses por encima de la tasa de usura es un delito (art. 305 del Código Penal) y el deudor puede reclamar los intereses cobrados de más. Al activar esta opción, COROC deja crear préstamos por encima del tope: pide confirmación en cada uno y lo registra en la auditoría. La responsabilidad legal es de la empresa.",
+  "@rateCapPolicyWarning": {
+    "description": "Advertencia legal antes de activar"
+  },
+  "rateCapPolicyAccept": "Entiendo el riesgo y asumo la responsabilidad legal.",
+  "@rateCapPolicyAccept": {
+    "description": "Casilla de aceptación de responsabilidad"
+  },
+  "rateCapPolicyActivate": "Permitir",
+  "@rateCapPolicyActivate": {
+    "description": "Botón para activar"
+  },
   "wizardStepClient": "Datos del cliente",
   "@wizardStepClient": {
     "description": "Paso 1"
@@ -1599,7 +1640,7 @@
   "@helpRateCapTitle": {
     "description": "Tema"
   },
-  "helpRateCapBody": "COROC convierte cualquier tasa a efectiva anual y la compara con el tope vigente en la fecha del desembolso. En Colombia el tope es la tasa de usura que certifica la Superintendencia Financiera: regístrela cada mes en Configuración › Topes legales de tasa. Si una tasa lo supera, el préstamo no se guarda y la vista previa ofrece usar la tasa máxima permitida. La mora tampoco puede superar el tope.",
+  "helpRateCapBody": "COROC convierte cualquier tasa a efectiva anual y la compara con el tope vigente en la fecha del desembolso. En Colombia el tope es la tasa de usura que certifica la Superintendencia Financiera: regístrela cada mes en Configuración › Topes legales de tasa. Si una tasa lo supera, el préstamo no se guarda y la vista previa ofrece usar la tasa máxima permitida. La mora tampoco puede superar el tope. Si su empresa decide prestar por encima del tope, el Propietario puede permitirlo en Configuración › Topes legales de tasa, aceptando la responsabilidad legal. Entonces cada préstamo por encima del tope se confirma uno por uno y queda señalado en la ficha y en la auditoría.",
   "@helpRateCapBody": {
     "description": "Tema"
   },

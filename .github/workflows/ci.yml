@@ -53,7 +53,16 @@ jobs:
         run: npm run lint:i18n
       - name: Contrato OpenAPI
         run: npx --yes @redocly/cli@1 lint services/api/openapi.yaml --format=github-actions
-      - name: Pruebas (núcleo, aceptación CA-01…09/12…19, documentos, recepción, contrato)
+      - name: Almacén compatible con S3 (MinIO) para probar el modo de producción con Cloudflare R2 (ADR-060)
+        run: |
+          docker run -d --name minio -p 9000:9000 -e MINIO_ROOT_USER=coroc-ci -e MINIO_ROOT_PASSWORD=coroc-ci-minio quay.io/minio/minio server /data
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:9000/minio/health/live && exit 0; sleep 1; done
+          docker logs minio; exit 1
+      - name: Pruebas (núcleo, aceptación CA-01…09/12…19, documentos, recepción, contrato, almacén S3)
+        env:
+          COROC_TEST_S3_ENDPOINT: http://127.0.0.1:9000
+          AWS_ACCESS_KEY_ID: coroc-ci
+          AWS_SECRET_ACCESS_KEY: coroc-ci-minio
         run: npm test
 
   # ─── Rendimiento (§21): 100.000 clientes y 2.000.000 de cuotas, latencias p95 con peticiones concurrentes ───

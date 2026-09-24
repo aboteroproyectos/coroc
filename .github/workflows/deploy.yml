@@ -1,0 +1,59 @@
+# Despliegue de la API en Fly.io, región São Paulo (P-1, ADR-060).
+# Se ejecuta cuando la CI termina en verde en `main`, o a mano. Sin el secreto FLY_API_TOKEN se omite con un aviso:
+# así el repositorio funciona igual antes de crear la cuenta. Preparación única: docs/06_EJECUCION_Y_DESPLIEGUE.md §6.
+#   Secreto:   FLY_API_TOKEN   (fly tokens create deploy -a coroc-api)
+#   Variables: FLY_APP (por defecto coroc-api) y COROC_HEALTH_URL (por defecto https://<app>.fly.dev/health)
+name: Despliegue
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: API en Fly.io
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      FLY_APP: ${{ vars.FLY_APP || 'coroc-api' }}
+    steps:
+      - name: ¿Hay cuenta de Fly.io?
+        id: gate
+        run: |
+          if [ -z "$FLY_API_TOKEN" ]; then
+            echo "::notice::Sin FLY_API_TOKEN el despliegue se omite. Ver docs/06_EJECUCION_Y_DESPLIEGUE.md §6."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.ready == 'true'
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+        if: steps.gate.outputs.ready == 'true'
+      - name: Construir y desplegar (las migraciones corren antes, en release_command)
+        if: steps.gate.outputs.ready == 'true'
+        run: flyctl deploy --remote-only --config fly.toml --app "$FLY_APP"
+      - name: Comprobar que responde
+        if: steps.gate.outputs.ready == 'true'
+        env:
+          HEALTH: ${{ vars.COROC_HEALTH_URL }}
+        run: |
+          url="${HEALTH:-https://$FLY_APP.fly.dev/health}"
+          curl -fsS --retry 10 --retry-delay 6 --retry-all-errors "$url"
+          echo
+          curl -fsS --retry 3 --retry-all-errors "${url%/health}/v1/public/privacy" -H 'Accept: application/json' -o /dev/null
+          echo "✔ $url"

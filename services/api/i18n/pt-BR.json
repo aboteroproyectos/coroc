@@ -239,7 +239,8 @@
     "minimum": "Valor muito baixo",
     "maximum": "Valor muito alto",
     "additionalProperties": "Campo não reconhecido",
-    "other": "Valor inválido"
+    "other": "Valor inválido",
+    "readOnly": "Este valor é alterado na sua própria seção"
   },
   "doc": {
     "common": {

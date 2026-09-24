@@ -106,7 +106,7 @@ La Fase 1 se cierra con CA-01 a CA-06, CA-12, CA-14, CA-16 y CA-17 (§23). Todos
 | CA-04 | ✅ 9, 10, 13 y 14 de octubre de 2026 (salta el domingo y el festivo) | ídem |
 | CA-05 | ✅ Cuota 1 pagada, 19 restantes, acumulado $ 60.000, saldo $ 1.140.000; el recibo trae los mismos datos | «Pagos, recibo, reverso y dashboard» (empresa sin tope, ADR-027) |
 | CA-06 | ✅ Cuotas 2 y 3 completas, abono de $ 30.000 a la 4, 17 restantes, saldo $ 990.000 | ídem |
-| CA-12 | ✅ No se guarda; responde `RATE_CAP_EXCEEDED` con la tasa máxima que cumple. Sin tasa de usura vigente, `RATE_CAP_MISSING` | «Tope legal, clientes y duplicados» |
+| CA-12 | ✅ No se guarda; responde `RATE_CAP_EXCEEDED` con la tasa máxima que cumple. Sin tasa de usura vigente, `RATE_CAP_MISSING`. Con la política «solo advertir» que activa el Propietario (ADR-061), se crea solo si se confirma ese préstamo, y queda marcado y auditado | «Tope legal, clientes y duplicados»; `rate-cap-policy.test.ts` |
 | CA-14 | ✅ Servidor: los errores cambian de idioma con cada petición (`Accept-Language`). App: `test/widgets_test.dart` cambia es → pt → en en la pantalla de ingreso sin reiniciar. 377 textos en 3 idiomas, verificados por `tool/l10n_keys.py` | `acceptance.test.ts` y app Flutter (CI) |
 | CA-16 | ✅ El Cobrador ve solo sus clientes; sobre uno ajeno recibe 403 «Acceso denegado» y queda `access.denied` en la bitácora. En la base, aunque la API se equivocara, RLS le oculta los ajenos (ADR-022) | «Roles y aislamiento» |
 | CA-17 | ✅ La empresa B no puede leer, modificar ni pagar datos de la empresa A | ídem |
@@ -138,7 +138,7 @@ Otras verificaciones de la Fase 1:
 | CA-09 | Beneficiario distinto de las cuentas receptoras | ✅ Verde | Núcleo: no se aplica, pasa a revisión con la alerta «El pago no se hizo a tus cuentas» |
 | CA-10 | Recordatorio el domingo 11-oct-2026 10:00 | ✅ Verde | Núcleo y API: reprogramado al martes 13-oct-2026 07:00, con la regla registrada |
 | CA-11 | Segundo mensaje de cobranza el mismo día | ✅ Verde | Núcleo y API: bloqueado con la regla `MAX_PER_DAY` |
-| CA-12 | Tasa efectiva por encima del tope | ✅ Verde | Núcleo y app: no se guarda; se informa la tasa máxima que cumple |
+| CA-12 | Tasa efectiva por encima del tope | ✅ Verde | Núcleo y app: no se guarda; se informa la tasa máxima que cumple. Por decisión del Propietario, se permite confirmando cada préstamo (ADR-061) |
 | CA-13 | Respaldo y restauración | ✅ Verde | `apps/prototype/tools/verify.mjs`: se restauraron 183 de 183 documentos con la misma huella SHA-256 y 180 de 180 PDF abren. Se rechazan la contraseña errada y un byte alterado |
 | CA-14 | es → pt-BR → en con la app abierta | ✅ Verde | `apps/prototype/tools/e2e.mjs`: todas las vistas en los tres idiomas sin recargar; 0 cadenas sin traducir (676 entradas) |
 | CA-15 | Cliente «María José Pérez Gómez» | ✅ Verde, con ajuste | Se crea `Maria Jose Perez Gomez - C000013/CT-000014/` con 5 subcarpetas, el PDF del plan y `.coroc-id`. El nombre de la carpeta va sin tildes (ADR-013) |

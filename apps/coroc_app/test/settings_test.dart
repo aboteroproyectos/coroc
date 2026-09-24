@@ -4,6 +4,7 @@ import 'package:coroc/core/l10n.dart';
 import 'package:coroc/design/widgets/brand.dart';
 import 'package:coroc/design/widgets/common.dart';
 import 'package:coroc/features/shell/app_shell.dart';
+import 'package:coroc/features/loans/loan_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -388,4 +389,46 @@ void main() {
     expect(app.container.read(routerProvider).routerDelegate.currentConfiguration.uri.path, '/help');
     await app.finish();
   });
+
+  testWidgets('tope de tasa: el Propietario permite superarlo solo aceptando la responsabilidad, y puede volver a bloquear', (tester) async {
+    final app = await bootApp(tester);
+    final api = app.api;
+    await app.go('/settings');
+    expect(find.text(l.rateCapPolicyOff), findsOneWidget);
+    await tapOn(tester, find.text(l.rateCapPolicyTitle));
+    expect(find.text(l.rateCapPolicyWarning), findsOneWidget);
+    final allow = find.widgetWithText(FilledButton, l.rateCapPolicyActivate);
+    expect(tester.widget<FilledButton>(allow).onPressed, isNull);
+    await tapOn(tester, find.text(l.rateCapPolicyAccept));
+    await tapOn(tester, allow);
+    expect(api.lastBody('PUT', '/compliance/rate-cap-policy'), {'policy': 'warn', 'acceptResponsibility': true});
+
+    // La empresa ya permite superar el tope: el interruptor lo muestra y apagarlo no pide confirmación.
+    final company = {...api.get('/company')};
+    company['settings'] = {...company['settings'] as Json, 'rateCapPolicy': 'warn', 'rateCapPolicyAcceptedAt': '2026-09-24T10:00:00.000Z'};
+    api.overrides['GET /company'] = (_) => FakeApi.json(200, company);
+    app.container.invalidate(companyProvider);
+    await settle(tester);
+    expect(find.text(l.rateCapPolicyOff), findsNothing);
+    expect(tester.widget<SwitchListTile>(find.widgetWithText(SwitchListTile, l.rateCapPolicyTitle)).value, isTrue);
+    await tapOn(tester, find.text(l.rateCapPolicyTitle));
+    expect(api.lastBody('PUT', '/compliance/rate-cap-policy'), {'policy': 'block'});
+    await app.finish();
+  });
+
+  testWidgets('tope de tasa: cancelar la advertencia no cambia nada y otros roles no pueden cambiarlo', (tester) async {
+    final app = await bootApp(tester);
+    await app.go('/settings');
+    await tapOn(tester, find.text(l.rateCapPolicyTitle));
+    await tapOn(tester, find.text(l.actionCancel).last);
+    expect(app.api.sent('PUT', '/compliance/rate-cap-policy'), isEmpty);
+    await app.finish();
+
+    final admin = await bootApp(tester, role: 'admin');
+    await admin.go('/settings');
+    expect(find.textContaining(l.rateCapPolicyOwnerOnly), findsOneWidget);
+    expect(tester.widget<SwitchListTile>(find.widgetWithText(SwitchListTile, l.rateCapPolicyTitle)).onChanged, isNull);
+    await admin.finish();
+  });
+
 }

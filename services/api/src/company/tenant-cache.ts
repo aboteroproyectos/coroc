@@ -31,6 +31,8 @@ export const DEFAULT_SETTINGS = {
   roundingUnit: 1,
   reminderTime: '08:00',
   dailyReminders: false,
+  // Préstamos por encima del tope de tasa (ADR-061): 'block' (predeterminado) o 'warn' (el Propietario asume la responsabilidad).
+  rateCapPolicy: 'block',
   prefixes: { client: 'C', contract: 'CT-', receipt: 'RC-' },
 };
 

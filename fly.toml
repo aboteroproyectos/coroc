@@ -1,0 +1,58 @@
+# COROC · API en Fly.io, región São Paulo (P-1, ADR-060). Guía paso a paso: docs/06_EJECUCION_Y_DESPLIEGUE.md §6.
+#
+# La imagen es la misma de services/api/Dockerfile (Node.js 22, Chromium para los PDF y Tesseract para los comprobantes).
+# Los secretos (base, claves, R2) van con `fly secrets set`, nunca en este archivo. El nombre de la app se cambia con
+# `--app` o con la variable FLY_APP del flujo de despliegue.
+app = "coroc-api"
+primary_region = "gru"
+kill_signal = "SIGTERM"
+kill_timeout = "30s"
+
+[build]
+  dockerfile = "services/api/Dockerfile"
+
+[deploy]
+  # Migraciones con el rol dueño del esquema antes de cambiar las máquinas. Si una falla, el despliegue se detiene y
+  # sigue la versión anterior. La API borra esa credencial de su entorno al arrancar (src/main.ts).
+  release_command = "node dist/db/migrate.js"
+  strategy = "rolling"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+  # Archivos cifrados por la aplicación (ADR-031) en Cloudflare R2. Endpoint, depósito y credenciales: secretos.
+  COROC_STORAGE = "s3"
+  COROC_S3_REGION = "auto"
+  COROC_S3_PATH_STYLE = "true"
+  COROC_MFA_OWNER = "required"
+  COROC_BREACHED_CHECK = "hibp"
+  COROC_OCR = "tesseract"
+  # Con una sola máquina, ella atiende las peticiones y además procesa documentos y mensajes. Para dos o más, ver §6.
+  COROC_DOCUMENT_WORKER = "on"
+  COROC_MESSAGE_WORKER = "on"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  # Siempre encendida: los trabajos de fondo (documentos, mensajes, recordatorios de cada hora) no esperan peticiones.
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 150
+    hard_limit = 250
+
+  [[http_service.checks]]
+    grace_period = "30s"
+    interval = "15s"
+    timeout = "5s"
+    method = "GET"
+    path = "/health"
+
+# Chromium y el OCR piden memoria: 2 GB para generar PDF y leer comprobantes sin quedarse corto.
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 2
+  memory = "2gb"

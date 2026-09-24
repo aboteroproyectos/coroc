@@ -73,7 +73,7 @@ class SettingsPage extends ConsumerWidget {
       ],
       if (u.can('compliance.view')) ...[gap, ComplianceSection(canEdit: u.can('compliance.manage'), isOwner: u.role == 'owner')],
       if (u.can('users.view')) ...[gap, _UsersSection(me: u)],
-      if (u.can('compliance.view')) ...[gap, _RateCapsSection(canManage: u.can('compliance.manage'), country: auth.company.country)],
+      if (u.can('compliance.view')) ...[gap, _RateCapsSection(canManage: u.can('compliance.manage'), country: auth.company.country, isOwner: u.role == 'owner')],
       gap,
       const FolderSection(),
       if (u.can('audit.view')) ...[gap, SupportSection(canRetry: u.can('documents.upload'))],
@@ -899,9 +899,10 @@ class _NewUserDialogState extends ConsumerState<_NewUserDialog> {
 // ─────────────────────────────── Topes de tasa ───────────────────────────────
 
 class _RateCapsSection extends ConsumerWidget {
-  const _RateCapsSection({required this.canManage, required this.country});
+  const _RateCapsSection({required this.canManage, required this.country, this.isOwner = false});
   final bool canManage;
   final String country;
+  final bool isOwner;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -920,6 +921,8 @@ class _RateCapsSection extends ConsumerWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text(country == 'CO' ? l.rateCapsHelpCO : l.rateCapsHelp, style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(height: CorocSpace.sm),
+        _RateCapPolicy(isOwner: isOwner),
+        const Divider(height: CorocSpace.lg),
         AsyncBody<List<RateCap>>(
           value: caps,
           onRetry: () => ref.invalidate(rateCapsProvider),
@@ -939,6 +942,83 @@ class _RateCapsSection extends ConsumerWidget {
           },
         ),
       ]),
+    );
+  }
+}
+
+/// Préstamos por encima del tope (P-6, ADR-061): bloqueado por defecto; el Propietario puede permitirlos aceptando la
+/// responsabilidad legal. Aun así, cada préstamo por encima del tope se confirma uno por uno.
+class _RateCapPolicy extends ConsumerStatefulWidget {
+  const _RateCapPolicy({required this.isOwner});
+  final bool isOwner;
+  @override
+  ConsumerState<_RateCapPolicy> createState() => _RateCapPolicyState();
+}
+
+class _RateCapPolicyState extends ConsumerState<_RateCapPolicy> {
+  bool _busy = false;
+
+  Future<void> _set(bool allow) async {
+    final l = context.l10n;
+    if (allow) {
+      var accepted = false;
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (context) => StatefulBuilder(
+          builder: (context, setLocal) => AlertDialog(
+            icon: Icon(Icons.gavel_outlined, color: Theme.of(context).colorScheme.error),
+            title: Text(l.rateCapPolicyTitle),
+            content: SizedBox(
+              width: 480,
+              child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Text(l.rateCapPolicyWarning),
+                const SizedBox(height: CorocSpace.md),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: accepted,
+                  onChanged: (v) => setLocal(() => accepted = v ?? false),
+                  title: Text(l.rateCapPolicyAccept),
+                ),
+              ]),
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.actionCancel)),
+              FilledButton(
+                style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error, foregroundColor: Theme.of(context).colorScheme.onError),
+                onPressed: accepted ? () => Navigator.pop(context, true) : null,
+                child: Text(l.rateCapPolicyActivate),
+              ),
+            ],
+          ),
+        ),
+      );
+      if (ok != true || !mounted) return;
+    }
+    setState(() => _busy = true);
+    final container = ProviderScope.containerOf(context, listen: false);
+    if (await _run(context, () => container.read(apiProvider).setRateCapPolicy(allow ? 'warn' : 'block', acceptResponsibility: allow))) {
+      container.invalidate(companyProvider);
+      if (mounted) _toast(context, l.saved);
+    }
+    if (mounted) setState(() => _busy = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final settings = ref.watch(companyProvider).valueOrNull?.settings ?? const <String, dynamic>{};
+    final allowed = settings['rateCapPolicy'] == 'warn';
+    final since = settings['rateCapPolicyAcceptedAt'] as String?;
+    return SwitchListTile(
+      contentPadding: EdgeInsets.zero,
+      value: allowed,
+      onChanged: widget.isOwner && !_busy ? _set : null,
+      title: Text(l.rateCapPolicyTitle),
+      subtitle: Text([
+        allowed ? l.rateCapPolicyOn(since == null ? '—' : Dates.dateTime(since, context.lang)) : l.rateCapPolicyOff,
+        if (!widget.isOwner) l.rateCapPolicyOwnerOnly,
+      ].join(' ')),
     );
   }
 }

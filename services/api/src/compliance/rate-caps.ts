@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Injectable, Post } from '@nestjs/common';
+import { Body, Controller, Get, Injectable, Post, Put } from '@nestjs/common';
 import { AuditService } from '../audit/audit.service.js';
 import type { AuthContext } from '../common/context.js';
 import { Auth, Op, Requires } from '../common/decorators.js';
 import { Problem } from '../common/problem.js';
+import { TenantCache } from '../company/tenant-cache.js';
 import { DbService, type Tx } from '../db/db.service.js';
 
 export interface RateCapRow {
@@ -50,5 +51,38 @@ export class RateCapsController {
       await this.audit.log(tx, 'rate_cap.added', 'rate_cap', r!.id, { after: b });
       return capJson(r!);
     });
+  }
+}
+
+/**
+ * Política de la empresa ante el tope de tasa (P-6, ADR-061). «block» impide crear préstamos por encima del tope (y, en
+ * Colombia, sin tope registrado). «warn» los permite con confirmación en cada préstamo: solo el Propietario la activa,
+ * aceptando expresamente la responsabilidad legal (en Colombia la usura es delito, art. 305 del Código Penal).
+ */
+@Controller('compliance/rate-cap-policy')
+export class RateCapPolicyController {
+  constructor(private readonly db: DbService, private readonly audit: AuditService, private readonly tenants: TenantCache) {}
+
+  @Put()
+  @Requires('compliance.manage')
+  @Op('setRateCapPolicy')
+  async set(@Auth() a: AuthContext, @Body() b: { policy: 'block' | 'warn'; acceptResponsibility?: boolean }) {
+    if (a.role !== 'owner') throw new Problem(403, 'OWNER_REQUIRED');
+    if (b.policy === 'warn' && b.acceptResponsibility !== true) throw new Problem(422, 'VALIDATION_FAILED', {}, [{ field: 'acceptResponsibility', message: 'required' }]);
+    const out = await this.db.tx({ tenantId: a.tenantId, userId: a.userId, role: a.role }, async (tx) => {
+      const before = await tx.one<Record<string, any>>('SELECT settings FROM tenants WHERE id = current_tenant() FOR UPDATE');
+      const previous = before?.settings?.rateCapPolicy ?? 'block';
+      const acceptedAt = b.policy === 'warn' ? (previous === 'warn' ? before?.settings?.rateCapPolicyAcceptedAt ?? new Date().toISOString() : new Date().toISOString()) : null;
+      const acceptedBy = b.policy === 'warn' ? (previous === 'warn' ? before?.settings?.rateCapPolicyAcceptedBy ?? a.userId : a.userId) : null;
+      await tx.exec(
+        `UPDATE tenants SET settings = coalesce(settings, '{}'::jsonb) || jsonb_build_object('rateCapPolicy', $1::text, 'rateCapPolicyAcceptedAt', $2::text, 'rateCapPolicyAcceptedBy', $3::text),
+                version = version + 1 WHERE id = current_tenant()`,
+        [b.policy, acceptedAt, acceptedBy],
+      );
+      if (previous !== b.policy) await this.audit.log(tx, 'compliance.rate_cap_policy', 'company', a.tenantId, { before: { rateCapPolicy: previous }, after: { rateCapPolicy: b.policy, acceptResponsibility: b.policy === 'warn' } });
+      return { policy: b.policy, acceptedAt, acceptedBy };
+    });
+    this.tenants.invalidate(a.tenantId);
+    return out;
   }
 }

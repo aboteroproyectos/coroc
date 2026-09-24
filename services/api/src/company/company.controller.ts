@@ -42,6 +42,10 @@ export class CompanyController {
           throw new Problem(422, 'VALIDATION_FAILED', {}, [{ field: 'timezone', message: 'enum' }]);
         }
       }
+      // La política del tope de tasa tiene su propia operación, solo para el Propietario (ADR-061).
+      for (const k of ['rateCapPolicy', 'rateCapPolicyAcceptedAt', 'rateCapPolicyAcceptedBy']) {
+        if (b.settings && k in b.settings) throw new Problem(422, 'VALIDATION_FAILED', {}, [{ field: `settings.${k}`, message: 'readOnly' }]);
+      }
       const settings = b.settings ? { ...(before!.settings ?? {}), ...b.settings, prefixes: { ...(before!.settings?.prefixes ?? {}), ...(b.settings.prefixes ?? {}) } } : before!.settings;
       const row = await tx.one<Record<string, any>>(
         `UPDATE tenants SET name = coalesce($1, name), tax_id = coalesce($2, tax_id), phone = coalesce($3, phone), email = coalesce($4::citext, email),

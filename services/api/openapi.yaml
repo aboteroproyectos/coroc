@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: COROC API
-  version: 0.6.0
+  version: 0.7.0
   summary: Gestión y cobro de préstamos personales
   description: |
     Contrato de la API de COROC (§24.1-3 del prompt maestro). Versión 0.6.0: operaciones de las fases 1 a 5 implementadas y verificadas
@@ -1724,6 +1724,35 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/RateCap' }
         '409': { $ref: '#/components/responses/Problem' }
+  /compliance/rate-cap-policy:
+    put:
+      tags: [compliance]
+      operationId: setRateCapPolicy
+      summary: 'Préstamos por encima del tope de tasa: bloquear (predeterminado) o solo advertir (Propietario, ADR-061)'
+      description: 'Con «warn», los préstamos por encima del tope (o sin tope en Colombia) se pueden crear confirmando cada uno con acknowledgeRateCap. Activarlo exige acceptResponsibility: en Colombia cobrar por encima de la usura es delito (art. 305 del Código Penal). El cambio queda en la auditoría.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [policy]
+              properties:
+                policy: { type: string, enum: [block, warn] }
+                acceptResponsibility: { type: boolean, description: Obligatorio para «warn» }
+      responses:
+        '200':
+          description: Política aplicada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  policy: { type: string, enum: [block, warn] }
+                  acceptedAt: { type: [string, 'null'], format: date-time }
+                  acceptedBy: { type: [string, 'null'], format: uuid }
+        '4XX': { $ref: '#/components/responses/Problem' }
   /compliance/contact-rules:
     get:
       tags: [compliance]
@@ -2398,6 +2427,9 @@ components:
         roundingUnit: { $ref: '#/components/schemas/Minor' }
         reminderTime: { type: string, pattern: '^[0-2][0-9]:[0-5][0-9]$' }
         dailyReminders: { type: boolean }
+        rateCapPolicy: { type: string, enum: [block, warn], readOnly: true, description: 'Préstamos por encima del tope de tasa: bloquear o solo advertir. Se cambia con setRateCapPolicy (ADR-061)' }
+        rateCapPolicyAcceptedAt: { type: [string, 'null'], format: date-time, readOnly: true }
+        rateCapPolicyAcceptedBy: { type: [string, 'null'], format: uuid, readOnly: true }
         messageEvents:
           type: object
           description: Cada mensaje automático se activa o desactiva por separado y elige sus canales (§11.3)
@@ -2548,6 +2580,9 @@ components:
             contract: { type: string, description: Opcional; por defecto el consecutivo }
             lateFee: { $ref: '#/components/schemas/LateFeePolicy' }
             expectedMethod: { type: string }
+            acknowledgeRateCap:
+              type: boolean
+              description: 'Confirma crear el préstamo por encima del tope de tasa (o sin tope en Colombia). Solo tiene efecto si la empresa eligió «solo advertir» (ADR-061); queda en la auditoría'
     ScheduledInstallment:
       type: object
       properties:
@@ -2576,7 +2611,8 @@ components:
         effectiveAnnual: { type: number }
         cap: { type: [number, 'null'] }
         maxRate: { type: string, description: 'Tasa máxima que cumple, redondeada hacia abajo a una centésima de punto porcentual' }
-        missing: { type: boolean, description: 'No hay tope registrado para la fecha; en Colombia impide crear el préstamo' }
+        missing: { type: boolean, description: 'No hay tope registrado para la fecha; en Colombia impide crear el préstamo salvo confirmación (ADR-061)' }
+        overridable: { type: boolean, description: 'La empresa permite crear el préstamo por encima del tope con acknowledgeRateCap (ADR-061)' }
     LoanPreview:
       type: object
       properties:
@@ -2621,6 +2657,7 @@ components:
         totalPayable: { $ref: '#/components/schemas/Minor' }
         totalInterest: { $ref: '#/components/schemas/Minor' }
         effectiveAnnualRate: { type: number }
+        rateCapOverride: { type: boolean, description: Se creó por encima del tope de tasa con la confirmación del usuario (ADR-061) }
         status: { type: string, enum: [active, closed, written_off] }
         summary: { $ref: '#/components/schemas/LoanSummary' }
         realizedProfit: { $ref: '#/components/schemas/Minor' }
