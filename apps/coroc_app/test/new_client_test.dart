@@ -146,6 +146,49 @@ void main() {
     await app.finish();
   });
 
+  testWidgets('nuevo cliente por encima del tope: si la empresa lo permite, se confirma el préstamo y se envía la confirmación', (tester) async {
+    final api = FakeApi();
+    api.overrides['POST /loans/preview'] = (req) => FakeApi.json(200, {
+          ...api.posts['previewLoan'] as Json,
+          'rateCap': {'ok': false, 'effectiveAnnual': 4.89, 'cap': 0.2493, 'missing': false, 'maxRate': '0.0187', 'overridable': true},
+        });
+    final app = await bootApp(tester, api: api);
+    await app.go('/clients/new');
+    await fillClient(tester);
+    await tapOn(tester, find.widgetWithText(GoldButton, l.actionNext));
+    await fillTerms(tester);
+    final next = find.widgetWithText(GoldButton, l.actionNext);
+    expect(tester.widget<GoldButton>(next).onPressed, isNull);
+    await tapOn(tester, find.text(l.capOverrideAck));
+    expect(tester.widget<GoldButton>(next).onPressed, isNotNull);
+    // Cambiar las condiciones anula la confirmación anterior.
+    await tester.enterText(find.widgetWithText(TextField, '${l.fieldInstallments} *'), '12');
+    await settle(tester, frames: 6);
+    expect(tester.widget<GoldButton>(next).onPressed, isNull);
+    await tapOn(tester, find.text(l.capOverrideAck));
+    await tapOn(tester, next);
+    await tapOn(tester, find.text('${l.consentPersonalData} *'));
+    await tapOn(tester, find.widgetWithText(GoldButton, l.newClientCreate));
+    expect(api.lastBody('POST', '/clients')!['loan'], containsPair('acknowledgeRateCap', true));
+    await app.finish();
+  });
+
+  testWidgets('nuevo cliente por encima del tope sin permiso de la empresa: no se puede continuar', (tester) async {
+    final api = FakeApi();
+    api.overrides['POST /loans/preview'] = (req) => FakeApi.json(200, {
+          ...api.posts['previewLoan'] as Json,
+          'rateCap': {'ok': false, 'effectiveAnnual': 4.89, 'cap': 0.2493, 'missing': false, 'overridable': false},
+        });
+    final app = await bootApp(tester, api: api);
+    await app.go('/clients/new');
+    await fillClient(tester);
+    await tapOn(tester, find.widgetWithText(GoldButton, l.actionNext));
+    await fillTerms(tester);
+    expect(find.text(l.capOverrideAck), findsNothing);
+    expect(tester.widget<GoldButton>(find.widgetWithText(GoldButton, l.actionNext)).onPressed, isNull);
+    await app.finish();
+  });
+
   testWidgets('nuevo préstamo para un cliente existente: vista previa, error del servidor y creación', (tester) async {
     final api = FakeApi();
     var attempts = 0;

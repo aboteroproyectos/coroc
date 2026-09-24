@@ -192,6 +192,8 @@ abstract class Loan with _$Loan {
     required int totalPayable,
     required int totalInterest,
     required double effectiveAnnualRate,
+    /// Creado por encima del tope legal con la confirmación del usuario (ADR-061).
+    @Default(false) bool rateCapOverride,
     required String status,
     required LoanSummary summary,
     @Default(0) int realizedProfit,
@@ -277,6 +279,8 @@ abstract class RateCapCheck with _$RateCapCheck {
     double? cap,
     String? maxRate,
     @Default(false) bool missing,
+    /// La empresa permite crear el préstamo por encima del tope confirmándolo (ADR-061).
+    @Default(false) bool overridable,
   }) = _RateCapCheck;
 
   factory RateCapCheck.fromJson(Map<String, dynamic> json) => _$RateCapCheckFromJson(json);

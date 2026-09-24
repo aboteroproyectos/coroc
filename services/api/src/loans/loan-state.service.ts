@@ -4,6 +4,7 @@ import { DbService, type Tx, type TxContext } from '../db/db.service.js';
 
 export interface LoanRow {
   id: string;
+  rate_cap_override?: boolean;
   client_id: string;
   contract: string;
   currency: 'COP' | 'BRL' | 'USD';

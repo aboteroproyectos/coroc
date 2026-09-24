@@ -62,4 +62,4 @@ cd apps/coroc_app && flutter test                                               
   - P-5: revisión legal de la política y de las fichas;
   - P-8: prueba de penetración externa;
   - P-9: pruebas en dispositivos y con lectores de pantalla.
-- También siguen abiertas P-4 (modo automático de WhatsApp), P-6 (tasas frente a la usura) y P-7 (correo por Gmail u Outlook).
+- También siguen abiertas P-4 (modo automático de WhatsApp) y P-7 (correo por Gmail u Outlook). P-6 quedó resuelta: el Propietario puede permitir tasas por encima del tope (ADR-061).

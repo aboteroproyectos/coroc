@@ -49,6 +49,9 @@ class CorocApi {
       User.fromJson(await client.patch('/users/$id', body: {'active': ?active, 'role': ?role, 'name': ?name}) as Json);
   Future<void> revokeUserSessions(String id) async => client.delete('/users/$id/sessions');
   Future<List<RateCap>> rateCaps() async => _list(await client.get('/compliance/rate-caps'), RateCap.fromJson);
+  /// Préstamos por encima del tope: 'block' o 'warn' (solo el Propietario, aceptando la responsabilidad; ADR-061).
+  Future<void> setRateCapPolicy(String policy, {bool acceptResponsibility = false}) async =>
+      client.put('/compliance/rate-cap-policy', body: {'policy': policy, if (policy == 'warn') 'acceptResponsibility': acceptResponsibility});
   Future<RateCap> addRateCap({required String country, required double effectiveAnnual, required String validFrom, required String validTo, required String source}) async => RateCap.fromJson(
         await client.post('/compliance/rate-caps', body: {'country': country, 'effectiveAnnual': effectiveAnnual, 'validFrom': validFrom, 'validTo': validTo, 'source': source}) as Json,
       );

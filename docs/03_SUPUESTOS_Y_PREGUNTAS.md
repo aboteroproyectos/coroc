@@ -12,9 +12,14 @@ Solo se listan las que detienen una fase. Mientras llega la respuesta, el trabaj
 | P-4 | ¿Quiere intentar el modo automático de WhatsApp (Cloud API)? Meta prohíbe expresamente la cobranza de deudas en WhatsApp Business, así que la aprobación es incierta, y el intento exige un número dedicado y una revisión legal | Uso real del modo automático | Modo asistido, enlace de carga y correo, que cubren todo el flujo sin Meta (ADR-007). El modo automático y el paso al asistido ante una suspensión ya están implementados y probados con un Graph API de prueba (CA-20, ADR-047) |
 | P-5 | ¿Quién revisa, como abogado, la política de privacidad pública (Ley 1581 y LGPD), el preset de la Ley 2300, el plazo de gracia del cierre de empresa y los textos de las fichas de tienda? | Publicación (Fase 5) | La política está publicada en `/v1/public/privacy` (ADR-058) y las fichas en `11_FICHAS_DE_TIENDA.md`, pendientes de la revisión legal |
 | P-7 | ¿Enviará el correo desde el Gmail o el Outlook de la empresa? Requiere registrar COROC como app en Google Cloud y en Microsoft Entra, con su verificación | Envío por OAuth (§11.2) | Correo por Postmark o SMTP propio con el dominio de la empresa verificado (SPF, DKIM y DMARC), o desde el remitente de COROC con el nombre de la empresa (ADR-048) |
-| P-6 | Las condiciones de ejemplo de CA-01 (20 % sobre el capital en 20 cuotas diarias) equivalen a una tasa efectiva anual muy superior a la usura, y COROC no deja crear ese préstamo en Colombia (ADR-026). ¿Qué tasas y plazos usa realmente en sus préstamos diarios? ¿Opera con una figura distinta al crédito de consumo que tenga otro tope? | Uso real en Colombia desde la Fase 1 | La vista previa muestra la tasa efectiva anual y ofrece la tasa máxima que cumple. CA-05 y CA-06 se verifican en una empresa sin tope (ADR-027) |
 | P-8 | ¿Quién hará la prueba de penetración externa antes de producción, y con qué alcance? | Paso a producción | Suite de penetración automatizada sobre el contrato, `npm audit` y OWASP ZAP en cada cambio (ADR-052) |
 | P-9 | ¿Hay teléfonos de gama media y de apoyo (TalkBack, VoiceOver, Narrador) para medir el arranque en frío y probar los lectores de pantalla? | Cierre de §21 en dispositivos | Pruebas automáticas de contraste, áreas táctiles, etiquetas y texto al 200 % (Fase 5) |
+
+## Preguntas respondidas
+
+| ID | Pregunta | Respuesta | Qué cambió |
+|---|---|---|---|
+| P-6 | Las tasas de los préstamos diarios de ejemplo (CA-01) superan la usura y COROC no dejaba crearlos en Colombia (ADR-026). ¿Qué tasas usa realmente? | «Se deberá dejar usar tasas más altas, si el usuario lo desea» (24 de septiembre de 2026) | La empresa elige entre bloquear (predeterminado) o solo advertir. Solo el Propietario activa «solo advertir», aceptando la responsabilidad legal, y cada préstamo por encima del tope se confirma y queda marcado y auditado (ADR-061) |
 
 ## Supuestos
 

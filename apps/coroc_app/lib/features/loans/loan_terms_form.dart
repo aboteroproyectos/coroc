@@ -52,6 +52,8 @@ class LoanTermsController extends ChangeNotifier {
   Set<int> collectionDays = {1, 2, 3, 4, 5, 6};
   bool excludeHolidays = true;
   LoanPreview? preview;
+  /// El usuario confirmó este préstamo por encima del tope (solo si la empresa lo permite, ADR-061).
+  bool acknowledgeCap = false;
 
   void touch() => notifyListeners();
 
@@ -78,11 +80,15 @@ class LoanTermsController extends ChangeNotifier {
   Map<String, dynamic>? toLoanInput() {
     final t = toTerms();
     if (t == null) return null;
-    return {...t, if (contract.text.trim().isNotEmpty) 'contract': contract.text.trim()};
+    return {...t, if (contract.text.trim().isNotEmpty) 'contract': contract.text.trim(), if (overCap) 'acknowledgeRateCap': true};
   }
 
-  /// Guardar solo si la vista previa confirma que la tasa cumple el tope (o no hay tope fuera de Colombia).
-  bool get compliant => preview != null && (preview!.rateCap.ok);
+  /// Guardar solo si la vista previa confirma que la tasa cumple el tope (o no hay tope fuera de Colombia), o si la
+  /// empresa permite superarlo y el usuario lo confirmó para este préstamo.
+  bool get compliant => preview != null && (preview!.rateCap.ok || overCap);
+
+  /// Por encima del tope (o sin tope en Colombia) con la confirmación del usuario.
+  bool get overCap => preview != null && !preview!.rateCap.ok && preview!.rateCap.overridable && acknowledgeCap;
 
   @override
   void dispose() {
@@ -119,6 +125,8 @@ class _LoanTermsFormState extends ConsumerState<LoanTermsForm> {
 
   void _changed() {
     c.preview = null;
+    // Otras condiciones, otra confirmación: la anterior no vale para una tasa distinta.
+    c.acknowledgeCap = false;
     c.touch();
     setState(() {});
     _debounce?.cancel();
@@ -279,7 +287,15 @@ class _LoanTermsFormState extends ConsumerState<LoanTermsForm> {
                       _Figure(label: l.previewEffectiveRate, value: percent(p.effectiveAnnualRate, context.lang)),
                     ]),
                     const SizedBox(height: CorocSpace.md),
-                    _CapNotice(check: p.rateCap, onUseMax: p.rateCap.maxRate == null
+                    _CapNotice(
+                        check: p.rateCap,
+                        acknowledged: c.acknowledgeCap,
+                        onAcknowledge: (v) {
+                          c.acknowledgeCap = v;
+                          c.touch();
+                          setState(() {});
+                        },
+                        onUseMax: p.rateCap.maxRate == null
                         ? null
                         : () {
                             c.rate.text = rateToPercentText(p.rateCap.maxRate!, context.lang);
@@ -314,13 +330,28 @@ class _Figure extends StatelessWidget {
 
 /// Resultado del control del tope legal (§9.6).
 class _CapNotice extends StatelessWidget {
-  const _CapNotice({required this.check, required this.onUseMax});
+  const _CapNotice({required this.check, required this.onUseMax, required this.acknowledged, required this.onAcknowledge});
   final RateCapCheck check;
   final VoidCallback? onUseMax;
+  final bool acknowledged;
+  final ValueChanged<bool> onAcknowledge;
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    if (check.missing) return StatusDot(label: check.ok ? l.capMissingOptional : l.capMissing, tone: check.ok ? StatusTone.info : StatusTone.error);
+    // Por encima del tope (o sin tope en Colombia), si la empresa lo permite: confirmación expresa (ADR-061).
+    final ack = !check.ok && check.overridable
+        ? CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            value: acknowledged,
+            onChanged: (v) => onAcknowledge(v ?? false),
+            title: Text(l.capOverrideAck),
+          )
+        : null;
+    if (check.missing) {
+      final dot = StatusDot(label: check.ok ? l.capMissingOptional : l.capMissing, tone: check.ok ? StatusTone.info : StatusTone.error);
+      return ack == null ? dot : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [dot, const SizedBox(height: 8), ack]);
+    }
     if (check.ok) return StatusDot(label: l.capOk(percent(check.cap ?? 0, context.lang)), tone: StatusTone.ok);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       StatusDot(label: l.capExceeded(percent(check.effectiveAnnual, context.lang), percent(check.cap ?? 0, context.lang)), tone: StatusTone.error),
@@ -328,6 +359,7 @@ class _CapNotice extends StatelessWidget {
         const SizedBox(height: 8),
         OutlinedButton(onPressed: onUseMax, child: Text(l.capUseMax(rateToPercentText(check.maxRate!, context.lang)))),
       ],
+      if (ack != null) ...[const SizedBox(height: 8), ack],
     ]);
   }
 }

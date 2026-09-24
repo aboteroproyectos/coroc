@@ -127,6 +127,7 @@ class _Header extends ConsumerWidget {
             )
           else if (loan != null)
             Chip(label: Text('${l.contract} ${loan!.contract}')),
+          if (loan?.rateCapOverride ?? false) StatusDot(label: l.loanAboveCap, tone: StatusTone.error),
           if (active && (user?.can('payments.register') ?? false))
             GoldButton(
               label: l.actionRegisterPayment,

@@ -22,7 +22,7 @@ import { ProblemFilter } from './common/problem.js';
 import { RateLimiter } from './common/rate-limit.js';
 import { CompanyController } from './company/company.controller.js';
 import { TenantCache } from './company/tenant-cache.js';
-import { RateCapsController, RateCapService } from './compliance/rate-caps.js';
+import { RateCapPolicyController, RateCapsController, RateCapService } from './compliance/rate-caps.js';
 import { CONFIG, loadConfig, type AppConfig } from './config.js';
 import { DashboardController, DashboardService } from './dashboard/dashboard.js';
 import { EventBus } from './dashboard/event-bus.js';
@@ -81,7 +81,7 @@ function requestMetaMiddleware(req: Request, _res: Response, next: NextFunction)
 }
 
 @Module({
-  controllers: [HealthController, AuthController, MeController, UsersController, CompanyController, RateCapsController, ClientsController, LoansController, DashboardController,
+  controllers: [HealthController, AuthController, MeController, UsersController, CompanyController, RateCapsController, RateCapPolicyController, ClientsController, LoansController, DashboardController,
     DocumentsController, ClientDocumentsController, LoanDocumentsController, TasksController, FolderController, FilesController, PublicReceiptsController, ReportsController, BackupsController, RestoresController,
     IntakeController, UploadLinksController, PortalController, WebhooksController, WhatsAppAccountController,
     MessagesController, TemplatesController, ContactRulesController, ContactExceptionController, EmailSenderController, SupportController, AccountController, PrivacyController],

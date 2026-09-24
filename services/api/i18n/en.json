@@ -239,7 +239,8 @@
     "minimum": "Value too low",
     "maximum": "Value too high",
     "additionalProperties": "Unknown field",
-    "other": "Invalid value"
+    "other": "Invalid value",
+    "readOnly": "This value is changed in its own section"
   },
   "doc": {
     "common": {
