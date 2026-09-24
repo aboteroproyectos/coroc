@@ -179,8 +179,11 @@ void main() {
     expect(Directory(p.join(h.root.path, 'COROC')).existsSync(), isTrue);
     expect((jsonDecode(h.store.folder!) as Json)['path'], p.join(h.root.path, 'COROC'));
     expect(h.store.asked, isTrue);
+    final before = h.state.lastResult;
     h.folder.start();
-    await until(() => h.api.sent('GET', '/folder/manifest').isNotEmpty, what: 'primera sincronización');
+    // Se espera a que termine de escribir: si no, la carpeta temporal se borra mientras aún se copian archivos.
+    await until(() => (h.state.lastResult != before || h.state.error != null) && !h.state.syncing, what: 'primera sincronización');
+    expect(h.api.sent('GET', '/folder/manifest'), isNotEmpty);
     h.folder.stop();
   });
 
