@@ -3,12 +3,16 @@
 //                                    imprime las variables de entorno para arrancar la API (formato KEY=valor).
 //   node scripts/dast.mjs token    → ingresa como Propietario, activa el segundo factor y deja datos de ejemplo;
 //                                    imprime DAST_TOKEN=<token de acceso> para que ZAP recorra la API con sesión.
+//   node scripts/dast.mjs contract <salida> → copia del contrato para ZAP, con la API local y sin las operaciones que
+//                                    cerrarían la sesión del escáner o la empresa (ZAP las llama al importar el contrato,
+//                                    antes de aplicar sus exclusiones).
 // Requiere `npm run build` (usa dist/) y, para prepare, DAST_DATABASE_URL con un usuario que cree bases y roles.
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import pg from 'pg';
+import YAML from 'yaml';
 import { base32Decode, counterAt, hotp } from '../dist/auth/totp.js';
 import { createTenant } from '../dist/cli/tenant-create.js';
 import { migrate } from '../dist/db/migrate.js';
@@ -69,7 +73,24 @@ if (cmd === 'prepare') {
   await call('POST', '/receiving-accounts', { holderName: 'EMPRESA DAST', institution: 'Banco', last4: '9876' }, token);
   await call('POST', '/clients', { client: { firstName: 'Ana', lastName: 'Escaneo', phone: '+573001112233', lang: 'es', idDocType: 'CC', idDocNumber: '123456789' }, loan: { principal: 1_000_000, currency: 'USD', method: 'simple', rate: '0.20', installments: 10, frequency: 'weekly', disbursementDate: new Date().toISOString().slice(0, 10) } }, token);
   process.stdout.write(`DAST_TOKEN=${token}\n`);
+} else if (cmd === 'contract') {
+  const out = process.argv[3];
+  if (!out) throw new Error('Uso: node scripts/dast.mjs contract <salida.yaml>');
+  const doc = YAML.parse(fs.readFileSync(new URL('../openapi.yaml', import.meta.url), 'utf8'));
+  doc.servers = [{ url: process.env.DAST_API ?? 'http://localhost:3000/v1' }];
+  const skip = [
+    ['/auth/logout', 'post'], ['/me', 'delete'], ['/me/password', 'post'], ['/me/mfa', 'delete'], ['/me/mfa/enroll', 'post'], ['/me/mfa/confirm', 'post'],
+    ['/me/sessions/{id}', 'delete'], ['/users/{id}', 'delete'], ['/users/{id}/sessions', 'delete'], ['/company/closure', 'post'],
+    ['/restores', 'post'], ['/restores/{id}/verify', 'post'], ['/restores/{id}/apply', 'post'],
+  ];
+  for (const [path, method] of skip) {
+    if (doc.paths[path]) delete doc.paths[path][method];
+    if (doc.paths[path] && !Object.keys(doc.paths[path]).some((k) => ['get', 'post', 'put', 'patch', 'delete'].includes(k))) delete doc.paths[path];
+  }
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  fs.writeFileSync(out, YAML.stringify(doc));
+  process.stdout.write(`Contrato para ZAP: ${Object.keys(doc.paths).length} rutas\n`);
 } else {
-  process.stderr.write('Uso: node scripts/dast.mjs prepare|token\n');
+  process.stderr.write('Uso: node scripts/dast.mjs prepare|token|contract\n');
   process.exit(2);
 }

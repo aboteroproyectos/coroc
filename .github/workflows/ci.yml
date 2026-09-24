@@ -130,9 +130,9 @@ jobs:
           node scripts/dast.mjs token | sed 's/^DAST_TOKEN=//' > token.txt
           echo "::add-mask::$(cat token.txt)"
           echo "DAST_TOKEN=$(cat token.txt)" >> "$GITHUB_ENV"
-          # ZAP lee el contrato por HTTP, con la dirección local de la API.
-          mkdir -p /tmp/contrato
-          sed 's#https://api.coroc.app/v1#http://localhost:3000/v1#' openapi.yaml > /tmp/contrato/openapi.yaml
+          # ZAP lee el contrato por HTTP, con la dirección local de la API y sin las operaciones que cerrarían su propia
+          # sesión o la empresa (ZAP llama cada operación al importarlo, antes de aplicar sus exclusiones).
+          node scripts/dast.mjs contract /tmp/contrato/openapi.yaml
           (cd /tmp/contrato && nohup python3 -m http.server 8088 > /dev/null 2>&1 &)
           sleep 1
           curl -sf http://localhost:8088/openapi.yaml > /dev/null
