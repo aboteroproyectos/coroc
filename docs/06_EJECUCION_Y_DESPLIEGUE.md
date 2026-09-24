@@ -181,6 +181,11 @@ La API corre en Fly.io en São Paulo (`gru`), PostgreSQL 16 va en Fly Postgres y
 
 ### Preparación (una sola vez)
 
+**Forma sencilla, desde el navegador:** cree las cuentas (paso 1 y paso 4), cargue seis secretos en GitHub y ejecute el
+flujo **Preparar producción** (`.github/workflows/setup-production.yml`). Ese flujo ejecuta `infra/fly/setup-production.sh`,
+que hace los pasos 2, 3, 5 y 6 y deja la llave de los archivos cifrada en R2. Se puede repetir sin riesgo. Guía para
+personas no técnicas: [GUIA_PUESTA_EN_MARCHA.md](GUIA_PUESTA_EN_MARCHA.md). Los pasos siguientes son la forma manual.
+
 1. **Cuentas.** Fly.io y Cloudflare, a nombre de la empresa titular, con la tarjeta de la empresa. Instale `flyctl` y ejecute `fly auth login`.
 2. **App y base de datos.**
    ```bash
@@ -225,7 +230,8 @@ La API corre en Fly.io en São Paulo (`gru`), PostgreSQL 16 va en Fly Postgres y
 7. **Despliegue automático.** En GitHub › Settings › Secrets and variables › Actions:
    - `FLY_API_TOKEN` (`fly tokens create deploy --app coroc-api`);
    - para `backup-db.yml`:
-     - `BACKUP_DATABASE_URL` (la de `coroc_owner` con `127.0.0.1:15432` como servidor);
+     - `BACKUP_DATABASE_URL`, opcional: la de `coroc_owner` con `127.0.0.1:15432` como servidor. Si falta, la copia
+       toma `DATABASE_ADMIN_URL` de la app por `fly ssh`;
      - `BACKUP_PASSPHRASE` (larga; guárdela aparte);
      - `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` y `R2_ENDPOINT`;
    - la variable `COROC_API_URL` (`https://coroc-api.fly.dev/v1`), con la que se compilan las apps en `release.yml`.

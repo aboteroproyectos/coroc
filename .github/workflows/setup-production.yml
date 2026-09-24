@@ -1,0 +1,82 @@
+# Preparar producción en Fly.io con un botón, desde el navegador (P-1, ADR-060). Guía para no técnicos:
+# docs/GUIA_PUESTA_EN_MARCHA.md. Lo que hace: infra/fly/setup-production.sh. Se puede volver a ejecutar sin riesgo.
+#   Secretos (Settings › Secrets and variables › Actions): FLY_API_TOKEN, R2_ENDPOINT, R2_ACCESS_KEY_ID,
+#   R2_SECRET_ACCESS_KEY, BACKUP_PASSPHRASE y, para crear la primera empresa, COROC_OWNER_PASSWORD.
+#   Variables opcionales: FLY_APP (coroc-api), FLY_DB_APP (coroc-db), FLY_ORG (personal).
+name: Preparar producción
+
+on:
+  workflow_dispatch:
+    inputs:
+      tenant_name:
+        description: 'Nombre de la empresa (p. ej. Inversiones Coroc S.A.S.). Vacío: no crea empresa.'
+        required: false
+      tenant_slug:
+        description: 'Identificador corto de la empresa, en minúsculas y con guiones (p. ej. inversiones-coroc)'
+        required: false
+      owner_username:
+        description: 'Usuario del Propietario para entrar a la app (p. ej. andres)'
+        required: false
+      owner_name:
+        description: 'Nombre completo del Propietario'
+        required: false
+      owner_email:
+        description: 'Correo del Propietario'
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  setup:
+    name: Fly.io, base de datos, secretos y primer despliegue
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 45
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      COROC_OWNER_PASSWORD: ${{ secrets.COROC_OWNER_PASSWORD }}
+      FLY_APP: ${{ vars.FLY_APP || 'coroc-api' }}
+      FLY_DB_APP: ${{ vars.FLY_DB_APP || 'coroc-db' }}
+      FLY_ORG: ${{ vars.FLY_ORG || 'personal' }}
+      TENANT_NAME: ${{ inputs.tenant_name }}
+      TENANT_SLUG: ${{ inputs.tenant_name && inputs.tenant_slug || '' }}
+      OWNER_USERNAME: ${{ inputs.owner_username }}
+      OWNER_NAME: ${{ inputs.owner_name }}
+      OWNER_EMAIL: ${{ inputs.owner_email }}
+    steps:
+      - name: ¿Están los secretos?
+        run: |
+          missing=""
+          for v in FLY_API_TOKEN R2_ENDPOINT R2_ACCESS_KEY_ID R2_SECRET_ACCESS_KEY BACKUP_PASSPHRASE; do
+            [ -n "${!v}" ] || missing="$missing $v"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Faltan estos secretos en GitHub:$missing. Vea docs/GUIA_PUESTA_EN_MARCHA.md, paso 3."
+            exit 1
+          fi
+          if [ -n "$TENANT_NAME" ] && { [ -z "$TENANT_SLUG" ] || [ -z "$OWNER_USERNAME" ] || [ -z "$OWNER_NAME" ]; }; then
+            echo "::error::Para crear la empresa llene también el identificador, el usuario y el nombre del Propietario."
+            exit 1
+          fi
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - name: Compilar la API (para preparar la base y crear la empresa)
+        run: |
+          npm ci
+          npm run build -w @coroc/core
+          npm run build -w @coroc/api
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Preparar producción
+        run: infra/fly/setup-production.sh

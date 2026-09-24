@@ -12,12 +12,17 @@
 // 4. Muestra DATABASE_ADMIN_URL y DATABASE_URL para guardarlas como secretos; no se escriben en ningún archivo.
 //
 // Con --check solo verifica. Si los roles ya existen no cambia sus contraseñas: vuelva a usar los secretos guardados.
+// Con --write-env <ruta> (lo usa el flujo «Preparar producción») escribe las dos URL en ese archivo, con permisos 600,
+// en vez de mostrarlas; quien lo llama las pasa a los secretos de Fly.io y lo borra.
 import crypto from 'node:crypto';
+import fs from 'node:fs';
 import pg from 'pg';
 import { migrate } from '../dist/db/migrate.js';
 
 const url = process.env.DATABASE_SUPERUSER_URL;
 const checkOnly = process.argv.includes('--check');
+const envFileAt = process.argv.indexOf('--write-env');
+const envFile = envFileAt > 0 ? process.argv[envFileAt + 1] : undefined;
 if (!url) {
   console.error('Defina DATABASE_SUPERUSER_URL con el superusuario o administrador de la base.');
   process.exit(1);
@@ -84,18 +89,18 @@ await admin.query('GRANT USAGE, CREATE ON SCHEMA public TO coroc_owner');
 if (!me.rolsuper) await admin.query('GRANT coroc_owner TO current_user'); // para poder aplicar los GRANT de abajo
 
 // Con `fly proxy` la base se ve en localhost; COROC_DB_HOST pone en los secretos la dirección interna (p. ej.
-// coroc-db.flycast:5432) con la que la API la alcanza.
+// coroc-db.flycast:5432) con la que la API la alcanza. Las migraciones de aquí van por la dirección local.
 const target = new URL(url);
 if (process.env.COROC_DB_HOST) target.host = process.env.COROC_DB_HOST;
-const withUser = (user, pass) => {
-  const u = new URL(target);
+const withUser = (user, pass, base = target) => {
+  const u = new URL(base);
   u.username = user;
   u.password = pass ?? '<la contraseña guardada>';
   return u.toString();
 };
 
 if (created.owner) {
-  const applied = await migrate(withUser('coroc_owner', created.owner), (m) => console.log(`  ${m}`));
+  const applied = await migrate(withUser('coroc_owner', created.owner, url), (m) => console.log(`  ${m}`));
   console.log(applied.length ? `✔ ${applied.length} migraciones aplicadas como coroc_owner` : '✔ Base al día');
 } else {
   console.log('· coroc_owner ya existía: las migraciones se aplican en cada despliegue (release_command)');
@@ -104,7 +109,14 @@ await admin.query('GRANT coroc_app TO coroc_api');
 await admin.query('GRANT coroc_collector TO coroc_api WITH INHERIT FALSE, SET TRUE');
 await admin.end();
 
-console.log('\nGuarde estos valores como secretos (no se muestran de nuevo):');
-if (created.owner) console.log(`  DATABASE_ADMIN_URL=${withUser('coroc_owner', created.owner)}`);
-if (created.api) console.log(`  DATABASE_URL=${withUser('coroc_api', created.api)}`);
-if (!created.owner && !created.api) console.log('  (los roles ya existían; use los secretos que guardó al prepararla)');
+const lines = [];
+if (created.owner) lines.push(`DATABASE_ADMIN_URL=${withUser('coroc_owner', created.owner)}`);
+if (created.api) lines.push(`DATABASE_URL=${withUser('coroc_api', created.api)}`);
+if (envFile) {
+  fs.writeFileSync(envFile, lines.map((l) => `${l}\n`).join(''), { mode: 0o600 });
+  console.log(lines.length ? `✔ ${lines.length} secretos listos para Fly.io (no se muestran)` : '· Los roles ya existían: no hay secretos nuevos');
+} else {
+  console.log('\nGuarde estos valores como secretos (no se muestran de nuevo):');
+  for (const l of lines) console.log(`  ${l}`);
+  if (!lines.length) console.log('  (los roles ya existían; use los secretos que guardó al prepararla)');
+}
