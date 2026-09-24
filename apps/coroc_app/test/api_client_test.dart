@@ -103,6 +103,26 @@ void main() {
     expect(lost, 1);
   });
 
+  test('una contraseña o un código errado al confirmar una acción no cierra la sesión ni la renueva', () async {
+    var lost = 0;
+    final paths = <String>[];
+    final api = ApiClient(
+      baseUrl: 'https://api.test/v1',
+      store: MemorySessionStore(refresh: 'rt1.valid'),
+      language: () => 'es',
+      client: MockClient((req) async {
+        paths.add(req.url.path);
+        return _json(401, {'code': req.url.path.endsWith('/me/mfa') ? 'MFA_INVALID' : 'INVALID_CREDENTIALS', 'status': 401, 'detail': 'No coincide.'});
+      }),
+    )
+      ..setAccessToken('tok')
+      ..onSessionLost = () => lost++;
+    await expectLater(api.post('/me/password', body: {'currentPassword': 'x', 'newPassword': 'y'}), throwsA(isA<ApiException>().having((e) => e.isCredentialCheck, 'isCredentialCheck', isTrue)));
+    await expectLater(api.delete('/me/mfa', body: {'code': '000000'}), throwsA(isA<ApiException>().having((e) => e.code, 'code', 'MFA_INVALID')));
+    expect(paths, ['/v1/me/password', '/v1/me/mfa']);
+    expect(lost, 0);
+  });
+
   test('eventos en vivo (SSE): tipo y datos', () async {
     final api = ApiClient(
       baseUrl: 'https://api.test/v1',

@@ -268,3 +268,13 @@ class KeyValue extends StatelessWidget {
     );
   }
 }
+
+/// Libera los controladores de un diálogo cuando terminó su animación de salida: al volver `showDialog` el campo
+/// todavía se dibuja durante la transición y un controlador liberado antes de tiempo lo rompe.
+void disposeAfterDialog(Iterable<ChangeNotifier> controllers) {
+  Future<void>.delayed(const Duration(milliseconds: 600), () {
+    for (final c in controllers) {
+      c.dispose();
+    }
+  });
+}

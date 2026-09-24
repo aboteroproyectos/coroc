@@ -51,9 +51,7 @@ class ReceivingAccountsSection extends ConsumerWidget {
         if (context.mounted) _toast(context, errorText(context, e));
       }
     }
-    for (final c in [holder, entity, last4]) {
-      c.dispose();
-    }
+    disposeAfterDialog([holder, entity, last4]);
   }
 
   @override
@@ -249,9 +247,7 @@ class WhatsAppSection extends ConsumerWidget {
         if (context.mounted) _toast(context, errorText(context, e));
       }
     }
-    for (final c in [id, token, number, waba]) {
-      c.dispose();
-    }
+    disposeAfterDialog([id, token, number, waba]);
   }
 
   @override

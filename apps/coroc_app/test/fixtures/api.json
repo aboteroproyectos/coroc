@@ -1,0 +1,3209 @@
+{
+ "_": {
+  "generatedAt": "2026-09-24T00:50:50.667Z",
+  "note": "Generado por services/api/scripts/app-fixtures.mjs; no editar a mano."
+ },
+ "session": {
+  "accessToken": "token-de-prueba",
+  "refreshToken": "rt1.refresco-de-prueba",
+  "expiresIn": 7200,
+  "mfaEnrollmentRequired": false,
+  "user": {
+   "id": "2f20f6e9-db49-4339-9fe6-d0445f27ec6c",
+   "username": "propietario",
+   "name": "Propietario DAST",
+   "email": "dast@example.com",
+   "role": "owner",
+   "lang": "es",
+   "theme": "system",
+   "active": true,
+   "mfaEnabled": true,
+   "autoLockMinutes": 5,
+   "lastLoginAt": "2026-09-24T00:50:50.619Z",
+   "permissions": [
+    "company.view",
+    "company.edit",
+    "users.view",
+    "users.manage",
+    "clients.view",
+    "clients.create",
+    "clients.edit",
+    "loans.create",
+    "payments.register",
+    "payments.reverse",
+    "compliance.view",
+    "compliance.manage",
+    "dashboard.view",
+    "documents.upload",
+    "intake.view",
+    "messages.view",
+    "messages.send",
+    "reports.view",
+    "audit.view",
+    "backup.create",
+    "backup.restore",
+    "subscription.manage"
+   ]
+  },
+  "company": {
+   "id": "c4aef68c-ad6b-4078-a04b-debfed43d179",
+   "slug": "dast",
+   "name": "Empresa DAST",
+   "currency": "USD",
+   "country": "US",
+   "timezone": "America/New_York",
+   "lang": "es"
+  }
+ },
+ "ids": {
+  "account": "75de80d9-7c6d-4d64-ac0f-e9ff642f7ad8",
+  "collector": "b20c041c-17a5-4c05-8596-8756d857d74e",
+  "client": "02fdb6a0-2021-407b-8811-8146527add64",
+  "loan": "f5668363-c045-48bd-949e-e112e5c18167",
+  "client2": "f2ff45f7-6717-4fe3-8e1a-b911a39464c2",
+  "loan2": "16df0854-9ffb-4da3-9da9-9d8486a08c66",
+  "entry": "8ac3f946-97d4-401d-b344-a48e7d772d88",
+  "entry2": "f8cbb0d8-a742-440d-84a0-5a2491df9289",
+  "task": "4c7175a9-66c9-4508-a21b-a0ae4bff96a8",
+  "intake": "57ba3711-49fd-4848-bb6c-e9e7c4d684c2",
+  "message": "8a69b276-3cef-466b-8d20-f18552a0f367",
+  "backup": "b3445e88-3c7c-435f-93c4-298964952737",
+  "document": "d6461f99-48c3-4f5a-849a-def411475a1a"
+ },
+ "get": {
+  "/me": {
+   "id": "2f20f6e9-db49-4339-9fe6-d0445f27ec6c",
+   "username": "propietario",
+   "name": "Propietario DAST",
+   "email": "dast@example.com",
+   "role": "owner",
+   "lang": "es",
+   "theme": "system",
+   "active": true,
+   "mfaEnabled": true,
+   "autoLockMinutes": 5,
+   "lastLoginAt": "2026-09-24T00:50:50.619Z",
+   "permissions": [
+    "company.view",
+    "company.edit",
+    "users.view",
+    "users.manage",
+    "clients.view",
+    "clients.create",
+    "clients.edit",
+    "loans.create",
+    "payments.register",
+    "payments.reverse",
+    "compliance.view",
+    "compliance.manage",
+    "dashboard.view",
+    "documents.upload",
+    "intake.view",
+    "messages.view",
+    "messages.send",
+    "reports.view",
+    "audit.view",
+    "backup.create",
+    "backup.restore",
+    "subscription.manage"
+   ]
+  },
+  "/me/sessions": [
+   {
+    "id": "cee5d527-b849-4153-bfe1-5546def3bef1",
+    "deviceId": "fixtures-1",
+    "deviceName": null,
+    "createdAt": "2026-09-24T00:50:50.460Z",
+    "lastUsedAt": "2026-09-24T00:50:50.658Z",
+    "current": true
+   }
+  ],
+  "/company": {
+   "id": "c4aef68c-ad6b-4078-a04b-debfed43d179",
+   "slug": "dast",
+   "name": "Empresa DAST",
+   "taxId": null,
+   "phone": null,
+   "email": null,
+   "address": null,
+   "city": null,
+   "country": "US",
+   "currency": "USD",
+   "timezone": "America/New_York",
+   "lang": "es",
+   "settings": {
+    "supervisionMode": "auto_with_audit",
+    "confidenceThreshold": 0.95,
+    "maxReceiptAgeDays": 30,
+    "autoRevertHours": 72,
+    "contactRules": true,
+    "transactionalImmediate": false,
+    "whatsappMode": "assisted",
+    "roundingUnit": 1,
+    "reminderTime": "08:00",
+    "dailyReminders": false,
+    "prefixes": {
+     "client": "C",
+     "contract": "CT-",
+     "receipt": "RC-"
+    }
+   },
+   "version": 1
+  },
+  "/receiving-accounts": [
+   {
+    "id": "75de80d9-7c6d-4d64-ac0f-e9ff642f7ad8",
+    "holderName": "INVERSIONES COROC SAS",
+    "institution": "Bancolombia",
+    "last4": "4455",
+    "active": true
+   }
+  ],
+  "/company/whatsapp": {
+   "configured": false,
+   "phoneNumberId": null,
+   "displayNumber": null,
+   "wabaId": null,
+   "active": false,
+   "status": "active",
+   "suspendedAt": null,
+   "suspensionReason": null,
+   "mode": "assisted",
+   "checklist": {
+    "businessVerified": false,
+    "dedicatedNumber": false,
+    "templatesApproved": false,
+    "legalReview": false,
+    "policyAccepted": false,
+    "acceptedAt": null
+   },
+   "updatedAt": null,
+   "webhookUrl": "http://localhost:3000/v1/webhooks/whatsapp",
+   "serverReady": false
+  },
+  "/company/email-sender": {
+   "configured": false,
+   "provider": "memory",
+   "defaultFrom": "notificaciones@coroc.app",
+   "fromEmail": null,
+   "fromName": null,
+   "domain": null,
+   "dkimSelector": null,
+   "spf": false,
+   "dkim": false,
+   "dmarc": false,
+   "verifiedAt": null,
+   "checkedAt": null,
+   "records": []
+  },
+  "/users": [
+   {
+    "id": "b20c041c-17a5-4c05-8596-8756d857d74e",
+    "username": "cobrador1",
+    "name": "Carlos Cobrador",
+    "email": "cobrador@example.com",
+    "role": "collector",
+    "lang": "es",
+    "theme": "system",
+    "active": true,
+    "mfaEnabled": false,
+    "autoLockMinutes": 5,
+    "lastLoginAt": null,
+    "permissions": [
+     "company.view",
+     "clients.view",
+     "payments.register",
+     "documents.upload",
+     "intake.view",
+     "messages.view",
+     "messages.send",
+     "dashboard.view"
+    ]
+   },
+   {
+    "id": "2f20f6e9-db49-4339-9fe6-d0445f27ec6c",
+    "username": "propietario",
+    "name": "Propietario DAST",
+    "email": "dast@example.com",
+    "role": "owner",
+    "lang": "es",
+    "theme": "system",
+    "active": true,
+    "mfaEnabled": true,
+    "autoLockMinutes": 5,
+    "lastLoginAt": "2026-09-24T00:50:50.619Z",
+    "permissions": [
+     "company.view",
+     "company.edit",
+     "users.view",
+     "users.manage",
+     "clients.view",
+     "clients.create",
+     "clients.edit",
+     "loans.create",
+     "payments.register",
+     "payments.reverse",
+     "compliance.view",
+     "compliance.manage",
+     "dashboard.view",
+     "documents.upload",
+     "intake.view",
+     "messages.view",
+     "messages.send",
+     "reports.view",
+     "audit.view",
+     "backup.create",
+     "backup.restore",
+     "subscription.manage"
+    ]
+   }
+  ],
+  "/clients": {
+   "items": [
+    {
+     "id": "02fdb6a0-2021-407b-8811-8146527add64",
+     "code": "C000001",
+     "fullName": "María José Pérez Gómez",
+     "phone": "+573157778899",
+     "contracts": [
+      "CT-000001"
+     ],
+     "frequency": "weekly",
+     "next": {
+      "number": 2,
+      "dueDate": "2026-09-08",
+      "outstanding": 90000
+     },
+     "balance": 1050000,
+     "currency": "USD",
+     "status": "overdue",
+     "daysPastDue": 15,
+     "collectorId": null
+    },
+    {
+     "id": "f2ff45f7-6717-4fe3-8e1a-b911a39464c2",
+     "code": "C000002",
+     "fullName": "Pedro Luis Ramírez Ortiz",
+     "phone": "+573009998877",
+     "contracts": [
+      "CT-000002"
+     ],
+     "frequency": "daily",
+     "next": {
+      "number": 1,
+      "dueDate": "2026-09-15",
+      "outstanding": 30000
+     },
+     "balance": 600000,
+     "currency": "USD",
+     "status": "overdue",
+     "daysPastDue": 8,
+     "collectorId": "b20c041c-17a5-4c05-8596-8756d857d74e"
+    }
+   ],
+   "nextCursor": null
+  },
+  "/clients/02fdb6a0-2021-407b-8811-8146527add64": {
+   "id": "02fdb6a0-2021-407b-8811-8146527add64",
+   "code": "C000001",
+   "firstName": "María José",
+   "lastName": "Pérez Gómez",
+   "fullName": "María José Pérez Gómez",
+   "phone": "+573157778899",
+   "phoneE164": "+573157778899",
+   "phone2": null,
+   "email": "maria.perez@example.com",
+   "address": "Calle 10 # 20-30",
+   "city": "Medellín",
+   "idDocType": "CC",
+   "idDocNumber": "1020304050",
+   "lang": "es",
+   "collectorId": null,
+   "coDebtor": null,
+   "notes": null,
+   "folderName": "Maria Jose Perez Gomez - C000001",
+   "consents": [
+    {
+     "channel": "whatsapp",
+     "method": "app",
+     "grantedAt": "2026-09-24T00:50:50.868Z",
+     "revokedAt": null,
+     "recordedBy": "2f20f6e9-db49-4339-9fe6-d0445f27ec6c"
+    },
+    {
+     "channel": "email",
+     "method": "app",
+     "grantedAt": "2026-09-24T00:50:50.868Z",
+     "revokedAt": null,
+     "recordedBy": "2f20f6e9-db49-4339-9fe6-d0445f27ec6c"
+    },
+    {
+     "channel": "personal_data",
+     "method": "app",
+     "grantedAt": "2026-09-24T00:50:50.868Z",
+     "revokedAt": null,
+     "recordedBy": "2f20f6e9-db49-4339-9fe6-d0445f27ec6c"
+    }
+   ],
+   "loans": [
+    {
+     "id": "f5668363-c045-48bd-949e-e112e5c18167",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "contract": "CT-000001",
+     "terms": {
+      "principal": 1000000,
+      "currency": "USD",
+      "method": "simple",
+      "rate": "0.2000000000",
+      "installments": 10,
+      "frequency": "weekly",
+      "disbursementDate": "2026-08-25",
+      "firstDueDate": "2026-09-01",
+      "collectionDays": [
+       1,
+       2,
+       3,
+       4,
+       5,
+       6
+      ],
+      "excludeHolidays": true,
+      "roundingUnit": 1
+     },
+     "totalPayable": 1200000,
+     "totalInterest": 200000,
+     "effectiveAnnualRate": 4.89267744,
+     "status": "active",
+     "summary": {
+      "totalInstallments": 10,
+      "paidInstallments": 1,
+      "remainingInstallments": 9,
+      "totalPayable": 1200000,
+      "paidTotal": 150000,
+      "lateFeesOutstanding": 0,
+      "balance": 1050000,
+      "next": {
+       "number": 2,
+       "dueDate": "2026-09-08",
+       "outstanding": 90000
+      },
+      "overdueCount": 3,
+      "daysPastDue": 15,
+      "surplus": 0,
+      "progress": 0.125
+     },
+     "realizedProfit": 25000,
+     "expectedMethod": null,
+     "createdAt": "2026-09-24T00:50:50.868Z",
+     "version": 1
+    }
+   ],
+   "timezone": null,
+   "emailStatus": null,
+   "contactException": null,
+   "createdAt": "2026-09-24T00:50:50.868Z",
+   "version": 1
+  },
+  "/loans/f5668363-c045-48bd-949e-e112e5c18167": {
+   "id": "f5668363-c045-48bd-949e-e112e5c18167",
+   "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+   "contract": "CT-000001",
+   "terms": {
+    "principal": 1000000,
+    "currency": "USD",
+    "method": "simple",
+    "rate": "0.2000000000",
+    "installments": 10,
+    "frequency": "weekly",
+    "disbursementDate": "2026-08-25",
+    "firstDueDate": "2026-09-01",
+    "collectionDays": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ],
+    "excludeHolidays": true,
+    "roundingUnit": 1
+   },
+   "totalPayable": 1200000,
+   "totalInterest": 200000,
+   "effectiveAnnualRate": 4.89267744,
+   "status": "active",
+   "summary": {
+    "totalInstallments": 10,
+    "paidInstallments": 1,
+    "remainingInstallments": 9,
+    "totalPayable": 1200000,
+    "paidTotal": 150000,
+    "lateFeesOutstanding": 0,
+    "balance": 1050000,
+    "next": {
+     "number": 2,
+     "dueDate": "2026-09-08",
+     "outstanding": 90000
+    },
+    "overdueCount": 3,
+    "daysPastDue": 15,
+    "surplus": 0,
+    "progress": 0.125
+   },
+   "realizedProfit": 25000,
+   "expectedMethod": null,
+   "createdAt": "2026-09-24T00:50:50.868Z",
+   "version": 1
+  },
+  "/loans/f5668363-c045-48bd-949e-e112e5c18167/schedule": [
+   {
+    "number": 1,
+    "dueDate": "2026-09-01",
+    "amount": 120000,
+    "principal": 100000,
+    "interest": 20000,
+    "balanceAfter": 1080000,
+    "paid": 120000,
+    "lateFeeAccrued": 0,
+    "lateFeePaid": 0,
+    "status": "paid",
+    "lastPaymentDate": "2026-09-22",
+    "proofDocumentIds": [],
+    "receiptNumbers": [
+     "RC-000001"
+    ]
+   },
+   {
+    "number": 2,
+    "dueDate": "2026-09-08",
+    "amount": 120000,
+    "principal": 100000,
+    "interest": 20000,
+    "balanceAfter": 960000,
+    "paid": 30000,
+    "lateFeeAccrued": 0,
+    "lateFeePaid": 0,
+    "status": "overdue",
+    "lastPaymentDate": "2026-09-22",
+    "proofDocumentIds": [],
+    "receiptNumbers": [
+     "RC-000001"
+    ]
+   },
+   {
+    "number": 3,
+    "dueDate": "2026-09-15",
+    "amount": 120000,
+    "principal": 100000,
+    "interest": 20000,
+    "balanceAfter": 840000,
+    "paid": 0,
+    "lateFeeAccrued": 0,
+    "lateFeePaid": 0,
+    "status": "overdue",
+    "lastPaymentDate": null,
+    "proofDocumentIds": [],
+    "receiptNumbers": []
+   },
+   {
+    "number": 4,
+    "dueDate": "2026-09-22",
+    "amount": 120000,
+    "principal": 100000,
+    "interest": 20000,
+    "balanceAfter": 720000,
+    "paid": 0,
+    "lateFeeAccrued": 0,
+    "lateFeePaid": 0,
+    "status": "overdue",
+    "lastPaymentDate": null,
+    "proofDocumentIds": [],
+    "receiptNumbers": []
+   },
+   {
+    "number": 5,
+    "dueDate": "2026-09-29",
+    "amount": 120000,
+    "principal": 100000,
+    "interest": 20000,
+    "balanceAfter": 600000,
+    "paid": 0,
+    "lateFeeAccrued": 0,
+    "lateFeePaid": 0,
+    "status": "pending",
+    "lastPaymentDate": null,
+    "proofDocumentIds": [],
+    "receiptNumbers": []
+   },
+   {
+    "number": 6,
+    "dueDate": "2026-10-06",
+    "amount": 120000,
+    "principal": 100000,
+    "interest": 20000,
+    "balanceAfter": 480000,
+    "paid": 0,
+    "lateFeeAccrued": 0,
+    "lateFeePaid": 0,
+    "status": "pending",
+    "lastPaymentDate": null,
+    "proofDocumentIds": [],
+    "receiptNumbers": []
+   },
+   {
+    "number": 7,
+    "dueDate": "2026-10-13",
+    "amount": 120000,
+    "principal": 100000,
+    "interest": 20000,
+    "balanceAfter": 360000,
+    "paid": 0,
+    "lateFeeAccrued": 0,
+    "lateFeePaid": 0,
+    "status": "pending",
+    "lastPaymentDate": null,
+    "proofDocumentIds": [],
+    "receiptNumbers": []
+   },
+   {
+    "number": 8,
+    "dueDate": "2026-10-20",
+    "amount": 120000,
+    "principal": 100000,
+    "interest": 20000,
+    "balanceAfter": 240000,
+    "paid": 0,
+    "lateFeeAccrued": 0,
+    "lateFeePaid": 0,
+    "status": "pending",
+    "lastPaymentDate": null,
+    "proofDocumentIds": [],
+    "receiptNumbers": []
+   },
+   {
+    "number": 9,
+    "dueDate": "2026-10-27",
+    "amount": 120000,
+    "principal": 100000,
+    "interest": 20000,
+    "balanceAfter": 120000,
+    "paid": 0,
+    "lateFeeAccrued": 0,
+    "lateFeePaid": 0,
+    "status": "pending",
+    "lastPaymentDate": null,
+    "proofDocumentIds": [],
+    "receiptNumbers": []
+   },
+   {
+    "number": 10,
+    "dueDate": "2026-11-03",
+    "amount": 120000,
+    "principal": 100000,
+    "interest": 20000,
+    "balanceAfter": 0,
+    "paid": 0,
+    "lateFeeAccrued": 0,
+    "lateFeePaid": 0,
+    "status": "pending",
+    "lastPaymentDate": null,
+    "proofDocumentIds": [],
+    "receiptNumbers": []
+   }
+  ],
+  "/loans/f5668363-c045-48bd-949e-e112e5c18167/ledger": [
+   {
+    "id": "e4ecf77b-0c88-4da7-93ed-ce409aa64efe",
+    "type": "disbursement",
+    "entryDate": "2026-08-25",
+    "recordedAt": "2026-09-24T00:50:50.868Z",
+    "amount": 1000000,
+    "method": "",
+    "reference": "",
+    "institution": "",
+    "source": "manual",
+    "documentId": null,
+    "reversesId": null,
+    "reversedBy": null,
+    "reason": "",
+    "note": "",
+    "auto": false,
+    "allocation": [],
+    "receiptNumber": "",
+    "createdBy": "2f20f6e9-db49-4339-9fe6-d0445f27ec6c"
+   },
+   {
+    "id": "8ac3f946-97d4-401d-b344-a48e7d772d88",
+    "type": "payment",
+    "entryDate": "2026-09-22",
+    "recordedAt": "2026-09-24T00:50:51.091Z",
+    "amount": 150000,
+    "method": "Efectivo",
+    "reference": "",
+    "institution": "",
+    "source": "cash",
+    "documentId": null,
+    "reversesId": null,
+    "reversedBy": null,
+    "reason": "",
+    "note": "",
+    "auto": false,
+    "allocation": [
+     {
+      "number": 1,
+      "toLateFee": 0,
+      "toInstallment": 120000,
+      "completed": true,
+      "partial": false
+     },
+     {
+      "number": 2,
+      "toLateFee": 0,
+      "toInstallment": 30000,
+      "completed": false,
+      "partial": true
+     }
+    ],
+    "receiptNumber": "RC-000001",
+    "createdBy": "2f20f6e9-db49-4339-9fe6-d0445f27ec6c"
+   },
+   {
+    "id": "f8cbb0d8-a742-440d-84a0-5a2491df9289",
+    "type": "payment",
+    "entryDate": "2026-09-23",
+    "recordedAt": "2026-09-24T00:50:51.127Z",
+    "amount": 50000,
+    "method": "Transferencia",
+    "reference": "ABC123",
+    "institution": "",
+    "source": "manual",
+    "documentId": null,
+    "reversesId": null,
+    "reversedBy": "8a537843-a87e-443b-ab6d-fe3cbb1f6547",
+    "reason": "",
+    "note": "",
+    "auto": false,
+    "allocation": [
+     {
+      "number": 2,
+      "toLateFee": 0,
+      "toInstallment": 50000,
+      "completed": false,
+      "partial": false
+     }
+    ],
+    "receiptNumber": "RC-000002",
+    "createdBy": "2f20f6e9-db49-4339-9fe6-d0445f27ec6c"
+   },
+   {
+    "id": "8a537843-a87e-443b-ab6d-fe3cbb1f6547",
+    "type": "reversal",
+    "entryDate": "2026-09-23",
+    "recordedAt": "2026-09-24T00:50:51.156Z",
+    "amount": 50000,
+    "method": "",
+    "reference": "",
+    "institution": "",
+    "source": "manual",
+    "documentId": null,
+    "reversesId": "f8cbb0d8-a742-440d-84a0-5a2491df9289",
+    "reversedBy": null,
+    "reason": "Consignación rechazada por el banco",
+    "note": "",
+    "auto": false,
+    "allocation": [],
+    "receiptNumber": "",
+    "createdBy": "2f20f6e9-db49-4339-9fe6-d0445f27ec6c"
+   }
+  ],
+  "/loans/f5668363-c045-48bd-949e-e112e5c18167/receipts": [
+   {
+    "number": "RC-000001",
+    "entryId": "8ac3f946-97d4-401d-b344-a48e7d772d88",
+    "voided": false,
+    "createdAt": "2026-09-24T00:50:51.091Z",
+    "data": {
+     "lang": "es",
+     "next": {
+      "amount": 90000,
+      "number": 2,
+      "dueDate": "2026-09-08"
+     },
+     "client": {
+      "code": "C000001",
+      "fullName": "María José Pérez Gómez"
+     },
+     "number": "RC-000001",
+     "company": {
+      "name": "Empresa DAST"
+     },
+     "payment": {
+      "date": "2026-09-22",
+      "amount": 150000,
+      "method": "Efectivo"
+     },
+     "contract": "CT-000001",
+     "coverage": "Cuota 1 (completa) · Cuota 2 (abono parcial US$ 300,00)",
+     "currency": "USD",
+     "issuedAt": "2026-09-23 20:50",
+     "newBalance": 1050000,
+     "accumulatedPaid": 150000,
+     "previousBalance": 1200000,
+     "verificationUrl": "http://localhost:3000/v1/public/receipts/B2ED6A2766D99EBB",
+     "verificationCode": "B2ED6A2766D99EBB",
+     "totalInstallments": 10,
+     "remainingInstallments": 9
+    },
+    "documentId": "d6461f99-48c3-4f5a-849a-def411475a1a",
+    "voidDocumentId": null
+   },
+   {
+    "number": "RC-000002",
+    "entryId": "f8cbb0d8-a742-440d-84a0-5a2491df9289",
+    "voided": true,
+    "createdAt": "2026-09-24T00:50:51.127Z",
+    "data": {
+     "lang": "es",
+     "next": {
+      "amount": 40000,
+      "number": 2,
+      "dueDate": "2026-09-08"
+     },
+     "client": {
+      "code": "C000001",
+      "fullName": "María José Pérez Gómez"
+     },
+     "number": "RC-000002",
+     "voided": true,
+     "company": {
+      "name": "Empresa DAST"
+     },
+     "payment": {
+      "date": "2026-09-23",
+      "amount": 50000,
+      "method": "Transferencia",
+      "reference": "ABC123"
+     },
+     "contract": "CT-000001",
+     "coverage": "Cuota 2 (abono parcial US$ 500,00)",
+     "currency": "USD",
+     "issuedAt": "2026-09-23 20:50",
+     "newBalance": 1000000,
+     "accumulatedPaid": 200000,
+     "previousBalance": 1050000,
+     "verificationUrl": "http://localhost:3000/v1/public/receipts/90146C1943A3BD78",
+     "verificationCode": "90146C1943A3BD78",
+     "totalInstallments": 10,
+     "remainingInstallments": 9
+    },
+    "documentId": "34362702-5f6c-4518-944f-5c2ee0d8d92b",
+    "voidDocumentId": "34362702-5f6c-4518-944f-5c2ee0d8d92b"
+   }
+  ],
+  "/loans/f5668363-c045-48bd-949e-e112e5c18167/upload-link": {
+   "url": "http://localhost:3000/v1/public/upload/pKTyL-fSiDitxAyzeNDHJCZcFmpC-Myn",
+   "expiresAt": "2027-09-24T00:50:51.177Z",
+   "createdAt": "2026-09-24T00:50:51.177Z",
+   "uses": 0,
+   "lastUsedAt": null
+  },
+  "/documents": {
+   "items": [
+    {
+     "id": "d6461f99-48c3-4f5a-849a-def411475a1a",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+     "contract": "CT-000001",
+     "kind": "receipt_out",
+     "name": "Recibo N.º RC-000001",
+     "fileName": "2026-09-23_2050_RECIBO_RC-000001_CT-000001.pdf",
+     "folderPath": "Maria Jose Perez Gomez - C000001/CT-000001/03 Recibos emitidos",
+     "mime": "application/pdf",
+     "size": 52633,
+     "sha256": "b11a1f96786afc12c2c229008ed8fee207b4d37077653cddec2313521fac25e1",
+     "version": 1,
+     "superseded": false,
+     "source": "system",
+     "tags": [],
+     "lang": "es",
+     "meta": {
+      "amount": 150000,
+      "voided": false,
+      "paymentDate": "2026-09-22",
+      "receiptNumber": "RC-000001"
+     },
+     "createdAt": "2026-09-24T00:50:51.889Z",
+     "updatedAt": "2026-09-24T00:50:51.889Z"
+    },
+    {
+     "id": "4847c43f-bfac-4a26-aaee-6e0a1a848468",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+     "contract": "CT-000001",
+     "kind": "statement",
+     "name": "Estado de cuenta CT-000001 · 2026-09-23",
+     "fileName": "2026-09-23_2050_ESTADO_DE_CUENTA_CT-000001.pdf",
+     "folderPath": "Maria Jose Perez Gomez - C000001/CT-000001/04 Estados de cuenta",
+     "mime": "application/pdf",
+     "size": 86308,
+     "sha256": "4b290b9ebb91a1811020b9f40c9c93bfa80cc6acd213d78e78d9b10c20910a70",
+     "version": 1,
+     "superseded": false,
+     "source": "system",
+     "tags": [],
+     "lang": "es",
+     "meta": {
+      "asOf": "2026-09-23",
+      "period": null,
+      "reason": "on_demand",
+      "balance": 1050000,
+      "contract": "CT-000001"
+     },
+     "createdAt": "2026-09-24T00:50:51.650Z",
+     "updatedAt": "2026-09-24T00:50:51.650Z"
+    },
+    {
+     "id": "0a74f365-1ed2-40c3-8394-65b66da36fea",
+     "clientId": null,
+     "loanId": null,
+     "contract": null,
+     "kind": "report",
+     "name": "Cartera total · 23 de septiembre de 2026",
+     "fileName": "2026-09-23_2050_INFORME_Cartera_total.pdf",
+     "folderPath": "_Informes",
+     "mime": "application/pdf",
+     "size": 68591,
+     "sha256": "b56e2b5f6de0023229e252289042c478349a54c06fca057efeda455ab1983b3b",
+     "version": 1,
+     "superseded": false,
+     "source": "system",
+     "tags": [
+      "portfolio"
+     ],
+     "lang": "es",
+     "meta": {
+      "to": null,
+      "from": null,
+      "rows": 2,
+      "type": "portfolio",
+      "format": "pdf",
+      "currency": "USD",
+      "collectorId": null
+     },
+     "createdAt": "2026-09-24T00:50:51.508Z",
+     "updatedAt": "2026-09-24T00:50:51.508Z"
+    },
+    {
+     "id": "5bfd9431-5674-47ef-bc96-5a6a972085f0",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+     "contract": "CT-000001",
+     "kind": "schedule",
+     "name": "Contrato y plan de pagos CT-000001",
+     "fileName": "2026-09-23_2050_PLAN_DE_PAGOS_CT-000001.pdf",
+     "folderPath": "Maria Jose Perez Gomez - C000001/CT-000001/01 Contrato y plan de pagos",
+     "mime": "application/pdf",
+     "size": 108708,
+     "sha256": "47d98bfa8ef6a4ec531bd4ad0fdb016a7b1f55a8335b3fc7e7fef8a8e0e3e8ab",
+     "version": 2,
+     "superseded": false,
+     "source": "system",
+     "tags": [],
+     "lang": "es",
+     "meta": {
+      "balance": 1050000,
+      "version": 2,
+      "contract": "CT-000001"
+     },
+     "createdAt": "2026-09-24T00:50:51.485Z",
+     "updatedAt": "2026-09-24T00:50:51.485Z"
+    },
+    {
+     "id": "34362702-5f6c-4518-944f-5c2ee0d8d92b",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+     "contract": "CT-000001",
+     "kind": "receipt_out",
+     "name": "Recibo N.º RC-000002 · ANULADO",
+     "fileName": "2026-09-23_2050_RECIBO_RC-000002_CT-000001_ANULADO.pdf",
+     "folderPath": "Maria Jose Perez Gomez - C000001/CT-000001/03 Recibos emitidos",
+     "mime": "application/pdf",
+     "size": 58807,
+     "sha256": "a414eb505b2416b238a8a44e884a95ad0afd58a6699c6742fd9f888c1a9bfcac",
+     "version": 1,
+     "superseded": false,
+     "source": "system",
+     "tags": [],
+     "lang": "es",
+     "meta": {
+      "amount": 50000,
+      "voided": true,
+      "paymentDate": "2026-09-23",
+      "receiptNumber": "RC-000002"
+     },
+     "createdAt": "2026-09-24T00:50:51.462Z",
+     "updatedAt": "2026-09-24T00:50:51.462Z"
+    },
+    {
+     "id": "d5232e48-b7b1-41a4-b6f8-735d88a6b42b",
+     "clientId": "f2ff45f7-6717-4fe3-8e1a-b911a39464c2",
+     "loanId": "16df0854-9ffb-4da3-9da9-9d8486a08c66",
+     "contract": "CT-000002",
+     "kind": "schedule",
+     "name": "Contrato y plan de pagos CT-000002",
+     "fileName": "2026-09-23_2050_PLAN_DE_PAGOS_CT-000002.pdf",
+     "folderPath": "Pedro Luis Ramirez Ortiz - C000002/CT-000002/01 Contrato y plan de pagos",
+     "mime": "application/pdf",
+     "size": 142140,
+     "sha256": "867c835cc69df45a452c0ae50b9dce12b155f6baf531c62860a2fdef3f8c1f4a",
+     "version": 1,
+     "superseded": false,
+     "source": "system",
+     "tags": [],
+     "lang": "es",
+     "meta": {
+      "balance": 600000,
+      "version": 1,
+      "contract": "CT-000002"
+     },
+     "createdAt": "2026-09-24T00:50:51.226Z",
+     "updatedAt": "2026-09-24T00:50:51.226Z"
+    },
+    {
+     "id": "5a6100c1-0c25-413d-b28f-9cbe6d661ffb",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+     "contract": "CT-000001",
+     "kind": "other",
+     "name": "comprobante.pdf",
+     "fileName": "2026-09-23_2050_COMPROBANTE.pdf",
+     "folderPath": "Maria Jose Perez Gomez - C000001/CT-000001/05 Otros documentos",
+     "mime": "application/pdf",
+     "size": 44,
+     "sha256": "5685e2d63d2a3b750e0850b8654c06f87fe9a1b138525deef264166e4152efbc",
+     "version": 1,
+     "superseded": false,
+     "source": "manual",
+     "tags": [],
+     "lang": null,
+     "meta": {
+      "channel": "upload"
+     },
+     "createdAt": "2026-09-24T00:50:51.202Z",
+     "updatedAt": "2026-09-24T00:50:51.997Z"
+    }
+   ],
+   "nextCursor": null
+  },
+  "/documents/d6461f99-48c3-4f5a-849a-def411475a1a": {
+   "id": "d6461f99-48c3-4f5a-849a-def411475a1a",
+   "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+   "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+   "contract": "CT-000001",
+   "kind": "receipt_out",
+   "name": "Recibo N.º RC-000001",
+   "fileName": "2026-09-23_2050_RECIBO_RC-000001_CT-000001.pdf",
+   "folderPath": "Maria Jose Perez Gomez - C000001/CT-000001/03 Recibos emitidos",
+   "mime": "application/pdf",
+   "size": 52633,
+   "sha256": "b11a1f96786afc12c2c229008ed8fee207b4d37077653cddec2313521fac25e1",
+   "version": 1,
+   "superseded": false,
+   "source": "system",
+   "tags": [],
+   "lang": "es",
+   "meta": {
+    "amount": 150000,
+    "voided": false,
+    "paymentDate": "2026-09-22",
+    "receiptNumber": "RC-000001"
+   },
+   "createdAt": "2026-09-24T00:50:51.889Z",
+   "updatedAt": "2026-09-24T00:50:51.889Z",
+   "versions": [
+    {
+     "id": "d6461f99-48c3-4f5a-849a-def411475a1a",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+     "contract": "CT-000001",
+     "kind": "receipt_out",
+     "name": "Recibo N.º RC-000001",
+     "fileName": "2026-09-23_2050_RECIBO_RC-000001_CT-000001.pdf",
+     "folderPath": "Maria Jose Perez Gomez - C000001/CT-000001/03 Recibos emitidos",
+     "mime": "application/pdf",
+     "size": 52633,
+     "sha256": "b11a1f96786afc12c2c229008ed8fee207b4d37077653cddec2313521fac25e1",
+     "version": 1,
+     "superseded": false,
+     "source": "system",
+     "tags": [],
+     "lang": "es",
+     "meta": {
+      "amount": 150000,
+      "voided": false,
+      "paymentDate": "2026-09-22",
+      "receiptNumber": "RC-000001"
+     },
+     "createdAt": "2026-09-24T00:50:51.889Z",
+     "updatedAt": "2026-09-24T00:50:51.889Z"
+    }
+   ]
+  },
+  "/folder/manifest": {
+   "lang": "es",
+   "full": true,
+   "generatedAt": "2026-09-24T00:50:54.647Z",
+   "nextSince": "2026-09-24T00:45:54.647Z",
+   "rootFolders": [
+    "_Sin asignar",
+    "_Entrada",
+    "_Informes",
+    "_Respaldos"
+   ],
+   "subfolders": [
+    "01 Contrato y plan de pagos",
+    "02 Comprobantes recibidos",
+    "03 Recibos emitidos",
+    "04 Estados de cuenta",
+    "05 Otros documentos"
+   ],
+   "clients": [
+    {
+     "id": "02fdb6a0-2021-407b-8811-8146527add64",
+     "code": "C000001",
+     "folderName": "Maria Jose Perez Gomez - C000001",
+     "marker": "Maria Jose Perez Gomez - C000001/.coroc-id",
+     "contracts": [
+      "CT-000001"
+     ]
+    },
+    {
+     "id": "f2ff45f7-6717-4fe3-8e1a-b911a39464c2",
+     "code": "C000002",
+     "folderName": "Pedro Luis Ramirez Ortiz - C000002",
+     "marker": "Pedro Luis Ramirez Ortiz - C000002/.coroc-id",
+     "contracts": [
+      "CT-000002"
+     ]
+    }
+   ],
+   "files": [
+    {
+     "documentId": "d5232e48-b7b1-41a4-b6f8-735d88a6b42b",
+     "clientId": "f2ff45f7-6717-4fe3-8e1a-b911a39464c2",
+     "path": "Pedro Luis Ramirez Ortiz - C000002/CT-000002/01 Contrato y plan de pagos/2026-09-23_2050_PLAN_DE_PAGOS_CT-000002.pdf",
+     "size": 142140,
+     "sha256": "867c835cc69df45a452c0ae50b9dce12b155f6baf531c62860a2fdef3f8c1f4a",
+     "updatedAt": "2026-09-24T00:50:51.226Z"
+    },
+    {
+     "documentId": "34362702-5f6c-4518-944f-5c2ee0d8d92b",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "path": "Maria Jose Perez Gomez - C000001/CT-000001/03 Recibos emitidos/2026-09-23_2050_RECIBO_RC-000002_CT-000001_ANULADO.pdf",
+     "size": 58807,
+     "sha256": "a414eb505b2416b238a8a44e884a95ad0afd58a6699c6742fd9f888c1a9bfcac",
+     "updatedAt": "2026-09-24T00:50:51.462Z"
+    },
+    {
+     "documentId": "5bfd9431-5674-47ef-bc96-5a6a972085f0",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "path": "Maria Jose Perez Gomez - C000001/CT-000001/01 Contrato y plan de pagos/2026-09-23_2050_PLAN_DE_PAGOS_CT-000001.pdf",
+     "size": 108708,
+     "sha256": "47d98bfa8ef6a4ec531bd4ad0fdb016a7b1f55a8335b3fc7e7fef8a8e0e3e8ab",
+     "updatedAt": "2026-09-24T00:50:51.485Z"
+    },
+    {
+     "documentId": "0a74f365-1ed2-40c3-8394-65b66da36fea",
+     "clientId": null,
+     "path": "_Informes/2026-09-23_2050_INFORME_Cartera_total.pdf",
+     "size": 68591,
+     "sha256": "b56e2b5f6de0023229e252289042c478349a54c06fca057efeda455ab1983b3b",
+     "updatedAt": "2026-09-24T00:50:51.508Z"
+    },
+    {
+     "documentId": "4847c43f-bfac-4a26-aaee-6e0a1a848468",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "path": "Maria Jose Perez Gomez - C000001/CT-000001/04 Estados de cuenta/2026-09-23_2050_ESTADO_DE_CUENTA_CT-000001.pdf",
+     "size": 86308,
+     "sha256": "4b290b9ebb91a1811020b9f40c9c93bfa80cc6acd213d78e78d9b10c20910a70",
+     "updatedAt": "2026-09-24T00:50:51.650Z"
+    },
+    {
+     "documentId": "d6461f99-48c3-4f5a-849a-def411475a1a",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "path": "Maria Jose Perez Gomez - C000001/CT-000001/03 Recibos emitidos/2026-09-23_2050_RECIBO_RC-000001_CT-000001.pdf",
+     "size": 52633,
+     "sha256": "b11a1f96786afc12c2c229008ed8fee207b4d37077653cddec2313521fac25e1",
+     "updatedAt": "2026-09-24T00:50:51.889Z"
+    },
+    {
+     "documentId": "5a6100c1-0c25-413d-b28f-9cbe6d661ffb",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "path": "Maria Jose Perez Gomez - C000001/CT-000001/05 Otros documentos/2026-09-23_2050_COMPROBANTE.pdf",
+     "size": 44,
+     "sha256": "5685e2d63d2a3b750e0850b8654c06f87fe9a1b138525deef264166e4152efbc",
+     "updatedAt": "2026-09-24T00:50:51.997Z"
+    }
+   ],
+   "removed": [],
+   "nextPage": null
+  },
+  "/tasks/4c7175a9-66c9-4508-a21b-a0ae4bff96a8": {
+   "id": "4c7175a9-66c9-4508-a21b-a0ae4bff96a8",
+   "kind": "statement",
+   "status": "done",
+   "progress": 100,
+   "documentId": "4847c43f-bfac-4a26-aaee-6e0a1a848468",
+   "error": null,
+   "createdAt": "2026-09-24T00:50:51.170Z",
+   "finishedAt": "2026-09-24T00:50:51.783Z"
+  },
+  "/support/failures": {
+   "days": 30,
+   "documentTasks": [],
+   "messages": [],
+   "intake": []
+  },
+  "/intake/57ba3711-49fd-4848-bb6c-e9e7c4d684c2/trace": {
+   "intakeId": "57ba3711-49fd-4848-bb6c-e9e7c4d684c2",
+   "status": "archived",
+   "steps": [
+    {
+     "step": "received",
+     "at": "2026-09-24T00:50:51.202Z",
+     "status": "done",
+     "detail": "upload"
+    },
+    {
+     "step": "read",
+     "at": "2026-09-24T00:50:51.997Z",
+     "status": "done",
+     "detail": "none"
+    },
+    {
+     "step": "identified",
+     "at": "2026-09-24T00:50:51.997Z",
+     "status": "done",
+     "detail": "folder"
+    },
+    {
+     "step": "decided",
+     "at": "2026-09-24T00:50:51.997Z",
+     "status": "done",
+     "detail": "archive"
+    },
+    {
+     "step": "payment",
+     "at": null,
+     "status": "skipped",
+     "detail": null
+    },
+    {
+     "step": "receipt",
+     "at": null,
+     "status": "skipped",
+     "detail": null
+    },
+    {
+     "step": "delivered",
+     "at": null,
+     "status": "skipped",
+     "detail": null
+    }
+   ],
+   "paymentSeconds": null,
+   "deliveredSeconds": null
+  },
+  "/intake": {
+   "items": [
+    {
+     "id": "57ba3711-49fd-4848-bb6c-e9e7c4d684c2",
+     "channel": "upload",
+     "senderPhone": null,
+     "senderEmail": null,
+     "messageText": null,
+     "documentId": "5a6100c1-0c25-413d-b28f-9cbe6d661ffb",
+     "fileName": "comprobante.pdf",
+     "mime": "application/pdf",
+     "status": "archived",
+     "stage": "NO_ES_COMPROBANTE",
+     "engine": "rules",
+     "extraction": {
+      "date": {
+       "value": null,
+       "confidence": 0,
+       "region": null
+      },
+      "time": {
+       "value": null,
+       "confidence": 0,
+       "region": null
+      },
+      "amount": {
+       "value": null,
+       "confidence": 0,
+       "region": null
+      },
+      "entity": {
+       "value": null,
+       "confidence": 0,
+       "region": null
+      },
+      "currency": {
+       "value": "USD",
+       "confidence": 0.9,
+       "region": null
+      },
+      "payerName": {
+       "value": null,
+       "confidence": 0,
+       "region": null
+      },
+      "reference": {
+       "value": null,
+       "confidence": 0,
+       "region": null
+      },
+      "documentType": {
+       "value": "other",
+       "confidence": 0.7,
+       "region": null
+      },
+      "receiverName": {
+       "value": null,
+       "confidence": 0,
+       "region": null
+      },
+      "tamperSignals": [],
+      "destinationLast4": {
+       "value": null,
+       "confidence": 0,
+       "region": null
+      }
+     },
+     "identification": {
+      "status": "identified",
+      "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+      "via": "folder",
+      "candidates": [],
+      "loanRule": "single",
+      "duplicateOf": null
+     },
+     "flags": [
+      {
+       "code": "MISSING_FIELD",
+       "field": "receiverName",
+       "severity": "blocking"
+      },
+      {
+       "code": "PAYER_INFERRED",
+       "field": "payerName",
+       "severity": "warning"
+      },
+      {
+       "code": "MISSING_FIELD",
+       "field": "amount",
+       "severity": "blocking"
+      },
+      {
+       "code": "MISSING_FIELD",
+       "field": "date",
+       "severity": "blocking"
+      },
+      {
+       "code": "NOT_A_RECEIPT",
+       "severity": "blocking"
+      },
+      {
+       "code": "OCR_UNAVAILABLE",
+       "detail": "Invalid PDF structure.",
+       "severity": "blocking"
+      }
+     ],
+     "receiverMatch": null,
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "clientName": "María José Pérez Gómez",
+     "clientCode": "C000001",
+     "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+     "contract": "CT-000001",
+     "currency": "USD",
+     "entryId": null,
+     "receiptNumber": null,
+     "receiptDocumentId": null,
+     "revertibleUntil": null,
+     "reason": null,
+     "decidedBy": null,
+     "decidedAt": "2026-09-24T00:50:51.997Z",
+     "createdAt": "2026-09-24T00:50:51.202Z",
+     "updatedAt": "2026-09-24T00:50:51.997Z"
+    }
+   ],
+   "nextCursor": null
+  },
+  "/intake/summary": {
+   "review": 0,
+   "unassigned": 0,
+   "processing": 0,
+   "revertible": 0,
+   "pending": 0
+  },
+  "/intake/57ba3711-49fd-4848-bb6c-e9e7c4d684c2": {
+   "id": "57ba3711-49fd-4848-bb6c-e9e7c4d684c2",
+   "channel": "upload",
+   "senderPhone": null,
+   "senderEmail": null,
+   "messageText": null,
+   "documentId": "5a6100c1-0c25-413d-b28f-9cbe6d661ffb",
+   "fileName": "comprobante.pdf",
+   "mime": "application/pdf",
+   "status": "archived",
+   "stage": "NO_ES_COMPROBANTE",
+   "engine": "rules",
+   "extraction": {
+    "date": {
+     "value": null,
+     "confidence": 0,
+     "region": null
+    },
+    "time": {
+     "value": null,
+     "confidence": 0,
+     "region": null
+    },
+    "amount": {
+     "value": null,
+     "confidence": 0,
+     "region": null
+    },
+    "entity": {
+     "value": null,
+     "confidence": 0,
+     "region": null
+    },
+    "currency": {
+     "value": "USD",
+     "confidence": 0.9,
+     "region": null
+    },
+    "payerName": {
+     "value": null,
+     "confidence": 0,
+     "region": null
+    },
+    "reference": {
+     "value": null,
+     "confidence": 0,
+     "region": null
+    },
+    "documentType": {
+     "value": "other",
+     "confidence": 0.7,
+     "region": null
+    },
+    "receiverName": {
+     "value": null,
+     "confidence": 0,
+     "region": null
+    },
+    "tamperSignals": [],
+    "destinationLast4": {
+     "value": null,
+     "confidence": 0,
+     "region": null
+    }
+   },
+   "identification": {
+    "status": "identified",
+    "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+    "via": "folder",
+    "candidates": [],
+    "loanRule": "single",
+    "duplicateOf": null
+   },
+   "flags": [
+    {
+     "code": "MISSING_FIELD",
+     "field": "receiverName",
+     "severity": "blocking"
+    },
+    {
+     "code": "PAYER_INFERRED",
+     "field": "payerName",
+     "severity": "warning"
+    },
+    {
+     "code": "MISSING_FIELD",
+     "field": "amount",
+     "severity": "blocking"
+    },
+    {
+     "code": "MISSING_FIELD",
+     "field": "date",
+     "severity": "blocking"
+    },
+    {
+     "code": "NOT_A_RECEIPT",
+     "severity": "blocking"
+    },
+    {
+     "code": "OCR_UNAVAILABLE",
+     "detail": "Invalid PDF structure.",
+     "severity": "blocking"
+    }
+   ],
+   "receiverMatch": null,
+   "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+   "clientName": "María José Pérez Gómez",
+   "clientCode": "C000001",
+   "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+   "contract": "CT-000001",
+   "currency": "USD",
+   "entryId": null,
+   "receiptNumber": null,
+   "receiptDocumentId": null,
+   "revertibleUntil": null,
+   "reason": null,
+   "decidedBy": null,
+   "decidedAt": "2026-09-24T00:50:51.997Z",
+   "createdAt": "2026-09-24T00:50:51.202Z",
+   "updatedAt": "2026-09-24T00:50:51.997Z"
+  },
+  "/messages": {
+   "items": [
+    {
+     "id": "8a69b276-3cef-466b-8d20-f18552a0f367",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "clientName": "María José Pérez Gómez",
+     "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+     "contract": "CT-000001",
+     "event": "manual",
+     "kind": "collection",
+     "channel": "email",
+     "lang": "es",
+     "body": "Hola María José, le escribimos por su préstamo.",
+     "subject": "Empresa DAST · CT-000001",
+     "attachmentDocumentId": null,
+     "status": "scheduled",
+     "decision": {
+      "at": "2026-09-24T11:00:00.000Z",
+      "localAt": "2026-09-24T07:00",
+      "reasons": [
+       {
+        "code": "OUT_OF_WINDOW"
+       }
+      ],
+      "ruleSet": "CO_LEY_2300_2023",
+      "decision": "reschedule",
+      "timeZone": "America/New_York"
+     },
+     "requestedAt": "2026-09-24T00:50:51.224Z",
+     "scheduledAt": "2026-09-24T11:00:00.000Z",
+     "sentAt": null,
+     "deliveredAt": null,
+     "readAt": null,
+     "failedAt": null,
+     "via": null,
+     "error": null,
+     "createdAt": "2026-09-24T00:50:51.219Z",
+     "assisted": {
+      "mailtoUrl": "mailto:maria.perez@example.com?subject=Empresa%20DAST%20%C2%B7%20CT-000001&body=Hola%20Mar%C3%ADa%20Jos%C3%A9%2C%20le%20escribimos%20por%20su%20pr%C3%A9stamo."
+     }
+    },
+    {
+     "id": "94f12798-c7d2-4943-917a-6731bfd024bf",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "clientName": "María José Pérez Gómez",
+     "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+     "contract": "CT-000001",
+     "event": "receipt",
+     "kind": "transactional",
+     "channel": "whatsapp",
+     "lang": "es",
+     "body": "¡Gracias por tu pago, María José! Recibimos US$ 500,00 para tu préstamo CT-000001. Tu nuevo saldo es US$ 10.000,00 y te quedan 9 cuotas. Descarga tu recibo aquí: http://localhost:3000/v1/files/eyJ0IjoiYzRhZWY2OGMtYWQ2Yi00MDc4LWEwNGItZGViZmVkNDNkMTc5IiwiayI6Im1lc3NhZ2UiLCJpIjoiOTRmMTI3OTgtYzdkMi00OTQzLTkxN2EtNjczMWJmZDAyNGJmIiwiZSI6MTc5MjgwMzA1MX0.GZ0NJT_fs0NKK9a2s8yoKV9M4XZeMLeenXJErQRYi2o\n\nSi no quieres recibir más mensajes, responde SALIR.",
+     "subject": "Gracias por tu pago · CT-000001",
+     "attachmentDocumentId": null,
+     "status": "cancelled",
+     "decision": {
+      "at": "2026-09-24T11:00:00.000Z",
+      "localAt": "2026-09-24T07:00",
+      "reasons": [
+       {
+        "code": "OUT_OF_WINDOW"
+       }
+      ],
+      "ruleSet": "CO_LEY_2300_2023",
+      "decision": "reschedule",
+      "timeZone": "America/New_York"
+     },
+     "requestedAt": "2026-09-24T00:50:51.139Z",
+     "scheduledAt": "2026-09-24T11:00:00.000Z",
+     "sentAt": null,
+     "deliveredAt": null,
+     "readAt": null,
+     "failedAt": null,
+     "via": null,
+     "error": "PAYMENT_REVERSED",
+     "createdAt": "2026-09-24T00:50:51.127Z"
+    },
+    {
+     "id": "3700e493-bbbb-4f87-91e9-00a7cd839223",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "clientName": "María José Pérez Gómez",
+     "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+     "contract": "CT-000001",
+     "event": "receipt",
+     "kind": "transactional",
+     "channel": "whatsapp",
+     "lang": "es",
+     "body": "¡Gracias por tu pago, María José! Recibimos US$ 1.500,00 para tu préstamo CT-000001. Tu nuevo saldo es US$ 10.500,00 y te quedan 9 cuotas. Descarga tu recibo aquí: http://localhost:3000/v1/files/eyJ0IjoiYzRhZWY2OGMtYWQ2Yi00MDc4LWEwNGItZGViZmVkNDNkMTc5IiwiayI6Im1lc3NhZ2UiLCJpIjoiMzcwMGU0OTMtYmJiYi00Zjg3LTkxZTktMDBhN2NkODM5MjIzIiwiZSI6MTc5MjgwMzA1MX0.yiLJl9V1yfWIgm2xK3UVc-6OfF7WVa3YRpRc3oQHy8A\n\nSi no quieres recibir más mensajes, responde SALIR.",
+     "subject": "Gracias por tu pago · CT-000001",
+     "attachmentDocumentId": null,
+     "status": "scheduled",
+     "decision": {
+      "at": "2026-09-24T11:00:00.000Z",
+      "localAt": "2026-09-24T07:00",
+      "reasons": [
+       {
+        "code": "OUT_OF_WINDOW"
+       }
+      ],
+      "ruleSet": "CO_LEY_2300_2023",
+      "decision": "reschedule",
+      "timeZone": "America/New_York"
+     },
+     "requestedAt": "2026-09-24T00:50:51.106Z",
+     "scheduledAt": "2026-09-24T11:00:00.000Z",
+     "sentAt": null,
+     "deliveredAt": null,
+     "readAt": null,
+     "failedAt": null,
+     "via": null,
+     "error": null,
+     "createdAt": "2026-09-24T00:50:51.091Z",
+     "assisted": {
+      "whatsappUrl": "https://wa.me/573157778899?text=%C2%A1Gracias%20por%20tu%20pago%2C%20Mar%C3%ADa%20Jos%C3%A9!%20Recibimos%20US%24%201.500%2C00%20para%20tu%20pr%C3%A9stamo%20CT-000001.%20Tu%20nuevo%20saldo%20es%20US%24%2010.500%2C00%20y%20te%20quedan%209%20cuotas.%20Descarga%20tu%20recibo%20aqu%C3%AD%3A%20http%3A%2F%2Flocalhost%3A3000%2Fv1%2Ffiles%2FeyJ0IjoiYzRhZWY2OGMtYWQ2Yi00MDc4LWEwNGItZGViZmVkNDNkMTc5IiwiayI6Im1lc3NhZ2UiLCJpIjoiMzcwMGU0OTMtYmJiYi00Zjg3LTkxZTktMDBhN2NkODM5MjIzIiwiZSI6MTc5MjgwMzA1MX0.yiLJl9V1yfWIgm2xK3UVc-6OfF7WVa3YRpRc3oQHy8A%0A%0ASi%20no%20quieres%20recibir%20m%C3%A1s%20mensajes%2C%20responde%20SALIR."
+     }
+    },
+    {
+     "id": "fba212ea-bab1-4cc0-b00a-05e5508cc931",
+     "clientId": "f2ff45f7-6717-4fe3-8e1a-b911a39464c2",
+     "clientName": "Pedro Luis Ramírez Ortiz",
+     "loanId": "16df0854-9ffb-4da3-9da9-9d8486a08c66",
+     "contract": "CT-000002",
+     "event": "welcome",
+     "kind": "transactional",
+     "channel": "email",
+     "lang": "es",
+     "body": "Hola Pedro Luis, te damos la bienvenida a Empresa DAST. Tu préstamo CT-000002 quedó registrado. La primera cuota es de US$ 300,00 y vence el 15 de septiembre de 2026. Consulta tu plan y envía tus comprobantes aquí: http://localhost:3000/v1/public/upload/kV74laFBmSiP2CRKVfspHFceFBUtD4WL",
+     "subject": "Bienvenida · préstamo CT-000002",
+     "attachmentDocumentId": null,
+     "status": "blocked",
+     "decision": {
+      "localAt": null,
+      "reasons": [
+       {
+        "code": "NO_CONSENT",
+        "detail": "email"
+       }
+      ],
+      "ruleSet": "CO_LEY_2300_2023",
+      "decision": "block",
+      "timeZone": "America/New_York"
+     },
+     "requestedAt": "2026-09-24T00:50:51.010Z",
+     "scheduledAt": null,
+     "sentAt": null,
+     "deliveredAt": null,
+     "readAt": null,
+     "failedAt": null,
+     "via": null,
+     "error": null,
+     "createdAt": "2026-09-24T00:50:50.987Z"
+    },
+    {
+     "id": "21b70134-104b-4d39-ba6c-fd7c339f1170",
+     "clientId": "f2ff45f7-6717-4fe3-8e1a-b911a39464c2",
+     "clientName": "Pedro Luis Ramírez Ortiz",
+     "loanId": "16df0854-9ffb-4da3-9da9-9d8486a08c66",
+     "contract": "CT-000002",
+     "event": "welcome",
+     "kind": "transactional",
+     "channel": "whatsapp",
+     "lang": "es",
+     "body": "Hola Pedro Luis, te damos la bienvenida a Empresa DAST. Tu préstamo CT-000002 quedó registrado. La primera cuota es de US$ 300,00 y vence el 15 de septiembre de 2026. Consulta tu plan y envía tus comprobantes aquí: http://localhost:3000/v1/public/upload/kV74laFBmSiP2CRKVfspHFceFBUtD4WL\n\nSi no quieres recibir más mensajes, responde SALIR.",
+     "subject": "Bienvenida · préstamo CT-000002",
+     "attachmentDocumentId": null,
+     "status": "blocked",
+     "decision": {
+      "localAt": null,
+      "reasons": [
+       {
+        "code": "NO_CONSENT",
+        "detail": "whatsapp"
+       }
+      ],
+      "ruleSet": "CO_LEY_2300_2023",
+      "decision": "block",
+      "timeZone": "America/New_York"
+     },
+     "requestedAt": "2026-09-24T00:50:51.010Z",
+     "scheduledAt": null,
+     "sentAt": null,
+     "deliveredAt": null,
+     "readAt": null,
+     "failedAt": null,
+     "via": null,
+     "error": null,
+     "createdAt": "2026-09-24T00:50:50.987Z"
+    },
+    {
+     "id": "63085acd-da65-4390-8a72-780b9f249d70",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "clientName": "María José Pérez Gómez",
+     "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+     "contract": "CT-000001",
+     "event": "welcome",
+     "kind": "transactional",
+     "channel": "email",
+     "lang": "es",
+     "body": "Hola María José, te damos la bienvenida a Empresa DAST. Tu préstamo CT-000001 quedó registrado. La primera cuota es de US$ 1.200,00 y vence el 1 de septiembre de 2026. Consulta tu plan y envía tus comprobantes aquí: http://localhost:3000/v1/public/upload/hf7Q0zl6sfs13cx2a315BYCtMXGv9SOx",
+     "subject": "Bienvenida · préstamo CT-000001",
+     "attachmentDocumentId": null,
+     "status": "scheduled",
+     "decision": {
+      "at": "2026-09-24T11:00:00.000Z",
+      "localAt": "2026-09-24T07:00",
+      "reasons": [
+       {
+        "code": "OUT_OF_WINDOW"
+       }
+      ],
+      "ruleSet": "CO_LEY_2300_2023",
+      "decision": "reschedule",
+      "timeZone": "America/New_York"
+     },
+     "requestedAt": "2026-09-24T00:50:50.906Z",
+     "scheduledAt": "2026-09-24T11:00:00.000Z",
+     "sentAt": null,
+     "deliveredAt": null,
+     "readAt": null,
+     "failedAt": null,
+     "via": null,
+     "error": null,
+     "createdAt": "2026-09-24T00:50:50.868Z",
+     "assisted": {
+      "mailtoUrl": "mailto:maria.perez@example.com?subject=Bienvenida%20%C2%B7%20pr%C3%A9stamo%20CT-000001&body=Hola%20Mar%C3%ADa%20Jos%C3%A9%2C%20te%20damos%20la%20bienvenida%20a%20Empresa%20DAST.%20Tu%20pr%C3%A9stamo%20CT-000001%20qued%C3%B3%20registrado.%20La%20primera%20cuota%20es%20de%20US%24%201.200%2C00%20y%20vence%20el%201%20de%20septiembre%20de%202026.%20Consulta%20tu%20plan%20y%20env%C3%ADa%20tus%20comprobantes%20aqu%C3%AD%3A%20http%3A%2F%2Flocalhost%3A3000%2Fv1%2Fpublic%2Fupload%2Fhf7Q0zl6sfs13cx2a315BYCtMXGv9SOx"
+     }
+    },
+    {
+     "id": "029672de-14c9-4e6b-95f6-130bd00df16f",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "clientName": "María José Pérez Gómez",
+     "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+     "contract": "CT-000001",
+     "event": "welcome",
+     "kind": "transactional",
+     "channel": "whatsapp",
+     "lang": "es",
+     "body": "Hola María José, te damos la bienvenida a Empresa DAST. Tu préstamo CT-000001 quedó registrado. La primera cuota es de US$ 1.200,00 y vence el 1 de septiembre de 2026. Consulta tu plan y envía tus comprobantes aquí: http://localhost:3000/v1/public/upload/hf7Q0zl6sfs13cx2a315BYCtMXGv9SOx\n\nSi no quieres recibir más mensajes, responde SALIR.",
+     "subject": "Bienvenida · préstamo CT-000001",
+     "attachmentDocumentId": null,
+     "status": "scheduled",
+     "decision": {
+      "at": "2026-09-24T11:00:00.000Z",
+      "localAt": "2026-09-24T07:00",
+      "reasons": [
+       {
+        "code": "OUT_OF_WINDOW"
+       }
+      ],
+      "ruleSet": "CO_LEY_2300_2023",
+      "decision": "reschedule",
+      "timeZone": "America/New_York"
+     },
+     "requestedAt": "2026-09-24T00:50:50.906Z",
+     "scheduledAt": "2026-09-24T11:00:00.000Z",
+     "sentAt": null,
+     "deliveredAt": null,
+     "readAt": null,
+     "failedAt": null,
+     "via": null,
+     "error": null,
+     "createdAt": "2026-09-24T00:50:50.868Z",
+     "assisted": {
+      "whatsappUrl": "https://wa.me/573157778899?text=Hola%20Mar%C3%ADa%20Jos%C3%A9%2C%20te%20damos%20la%20bienvenida%20a%20Empresa%20DAST.%20Tu%20pr%C3%A9stamo%20CT-000001%20qued%C3%B3%20registrado.%20La%20primera%20cuota%20es%20de%20US%24%201.200%2C00%20y%20vence%20el%201%20de%20septiembre%20de%202026.%20Consulta%20tu%20plan%20y%20env%C3%ADa%20tus%20comprobantes%20aqu%C3%AD%3A%20http%3A%2F%2Flocalhost%3A3000%2Fv1%2Fpublic%2Fupload%2Fhf7Q0zl6sfs13cx2a315BYCtMXGv9SOx%0A%0ASi%20no%20quieres%20recibir%20m%C3%A1s%20mensajes%2C%20responde%20SALIR."
+     }
+    }
+   ],
+   "nextCursor": null
+  },
+  "/messages/summary": {
+   "ready": 0,
+   "scheduled": 4,
+   "blocked": 2,
+   "failed": 0,
+   "sentToday": 0
+  },
+  "/message-templates": {
+   "templates": [
+    {
+     "event": "welcome",
+     "lang": "es",
+     "body": "Hola {{nombre}}, te damos la bienvenida a {{empresa}}. Tu préstamo {{contrato}} quedó registrado. La primera cuota es de {{valor_cuota}} y vence el {{fecha_vencimiento}}. Consulta tu plan y envía tus comprobantes aquí: {{enlace_carga}}",
+     "subject": "Bienvenida · préstamo {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "empresa",
+      "contrato",
+      "valor_cuota",
+      "fecha_vencimiento",
+      "enlace_carga"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "welcome",
+     "lang": "pt-BR",
+     "body": "Olá {{nombre}}, boas-vindas à {{empresa}}. Seu empréstimo {{contrato}} foi registrado. A primeira parcela é de {{valor_cuota}} e vence em {{fecha_vencimiento}}. Consulte seu plano e envie seus comprovantes aqui: {{enlace_carga}}",
+     "subject": "Boas-vindas · empréstimo {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "empresa",
+      "contrato",
+      "valor_cuota",
+      "fecha_vencimiento",
+      "enlace_carga"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "welcome",
+     "lang": "en",
+     "body": "Hi {{nombre}}, welcome to {{empresa}}. Your loan {{contrato}} has been set up. The first installment is {{valor_cuota}}, due on {{fecha_vencimiento}}. See your plan and send your payment receipts here: {{enlace_carga}}",
+     "subject": "Welcome · loan {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "empresa",
+      "contrato",
+      "valor_cuota",
+      "fecha_vencimiento",
+      "enlace_carga"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "reminder",
+     "lang": "es",
+     "body": "Hola {{nombre}}, te recordamos que la cuota {{cuota_numero}} de tu préstamo {{contrato}}, por {{valor_cuota}}, vence el {{fecha_vencimiento}}. Cuando pagues, envía el comprobante aquí: {{enlace_carga}}",
+     "subject": "Recordatorio de cuota · {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "cuota_numero",
+      "contrato",
+      "valor_cuota",
+      "fecha_vencimiento",
+      "enlace_carga"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "reminder",
+     "lang": "pt-BR",
+     "body": "Olá {{nombre}}, lembramos que a parcela {{cuota_numero}} do seu empréstimo {{contrato}}, de {{valor_cuota}}, vence em {{fecha_vencimiento}}. Quando pagar, envie o comprovante aqui: {{enlace_carga}}",
+     "subject": "Lembrete de parcela · {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "cuota_numero",
+      "contrato",
+      "valor_cuota",
+      "fecha_vencimiento",
+      "enlace_carga"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "reminder",
+     "lang": "en",
+     "body": "Hi {{nombre}}, a friendly reminder that installment {{cuota_numero}} of your loan {{contrato}}, for {{valor_cuota}}, is due on {{fecha_vencimiento}}. Once you pay, send the receipt here: {{enlace_carga}}",
+     "subject": "Installment reminder · {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "cuota_numero",
+      "contrato",
+      "valor_cuota",
+      "fecha_vencimiento",
+      "enlace_carga"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "overdue",
+     "lang": "es",
+     "body": "Hola {{nombre}}, la cuota {{cuota_numero}} de tu préstamo {{contrato}}, por {{valor_cuota}}, venció el {{fecha_vencimiento}}. Si ya pagaste, envía el comprobante aquí: {{enlace_carga}}. Si necesitas ayuda, escríbenos al {{telefono_empresa}}.",
+     "subject": "Cuota vencida · {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "cuota_numero",
+      "contrato",
+      "valor_cuota",
+      "fecha_vencimiento",
+      "enlace_carga",
+      "telefono_empresa"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "overdue",
+     "lang": "pt-BR",
+     "body": "Olá {{nombre}}, a parcela {{cuota_numero}} do seu empréstimo {{contrato}}, de {{valor_cuota}}, venceu em {{fecha_vencimiento}}. Se já pagou, envie o comprovante aqui: {{enlace_carga}}. Se precisar de ajuda, fale conosco pelo {{telefono_empresa}}.",
+     "subject": "Parcela vencida · {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "cuota_numero",
+      "contrato",
+      "valor_cuota",
+      "fecha_vencimiento",
+      "enlace_carga",
+      "telefono_empresa"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "overdue",
+     "lang": "en",
+     "body": "Hi {{nombre}}, installment {{cuota_numero}} of your loan {{contrato}}, for {{valor_cuota}}, was due on {{fecha_vencimiento}}. If you have already paid, send the receipt here: {{enlace_carga}}. If you need help, contact us at {{telefono_empresa}}.",
+     "subject": "Installment past due · {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "cuota_numero",
+      "contrato",
+      "valor_cuota",
+      "fecha_vencimiento",
+      "enlace_carga",
+      "telefono_empresa"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "receipt",
+     "lang": "es",
+     "body": "¡Gracias por tu pago, {{nombre}}! Recibimos {{valor_pagado}} para tu préstamo {{contrato}}. Tu nuevo saldo es {{saldo}} y te quedan {{cuotas_restantes}} cuotas. Descarga tu recibo aquí: {{enlace_recibo}}",
+     "subject": "Gracias por tu pago · {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "valor_pagado",
+      "contrato",
+      "saldo",
+      "cuotas_restantes",
+      "enlace_recibo"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "receipt",
+     "lang": "pt-BR",
+     "body": "Obrigado pelo seu pagamento, {{nombre}}! Recebemos {{valor_pagado}} para o seu empréstimo {{contrato}}. Seu novo saldo é {{saldo}} e restam {{cuotas_restantes}} parcelas. Baixe seu recibo aqui: {{enlace_recibo}}",
+     "subject": "Obrigado pelo seu pagamento · {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "valor_pagado",
+      "contrato",
+      "saldo",
+      "cuotas_restantes",
+      "enlace_recibo"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "receipt",
+     "lang": "en",
+     "body": "Thank you for your payment, {{nombre}}! We received {{valor_pagado}} for your loan {{contrato}}. Your new balance is {{saldo}} with {{cuotas_restantes}} installments left. Download your receipt here: {{enlace_recibo}}",
+     "subject": "Thank you for your payment · {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "valor_pagado",
+      "contrato",
+      "saldo",
+      "cuotas_restantes",
+      "enlace_recibo"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "statement",
+     "lang": "es",
+     "body": "Hola {{nombre}}, adjuntamos el estado de cuenta de tu préstamo {{contrato}}. Tu saldo es {{saldo}}. También puedes descargarlo aquí: {{enlace_recibo}}",
+     "subject": "Estado de cuenta · {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "contrato",
+      "saldo",
+      "enlace_recibo"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "statement",
+     "lang": "pt-BR",
+     "body": "Olá {{nombre}}, enviamos o extrato do seu empréstimo {{contrato}}. Seu saldo é {{saldo}}. Você também pode baixá-lo aqui: {{enlace_recibo}}",
+     "subject": "Extrato · {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "contrato",
+      "saldo",
+      "enlace_recibo"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "statement",
+     "lang": "en",
+     "body": "Hi {{nombre}}, here is the statement for your loan {{contrato}}. Your balance is {{saldo}}. You can also download it here: {{enlace_recibo}}",
+     "subject": "Account statement · {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "contrato",
+      "saldo",
+      "enlace_recibo"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "payoff",
+     "lang": "es",
+     "body": "¡Felicitaciones, {{nombre}}! Pagaste por completo tu préstamo {{contrato}}. Descarga tu paz y salvo aquí: {{enlace_recibo}}. Gracias por confiar en {{empresa}}.",
+     "subject": "Paz y salvo · {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "contrato",
+      "enlace_recibo",
+      "empresa"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "payoff",
+     "lang": "pt-BR",
+     "body": "Parabéns, {{nombre}}! Você quitou o seu empréstimo {{contrato}}. Baixe sua declaração de quitação aqui: {{enlace_recibo}}. Obrigado por confiar na {{empresa}}.",
+     "subject": "Declaração de quitação · {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "contrato",
+      "enlace_recibo",
+      "empresa"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "payoff",
+     "lang": "en",
+     "body": "Congratulations, {{nombre}}! Your loan {{contrato}} is paid in full. Download your payoff letter here: {{enlace_recibo}}. Thank you for trusting {{empresa}}.",
+     "subject": "Payoff letter · {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "contrato",
+      "enlace_recibo",
+      "empresa"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "manual",
+     "lang": "es",
+     "body": "Hola {{nombre}}, te escribimos de {{empresa}} sobre tu préstamo {{contrato}}.",
+     "subject": "{{empresa}} · {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "empresa",
+      "contrato"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "manual",
+     "lang": "pt-BR",
+     "body": "Olá {{nombre}}, escrevemos da {{empresa}} sobre o seu empréstimo {{contrato}}.",
+     "subject": "{{empresa}} · {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "empresa",
+      "contrato"
+     ],
+     "updatedAt": null
+    },
+    {
+     "event": "manual",
+     "lang": "en",
+     "body": "Hi {{nombre}}, this is {{empresa}} writing about your loan {{contrato}}.",
+     "subject": "{{empresa}} · {{contrato}}",
+     "custom": false,
+     "metaTemplateName": null,
+     "metaTemplateLang": null,
+     "variables": [
+      "nombre",
+      "empresa",
+      "contrato"
+     ],
+     "updatedAt": null
+    }
+   ],
+   "events": [
+    {
+     "event": "welcome",
+     "kind": "transactional",
+     "enabled": true,
+     "channels": [
+      "whatsapp",
+      "email"
+     ]
+    },
+    {
+     "event": "reminder",
+     "kind": "collection",
+     "enabled": true,
+     "channels": [
+      "whatsapp"
+     ]
+    },
+    {
+     "event": "overdue",
+     "kind": "collection",
+     "enabled": true,
+     "channels": [
+      "whatsapp"
+     ]
+    },
+    {
+     "event": "receipt",
+     "kind": "transactional",
+     "enabled": true,
+     "channels": [
+      "whatsapp"
+     ]
+    },
+    {
+     "event": "statement",
+     "kind": "transactional",
+     "enabled": true,
+     "channels": [
+      "email"
+     ]
+    },
+    {
+     "event": "payoff",
+     "kind": "transactional",
+     "enabled": true,
+     "channels": [
+      "whatsapp",
+      "email"
+     ]
+    }
+   ]
+  },
+  "/compliance/rate-caps": [],
+  "/compliance/contact-rules": {
+   "preset": "CO_LEY_2300_2023",
+   "effective": {
+    "id": "CO_LEY_2300_2023",
+    "country": "US",
+    "windows": [
+     {
+      "day": 1,
+      "start": "07:00",
+      "end": "19:00"
+     },
+     {
+      "day": 2,
+      "start": "07:00",
+      "end": "19:00"
+     },
+     {
+      "day": 3,
+      "start": "07:00",
+      "end": "19:00"
+     },
+     {
+      "day": 4,
+      "start": "07:00",
+      "end": "19:00"
+     },
+     {
+      "day": 5,
+      "start": "07:00",
+      "end": "19:00"
+     },
+     {
+      "day": 6,
+      "start": "08:00",
+      "end": "15:00"
+     }
+    ],
+    "noHolidays": true,
+    "maxCollectionPerDay": 1,
+    "singleChannelPerWeek": true,
+    "windowsApplyToTransactional": true,
+    "legalReference": "Ley 2300 de 2023, arts. 3 y 4"
+   },
+   "counselReviewedAt": null,
+   "presets": [
+    {
+     "id": "CO_LEY_2300_2023",
+     "country": "CO",
+     "legalReference": "Ley 2300 de 2023, arts. 3 y 4",
+     "requiresCounselReview": false
+    },
+    {
+     "id": "BR_CDC_TEMPLATE",
+     "country": "BR",
+     "legalReference": "Código de Defesa do Consumidor (Lei 8.078/1990), art. 42",
+     "requiresCounselReview": true
+    },
+    {
+     "id": "US_FDCPA_REG_F_TEMPLATE",
+     "country": "US",
+     "legalReference": "FDCPA 15 U.S.C. 1692c; Regulation F, 12 CFR 1006.6",
+     "requiresCounselReview": true
+    }
+   ],
+   "transactionalImmediate": false,
+   "reminderTime": "08:00",
+   "dailyReminders": false
+  },
+  "/dashboard": {
+   "currency": "USD",
+   "currencies": [
+    "USD"
+   ],
+   "asOf": "2026-09-23",
+   "refreshing": false,
+   "clientsActive": 2,
+   "clientsTotal": 2,
+   "totalLent": 1500000,
+   "totalLentHistoric": 1500000,
+   "expectedToday": 30000,
+   "collectedToday": 0,
+   "overdueTotal": 540000,
+   "totalReceivable": 1650000,
+   "lateFeesOutstanding": 0,
+   "trend": [
+    {
+     "date": "2026-08-25",
+     "amount": 0
+    },
+    {
+     "date": "2026-08-26",
+     "amount": 0
+    },
+    {
+     "date": "2026-08-27",
+     "amount": 0
+    },
+    {
+     "date": "2026-08-28",
+     "amount": 0
+    },
+    {
+     "date": "2026-08-29",
+     "amount": 0
+    },
+    {
+     "date": "2026-08-30",
+     "amount": 0
+    },
+    {
+     "date": "2026-08-31",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-01",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-02",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-03",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-04",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-05",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-06",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-07",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-08",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-09",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-10",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-11",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-12",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-13",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-14",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-15",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-16",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-17",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-18",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-19",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-20",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-21",
+     "amount": 0
+    },
+    {
+     "date": "2026-09-22",
+     "amount": 150000
+    },
+    {
+     "date": "2026-09-23",
+     "amount": 0
+    }
+   ],
+   "aging": {
+    "current": {
+     "loans": 0,
+     "amount": 0
+    },
+    "d1_7": {
+     "loans": 0,
+     "amount": 0
+    },
+    "d8_30": {
+     "loans": 2,
+     "amount": 1650000
+    },
+    "d30p": {
+     "loans": 0,
+     "amount": 0
+    }
+   }
+  },
+  "/collections/today": {
+   "asOf": "2026-09-23",
+   "items": [
+    {
+     "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "clientCode": "C000001",
+     "clientName": "María José Pérez Gómez",
+     "phone": "+573157778899",
+     "contract": "CT-000001",
+     "currency": "USD",
+     "installmentNumber": 2,
+     "dueDate": "2026-09-08",
+     "dueToday": 0,
+     "overdue": 330000,
+     "amountToCollect": 330000,
+     "daysPastDue": 15,
+     "status": "overdue",
+     "balance": 1050000
+    },
+    {
+     "loanId": "16df0854-9ffb-4da3-9da9-9d8486a08c66",
+     "clientId": "f2ff45f7-6717-4fe3-8e1a-b911a39464c2",
+     "clientCode": "C000002",
+     "clientName": "Pedro Luis Ramírez Ortiz",
+     "phone": "+573009998877",
+     "contract": "CT-000002",
+     "currency": "USD",
+     "installmentNumber": 1,
+     "dueDate": "2026-09-15",
+     "dueToday": 30000,
+     "overdue": 210000,
+     "amountToCollect": 240000,
+     "daysPastDue": 8,
+     "status": "overdue",
+     "balance": 600000
+    }
+   ]
+  },
+  "/backups": [
+   {
+    "id": "b3445e88-3c7c-435f-93c4-298964952737",
+    "status": "done",
+    "progress": 100,
+    "fileName": "COROC_Respaldo_Empresa_DAST_2026-09-23_2050.coroc",
+    "size": 643285,
+    "sha256": "3f68fb58f0ad62d8af26f71e67dd52eb4ebb57960553fb28b3f76cd3206ee57c",
+    "counts": {
+     "files": 8,
+     "loans": 2,
+     "users": 2,
+     "clients": 2,
+     "consents": 3,
+     "messages": 7,
+     "receipts": 2,
+     "audit_log": 23,
+     "documents": 8,
+     "rate_caps": 0,
+     "co_debtors": 0,
+     "installments": 30,
+     "email_senders": 0,
+     "intake_events": 1,
+     "ledger_entries": 5,
+     "number_sequences": 3,
+     "contact_rule_sets": 0,
+     "message_templates": 0,
+     "receiving_accounts": 1,
+     "payment_allocations": 3,
+     "extraction_corrections": 0
+    },
+    "createdAt": "2026-09-24T00:50:51.368Z",
+    "finishedAt": "2026-09-24T00:50:52.080Z"
+   }
+  ],
+  "/backups/b3445e88-3c7c-435f-93c4-298964952737": {
+   "id": "b3445e88-3c7c-435f-93c4-298964952737",
+   "status": "done",
+   "progress": 100,
+   "fileName": "COROC_Respaldo_Empresa_DAST_2026-09-23_2050.coroc",
+   "size": 643285,
+   "sha256": "3f68fb58f0ad62d8af26f71e67dd52eb4ebb57960553fb28b3f76cd3206ee57c",
+   "counts": {
+    "files": 8,
+    "loans": 2,
+    "users": 2,
+    "clients": 2,
+    "consents": 3,
+    "messages": 7,
+    "receipts": 2,
+    "audit_log": 23,
+    "documents": 8,
+    "rate_caps": 0,
+    "co_debtors": 0,
+    "installments": 30,
+    "email_senders": 0,
+    "intake_events": 1,
+    "ledger_entries": 5,
+    "number_sequences": 3,
+    "contact_rule_sets": 0,
+    "message_templates": 0,
+    "receiving_accounts": 1,
+    "payment_allocations": 3,
+    "extraction_corrections": 0
+   },
+   "createdAt": "2026-09-24T00:50:51.368Z",
+   "finishedAt": "2026-09-24T00:50:52.080Z"
+  },
+  "/public/privacy": {
+   "version": "2026-09-23",
+   "lang": "es",
+   "title": "Política de privacidad",
+   "updated": "Vigente desde el 2026-09-23",
+   "intro": "COROC es una herramienta de gestión de cartera para prestamistas: les ayuda a llevar sus clientes, préstamos, pagos y recibos. COROC no ofrece ni otorga préstamos. Esta política explica cómo se tratan los datos personales en la app y en el portal del deudor.",
+   "sections": [
+    {
+     "h": "Quién es responsable",
+     "p": [
+      "Cada empresa que usa COROC es la responsable de los datos de sus clientes (deudores) y decide para qué los usa. COROC actúa como encargado: los trata solo por cuenta de la empresa y según sus instrucciones.",
+      "COROC es responsable de los datos de las cuentas de usuario (nombre, usuario, correo y datos de seguridad) que necesita para prestar el servicio."
+     ]
+    },
+    {
+     "h": "Qué datos se tratan",
+     "p": [
+      "De los deudores: nombre, documento de identidad, teléfonos, correo, dirección, préstamos, pagos, recibos, comprobantes de pago que envían y los mensajes que se les envían, con su consentimiento por canal.",
+      "De los usuarios de la app: nombre, usuario, correo, rol, idioma, sesiones y dispositivos, y el registro de sus acciones (bitácora).",
+      "La app no pide acceso a contactos, SMS, ubicación, cámara en segundo plano ni al almacenamiento completo del teléfono. Los archivos solo se leen cuando la persona los elige o los comparte con COROC.",
+      "No se usan los datos para publicidad, no se venden y no se rastrea a nadie entre apps o sitios."
+     ]
+    },
+    {
+     "h": "Para qué se usan",
+     "p": [
+      "Llevar la cartera, registrar pagos, generar recibos y estados de cuenta, leer los comprobantes de pago que envía el deudor, enviar los mensajes que la empresa configure dentro de las reglas de contacto de la ley, y proteger las cuentas (segundo factor, bloqueo por intentos y bitácora)."
+     ]
+    },
+    {
+     "h": "Con quién se comparten",
+     "p": [
+      "Solo con proveedores que prestan el servicio, bajo acuerdos de tratamiento de datos: alojamiento y almacenamiento cifrado, envío de correo, WhatsApp Business (Meta) cuando la empresa lo activa y, si la empresa lo habilita, un servicio de inteligencia artificial que lee comprobantes de pago sin conservar los datos. Nunca se comparten con otras empresas que usen COROC: cada empresa está aislada de las demás."
+     ]
+    },
+    {
+     "h": "Seguridad",
+     "p": [
+      "Conexiones cifradas (TLS), documentos cifrados en reposo, enlaces de descarga firmados que vencen, contraseñas con Argon2id, segundo factor obligatorio para el Propietario y aislamiento entre empresas en la base de datos. Sin conexión, la app guarda en el equipo solo lo necesario para consultar, cifrado con una clave del almacén seguro del sistema, y lo borra al cerrar la sesión."
+     ]
+    },
+    {
+     "h": "Cuánto tiempo se conservan",
+     "p": [
+      "Mientras la empresa use COROC. Los movimientos contables y los recibos se conservan el tiempo que exige la ley comercial y tributaria del país de la empresa.",
+      "Cuando una empresa se cierra, sus datos personales se eliminan pasados 30 días de gracia, salvo lo que la ley obliga a guardar."
+     ]
+    },
+    {
+     "h": "Sus derechos",
+     "p": [
+      "Deudores: pueden conocer, actualizar, rectificar y pedir la supresión de sus datos, y revocar el consentimiento para recibir mensajes (respondiendo SALIR, desde el portal o con el enlace del correo). La solicitud se dirige a la empresa con la que tienen el préstamo; COROC la ayuda a atenderla.",
+      "Usuarios de la app: pueden eliminar su cuenta desde Configuración › Eliminar mi cuenta. El Propietario elimina la cuenta cerrando la empresa.",
+      "Colombia: Ley 1581 de 2012 y sus decretos. Brasil: LGPD (Lei 13.709/2018). Para cualquier consulta sobre privacidad: privacidad@coroc.app."
+     ]
+    },
+    {
+     "h": "Menores de edad",
+     "p": [
+      "COROC es para empresas y sus clientes adultos. No está dirigido a menores de edad."
+     ]
+    },
+    {
+     "h": "Cambios",
+     "p": [
+      "Si esta política cambia, se publicará aquí con su fecha y se avisará en la app."
+     ]
+    }
+   ]
+  },
+  "/documents?clientId=02fdb6a0-2021-407b-8811-8146527add64": {
+   "items": [
+    {
+     "id": "d6461f99-48c3-4f5a-849a-def411475a1a",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+     "contract": "CT-000001",
+     "kind": "receipt_out",
+     "name": "Recibo N.º RC-000001",
+     "fileName": "2026-09-23_2050_RECIBO_RC-000001_CT-000001.pdf",
+     "folderPath": "Maria Jose Perez Gomez - C000001/CT-000001/03 Recibos emitidos",
+     "mime": "application/pdf",
+     "size": 52633,
+     "sha256": "b11a1f96786afc12c2c229008ed8fee207b4d37077653cddec2313521fac25e1",
+     "version": 1,
+     "superseded": false,
+     "source": "system",
+     "tags": [],
+     "lang": "es",
+     "meta": {
+      "amount": 150000,
+      "voided": false,
+      "paymentDate": "2026-09-22",
+      "receiptNumber": "RC-000001"
+     },
+     "createdAt": "2026-09-24T00:50:51.889Z",
+     "updatedAt": "2026-09-24T00:50:51.889Z"
+    },
+    {
+     "id": "4847c43f-bfac-4a26-aaee-6e0a1a848468",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+     "contract": "CT-000001",
+     "kind": "statement",
+     "name": "Estado de cuenta CT-000001 · 2026-09-23",
+     "fileName": "2026-09-23_2050_ESTADO_DE_CUENTA_CT-000001.pdf",
+     "folderPath": "Maria Jose Perez Gomez - C000001/CT-000001/04 Estados de cuenta",
+     "mime": "application/pdf",
+     "size": 86308,
+     "sha256": "4b290b9ebb91a1811020b9f40c9c93bfa80cc6acd213d78e78d9b10c20910a70",
+     "version": 1,
+     "superseded": false,
+     "source": "system",
+     "tags": [],
+     "lang": "es",
+     "meta": {
+      "asOf": "2026-09-23",
+      "period": null,
+      "reason": "on_demand",
+      "balance": 1050000,
+      "contract": "CT-000001"
+     },
+     "createdAt": "2026-09-24T00:50:51.650Z",
+     "updatedAt": "2026-09-24T00:50:51.650Z"
+    },
+    {
+     "id": "5bfd9431-5674-47ef-bc96-5a6a972085f0",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+     "contract": "CT-000001",
+     "kind": "schedule",
+     "name": "Contrato y plan de pagos CT-000001",
+     "fileName": "2026-09-23_2050_PLAN_DE_PAGOS_CT-000001.pdf",
+     "folderPath": "Maria Jose Perez Gomez - C000001/CT-000001/01 Contrato y plan de pagos",
+     "mime": "application/pdf",
+     "size": 108708,
+     "sha256": "47d98bfa8ef6a4ec531bd4ad0fdb016a7b1f55a8335b3fc7e7fef8a8e0e3e8ab",
+     "version": 2,
+     "superseded": false,
+     "source": "system",
+     "tags": [],
+     "lang": "es",
+     "meta": {
+      "balance": 1050000,
+      "version": 2,
+      "contract": "CT-000001"
+     },
+     "createdAt": "2026-09-24T00:50:51.485Z",
+     "updatedAt": "2026-09-24T00:50:51.485Z"
+    },
+    {
+     "id": "34362702-5f6c-4518-944f-5c2ee0d8d92b",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+     "contract": "CT-000001",
+     "kind": "receipt_out",
+     "name": "Recibo N.º RC-000002 · ANULADO",
+     "fileName": "2026-09-23_2050_RECIBO_RC-000002_CT-000001_ANULADO.pdf",
+     "folderPath": "Maria Jose Perez Gomez - C000001/CT-000001/03 Recibos emitidos",
+     "mime": "application/pdf",
+     "size": 58807,
+     "sha256": "a414eb505b2416b238a8a44e884a95ad0afd58a6699c6742fd9f888c1a9bfcac",
+     "version": 1,
+     "superseded": false,
+     "source": "system",
+     "tags": [],
+     "lang": "es",
+     "meta": {
+      "amount": 50000,
+      "voided": true,
+      "paymentDate": "2026-09-23",
+      "receiptNumber": "RC-000002"
+     },
+     "createdAt": "2026-09-24T00:50:51.462Z",
+     "updatedAt": "2026-09-24T00:50:51.462Z"
+    },
+    {
+     "id": "5a6100c1-0c25-413d-b28f-9cbe6d661ffb",
+     "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+     "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+     "contract": "CT-000001",
+     "kind": "other",
+     "name": "comprobante.pdf",
+     "fileName": "2026-09-23_2050_COMPROBANTE.pdf",
+     "folderPath": "Maria Jose Perez Gomez - C000001/CT-000001/05 Otros documentos",
+     "mime": "application/pdf",
+     "size": 44,
+     "sha256": "5685e2d63d2a3b750e0850b8654c06f87fe9a1b138525deef264166e4152efbc",
+     "version": 1,
+     "superseded": false,
+     "source": "manual",
+     "tags": [],
+     "lang": null,
+     "meta": {
+      "channel": "upload"
+     },
+     "createdAt": "2026-09-24T00:50:51.202Z",
+     "updatedAt": "2026-09-24T00:50:51.997Z"
+    }
+   ],
+   "nextCursor": null
+  }
+ },
+ "post": {
+  "createClient": {
+   "client": {
+    "id": "02fdb6a0-2021-407b-8811-8146527add64",
+    "code": "C000001",
+    "firstName": "María José",
+    "lastName": "Pérez Gómez",
+    "fullName": "María José Pérez Gómez",
+    "phone": "+573157778899",
+    "phoneE164": "+573157778899",
+    "phone2": null,
+    "email": "maria.perez@example.com",
+    "address": "Calle 10 # 20-30",
+    "city": "Medellín",
+    "idDocType": "CC",
+    "idDocNumber": "1020304050",
+    "lang": "es",
+    "collectorId": null,
+    "coDebtor": null,
+    "notes": null,
+    "folderName": "Maria Jose Perez Gomez - C000001",
+    "consents": [
+     {
+      "channel": "whatsapp",
+      "method": "app",
+      "grantedAt": "2026-09-24T00:50:50.868Z",
+      "revokedAt": null,
+      "recordedBy": "2f20f6e9-db49-4339-9fe6-d0445f27ec6c"
+     },
+     {
+      "channel": "email",
+      "method": "app",
+      "grantedAt": "2026-09-24T00:50:50.868Z",
+      "revokedAt": null,
+      "recordedBy": "2f20f6e9-db49-4339-9fe6-d0445f27ec6c"
+     },
+     {
+      "channel": "personal_data",
+      "method": "app",
+      "grantedAt": "2026-09-24T00:50:50.868Z",
+      "revokedAt": null,
+      "recordedBy": "2f20f6e9-db49-4339-9fe6-d0445f27ec6c"
+     }
+    ],
+    "loans": [
+     {
+      "id": "f5668363-c045-48bd-949e-e112e5c18167",
+      "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+      "contract": "CT-000001",
+      "terms": {
+       "principal": 1000000,
+       "currency": "USD",
+       "method": "simple",
+       "rate": "0.2000000000",
+       "installments": 10,
+       "frequency": "weekly",
+       "disbursementDate": "2026-08-25",
+       "firstDueDate": "2026-09-01",
+       "collectionDays": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+       ],
+       "excludeHolidays": true,
+       "roundingUnit": 1
+      },
+      "totalPayable": 1200000,
+      "totalInterest": 200000,
+      "effectiveAnnualRate": 4.89267744,
+      "status": "active",
+      "summary": {
+       "totalInstallments": 10,
+       "paidInstallments": 0,
+       "remainingInstallments": 10,
+       "totalPayable": 1200000,
+       "paidTotal": 0,
+       "lateFeesOutstanding": 0,
+       "balance": 1200000,
+       "next": {
+        "number": 1,
+        "dueDate": "2026-09-01",
+        "outstanding": 120000
+       },
+       "overdueCount": 4,
+       "daysPastDue": 22,
+       "surplus": 0,
+       "progress": 0
+      },
+      "realizedProfit": 0,
+      "expectedMethod": null,
+      "createdAt": "2026-09-24T00:50:50.868Z",
+      "version": 1
+     }
+    ],
+    "timezone": null,
+    "emailStatus": null,
+    "contactException": null,
+    "createdAt": "2026-09-24T00:50:50.868Z",
+    "version": 1
+   },
+   "loan": {
+    "id": "f5668363-c045-48bd-949e-e112e5c18167",
+    "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+    "contract": "CT-000001",
+    "terms": {
+     "principal": 1000000,
+     "currency": "USD",
+     "method": "simple",
+     "rate": "0.2000000000",
+     "installments": 10,
+     "frequency": "weekly",
+     "disbursementDate": "2026-08-25",
+     "firstDueDate": "2026-09-01",
+     "collectionDays": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "excludeHolidays": true,
+     "roundingUnit": 1
+    },
+    "totalPayable": 1200000,
+    "totalInterest": 200000,
+    "effectiveAnnualRate": 4.89267744,
+    "status": "active",
+    "summary": {
+     "totalInstallments": 10,
+     "paidInstallments": 0,
+     "remainingInstallments": 10,
+     "totalPayable": 1200000,
+     "paidTotal": 0,
+     "lateFeesOutstanding": 0,
+     "balance": 1200000,
+     "next": {
+      "number": 1,
+      "dueDate": "2026-09-01",
+      "outstanding": 120000
+     },
+     "overdueCount": 4,
+     "daysPastDue": 22,
+     "surplus": 0,
+     "progress": 0
+    },
+    "realizedProfit": 0,
+    "expectedMethod": null,
+    "createdAt": "2026-09-24T00:50:50.868Z",
+    "version": 1
+   }
+  },
+  "previewLoan": {
+   "terms": {
+    "principal": 1000000,
+    "currency": "USD",
+    "method": "simple",
+    "rate": "0.20",
+    "installments": 10,
+    "frequency": "weekly",
+    "disbursementDate": "2026-08-25",
+    "firstDueDate": "2026-09-01",
+    "collectionDays": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ],
+    "excludeHolidays": true,
+    "roundingUnit": 1
+   },
+   "installments": [
+    {
+     "number": 1,
+     "dueDate": "2026-09-01",
+     "amount": 120000,
+     "principal": 100000,
+     "interest": 20000,
+     "balanceAfter": 1080000
+    },
+    {
+     "number": 2,
+     "dueDate": "2026-09-08",
+     "amount": 120000,
+     "principal": 100000,
+     "interest": 20000,
+     "balanceAfter": 960000
+    },
+    {
+     "number": 3,
+     "dueDate": "2026-09-15",
+     "amount": 120000,
+     "principal": 100000,
+     "interest": 20000,
+     "balanceAfter": 840000
+    },
+    {
+     "number": 4,
+     "dueDate": "2026-09-22",
+     "amount": 120000,
+     "principal": 100000,
+     "interest": 20000,
+     "balanceAfter": 720000
+    },
+    {
+     "number": 5,
+     "dueDate": "2026-09-29",
+     "amount": 120000,
+     "principal": 100000,
+     "interest": 20000,
+     "balanceAfter": 600000
+    },
+    {
+     "number": 6,
+     "dueDate": "2026-10-06",
+     "amount": 120000,
+     "principal": 100000,
+     "interest": 20000,
+     "balanceAfter": 480000
+    },
+    {
+     "number": 7,
+     "dueDate": "2026-10-13",
+     "amount": 120000,
+     "principal": 100000,
+     "interest": 20000,
+     "balanceAfter": 360000
+    },
+    {
+     "number": 8,
+     "dueDate": "2026-10-20",
+     "amount": 120000,
+     "principal": 100000,
+     "interest": 20000,
+     "balanceAfter": 240000
+    },
+    {
+     "number": 9,
+     "dueDate": "2026-10-27",
+     "amount": 120000,
+     "principal": 100000,
+     "interest": 20000,
+     "balanceAfter": 120000
+    },
+    {
+     "number": 10,
+     "dueDate": "2026-11-03",
+     "amount": 120000,
+     "principal": 100000,
+     "interest": 20000,
+     "balanceAfter": 0
+    }
+   ],
+   "regularInstallment": 120000,
+   "totalPayable": 1200000,
+   "totalInterest": 200000,
+   "effectiveAnnualRate": 4.892677441087885,
+   "rateCap": {
+    "ok": true,
+    "effectiveAnnual": 4.892677441087885,
+    "cap": null,
+    "missing": true
+   }
+  },
+  "previewPayment": {
+   "lines": [
+    {
+     "number": 1,
+     "toLateFee": 0,
+     "toInstallment": 120000,
+     "completed": true,
+     "partial": false
+    },
+    {
+     "number": 2,
+     "toLateFee": 0,
+     "toInstallment": 30000,
+     "completed": false,
+     "partial": true
+    }
+   ],
+   "coverage": "Cuota 1 (completa) · Cuota 2 (abono parcial US$ 300,00)",
+   "previousBalance": 1200000,
+   "newBalance": 1050000,
+   "remainingInstallments": 9,
+   "surplus": 0,
+   "loanClosed": false
+  },
+  "pay": {
+   "entry": {
+    "id": "8ac3f946-97d4-401d-b344-a48e7d772d88",
+    "type": "payment",
+    "entryDate": "2026-09-22",
+    "recordedAt": "2026-09-24T00:50:51.091Z",
+    "amount": 150000,
+    "method": "Efectivo",
+    "reference": "",
+    "institution": "",
+    "source": "cash",
+    "documentId": null,
+    "reversesId": null,
+    "reversedBy": null,
+    "reason": "",
+    "note": "",
+    "auto": false,
+    "allocation": [
+     {
+      "number": 1,
+      "toLateFee": 0,
+      "toInstallment": 120000,
+      "completed": true,
+      "partial": false
+     },
+     {
+      "number": 2,
+      "toLateFee": 0,
+      "toInstallment": 30000,
+      "completed": false,
+      "partial": true
+     }
+    ],
+    "receiptNumber": "RC-000001",
+    "createdBy": "2f20f6e9-db49-4339-9fe6-d0445f27ec6c"
+   },
+   "receipt": {
+    "lang": "es",
+    "number": "RC-000001",
+    "issuedAt": "2026-09-23 20:50",
+    "company": {
+     "name": "Empresa DAST"
+    },
+    "client": {
+     "fullName": "María José Pérez Gómez",
+     "code": "C000001"
+    },
+    "contract": "CT-000001",
+    "currency": "USD",
+    "payment": {
+     "date": "2026-09-22",
+     "amount": 150000,
+     "method": "Efectivo"
+    },
+    "totalInstallments": 10,
+    "coverage": "Cuota 1 (completa) · Cuota 2 (abono parcial US$ 300,00)",
+    "remainingInstallments": 9,
+    "accumulatedPaid": 150000,
+    "previousBalance": 1200000,
+    "newBalance": 1050000,
+    "next": {
+     "number": 2,
+     "dueDate": "2026-09-08",
+     "amount": 90000
+    },
+    "verificationCode": "B2ED6A2766D99EBB",
+    "verificationUrl": "http://localhost:3000/v1/public/receipts/B2ED6A2766D99EBB"
+   },
+   "surplus": 0,
+   "loanClosed": false
+  },
+  "reversal": {
+   "entry": {
+    "id": "8a537843-a87e-443b-ab6d-fe3cbb1f6547",
+    "type": "reversal",
+    "entryDate": "2026-09-23",
+    "recordedAt": "2026-09-24T00:50:51.156Z",
+    "amount": 50000,
+    "method": "",
+    "reference": "",
+    "institution": "",
+    "source": "manual",
+    "documentId": null,
+    "reversesId": "f8cbb0d8-a742-440d-84a0-5a2491df9289",
+    "reversedBy": null,
+    "reason": "Consignación rechazada por el banco",
+    "note": "",
+    "auto": false,
+    "allocation": [],
+    "receiptNumber": "",
+    "createdBy": "2f20f6e9-db49-4339-9fe6-d0445f27ec6c"
+   },
+   "voidedReceipt": "RC-000002",
+   "balance": 1050000
+  },
+  "uploadLink": {
+   "url": "http://localhost:3000/v1/public/upload/pKTyL-fSiDitxAyzeNDHJCZcFmpC-Myn",
+   "expiresAt": "2027-09-24T00:50:51.177Z",
+   "createdAt": "2026-09-24T00:50:51.177Z",
+   "uses": 0,
+   "lastUsedAt": null
+  },
+  "report": {
+   "id": "ecfe3d23-8878-42c3-80ff-25d37b86656a",
+   "kind": "report",
+   "status": "pending",
+   "progress": 0,
+   "documentId": null,
+   "error": null,
+   "createdAt": "2026-09-24T00:50:51.184Z",
+   "finishedAt": null
+  },
+  "uploadIntake": {
+   "id": "57ba3711-49fd-4848-bb6c-e9e7c4d684c2",
+   "channel": "upload",
+   "senderPhone": null,
+   "senderEmail": null,
+   "messageText": null,
+   "documentId": "5a6100c1-0c25-413d-b28f-9cbe6d661ffb",
+   "fileName": "comprobante.pdf",
+   "mime": "application/pdf",
+   "status": "processing",
+   "stage": "ALMACENADO",
+   "engine": null,
+   "extraction": {},
+   "identification": {
+    "status": "unknown",
+    "clientId": null,
+    "via": null,
+    "candidates": [],
+    "loanRule": null,
+    "duplicateOf": null
+   },
+   "flags": [],
+   "receiverMatch": null,
+   "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+   "clientName": "María José Pérez Gómez",
+   "clientCode": "C000001",
+   "loanId": null,
+   "contract": null,
+   "currency": null,
+   "entryId": null,
+   "receiptNumber": null,
+   "receiptDocumentId": null,
+   "revertibleUntil": null,
+   "reason": null,
+   "decidedBy": null,
+   "decidedAt": null,
+   "createdAt": "2026-09-24T00:50:51.202Z",
+   "updatedAt": "2026-09-24T00:50:51.202Z"
+  },
+  "composeMessage": {
+   "id": "8a69b276-3cef-466b-8d20-f18552a0f367",
+   "clientId": "02fdb6a0-2021-407b-8811-8146527add64",
+   "clientName": "María José Pérez Gómez",
+   "loanId": "f5668363-c045-48bd-949e-e112e5c18167",
+   "contract": "CT-000001",
+   "event": "manual",
+   "kind": "collection",
+   "channel": "email",
+   "lang": "es",
+   "body": "Hola María José, le escribimos por su préstamo.",
+   "subject": "Empresa DAST · CT-000001",
+   "attachmentDocumentId": null,
+   "status": "scheduled",
+   "decision": {
+    "at": "2026-09-24T11:00:00.000Z",
+    "localAt": "2026-09-24T07:00",
+    "reasons": [
+     {
+      "code": "OUT_OF_WINDOW"
+     }
+    ],
+    "ruleSet": "CO_LEY_2300_2023",
+    "decision": "reschedule",
+    "timeZone": "America/New_York"
+   },
+   "requestedAt": "2026-09-24T00:50:51.224Z",
+   "scheduledAt": "2026-09-24T11:00:00.000Z",
+   "sentAt": null,
+   "deliveredAt": null,
+   "readAt": null,
+   "failedAt": null,
+   "via": null,
+   "error": null,
+   "createdAt": "2026-09-24T00:50:51.219Z",
+   "assisted": {
+    "mailtoUrl": "mailto:maria.perez@example.com?subject=Empresa%20DAST%20%C2%B7%20CT-000001&body=Hola%20Mar%C3%ADa%20Jos%C3%A9%2C%20le%20escribimos%20por%20su%20pr%C3%A9stamo."
+   }
+  },
+  "previewTemplate": {
+   "lang": "es",
+   "body": "Hola María José, te recordamos que la cuota 2 de tu préstamo CT-000001, por US$ 900,00, vence el 8 de septiembre de 2026. Cuando pagues, envía el comprobante aquí: http://localhost:3000/v1/public/upload/…",
+   "subject": "Recordatorio de cuota · CT-000001",
+   "length": 204,
+   "variables": [
+    "nombre",
+    "cuota_numero",
+    "contrato",
+    "valor_cuota",
+    "fecha_vencimiento",
+    "enlace_carga"
+   ],
+   "issues": []
+  },
+  "createBackup": {
+   "id": "b3445e88-3c7c-435f-93c4-298964952737",
+   "status": "pending",
+   "progress": 0,
+   "fileName": null,
+   "size": null,
+   "sha256": null,
+   "counts": {},
+   "createdAt": "2026-09-24T00:50:51.368Z",
+   "finishedAt": null
+  }
+ }
+}
