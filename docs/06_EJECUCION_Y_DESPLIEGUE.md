@@ -1,4 +1,4 @@
-# COROC · Ejecución local y despliegue (fases 1 a 3)
+# COROC · Ejecución local y despliegue
 
 ## Requisitos
 
@@ -92,7 +92,7 @@ tool/coverage_report.sh 75 --files     # cobertura sin código generado; falla b
 
 | Trabajo | Qué hace |
 |---|---|
-| Núcleo y API | `npm ci`, compilación, tipos, textos en 3 idiomas, Redocly, Chromium sin interfaz, Tesseract y todas las pruebas con PostgreSQL 16 (incluidos los PDF, CA-07 a CA-09 y CA-19 con OCR real, y la suite de penetración). Falla si la cobertura baja de 90 % en el núcleo o de 80 % en la API |
+| Núcleo y API | `npm ci`, compilación, tipos, textos en 3 idiomas, Redocly, Chromium sin interfaz, Tesseract, MinIO y todas las pruebas con PostgreSQL 16 (incluidos los PDF, CA-07 a CA-09 y CA-19 con OCR real, la suite de penetración y el almacén S3). Falla si la cobertura baja de 90 % en el núcleo o de 80 % en la API |
 | Rendimiento | 100.000 clientes y 2.000.000 de cuotas: dashboard, búsqueda, cobros de hoy, p95 con usuarios concurrentes y carga mixta. El informe queda como artefacto `informe-de-rendimiento` |
 | Seguridad · dependencias y DAST | `npm audit --omit=dev` (falla con vulnerabilidades moderadas o mayores) y OWASP ZAP sobre el contrato con una sesión real. Falla en inyección, XSS, SSRF, XXE, recorrido de rutas o ejecución de código (`.zap/rules.tsv`). El informe queda como artefacto `informe-zap` |
 | Imagen Docker | Construye `services/api/Dockerfile` |
@@ -102,6 +102,12 @@ tool/coverage_report.sh 75 --files     # cobertura sin código generado; falla b
 | App · macOS e iOS | En `main`, etiquetas `v*` o a pedido: `.app` de macOS e iOS sin firma |
 
 Los instaladores quedan como artefactos de cada ejecución, en la pestaña Actions del repositorio.
+
+Además, fuera de `ci.yml` (ADR-060):
+- `deploy.yml` despliega la API en Fly.io cuando la CI termina en verde en `main`;
+- `backup-db.yml` guarda los domingos una copia cifrada de la base en R2.
+
+Ambos se omiten con un aviso mientras no existan sus secretos.
 
 ### Publicación (`.github/workflows/release.yml`, ADR-059)
 
@@ -168,4 +174,86 @@ Active «Firma de apps de Google Play» para que Google guarde la clave de firma
      Para revertir un cierre dentro del plazo: `UPDATE coroc.tenants SET closure_requested_at = NULL WHERE id = '<id>'`.
 9. **Respaldo de la base:** respaldo automático diario del proveedor con retención de 30 días, más `pg_dump` semanal cifrado fuera de la nube principal. El respaldo `.coroc` por empresa (Configuración › Respaldo) complementa esto, pero no lo reemplaza. Respalde también el volumen o el depósito de archivos.
 
-Queda pendiente decidir la nube, la región y el dominio (pregunta P-1).
+## 6. Producción en Fly.io (P-1, ADR-060)
+
+La API corre en Fly.io en São Paulo (`gru`), PostgreSQL 16 va en Fly Postgres y los archivos cifrados en Cloudflare R2. La app se configura en `fly.toml`. `deploy.yml` despliega cada vez que la CI termina en verde en `main`, y `backup-db.yml` hace la copia semanal. Mientras no haya dominio propio, la dirección es `https://coroc-api.fly.dev`.
+
+### Preparación (una sola vez)
+
+1. **Cuentas.** Fly.io y Cloudflare, a nombre de la empresa titular, con la tarjeta de la empresa. Instale `flyctl` y ejecute `fly auth login`.
+2. **App y base de datos.**
+   ```bash
+   fly apps create coroc-api
+   fly postgres create --name coroc-db --region gru --initial-cluster-size 2 --vm-size shared-cpu-1x --volume-size 20
+   # Guarde la contraseña del usuario «postgres» que muestra al terminar.
+   fly proxy 15432:5432 --app coroc-db &           # túnel a la base (se usa también en el paso 3)
+   psql postgres://postgres:<clave>@127.0.0.1:15432/postgres -c 'CREATE DATABASE coroc'
+   ```
+   No use `fly postgres attach`: crea un usuario sin las restricciones de COROC. La API se conecta con `coroc_api` (paso 3).
+   Si prefiere otro PostgreSQL gestionado (Fly Managed Postgres, Neon, Supabase), primero verifique que sirve: COROC necesita crear un rol con BYPASSRLS.
+3. **Roles y migraciones.** Desde `services/api`, con el túnel del paso 2 abierto:
+   ```bash
+   npm run build -w @coroc/core && npm run build -w @coroc/api
+   DATABASE_SUPERUSER_URL=postgres://postgres:<clave>@127.0.0.1:15432/coroc COROC_DB_HOST=coroc-db.flycast:5432 node scripts/prepare-db.mjs --check
+   DATABASE_SUPERUSER_URL=postgres://postgres:<clave>@127.0.0.1:15432/coroc COROC_DB_HOST=coroc-db.flycast:5432 node scripts/prepare-db.mjs
+   ```
+   El script:
+   - verifica PostgreSQL 16, las extensiones y los roles con BYPASSRLS;
+   - crea `coroc_owner`, `coroc_app`, `coroc_collector` y `coroc_api` con contraseñas aleatorias;
+   - aplica las migraciones;
+   - muestra `DATABASE_ADMIN_URL` y `DATABASE_URL`. No las guarda en ningún archivo.
+4. **Cloudflare R2.**
+   - Cree dos depósitos: `coroc-objects` para los documentos y `coroc-db-backups` para las copias de la base.
+   - Cree un token de API con permiso «Object Read & Write» limitado a esos dos depósitos.
+   - El endpoint es `https://<id-de-cuenta>.r2.cloudflarestorage.com`.
+5. **Secretos de la app.** Genere las claves en su equipo; no se escriben en ningún archivo:
+   ```bash
+   fly secrets set --app coroc-api --stage \
+     DATABASE_URL='<del paso 3>' DATABASE_ADMIN_URL='<del paso 3>' \
+     COROC_JWT_SECRET="$(openssl rand -base64 48)" COROC_DATA_KEY="$(openssl rand -base64 32)" \
+     COROC_S3_ENDPOINT='https://<id-de-cuenta>.r2.cloudflarestorage.com' COROC_S3_BUCKET=coroc-objects \
+     AWS_ACCESS_KEY_ID='<token R2>' AWS_SECRET_ACCESS_KEY='<token R2>' \
+     COROC_API_PUBLIC_URL=https://coroc-api.fly.dev COROC_PUBLIC_URL=https://coroc-api.fly.dev
+   ```
+   Guarde `COROC_DATA_KEY` también en el gestor de contraseñas de la empresa: sin ella los archivos no se pueden leer (ADR-031). Agregue después, según §5, el correo (`COROC_EMAIL_PROVIDER`…), WhatsApp y la extracción con IA.
+6. **Primer despliegue y primera empresa.**
+   ```bash
+   fly deploy                                   # desde la raíz del repositorio; aplica las migraciones antes
+   fly ssh console --app coroc-api -C "node dist/cli/tenant-create.js --slug mi-empresa --name 'Mi Empresa S.A.S.' --country CO --owner admin --owner-name 'Nombre Apellido' --email admin@ejemplo.com"
+   ```
+7. **Despliegue automático.** En GitHub › Settings › Secrets and variables › Actions:
+   - `FLY_API_TOKEN` (`fly tokens create deploy --app coroc-api`);
+   - para `backup-db.yml`:
+     - `BACKUP_DATABASE_URL` (la de `coroc_owner` con `127.0.0.1:15432` como servidor);
+     - `BACKUP_PASSPHRASE` (larga; guárdela aparte);
+     - `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` y `R2_ENDPOINT`;
+   - la variable `COROC_API_URL` (`https://coroc-api.fly.dev/v1`), con la que se compilan las apps en `release.yml`.
+
+   El token de la copia necesita acceso a `coroc-db`: use `fly tokens create org` o uno por app.
+
+### Dominio propio (cuando exista)
+
+```bash
+fly certs add api.<dominio> --app coroc-api      # y en el DNS: CNAME api → coroc-api.fly.dev
+fly secrets set --app coroc-api COROC_API_PUBLIC_URL=https://api.<dominio> COROC_PUBLIC_URL=https://app.<dominio>
+```
+
+Después:
+- actualice la variable `COROC_API_URL` a `https://api.<dominio>/v1` y publique una versión nueva de las apps;
+- actualice `COROC_HEALTH_URL`;
+- actualice los webhooks de correo y WhatsApp (§5).
+
+Los recibos ya emitidos conservan el código QR con la dirección anterior. Esa dirección sigue funcionando mientras exista la app en Fly.io.
+
+### Operación
+
+- **Estado y registros:** `fly status --app coroc-api` y `fly logs --app coroc-api`. Cada petición registra su `X-Request-Id` (ADR-053).
+- **Volver a la versión anterior:** `fly releases --app coroc-api` y `fly deploy --image <imagen anterior>`. Las migraciones solo agregan cosas, así que la versión anterior funciona con la base nueva.
+- **Más de una máquina:**
+  - `fly redis create` (Upstash, región `gru`) y `fly secrets set REDIS_URL=…`: los eventos en vivo y el trabajo de cada hora se coordinan por Redis;
+  - luego `fly scale count 2 --region gru`;
+  - con muchas máquinas conviene dejar `COROC_DOCUMENT_WORKER` y `COROC_MESSAGE_WORKER` encendidos solo en un grupo de procesos.
+- **Copias:**
+  - Fly Postgres toma instantáneas diarias del volumen;
+  - `backup-db.yml` guarda los domingos un `pg_dump` cifrado en R2, fuera de Fly.io;
+  - pruebe restaurar una copia al menos una vez por trimestre (comando al inicio de `backup-db.yml`).

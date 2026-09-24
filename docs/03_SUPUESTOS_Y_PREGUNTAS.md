@@ -6,7 +6,7 @@ Solo se listan las que detienen una fase. Mientras llega la respuesta, el trabaj
 
 | ID | Pregunta | Bloquea | Mientras tanto |
 |---|---|---|---|
-| P-1 | ¿En qué nube y región se despliega, y con qué dominio (por ejemplo, `app.coroc.co`)? ¿Quién es el titular de las cuentas? | Despliegue de la Fase 1 | Se desarrolla contra contenedores locales. La propuesta es AWS `sa-east-1` (São Paulo) o Cloudflare R2 con PostgreSQL gestionado |
+| P-10 | ¿Qué dominio usará COROC y quién lo registra? | Direcciones definitivas de la API y de los enlaces de recibos y del portal | Se usa `https://coroc-api.fly.dev`. Cambiarlo son tres pasos (06 §6) |
 | P-2 | ¿Existen ya cuentas de Apple Developer (organización), Google Play Console, Microsoft Partner Center y un certificado de firma de código para Windows? Deben quedar a nombre de la empresa titular | Publicación (Fase 5) | El flujo `release.yml` ya compila las cuatro plataformas y firma y publica en cuanto se carguen los secretos (ADR-059). Sin ellos, compila sin firma |
 | P-3 | ¿Puede entregar 40 o más comprobantes reales anonimizados (nombres y cuentas tachados) de Nequi, Daviplata, Bancolombia, Bre-B, Davivienda, BBVA, Banco de Bogotá, PSE, Efecty y corresponsales? Si opera en Brasil o EE. UU., también PIX y TED, o Zelle, Venmo y Cash App | Medición definitiva de CA-19 | En la Fase 3 CA-19 se midió con 43 comprobantes sintéticos de 18 formatos (`services/api/test/receipts/dataset.ts`); con los reales se repite la misma prueba. Todo lo que no alcance el umbral pasa a la Bandeja |
 | P-4 | ¿Quiere intentar el modo automático de WhatsApp (Cloud API)? Meta prohíbe expresamente la cobranza de deudas en WhatsApp Business, así que la aprobación es incierta, y el intento exige un número dedicado y una revisión legal | Uso real del modo automático | Modo asistido, enlace de carga y correo, que cubren todo el flujo sin Meta (ADR-007). El modo automático y el paso al asistido ante una suspensión ya están implementados y probados con un Graph API de prueba (CA-20, ADR-047) |
@@ -19,6 +19,7 @@ Solo se listan las que detienen una fase. Mientras llega la respuesta, el trabaj
 
 | ID | Pregunta | Respuesta | Qué cambió |
 |---|---|---|---|
+| P-1 | ¿En qué nube y región se despliega, con qué dominio y a nombre de quién? | PaaS gestionado; aún sin dominio (24 de septiembre de 2026) | Fly.io en São Paulo, Fly Postgres y Cloudflare R2. Las cuentas van a nombre de la empresa titular. Se usa `coroc-api.fly.dev` hasta tener dominio (ADR-060, 06 §6) |
 | P-6 | Las tasas de los préstamos diarios de ejemplo (CA-01) superan la usura y COROC no dejaba crearlos en Colombia (ADR-026). ¿Qué tasas usa realmente? | «Se deberá dejar usar tasas más altas, si el usuario lo desea» (24 de septiembre de 2026) | La empresa elige entre bloquear (predeterminado) o solo advertir. Solo el Propietario activa «solo advertir», aceptando la responsabilidad legal, y cada préstamo por encima del tope se confirma y queda marcado y auditado (ADR-061) |
 
 ## Supuestos

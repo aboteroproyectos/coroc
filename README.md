@@ -34,7 +34,7 @@ coroc/
 | [`docs/06_EJECUCION_Y_DESPLIEGUE.md`](docs/06_EJECUCION_Y_DESPLIEGUE.md) | Ejecución local, Docker, app Flutter, CI y producción |
 | [`docs/04_CRITERIOS_DE_ACEPTACION.md`](docs/04_CRITERIOS_DE_ACEPTACION.md) | Estado de CA-01 a CA-20 con su evidencia |
 | [`docs/DECISIONES.md`](docs/DECISIONES.md) | Decisiones de arquitectura (ADR) |
-| [`docs/03_SUPUESTOS_Y_PREGUNTAS.md`](docs/03_SUPUESTOS_Y_PREGUNTAS.md) | Preguntas abiertas P-1 a P-9 y supuestos |
+| [`docs/03_SUPUESTOS_Y_PREGUNTAS.md`](docs/03_SUPUESTOS_Y_PREGUNTAS.md) | Preguntas abiertas y respondidas (P-1 a P-10) y supuestos |
 | [`docs/01_ARQUITECTURA.md`](docs/01_ARQUITECTURA.md) · [`docs/02_MAPA_DE_PANTALLAS.md`](docs/02_MAPA_DE_PANTALLAS.md) | Arquitectura y mapa de pantallas (Fase 0) |
 | [`docs/00_PROMPT_MAESTRO.md`](docs/00_PROMPT_MAESTRO.md) | Especificación de referencia |
 
@@ -57,7 +57,7 @@ cd apps/coroc_app && flutter test                                               
 ## Siguiente paso
 
 - Todas las fases de §23 están implementadas. Para salir a producción faltan decisiones y cuentas:
-  - P-1: nube y dominio;
+  - P-1 resuelta: Fly.io en São Paulo con Fly Postgres y Cloudflare R2 (ADR-060). Falta crear las cuentas y seguir la preparación de 06 §6. El dominio queda pendiente (P-10);
   - P-2: cuentas de tiendas y certificados;
   - P-5: revisión legal de la política y de las fichas;
   - P-8: prueba de penetración externa;

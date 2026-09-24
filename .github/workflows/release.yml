@@ -13,7 +13,7 @@ name: Publicación
 #            MACOS_DEVELOPER_ID_P12_BASE64, MACOS_DEVELOPER_ID_PASSWORD (Developer ID Application, para el DMG).
 #   Windows: WINDOWS_CERTIFICATE_PFX_BASE64, WINDOWS_CERTIFICATE_PASSWORD, WINDOWS_PUBLISHER (CN=… del certificado) para
 #            descarga directa; o WINDOWS_STORE_PUBLISHER (Partner Center › Identidad del producto) para Microsoft Store.
-#   Todas:   COROC_API_URL (dirección pública de la API que usará la app, p. ej. https://api.coroc.app/v1).
+#   Todas:   COROC_API_URL (dirección pública de la API que usará la app; sin dominio propio, https://coroc-api.fly.dev/v1, ADR-060).
 
 on:
   push:
@@ -64,7 +64,7 @@ jobs:
       - name: Compilar
         working-directory: apps/coroc_app
         run: |
-          API="${COROC_API_URL:-https://api.coroc.app/v1}"
+          API="${COROC_API_URL:-https://coroc-api.fly.dev/v1}"
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//; s/+.*//')
           flutter build appbundle --release --dart-define=COROC_API="$API" --dart-define=COROC_VERSION="$VERSION"
           flutter build apk --release --dart-define=COROC_API="$API" --dart-define=COROC_VERSION="$VERSION"
@@ -133,7 +133,7 @@ jobs:
         run: |
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//; s/+.*//')
           flutter build ipa --release --export-options-plist=$RUNNER_TEMP/ExportOptions.plist \
-            --dart-define=COROC_API="${COROC_API_URL:-https://api.coroc.app/v1}" --dart-define=COROC_VERSION="$VERSION"
+            --dart-define=COROC_API="${COROC_API_URL:-https://coroc-api.fly.dev/v1}" --dart-define=COROC_VERSION="$VERSION"
       - name: Compilar sin firma
         if: env.HAS_CERT != 'true'
         working-directory: apps/coroc_app
@@ -167,7 +167,7 @@ jobs:
         working-directory: apps/coroc_app
         run: |
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//; s/+.*//')
-          flutter build macos --release --dart-define=COROC_API="${COROC_API_URL:-https://api.coroc.app/v1}" --dart-define=COROC_VERSION="$VERSION"
+          flutter build macos --release --dart-define=COROC_API="${COROC_API_URL:-https://coroc-api.fly.dev/v1}" --dart-define=COROC_VERSION="$VERSION"
       - name: Firmar con Developer ID
         if: env.HAS_DEVID == 'true'
         run: |
@@ -219,7 +219,7 @@ jobs:
         working-directory: apps/coroc_app
         run: |
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//; s/+.*//')
-          flutter build windows --release --dart-define=COROC_API="${COROC_API_URL:-https://api.coroc.app/v1}" --dart-define=COROC_VERSION="$VERSION"
+          flutter build windows --release --dart-define=COROC_API="${COROC_API_URL:-https://coroc-api.fly.dev/v1}" --dart-define=COROC_VERSION="$VERSION"
       - name: MSIX firmado
         if: env.HAS_CERT == 'true'
         shell: bash

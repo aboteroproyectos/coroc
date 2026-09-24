@@ -437,6 +437,26 @@ Cada plataforma firma solo si sus secretos existen; si no, compila sin firma y l
 
 **Consecuencias:** publicar depende solo de cargar los secretos cuando existan las cuentas (P-2). Ningún secreto vive en el repositorio (`key.properties` y `*.jks` están en `.gitignore`).
 
+### ADR-060 · Producción en Fly.io (São Paulo), Fly Postgres y Cloudflare R2
+**Contexto:** P-1. El Propietario eligió un PaaS gestionado. Aún no tiene dominio.
+
+**Decisión:**
+- **API:** la misma imagen Docker en Fly.io, región `gru` (São Paulo, la más cercana a Colombia que ofrece la plataforma), con 2 vCPU compartidas y 2 GB para Chromium y el OCR. Una máquina siempre encendida al inicio, con verificación de salud en `/health` (`fly.toml`). La plataforma no guarda en búfer las conexiones SSE, y el ping de 25 s las mantiene abiertas.
+- **Base:** PostgreSQL 16 en Fly Postgres, con 2 nodos y red privada (`flycast`). Sirve cualquier otro gestionado que permita crear un rol con BYPASSRLS: `scripts/prepare-db.mjs --check` lo verifica.
+  - La preparación única crea los roles con el superusuario y aplica las migraciones como `coroc_owner`.
+  - Así se corrigió el procedimiento de `roles.sql`: el dueño no puede crear roles ni, desde PostgreSQL 15, crear objetos en `public`.
+- **Migraciones en cada despliegue:** en el `release_command`, con el rol dueño, antes de cambiar las máquinas. Si una falla, sigue la versión anterior.
+  - La credencial del dueño es un secreto de la app. La API la borra de su entorno al arrancar, para que Chromium y Tesseract no la hereden.
+  - Queda como mejora separar las migraciones en una app propia.
+- **Archivos:** Cloudflare R2, compatible con S3. Los archivos ya van cifrados por la aplicación (ADR-031). El almacén S3 se prueba contra MinIO en la CI.
+- **Despliegue:** automático cuando la CI termina en verde en `main` (`deploy.yml`), con comprobación de salud posterior. Sin `FLY_API_TOKEN`, el flujo se omite con un aviso.
+- **Copias:**
+  - instantáneas diarias del proveedor;
+  - `pg_dump` semanal cifrado con AES-256 en R2, fuera de Fly.io (`backup-db.yml`).
+- **Dominio:** es un parámetro. Mientras no exista se usa `https://coroc-api.fly.dev`, que también es la dirección por defecto de las apps en `release.yml`. Cambiarlo son tres pasos (06 §6).
+
+**Consecuencias:** producción queda a un `fly deploy` de distancia cuando existan las cuentas. El costo inicial es bajo, unos USD 40–80 al mes con la base en dos nodos. Para escalar a varias máquinas basta Redis (Upstash, `fly redis create`) y `fly scale count`. Si más adelante se requiere AWS, la misma imagen y las mismas variables sirven: solo cambian la base gestionada y el orquestador.
+
 ### ADR-061 · Préstamos por encima del tope de tasa por decisión del Propietario
 **Contexto:** ante P-6, el Propietario pidió poder usar tasas más altas que el tope si lo desea. En Colombia cobrar por encima de la usura es delito (art. 305 del Código Penal) y el deudor puede reclamar los intereses cobrados de más, así que el cambio no puede ocurrir por descuido.
 
