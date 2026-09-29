@@ -24,17 +24,23 @@ void main() {
   test('sin red, una lectura guardada se muestra con su hora y se avisa que se está sin conexión', () async {
     var online = true;
     final events = <(bool, DateTime?)>[];
-    final api = ApiClient(
-      baseUrl: 'https://api.test/v1',
-      store: MemorySessionStore(),
-      language: () => 'es',
-      client: MockClient((req) async {
-        if (!online) throw http.ClientException('sin red');
-        return _json(200, {'items': [{'id': 'c1'}], 'path': req.url.path});
-      }),
-    )
-      ..cache = OfflineCache(MemoryVault())
-      ..onConnectivity = (on, at) => events.add((on, at));
+    final api =
+        ApiClient(
+            baseUrl: 'https://api.test/v1',
+            store: MemorySessionStore(),
+            language: () => 'es',
+            client: MockClient((req) async {
+              if (!online) throw http.ClientException('sin red');
+              return _json(200, {
+                'items': [
+                  {'id': 'c1'},
+                ],
+                'path': req.url.path,
+              });
+            }),
+          )
+          ..cache = OfflineCache(MemoryVault())
+          ..onConnectivity = (on, at) => events.add((on, at));
     final first = await api.get('/clients', query: {'q': 'ana', 'limit': 50});
     await api.get('/support/failures');
     online = false;
@@ -72,14 +78,14 @@ void main() {
         final key = req.headers['Idempotency-Key']!;
         seen.add(key);
         if (key == 'pago-2') return _json(409, {'code': 'LOAN_CLOSED', 'title': 'Préstamo cerrado', 'detail': 'El préstamo ya está pagado.', 'status': 409});
-        return _json(201, {'entry': {'id': key}});
+        return _json(201, {
+          'entry': {'id': key},
+        });
       }),
     );
-    final c = ProviderContainer(overrides: [
-      sessionStoreProvider.overrideWithValue(MemorySessionStore()),
-      offlineVaultProvider.overrideWithValue(MemoryVault()),
-      apiClientProvider.overrideWithValue(client),
-    ]);
+    final c = ProviderContainer(
+      overrides: [sessionStoreProvider.overrideWithValue(MemorySessionStore()), offlineVaultProvider.overrideWithValue(MemoryVault()), apiClientProvider.overrideWithValue(client)],
+    );
     addTearDown(c.dispose);
     final ctrl = c.read(offlineProvider.notifier);
     PendingPayment p(String key, {String user = 'u1'}) => PendingPayment(key: key, userId: user, loanId: _loan, amount: 60000, date: '2026-10-09', createdAt: DateTime(2026, 10, 9), cash: true);

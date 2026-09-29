@@ -14,19 +14,19 @@ import 'support.dart';
 
 /// App mínima con los tres idiomas y el tema de COROC, sin red ni almacenamiento de plataforma.
 Widget harness(Widget home, {MemorySessionStore? store, ThemeMode mode = ThemeMode.light, List<Override> overrides = const []}) => ProviderScope(
-      overrides: [sessionStoreProvider.overrideWithValue(store ?? MemorySessionStore()), ...overrides],
-      child: Consumer(
-        builder: (context, ref, _) => MaterialApp(
-          theme: CorocTheme.light(),
-          darkTheme: CorocTheme.dark(),
-          themeMode: mode,
-          locale: ref.watch(localeProvider),
-          supportedLocales: const [Locale('es'), Locale('pt'), Locale('en')],
-          localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
-          home: home,
-        ),
-      ),
-    );
+  overrides: [sessionStoreProvider.overrideWithValue(store ?? MemorySessionStore()), ...overrides],
+  child: Consumer(
+    builder: (context, ref, _) => MaterialApp(
+      theme: CorocTheme.light(),
+      darkTheme: CorocTheme.dark(),
+      themeMode: mode,
+      locale: ref.watch(localeProvider),
+      supportedLocales: const [Locale('es'), Locale('pt'), Locale('en')],
+      localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
+      home: home,
+    ),
+  ),
+);
 
 void main() {
   testWidgets('CA-14: el idioma cambia al instante desde la pantalla de ingreso, sin reiniciar', (tester) async {
@@ -63,7 +63,13 @@ void main() {
     tester.view.physicalSize = const Size(360, 740);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(harness(const LoginPage(), store: MemorySessionStore(savedLocale: 'pt'), mode: ThemeMode.dark));
+    await tester.pumpWidget(
+      harness(
+        const LoginPage(),
+        store: MemorySessionStore(savedLocale: 'pt'),
+        mode: ThemeMode.dark,
+      ),
+    );
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     expect(find.text('Entrar'), findsOneWidget);
@@ -71,16 +77,24 @@ void main() {
 
   testWidgets('botón dorado y estados dentro de filas (sin restricciones de ancho)', (tester) async {
     var taps = 0;
-    await tester.pumpWidget(harness(Scaffold(
-      body: Column(children: [
-        Row(children: [
-          GoldButton(label: 'Confirmar pago', icon: Icons.check, onPressed: () => taps++),
-          const Spacer(),
-          const StatusDot(label: 'Vencida', tone: StatusTone.error),
-        ]),
-        const Row(children: [GoldButton(label: 'Guardando', onPressed: null, busy: true)]),
-      ]),
-    )));
+    await tester.pumpWidget(
+      harness(
+        Scaffold(
+          body: Column(
+            children: [
+              Row(
+                children: [
+                  GoldButton(label: 'Confirmar pago', icon: Icons.check, onPressed: () => taps++),
+                  const Spacer(),
+                  const StatusDot(label: 'Vencida', tone: StatusTone.error),
+                ],
+              ),
+              const Row(children: [GoldButton(label: 'Guardando', onPressed: null, busy: true)]),
+            ],
+          ),
+        ),
+      ),
+    );
     await tester.pump();
     expect(tester.takeException(), isNull);
     await tester.tap(find.text('Confirmar pago'));
@@ -90,7 +104,12 @@ void main() {
   });
 
   testWidgets('ayuda: búsqueda sin tildes encuentra el tema y cambia de idioma', (tester) async {
-    await tester.pumpWidget(harness(const Scaffold(body: HelpPage()), store: MemorySessionStore(savedLocale: 'es')));
+    await tester.pumpWidget(
+      harness(
+        const Scaffold(body: HelpPage()),
+        store: MemorySessionStore(savedLocale: 'es'),
+      ),
+    );
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'usura');
     await tester.pumpAndSettle();

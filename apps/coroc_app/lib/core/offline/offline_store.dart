@@ -26,9 +26,7 @@ class MemoryVault implements OfflineVault {
 }
 
 class FileVault implements OfflineVault {
-  FileVault({FlutterSecureStorage? storage, Future<Directory> Function()? dir})
-      : _storage = storage ?? const FlutterSecureStorage(),
-        _dir = dir ?? getApplicationSupportDirectory;
+  FileVault({FlutterSecureStorage? storage, Future<Directory> Function()? dir}) : _storage = storage ?? const FlutterSecureStorage(), _dir = dir ?? getApplicationSupportDirectory;
 
   static const _keyName = 'coroc.offline_key';
   final FlutterSecureStorage _storage;
@@ -147,7 +145,9 @@ class OfflineDocuments {
   Future<void> put(String id, List<int> bytes) async {
     if (bytes.length > maxBytes) return;
     await vault.write('doc-$id', base64Encode(bytes));
-    final ids = (await _ids())..remove(id)..insert(0, id);
+    final ids = (await _ids())
+      ..remove(id)
+      ..insert(0, id);
     for (final old in ids.skip(keep)) {
       await vault.delete('doc-$old');
     }
@@ -187,21 +187,21 @@ class PendingPayment {
   });
 
   factory PendingPayment.fromJson(Map<String, dynamic> j) => PendingPayment(
-        key: j['key'] as String,
-        userId: j['userId'] as String,
-        loanId: j['loanId'] as String,
-        amount: (j['amount'] as num).toInt(),
-        date: j['date'] as String,
-        createdAt: DateTime.parse(j['createdAt'] as String),
-        clientName: j['clientName'] as String?,
-        currency: j['currency'] as String?,
-        method: j['method'] as String?,
-        reference: j['reference'] as String?,
-        note: j['note'] as String?,
-        cash: j['cash'] as bool? ?? false,
-        conflictCode: j['conflictCode'] as String?,
-        conflictMessage: j['conflictMessage'] as String?,
-      );
+    key: j['key'] as String,
+    userId: j['userId'] as String,
+    loanId: j['loanId'] as String,
+    amount: (j['amount'] as num).toInt(),
+    date: j['date'] as String,
+    createdAt: DateTime.parse(j['createdAt'] as String),
+    clientName: j['clientName'] as String?,
+    currency: j['currency'] as String?,
+    method: j['method'] as String?,
+    reference: j['reference'] as String?,
+    note: j['note'] as String?,
+    cash: j['cash'] as bool? ?? false,
+    conflictCode: j['conflictCode'] as String?,
+    conflictMessage: j['conflictMessage'] as String?,
+  );
 
   final String key;
   final String userId;
@@ -221,21 +221,21 @@ class PendingPayment {
   bool get inConflict => conflictCode != null;
 
   Map<String, dynamic> toJson() => {
-        'key': key,
-        'userId': userId,
-        'loanId': loanId,
-        'amount': amount,
-        'date': date,
-        'createdAt': createdAt.toUtc().toIso8601String(),
-        'clientName': clientName,
-        'currency': currency,
-        'method': method,
-        'reference': reference,
-        'note': note,
-        'cash': cash,
-        'conflictCode': conflictCode,
-        'conflictMessage': conflictMessage,
-      };
+    'key': key,
+    'userId': userId,
+    'loanId': loanId,
+    'amount': amount,
+    'date': date,
+    'createdAt': createdAt.toUtc().toIso8601String(),
+    'clientName': clientName,
+    'currency': currency,
+    'method': method,
+    'reference': reference,
+    'note': note,
+    'cash': cash,
+    'conflictCode': conflictCode,
+    'conflictMessage': conflictMessage,
+  };
 }
 
 class PaymentQueue {

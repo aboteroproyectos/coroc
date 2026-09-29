@@ -97,66 +97,63 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               child: AutofillGroup(
                 child: Form(
                   key: _form,
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                    const Align(alignment: Alignment.centerRight, child: LanguageSelector()),
-                    const SizedBox(height: CorocSpace.lg),
-                    const Center(child: CorocLogo(height: 170)),
-                    const SizedBox(height: CorocSpace.xl),
-                    if (expired) ...[
-                      _Notice(text: l.loginSessionExpired),
-                      const SizedBox(height: CorocSpace.md),
-                    ],
-                    TextFormField(
-                      controller: _tenant,
-                      decoration: corocInput(context, label: l.loginCompany, hint: l.loginCompanyHint, prefix: const Icon(Icons.apartment_outlined)),
-                      textInputAction: TextInputAction.next,
-                      autocorrect: false,
-                      validator: (v) => (v ?? '').trim().length < 3 ? l.validationRequired : null,
-                    ),
-                    const SizedBox(height: CorocSpace.md),
-                    TextFormField(
-                      controller: _user,
-                      decoration: corocInput(context, label: l.loginUsername, prefix: const Icon(Icons.person_outline)),
-                      textInputAction: TextInputAction.next,
-                      autocorrect: false,
-                      autofillHints: const [AutofillHints.username],
-                      validator: (v) => (v ?? '').trim().isEmpty ? l.validationRequired : null,
-                    ),
-                    const SizedBox(height: CorocSpace.md),
-                    TextFormField(
-                      controller: _pass,
-                      obscureText: _obscure,
-                      decoration: corocInput(
-                        context,
-                        label: l.loginPassword,
-                        prefix: const Icon(Icons.lock_outline),
-                        suffix: IconButton(
-                          tooltip: _obscure ? l.actionShowPassword : l.actionHidePassword,
-                          icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined),
-                          onPressed: () => setState(() => _obscure = !_obscure),
-                        ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Align(alignment: Alignment.centerRight, child: LanguageSelector()),
+                      const SizedBox(height: CorocSpace.lg),
+                      const Center(child: CorocLogo(height: 170)),
+                      const SizedBox(height: CorocSpace.xl),
+                      if (expired) ...[_Notice(text: l.loginSessionExpired), const SizedBox(height: CorocSpace.md)],
+                      TextFormField(
+                        controller: _tenant,
+                        decoration: corocInput(context, label: l.loginCompany, hint: l.loginCompanyHint, prefix: const Icon(Icons.apartment_outlined)),
+                        textInputAction: TextInputAction.next,
+                        autocorrect: false,
+                        validator: (v) => (v ?? '').trim().length < 3 ? l.validationRequired : null,
                       ),
-                      autofillHints: const [AutofillHints.password],
-                      onFieldSubmitted: (_) => _submit(),
-                      validator: (v) => (v ?? '').isEmpty ? l.validationRequired : null,
-                    ),
-                    const SizedBox(height: CorocSpace.sm),
-                    CheckboxListTile(
-                      value: _remember,
-                      onChanged: (v) => setState(() => _remember = v ?? false),
-                      title: Text(l.loginRemember),
-                      controlAffinity: ListTileControlAffinity.leading,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    if (_error != null) ...[
+                      const SizedBox(height: CorocSpace.md),
+                      TextFormField(
+                        controller: _user,
+                        decoration: corocInput(context, label: l.loginUsername, prefix: const Icon(Icons.person_outline)),
+                        textInputAction: TextInputAction.next,
+                        autocorrect: false,
+                        autofillHints: const [AutofillHints.username],
+                        validator: (v) => (v ?? '').trim().isEmpty ? l.validationRequired : null,
+                      ),
+                      const SizedBox(height: CorocSpace.md),
+                      TextFormField(
+                        controller: _pass,
+                        obscureText: _obscure,
+                        decoration: corocInput(
+                          context,
+                          label: l.loginPassword,
+                          prefix: const Icon(Icons.lock_outline),
+                          suffix: IconButton(
+                            tooltip: _obscure ? l.actionShowPassword : l.actionHidePassword,
+                            icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+                            onPressed: () => setState(() => _obscure = !_obscure),
+                          ),
+                        ),
+                        autofillHints: const [AutofillHints.password],
+                        onFieldSubmitted: (_) => _submit(),
+                        validator: (v) => (v ?? '').isEmpty ? l.validationRequired : null,
+                      ),
                       const SizedBox(height: CorocSpace.sm),
-                      _Notice(text: _error!, error: true),
+                      CheckboxListTile(
+                        value: _remember,
+                        onChanged: (v) => setState(() => _remember = v ?? false),
+                        title: Text(l.loginRemember),
+                        controlAffinity: ListTileControlAffinity.leading,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      if (_error != null) ...[const SizedBox(height: CorocSpace.sm), _Notice(text: _error!, error: true)],
+                      const SizedBox(height: CorocSpace.md),
+                      GoldButton(label: l.loginSubmit, onPressed: _submit, busy: _busy, expand: true),
+                      const SizedBox(height: CorocSpace.sm),
+                      TextButton(onPressed: () => context.go('/forgot'), child: Text(l.loginForgot)),
                     ],
-                    const SizedBox(height: CorocSpace.md),
-                    GoldButton(label: l.loginSubmit, onPressed: _submit, busy: _busy, expand: true),
-                    const SizedBox(height: CorocSpace.sm),
-                    TextButton(onPressed: () => context.go('/forgot'), child: Text(l.loginForgot)),
-                  ]),
+                  ),
                 ),
               ),
             ),
@@ -176,12 +173,17 @@ class _Notice extends StatelessWidget {
     final c = error ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.secondary;
     return Container(
       padding: const EdgeInsets.all(CorocSpace.md),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(CorocRadii.control), border: Border.all(color: c.withValues(alpha: 0.5))),
-      child: Row(children: [
-        Icon(error ? Icons.error_outline : Icons.info_outline, color: c),
-        const SizedBox(width: 12),
-        Expanded(child: Text(text, style: Theme.of(context).textTheme.bodyMedium)),
-      ]),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(CorocRadii.control),
+        border: Border.all(color: c.withValues(alpha: 0.5)),
+      ),
+      child: Row(
+        children: [
+          Icon(error ? Icons.error_outline : Icons.info_outline, color: c),
+          const SizedBox(width: 12),
+          Expanded(child: Text(text, style: Theme.of(context).textTheme.bodyMedium)),
+        ],
+      ),
     );
   }
 }
@@ -203,17 +205,24 @@ class AuthFrame extends StatelessWidget {
             padding: const EdgeInsets.all(CorocSpace.lg),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 440),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                const Center(child: CorocLogo(layout: LogoLayout.isotype, height: 64)),
-                const SizedBox(height: CorocSpace.lg),
-                Text(title, style: t.headlineMedium, textAlign: TextAlign.center),
-                if (subtitle != null) ...[
-                  const SizedBox(height: CorocSpace.sm),
-                  Text(subtitle!, style: t.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Center(child: CorocLogo(layout: LogoLayout.isotype, height: 64)),
+                  const SizedBox(height: CorocSpace.lg),
+                  Text(title, style: t.headlineMedium, textAlign: TextAlign.center),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: CorocSpace.sm),
+                    Text(
+                      subtitle!,
+                      style: t.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                  const SizedBox(height: CorocSpace.lg),
+                  ...children,
                 ],
-                const SizedBox(height: CorocSpace.lg),
-                ...children,
-              ]),
+              ),
             ),
           ),
         ),

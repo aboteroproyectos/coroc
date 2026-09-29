@@ -314,6 +314,84 @@ describe('lectura de comprobantes: formularios y referencias (Fase 3)', () => {
   });
 });
 
+describe('lectura de comprobantes de Pix reales (P-3)', () => {
+  // Texto de OCR de comprobantes reales de Nubank, Mercado Pago, Inter y PagBank, con nombres, documentos y
+  // cuentas reemplazados por datos inventados. Se conservan los errores típicos del OCR («RS», «£», la E2E partida).
+  const opts = { receivedOn: '2026-09-24', defaultCurrency: 'BRL' as const };
+  const nubank = [
+    'nu', 'Comprovante de', 'transferéncia', '23 SET 2026 - 22:', 'Valor RS 30,00', 'Tipo de transferência Pix',
+    'ID da transação E182361202026092', '40133s06b933c88c', 'Destino', 'Nome Ana Paula Ribeiro Costa', 'CPF «111.22',
+    'Instituição MERCADO PAGO IP LTDA.', 'Agência 0001', 'Conta 1234567890-1', 'Origem', 'Nome Joao Pedro Alves Lima',
+    'NU PAGAMENTOS - IP', 'CPF ....333.444 - ++', 'CNPJ 18.236.120/0001-58', '1D da transação:', '£18236120202609240133s06b933c88c',
+  ].join('\n');
+
+  it('Nubank: secciones Destino y Origem, «RS» por R$ y el identificador Pix aunque venga partido', () => {
+    const x = extractFromText(nubank, opts);
+    expect(x.amount).toEqual({ value: 3000, confidence: 0.96 });
+    expect(x.currency.value).toBe('BRL');
+    expect(x.date.value).toBe('2026-09-23');
+    expect(x.receiverName.value).toBe('Ana Paula Ribeiro Costa');
+    expect(x.payerName.value).toBe('Joao Pedro Alves Lima');
+    expect(x.reference).toEqual({ value: 'E18236120202609240133S06B933C88C', confidence: 0.96 });
+    // Solo la primera mitad partida también se reconoce.
+    expect(extractFromText(nubank.replace(/\n1D da transação:[\s\S]*$/, ''), opts).reference.value).toBe('E18236120202609240133S06B933C88C');
+  });
+
+  it('Mercado Pago: «Origem e destino» con el ícono del banco delante de cada nombre y la fecha «22/setembro/2026»', () => {
+    const x = extractFromText(
+      [
+        'mercado', '@ Comprovante de Pix', '22/setembro/2026 ás 20:30:43.', 'R$ 500', 'Origem e destino', '< Joao Pedro Alves Lima',
+        'Mercado Pago', 'CPF: ***.333.444-**', 'e Ana Paula Ribeiro Costa', 'CLOUDWALK INSTITUICÁO DE PAGAMENTO E SERVIC',
+        'CPF: ***.111.222-**', 'N.º transação do Mercado Pago', '179417391073', 'ID de transação Pix', 'E105735212026092223300TIQ5SdTRqe',
+      ].join('\n'),
+      opts,
+    );
+    expect(x.amount.value).toBe(50000);
+    expect(x.date.value).toBe('2026-09-22');
+    expect(x.time.value).toBe('20:30');
+    expect(x.payerName).toEqual({ value: 'Joao Pedro Alves Lima', confidence: 0.93 });
+    expect(x.receiverName).toEqual({ value: 'Ana Paula Ribeiro Costa', confidence: 0.93 });
+    expect(x.reference.value).toBe('E105735212026092223300TIQ5SDTRQE');
+  });
+
+  it('Inter: «Quem recebeu» y «Quem pagou», hora «22h25»', () => {
+    const x = extractFromText(
+      [
+        'inter', 'Pix enviado', 'R$ 36,00', 'Sobre a transação', 'Data do pagamento Quarta, 23/09/2026', 'Horário 22h25', 'ID da transação',
+        'E00416968202609240125xbCOeTUsc1r', 'Quem recebeu', 'Nome Ana Paula Ribeiro Costa', 'CPF/CNPJ ***.111.222-**',
+        'Instituição Mercado Pago Ip LTDA.', 'Quem pagou', 'Nome JOAO PEDRO ALVES LIMA', 'CPF/CNPJ ***.333.444-**', 'Instituição Banco Inter S.A.',
+      ].join('\n'),
+      opts,
+    );
+    expect(x.amount.value).toBe(3600);
+    expect(x.date.value).toBe('2026-09-23');
+    expect(x.time.value).toBe('22:25');
+    expect(x.receiverName.value).toBe('Ana Paula Ribeiro Costa');
+    expect(x.payerName.value).toBe('JOAO PEDRO ALVES LIMA');
+    expect(x.reference.value).toBe('E00416968202609240125XBCOETUSC1R');
+  });
+
+  it('PagBank: «De» y «Para» en renglones separados; prefiere el código Pix al interno del banco', () => {
+    const x = extractFromText(
+      [
+        'Comprovante de envio de Pix', '23/09/2026 às 21:24:25', 'Valor da transferência', 'R$ 30,00', 'Tipo de transferência', 'Pix',
+        'Código da transação Pagbank', 'e1db108d-034f-4f53-b19f-62325c87702b', 'Código da transação Pix', 'E08561701202609240024XG70P9J8QGA',
+        'De', 'CARLOS EDUARDO MENDES', 'CPF', '***.555.666-**', 'Para', 'Ana Paula Ribeiro Costa', 'CPF', '***.111.222-**',
+      ].join('\n'),
+      opts,
+    );
+    expect(x.amount).toEqual({ value: 3000, confidence: 0.96 });
+    expect(x.time.value).toBe('21:24');
+    expect(x.payerName.value).toBe('CARLOS EDUARDO MENDES');
+    expect(x.receiverName.value).toBe('Ana Paula Ribeiro Costa');
+    expect(x.reference.value).toBe('E08561701202609240024XG70P9J8QGA');
+  });
+
+  it('«RS» solo cuenta como reales antes de un valor con centavos', () => {
+    expect(extractFromText('Endereço Porto Alegre RS 90000\nValor R$ 12,00', opts).amount.value).toBe(1200);
+  });
+});
+
 describe('replayLoan y nombres de carpeta', () => {
   const plan = [1, 2, 3, 4].map((n) => ({ number: n, dueDate: `2026-10-0${n + 1}`, amount: 60000 }));
   it('aplica los pagos vigentes en orden de fecha y de registro', () => {

@@ -98,11 +98,7 @@ Future<AppUnderTest> bootApp(
   // La carpeta COROC ya se ofreció en este dispositivo: el diálogo de permiso tiene su propia prueba.
   final store = MemorySessionStore(refresh: signedIn ? 'rt1.sesion-de-prueba' : null, savedLocale: locale)..asked = folderAsked;
   final client = ApiClient(baseUrl: 'https://api.test/v1', store: store, language: () => locale, client: server.client());
-  final container = ProviderContainer(overrides: [
-    sessionStoreProvider.overrideWithValue(store),
-    apiClientProvider.overrideWithValue(client),
-    offlineVaultProvider.overrideWithValue(MemoryVault()),
-  ]);
+  final container = ProviderContainer(overrides: [sessionStoreProvider.overrideWithValue(store), apiClientProvider.overrideWithValue(client), offlineVaultProvider.overrideWithValue(MemoryVault())]);
   final files = FakeFileSelector();
   FileSelectorPlatform.instance = files;
   await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const CorocApp()));

@@ -72,36 +72,41 @@ class _HelpPageState extends State<HelpPage> {
     final q = _fold(_q.trim());
     final shown = q.isEmpty ? topics : topics.where((t) => _fold('${t.title} ${t.body}').contains(q)).toList();
 
-    return PageScaffold(maxWidth: 880, children: [
-      PageHeader(title: l.navHelp, subtitle: l.helpSubtitle),
-      TextField(
-        controller: _search,
-        decoration: corocInput(context, label: l.helpSearch, prefix: const Icon(Icons.search)),
-        onChanged: (v) => setState(() => _q = v),
-      ),
-      const SizedBox(height: CorocSpace.lg),
-      if (shown.isEmpty)
-        EmptyState(icon: Icons.search_off, title: l.helpNoResults)
-      else
-        Card(
-          clipBehavior: Clip.antiAlias,
-          child: Column(children: [
-            for (final (i, t) in shown.indexed) ...[
-              if (i > 0) const Divider(height: 1),
-              ExpansionTile(
-                key: PageStorageKey(t.title),
-                leading: Icon(t.icon, color: Theme.of(context).colorScheme.tertiary),
-                title: Text(t.title, style: Theme.of(context).textTheme.titleSmall),
-                initiallyExpanded: q.isNotEmpty && shown.length <= 2,
-                childrenPadding: const EdgeInsets.fromLTRB(CorocSpace.lg, 0, CorocSpace.lg, CorocSpace.lg),
-                expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                children: [SelectableText(t.body, style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.55))],
-              ),
-            ],
-          ]),
+    return PageScaffold(
+      maxWidth: 880,
+      children: [
+        PageHeader(title: l.navHelp, subtitle: l.helpSubtitle),
+        TextField(
+          controller: _search,
+          decoration: corocInput(context, label: l.helpSearch, prefix: const Icon(Icons.search)),
+          onChanged: (v) => setState(() => _q = v),
         ),
-      const SizedBox(height: CorocSpace.lg),
-      Text(l.helpFooter(AppConfig.appVersion), style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
-    ]);
+        const SizedBox(height: CorocSpace.lg),
+        if (shown.isEmpty)
+          EmptyState(icon: Icons.search_off, title: l.helpNoResults)
+        else
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              children: [
+                for (final (i, t) in shown.indexed) ...[
+                  if (i > 0) const Divider(height: 1),
+                  ExpansionTile(
+                    key: PageStorageKey(t.title),
+                    leading: Icon(t.icon, color: Theme.of(context).colorScheme.tertiary),
+                    title: Text(t.title, style: Theme.of(context).textTheme.titleSmall),
+                    initiallyExpanded: q.isNotEmpty && shown.length <= 2,
+                    childrenPadding: const EdgeInsets.fromLTRB(CorocSpace.lg, 0, CorocSpace.lg, CorocSpace.lg),
+                    expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                    children: [SelectableText(t.body, style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.55))],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        const SizedBox(height: CorocSpace.lg),
+        Text(l.helpFooter(AppConfig.appVersion), style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
+      ],
+    );
   }
 }

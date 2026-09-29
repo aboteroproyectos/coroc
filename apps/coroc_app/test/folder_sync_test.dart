@@ -28,12 +28,22 @@ class FakeSource implements FolderSource {
   Future<FolderManifest> manifest({String? since, String? after}) async {
     final s = since == null ? null : int.parse(since);
     return FolderManifest(
-      lang: 'es', full: s == null, generatedAt: '$clock', nextSince: '$clock', rootFolders: roots, subfolders: subs, clients: clients,
+      lang: 'es',
+      full: s == null,
+      generatedAt: '$clock',
+      nextSince: '$clock',
+      rootFolders: roots,
+      subfolders: subs,
+      clients: clients,
       files: [
         for (final e in docs.entries)
-          if (s == null || e.value.t >= s) ManifestFile(documentId: e.key, clientId: e.value.clientId, path: e.value.path, size: e.value.bytes.length, sha256: sha256.convert(e.value.bytes).toString(), updatedAt: '${e.value.t}'),
+          if (s == null || e.value.t >= s)
+            ManifestFile(documentId: e.key, clientId: e.value.clientId, path: e.value.path, size: e.value.bytes.length, sha256: sha256.convert(e.value.bytes).toString(), updatedAt: '${e.value.t}'),
       ],
-      removed: [for (final e in removedAt.entries) if (s != null && e.value >= s) e.key],
+      removed: [
+        for (final e in removedAt.entries)
+          if (s != null && e.value >= s) e.key,
+      ],
     );
   }
 
@@ -53,7 +63,9 @@ void main() {
   setUp(() {
     store = MemoryFolderStore();
     api = FakeSource()
-      ..clients = [const ManifestClient(id: 'c1', code: 'C000042', folderName: folder, marker: '$folder/.coroc-id', contracts: ['CT-000125'])]
+      ..clients = [
+        const ManifestClient(id: 'c1', code: 'C000042', folderName: folder, marker: '$folder/.coroc-id', contracts: ['CT-000125']),
+      ]
       ..put('plan1', '$folder/CT-000125/01 Contrato y plan de pagos/2026-10-08_0930_PLAN_DE_PAGOS_CT-000125.pdf', '%PDF plan v1', clientId: 'c1');
     sync = FolderSync(store, api);
   });
@@ -105,7 +117,9 @@ void main() {
   test('si el cliente cambia de nombre, su carpeta se renombra sin perder archivos (.coroc-id)', () async {
     await sync.run();
     const renamed = 'Maria Jose Perez de Lopez - C000042';
-    api.clients = [const ManifestClient(id: 'c1', code: 'C000042', folderName: renamed, marker: '$renamed/.coroc-id', contracts: ['CT-000125'])];
+    api.clients = [
+      const ManifestClient(id: 'c1', code: 'C000042', folderName: renamed, marker: '$renamed/.coroc-id', contracts: ['CT-000125']),
+    ];
     final plan = api.docs['plan1']!;
     api.docs['plan1'] = (path: plan.path.replaceFirst(folder, renamed), bytes: plan.bytes, clientId: 'c1', t: api.clock++);
     final r = await sync.run();

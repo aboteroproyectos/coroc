@@ -18,13 +18,24 @@ Future<void> _meetsAll(WidgetTester tester) async {
   await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
 }
 
-Widget _scaled(Widget child, double scale) => Builder(builder: (context) => MediaQuery(data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(scale)), child: child));
+Widget _scaled(Widget child, double scale) => Builder(
+  builder: (context) => MediaQuery(
+    data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(scale)),
+    child: child,
+  ),
+);
 
 void main() {
   for (final mode in [ThemeMode.light, ThemeMode.dark]) {
     testWidgets('ingreso (${mode.name}): contraste, áreas táctiles y etiquetas', (tester) async {
       final handle = tester.ensureSemantics();
-      await tester.pumpWidget(harness(const LoginPage(), store: MemorySessionStore(savedLocale: 'es'), mode: mode));
+      await tester.pumpWidget(
+        harness(
+          const LoginPage(),
+          store: MemorySessionStore(savedLocale: 'es'),
+          mode: mode,
+        ),
+      );
       await tester.pumpAndSettle();
       await _meetsAll(tester);
       handle.dispose();
@@ -32,11 +43,15 @@ void main() {
 
     testWidgets('registro de pago (${mode.name}): contraste, áreas táctiles y etiquetas', (tester) async {
       final handle = tester.ensureSemantics();
-      await tester.pumpWidget(harness(
-        const Scaffold(body: PaymentForm(loanId: '7a2c0000-0000-4000-8000-000000000003', currency: 'COP', suggested: 60000, clientName: 'María José Pérez Gómez')),
-        store: MemorySessionStore(savedLocale: 'es'),
-        mode: mode,
-      ));
+      await tester.pumpWidget(
+        harness(
+          const Scaffold(
+            body: PaymentForm(loanId: '7a2c0000-0000-4000-8000-000000000003', currency: 'COP', suggested: 60000, clientName: 'María José Pérez Gómez'),
+          ),
+          store: MemorySessionStore(savedLocale: 'es'),
+          mode: mode,
+        ),
+      );
       await tester.pump(const Duration(milliseconds: 50));
       await _meetsAll(tester);
       handle.dispose();
@@ -51,10 +66,17 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     expect(find.text('Ingresar'), findsWidgets);
-    await tester.pumpWidget(harness(
-      _scaled(const Scaffold(body: PaymentForm(loanId: '7a2c0000-0000-4000-8000-000000000003', currency: 'COP', suggested: 60000, clientName: 'María José Pérez Gómez')), 2),
-      store: MemorySessionStore(savedLocale: 'es'),
-    ));
+    await tester.pumpWidget(
+      harness(
+        _scaled(
+          const Scaffold(
+            body: PaymentForm(loanId: '7a2c0000-0000-4000-8000-000000000003', currency: 'COP', suggested: 60000, clientName: 'María José Pérez Gómez'),
+          ),
+          2,
+        ),
+        store: MemorySessionStore(savedLocale: 'es'),
+      ),
+    );
     await tester.pump(const Duration(milliseconds: 50));
     expect(tester.takeException(), isNull);
   });
@@ -62,12 +84,16 @@ void main() {
   testWidgets('aviso sin conexión: región viva, contraste y área táctil', (tester) async {
     final handle = tester.ensureSemantics();
     final vault = MemoryVault();
-    await PaymentQueue(vault).add(PendingPayment(key: 'k1', userId: 'u1', loanId: 'l1', amount: 60000, date: '2026-10-09', createdAt: DateTime(2026, 10, 9), clientName: 'María José Pérez Gómez', currency: 'COP'));
-    await tester.pumpWidget(harness(
-      const Scaffold(body: Column(children: [OfflineBanner()])),
-      store: MemorySessionStore(savedLocale: 'es'),
-      overrides: [offlineVaultProvider.overrideWithValue(vault)],
-    ));
+    await PaymentQueue(
+      vault,
+    ).add(PendingPayment(key: 'k1', userId: 'u1', loanId: 'l1', amount: 60000, date: '2026-10-09', createdAt: DateTime(2026, 10, 9), clientName: 'María José Pérez Gómez', currency: 'COP'));
+    await tester.pumpWidget(
+      harness(
+        const Scaffold(body: Column(children: [OfflineBanner()])),
+        store: MemorySessionStore(savedLocale: 'es'),
+        overrides: [offlineVaultProvider.overrideWithValue(vault)],
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.textContaining('1 pago por enviar'), findsOneWidget);
     final node = tester.getSemantics(find.byType(OfflineBanner));

@@ -8,23 +8,23 @@ abstract final class CorocTheme {
   static const _tabular = [FontFeature.tabularFigures()];
 
   static TextTheme _text(Color ink, Color muted) => TextTheme(
-        displayLarge: TextStyle(fontFamily: 'Inter', fontSize: 56, fontWeight: FontWeight.w400, height: 1.05, color: ink, fontFeatures: _tabular),
-        displayMedium: TextStyle(fontFamily: 'Inter', fontSize: 44, fontWeight: FontWeight.w400, height: 1.1, color: ink, fontFeatures: _tabular),
-        displaySmall: TextStyle(fontFamily: 'Inter', fontSize: 32, fontWeight: FontWeight.w400, height: 1.15, color: ink, fontFeatures: _tabular),
-        headlineLarge: TextStyle(fontFamily: 'Montserrat', fontSize: 32, fontWeight: FontWeight.w600, height: 1.2, color: ink),
-        headlineMedium: TextStyle(fontFamily: 'Montserrat', fontSize: 24, fontWeight: FontWeight.w600, height: 1.25, color: ink),
-        headlineSmall: TextStyle(fontFamily: 'Montserrat', fontSize: 20, fontWeight: FontWeight.w600, height: 1.3, color: ink),
-        titleLarge: TextStyle(fontFamily: 'Montserrat', fontSize: 20, fontWeight: FontWeight.w600, color: ink),
-        titleMedium: TextStyle(fontFamily: 'Montserrat', fontSize: 16, fontWeight: FontWeight.w600, color: ink),
-        titleSmall: TextStyle(fontFamily: 'Montserrat', fontSize: 14, fontWeight: FontWeight.w600, color: ink),
-        bodyLarge: TextStyle(fontFamily: 'Inter', fontSize: 16, fontWeight: FontWeight.w400, height: 1.45, color: ink, fontFeatures: _tabular),
-        bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14, fontWeight: FontWeight.w400, height: 1.45, color: ink, fontFeatures: _tabular),
-        bodySmall: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w400, height: 1.4, color: muted, fontFeatures: _tabular),
-        // Etiquetas en mayúsculas con tracking de 0,18 em, en el espíritu de «PERSONAL LOANS».
-        labelLarge: TextStyle(fontFamily: 'Montserrat', fontSize: 14, fontWeight: FontWeight.w600, color: ink),
-        labelMedium: TextStyle(fontFamily: 'Montserrat', fontSize: 12, fontWeight: FontWeight.w500, letterSpacing: 12 * 0.18, color: muted),
-        labelSmall: TextStyle(fontFamily: 'Montserrat', fontSize: 11, fontWeight: FontWeight.w500, letterSpacing: 11 * 0.18, color: muted),
-      );
+    displayLarge: TextStyle(fontFamily: 'Inter', fontSize: 56, fontWeight: FontWeight.w400, height: 1.05, color: ink, fontFeatures: _tabular),
+    displayMedium: TextStyle(fontFamily: 'Inter', fontSize: 44, fontWeight: FontWeight.w400, height: 1.1, color: ink, fontFeatures: _tabular),
+    displaySmall: TextStyle(fontFamily: 'Inter', fontSize: 32, fontWeight: FontWeight.w400, height: 1.15, color: ink, fontFeatures: _tabular),
+    headlineLarge: TextStyle(fontFamily: 'Montserrat', fontSize: 32, fontWeight: FontWeight.w600, height: 1.2, color: ink),
+    headlineMedium: TextStyle(fontFamily: 'Montserrat', fontSize: 24, fontWeight: FontWeight.w600, height: 1.25, color: ink),
+    headlineSmall: TextStyle(fontFamily: 'Montserrat', fontSize: 20, fontWeight: FontWeight.w600, height: 1.3, color: ink),
+    titleLarge: TextStyle(fontFamily: 'Montserrat', fontSize: 20, fontWeight: FontWeight.w600, color: ink),
+    titleMedium: TextStyle(fontFamily: 'Montserrat', fontSize: 16, fontWeight: FontWeight.w600, color: ink),
+    titleSmall: TextStyle(fontFamily: 'Montserrat', fontSize: 14, fontWeight: FontWeight.w600, color: ink),
+    bodyLarge: TextStyle(fontFamily: 'Inter', fontSize: 16, fontWeight: FontWeight.w400, height: 1.45, color: ink, fontFeatures: _tabular),
+    bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14, fontWeight: FontWeight.w400, height: 1.45, color: ink, fontFeatures: _tabular),
+    bodySmall: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w400, height: 1.4, color: muted, fontFeatures: _tabular),
+    // Etiquetas en mayúsculas con tracking de 0,18 em, en el espíritu de «PERSONAL LOANS».
+    labelLarge: TextStyle(fontFamily: 'Montserrat', fontSize: 14, fontWeight: FontWeight.w600, color: ink),
+    labelMedium: TextStyle(fontFamily: 'Montserrat', fontSize: 12, fontWeight: FontWeight.w500, letterSpacing: 12 * 0.18, color: muted),
+    labelSmall: TextStyle(fontFamily: 'Montserrat', fontSize: 11, fontWeight: FontWeight.w500, letterSpacing: 11 * 0.18, color: muted),
+  );
 
   static ThemeData light() {
     const scheme = ColorScheme(
@@ -90,33 +90,41 @@ abstract final class CorocTheme {
         color: scheme.surface,
         elevation: 0,
         margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(CorocRadii.card), side: BorderSide(color: hairline)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(CorocRadii.card),
+          side: BorderSide(color: hairline),
+        ),
       ),
-      appBarTheme: AppBarTheme(
-        backgroundColor: background,
-        foregroundColor: scheme.onSurface,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: false,
-        titleTextStyle: text.titleLarge,
+      appBarTheme: AppBarTheme(backgroundColor: background, foregroundColor: scheme.onSurface, elevation: 0, scrolledUnderElevation: 0, centerTitle: false, titleTextStyle: text.titleLarge),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(minimumSize: const Size(44, 48), shape: controlShape, textStyle: text.labelLarge),
       ),
-      filledButtonTheme: FilledButtonThemeData(style: FilledButton.styleFrom(minimumSize: const Size(44, 48), shape: controlShape, textStyle: text.labelLarge)),
       outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(minimumSize: const Size(44, 48), shape: controlShape, side: BorderSide(color: hairline), foregroundColor: scheme.onSurface, textStyle: text.labelLarge),
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(44, 48),
+          shape: controlShape,
+          side: BorderSide(color: hairline),
+          foregroundColor: scheme.onSurface,
+          textStyle: text.labelLarge,
+        ),
       ),
-      textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(minimumSize: const Size(44, 44), shape: controlShape, foregroundColor: scheme.secondary, textStyle: text.labelLarge)),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(minimumSize: const Size(44, 44), shape: controlShape, foregroundColor: scheme.secondary, textStyle: text.labelLarge),
+      ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: scheme.brightness == Brightness.light ? CorocColors.navy800 : CorocColors.navy600,
         contentTextStyle: text.bodyMedium?.copyWith(color: CorocColors.ivory),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(CorocRadii.control)),
       ),
-      pageTransitionsTheme: const PageTransitionsTheme(builders: {
-        TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
-        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-        TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-        TargetPlatform.windows: FadeForwardsPageTransitionsBuilder(),
-      }),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: FadeForwardsPageTransitionsBuilder(),
+        },
+      ),
     );
   }
 }
@@ -124,7 +132,10 @@ abstract final class CorocTheme {
 /// Campo de formulario con el estilo de COROC (bordes de 12 px y filete fino).
 InputDecoration corocInput(BuildContext context, {required String label, String? hint, String? helper, String? error, Widget? prefix, Widget? suffix}) {
   final scheme = Theme.of(context).colorScheme;
-  OutlineInputBorder border(Color c, [double w = 1]) => OutlineInputBorder(borderRadius: BorderRadius.circular(CorocRadii.control), borderSide: BorderSide(color: c, width: w));
+  OutlineInputBorder border(Color c, [double w = 1]) => OutlineInputBorder(
+    borderRadius: BorderRadius.circular(CorocRadii.control),
+    borderSide: BorderSide(color: c, width: w),
+  );
   return InputDecoration(
     labelText: label,
     hintText: hint,

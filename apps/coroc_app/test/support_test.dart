@@ -10,11 +10,48 @@ import 'widgets_test.dart' show harness;
 final _failures = Failures.fromJson({
   'days': 30,
   'documentTasks': [
-    {'id': '7a2c0000-0000-4000-8000-000000000010', 'kind': 'statement', 'status': 'failed', 'progress': 0, 'documentId': null, 'error': 'TASK_FAILED', 'createdAt': '2026-10-09T15:00:00.000Z', 'finishedAt': '2026-10-09T15:05:00.000Z', 'loanId': null, 'contract': 'CT-000001', 'attempts': 5, 'detail': 'Chromium no respondió', 'retryable': true},
-    {'id': '7a2c0000-0000-4000-8000-000000000011', 'kind': 'backup', 'status': 'failed', 'progress': 0, 'documentId': null, 'error': 'TASK_FAILED', 'createdAt': '2026-10-09T15:00:00.000Z', 'finishedAt': null, 'loanId': null, 'contract': null, 'attempts': 5, 'detail': null, 'retryable': false},
+    {
+      'id': '7a2c0000-0000-4000-8000-000000000010',
+      'kind': 'statement',
+      'status': 'failed',
+      'progress': 0,
+      'documentId': null,
+      'error': 'TASK_FAILED',
+      'createdAt': '2026-10-09T15:00:00.000Z',
+      'finishedAt': '2026-10-09T15:05:00.000Z',
+      'loanId': null,
+      'contract': 'CT-000001',
+      'attempts': 5,
+      'detail': 'Chromium no respondió',
+      'retryable': true,
+    },
+    {
+      'id': '7a2c0000-0000-4000-8000-000000000011',
+      'kind': 'backup',
+      'status': 'failed',
+      'progress': 0,
+      'documentId': null,
+      'error': 'TASK_FAILED',
+      'createdAt': '2026-10-09T15:00:00.000Z',
+      'finishedAt': null,
+      'loanId': null,
+      'contract': null,
+      'attempts': 5,
+      'detail': null,
+      'retryable': false,
+    },
   ],
   'messages': [
-    {'id': '7a2c0000-0000-4000-8000-000000000012', 'clientId': '7a2c0000-0000-4000-8000-000000000002', 'clientName': 'María José Pérez Gómez', 'event': 'receipt', 'channel': 'email', 'attempts': 3, 'detail': 'SMTP 421', 'failedAt': '2026-10-09T16:00:00.000Z'},
+    {
+      'id': '7a2c0000-0000-4000-8000-000000000012',
+      'clientId': '7a2c0000-0000-4000-8000-000000000002',
+      'clientName': 'María José Pérez Gómez',
+      'event': 'receipt',
+      'channel': 'email',
+      'attempts': 3,
+      'detail': 'SMTP 421',
+      'failedAt': '2026-10-09T16:00:00.000Z',
+    },
   ],
   'intake': <Map<String, dynamic>>[],
 });
@@ -37,11 +74,13 @@ final _trace = IntakeTrace.fromJson({
 
 void main() {
   testWidgets('soporte: la cola de fallidos muestra cada caso con su reintento, y el respaldo pide volver a crearse', (tester) async {
-    await tester.pumpWidget(harness(
-      const Scaffold(body: SingleChildScrollView(child: SupportSection(canRetry: true))),
-      store: MemorySessionStore(savedLocale: 'es'),
-      overrides: [failuresProvider.overrideWith((ref) async => _failures)],
-    ));
+    await tester.pumpWidget(
+      harness(
+        const Scaffold(body: SingleChildScrollView(child: SupportSection(canRetry: true))),
+        store: MemorySessionStore(savedLocale: 'es'),
+        overrides: [failuresProvider.overrideWith((ref) async => _failures)],
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.text('Estado de cuenta · CT-000001'), findsOneWidget);
     expect(find.textContaining('Chromium no respondió'), findsOneWidget);
@@ -54,11 +93,15 @@ void main() {
   });
 
   testWidgets('traza del comprobante: cada etapa con su estado en texto, no solo con el icono', (tester) async {
-    await tester.pumpWidget(harness(
-      const Scaffold(body: SingleChildScrollView(child: IntakeTraceCard(intakeId: '7a2c0000-0000-4000-8000-000000000020'))),
-      store: MemorySessionStore(savedLocale: 'es'),
-      overrides: [intakeTraceProvider.overrideWith((ref, id) async => _trace)],
-    ));
+    await tester.pumpWidget(
+      harness(
+        const Scaffold(
+          body: SingleChildScrollView(child: IntakeTraceCard(intakeId: '7a2c0000-0000-4000-8000-000000000020')),
+        ),
+        store: MemorySessionStore(savedLocale: 'es'),
+        overrides: [intakeTraceProvider.overrideWith((ref, id) async => _trace)],
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.text('Recibido'), findsOneWidget);
     expect(find.text('Pago registrado'), findsOneWidget);

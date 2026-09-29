@@ -70,7 +70,8 @@ dart run flutter_launcher_icons
 
 flutter run --dart-define=COROC_API=http://10.0.2.2:3000/v1   # emulador Android contra la API local
 flutter test --coverage
-tool/coverage_report.sh 75 --files     # cobertura sin código generado; falla bajo 75 %
+dart format --line-length 200 $(git ls-files 'lib/*.dart' 'test/*.dart')   # la CI falla si algo queda sin formato
+tool/coverage_report.sh 85 --files     # cobertura sin código generado; la CI falla bajo 85 %
 ```
 
 - **Pruebas de pantallas.** Usan `test/fixtures/api.json`, que guarda respuestas reales de la API. Si cambia el contrato, se regeneran contra una base recién preparada:
@@ -92,11 +93,11 @@ tool/coverage_report.sh 75 --files     # cobertura sin código generado; falla b
 
 | Trabajo | Qué hace |
 |---|---|
-| Núcleo y API | `npm ci`, compilación, tipos, textos en 3 idiomas, Redocly, Chromium sin interfaz, Tesseract, MinIO y todas las pruebas con PostgreSQL 16 (incluidos los PDF, CA-07 a CA-09 y CA-19 con OCR real, la suite de penetración y el almacén S3). Falla si la cobertura baja de 90 % en el núcleo o de 80 % en la API |
+| Núcleo y API | `npm ci`, compilación, tipos, textos en 3 idiomas, Redocly, Chromium sin interfaz, Tesseract, un servidor S3 local (s3rver) y todas las pruebas con PostgreSQL 16 (incluidos los PDF, CA-07 a CA-09 y CA-19 con OCR real, la suite de penetración y el almacén S3). Falla si la cobertura baja de 90 % en el núcleo o de 80 % en la API |
 | Rendimiento | 100.000 clientes y 2.000.000 de cuotas: dashboard, búsqueda, cobros de hoy, p95 con usuarios concurrentes y carga mixta. El informe queda como artefacto `informe-de-rendimiento` |
 | Seguridad · dependencias y DAST | `npm audit --omit=dev` (falla con vulnerabilidades moderadas o mayores) y OWASP ZAP sobre el contrato con una sesión real. Falla en inyección, XSS, SSRF, XXE, recorrido de rutas o ejecución de código (`.zap/rules.tsv`). El informe queda como artefacto `informe-zap` |
 | Imagen Docker | Construye `services/api/Dockerfile` |
-| App · análisis y pruebas | Genera las carpetas nativas y el código, verifica los textos en 3 idiomas, `flutter analyze`, `flutter test` (pantallas contra respuestas reales, accesibilidad y contrato de la app) y cobertura mínima de 75 % sin código generado |
+| App · análisis y pruebas | Genera las carpetas nativas y el código, verifica los textos en 3 idiomas, formato estricto (`dart format`), `flutter analyze`, `flutter test` (pantallas contra respuestas reales, carpeta COROC con el disco, accesibilidad y contrato de la app) y cobertura mínima de 85 % sin código generado |
 | App · Android | APK y App Bundle (artefacto `coroc-android`) |
 | App · Windows | Ejecutable (artefacto `coroc-windows`) |
 | App · macOS e iOS | En `main`, etiquetas `v*` o a pedido: `.app` de macOS e iOS sin firma |
@@ -180,6 +181,11 @@ La API corre en Fly.io en São Paulo (`gru`), PostgreSQL 16 va en Fly Postgres y
 
 ### Preparación (una sola vez)
 
+**Forma sencilla, desde el navegador:** cree las cuentas (paso 1 y paso 4), cargue seis secretos en GitHub y ejecute el
+flujo **Preparar producción** (`.github/workflows/setup-production.yml`). Ese flujo ejecuta `infra/fly/setup-production.sh`,
+que hace los pasos 2, 3, 5 y 6 y deja la llave de los archivos cifrada en R2. Se puede repetir sin riesgo. Guía para
+personas no técnicas: [GUIA_PUESTA_EN_MARCHA.md](GUIA_PUESTA_EN_MARCHA.md). Los pasos siguientes son la forma manual.
+
 1. **Cuentas.** Fly.io y Cloudflare, a nombre de la empresa titular, con la tarjeta de la empresa. Instale `flyctl` y ejecute `fly auth login`.
 2. **App y base de datos.**
    ```bash
@@ -224,7 +230,8 @@ La API corre en Fly.io en São Paulo (`gru`), PostgreSQL 16 va en Fly Postgres y
 7. **Despliegue automático.** En GitHub › Settings › Secrets and variables › Actions:
    - `FLY_API_TOKEN` (`fly tokens create deploy --app coroc-api`);
    - para `backup-db.yml`:
-     - `BACKUP_DATABASE_URL` (la de `coroc_owner` con `127.0.0.1:15432` como servidor);
+     - `BACKUP_DATABASE_URL`, opcional: la de `coroc_owner` con `127.0.0.1:15432` como servidor. Si falta, la copia
+       toma `DATABASE_ADMIN_URL` de la app por `fly ssh`;
      - `BACKUP_PASSPHRASE` (larga; guárdela aparte);
      - `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` y `R2_ENDPOINT`;
    - la variable `COROC_API_URL` (`https://coroc-api.fly.dev/v1`), con la que se compilan las apps en `release.yml`.

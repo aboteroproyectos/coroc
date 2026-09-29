@@ -1,4 +1,4 @@
-// Almacén compatible con S3 contra un servicio real (MinIO en la CI; Cloudflare R2 en producción, ADR-060).
+// Almacén compatible con S3 contra un servicio real (s3rver en la CI; Cloudflare R2 en producción, ADR-060).
 // Se ejecuta solo con COROC_TEST_S3_ENDPOINT, por ejemplo:
 //   COROC_TEST_S3_ENDPOINT=http://127.0.0.1:9000 COROC_TEST_S3_BUCKET=coroc-test AWS_ACCESS_KEY_ID=… AWS_SECRET_ACCESS_KEY=… npx vitest run test/storage-s3.test.ts
 import crypto from 'node:crypto';

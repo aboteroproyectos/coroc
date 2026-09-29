@@ -24,7 +24,7 @@ La Fase 5 agrega §21, verificado así:
 | Lectores de pantalla (TalkBack, VoiceOver, Narrador) | ⚠️ Etiquetas, encabezados y región viva verificados con el árbol de semántica; falta la prueba manual en dispositivos | — |
 | Análisis estático sin advertencias | ✅ `flutter analyze`, `tsc` estricto, Redocly y lint de textos | CI |
 | Cobertura ≥ 90 % en motor financiero, cumplimiento y extracción | ✅ 97,4 % de líneas en `@coroc/core` (umbral 90 % en CI) | `packages/core/vitest.config.ts` |
-| Cobertura ≥ 75 % global | ✅ API 88 %, núcleo 97 % y app 83 %, medida sobre todo `lib/` sin el código generado. La CI falla si la app baja de 75 % | `services/api/vitest.config.ts`, `apps/coroc_app/tool/coverage_report.sh`, trabajo «App · análisis y pruebas» |
+| Cobertura ≥ 75 % global | ✅ API 88 %, núcleo 97 % y app 89 %, medida sobre todo `lib/` sin el código generado. La CI falla si la app baja de 85 % | `services/api/vitest.config.ts`, `apps/coroc_app/tool/coverage_report.sh`, trabajo «App · análisis y pruebas» |
 | Seguridad (ASVS L2) | ✅ Suite de penetración sobre el contrato, `npm audit` sin hallazgos y ZAP sin hallazgos de inyección, XSS ni SSRF (118 reglas en PASS). ⚠️ Falta la prueba de un tercero | `security.test.ts`, trabajo «Seguridad · dependencias y DAST» |
 | Disponibilidad del backend 99,9 % | ⏳ Depende del despliegue (P-1). La API es sin estado, con salud en `/health` e id de petición | `06_EJECUCION_Y_DESPLIEGUE.md` |
 | Arranque en frío < 2,5 s y listas a 60 fps | ⏳ Listas virtualizadas desde la Fase 1; la medición en un teléfono de gama media queda para la prueba en dispositivos | — |

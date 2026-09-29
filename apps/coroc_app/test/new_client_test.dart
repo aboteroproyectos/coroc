@@ -93,10 +93,10 @@ void main() {
     final api = FakeApi();
     var attempts = 0;
     api.overrides['POST /clients'] = (req) => switch (++attempts) {
-          1 => FakeApi.json(409, {'type': 'about:blank', 'status': 409, 'code': 'DUPLICATE_CLIENT', 'title': 'Posible cliente repetido', 'detail': 'Ya existe un cliente con ese teléfono.'}),
-          2 => FakeApi.json(422, {'type': 'about:blank', 'status': 422, 'code': 'RATE_CAP_EXCEEDED', 'title': 'Tasa por encima del tope', 'detail': 'La tasa supera el tope legal.'}),
-          _ => FakeApi.json(201, api.posts['createClient']),
-        };
+      1 => FakeApi.json(409, {'type': 'about:blank', 'status': 409, 'code': 'DUPLICATE_CLIENT', 'title': 'Posible cliente repetido', 'detail': 'Ya existe un cliente con ese teléfono.'}),
+      2 => FakeApi.json(422, {'type': 'about:blank', 'status': 422, 'code': 'RATE_CAP_EXCEEDED', 'title': 'Tasa por encima del tope', 'detail': 'La tasa supera el tope legal.'}),
+      _ => FakeApi.json(201, api.posts['createClient']),
+    };
     final app = await bootApp(tester, api: api);
     await app.go('/clients/new');
     await fillClient(tester);
@@ -121,9 +121,7 @@ void main() {
     api.overrides['POST /loans/preview'] = (req) {
       final p = {...api.posts['previewLoan'] as Json};
       final over = (jsonBody(req)['rate'] as String) == '0.3';
-      p['rateCap'] = over
-          ? {'ok': false, 'effectiveAnnual': 0.8, 'cap': 0.25, 'missing': false, 'maxRate': '0.0187'}
-          : {'ok': true, 'effectiveAnnual': 0.24, 'cap': 0.25, 'missing': false};
+      p['rateCap'] = over ? {'ok': false, 'effectiveAnnual': 0.8, 'cap': 0.25, 'missing': false, 'maxRate': '0.0187'} : {'ok': true, 'effectiveAnnual': 0.24, 'cap': 0.25, 'missing': false};
       return FakeApi.json(200, p);
     };
     final app = await bootApp(tester, api: api);
@@ -149,9 +147,9 @@ void main() {
   testWidgets('nuevo cliente por encima del tope: si la empresa lo permite, se confirma el préstamo y se envía la confirmación', (tester) async {
     final api = FakeApi();
     api.overrides['POST /loans/preview'] = (req) => FakeApi.json(200, {
-          ...api.posts['previewLoan'] as Json,
-          'rateCap': {'ok': false, 'effectiveAnnual': 4.89, 'cap': 0.2493, 'missing': false, 'maxRate': '0.0187', 'overridable': true},
-        });
+      ...api.posts['previewLoan'] as Json,
+      'rateCap': {'ok': false, 'effectiveAnnual': 4.89, 'cap': 0.2493, 'missing': false, 'maxRate': '0.0187', 'overridable': true},
+    });
     final app = await bootApp(tester, api: api);
     await app.go('/clients/new');
     await fillClient(tester);
@@ -176,9 +174,9 @@ void main() {
   testWidgets('nuevo cliente por encima del tope sin permiso de la empresa: no se puede continuar', (tester) async {
     final api = FakeApi();
     api.overrides['POST /loans/preview'] = (req) => FakeApi.json(200, {
-          ...api.posts['previewLoan'] as Json,
-          'rateCap': {'ok': false, 'effectiveAnnual': 4.89, 'cap': 0.2493, 'missing': false, 'overridable': false},
-        });
+      ...api.posts['previewLoan'] as Json,
+      'rateCap': {'ok': false, 'effectiveAnnual': 4.89, 'cap': 0.2493, 'missing': false, 'overridable': false},
+    });
     final app = await bootApp(tester, api: api);
     await app.go('/clients/new');
     await fillClient(tester);
@@ -192,9 +190,8 @@ void main() {
   testWidgets('nuevo préstamo para un cliente existente: vista previa, error del servidor y creación', (tester) async {
     final api = FakeApi();
     var attempts = 0;
-    api.overrides['POST /clients/{id}/loans'] = (_) => ++attempts == 1
-        ? FakeApi.problem(409, 'CONTRACT_TAKEN', 'Ese número de contrato ya existe.')
-        : FakeApi.json(201, (api.posts['createClient'] as Json)['loan']);
+    api.overrides['POST /clients/{id}/loans'] = (_) =>
+        ++attempts == 1 ? FakeApi.problem(409, 'CONTRACT_TAKEN', 'Ese número de contrato ya existe.') : FakeApi.json(201, (api.posts['createClient'] as Json)['loan']);
     final app = await bootApp(tester, api: api);
     await app.go('/clients/${api.id('client')}/loans/new');
     expect(find.text(l.actionNewLoan), findsWidgets);

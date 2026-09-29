@@ -28,7 +28,9 @@ Future<PaymentResult?> showPaymentSheet(BuildContext context, WidgetRef ref, {re
   if (wide) {
     return showDialog<PaymentResult>(
       context: context,
-      builder: (_) => Dialog(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 520), child: sheet)),
+      builder: (_) => Dialog(
+        child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 520), child: sheet),
+      ),
     );
   }
   return showModalBottomSheet<PaymentResult>(
@@ -36,7 +38,10 @@ Future<PaymentResult?> showPaymentSheet(BuildContext context, WidgetRef ref, {re
     isScrollControlled: true,
     useSafeArea: true,
     showDragHandle: true,
-    builder: (sheetContext) => Padding(padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(sheetContext).bottom), child: sheet),
+    builder: (sheetContext) => Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(sheetContext).bottom),
+      child: sheet,
+    ),
   );
 }
 
@@ -117,12 +122,12 @@ class _PaymentFormState extends ConsumerState<PaymentForm> {
   }
 
   String _methodText(AppLocalizations l) => switch (_method) {
-        'cash' => l.methodCash,
-        'transfer' => l.methodTransfer,
-        'nequi' => 'Nequi',
-        'daviplata' => 'Daviplata',
-        _ => _otherMethod.text.trim(),
-      };
+    'cash' => l.methodCash,
+    'transfer' => l.methodTransfer,
+    'nequi' => 'Nequi',
+    'daviplata' => 'Daviplata',
+    _ => _otherMethod.text.trim(),
+  };
 
   Future<void> _pickDate() async {
     final now = DateTime.now();
@@ -145,7 +150,9 @@ class _PaymentFormState extends ConsumerState<PaymentForm> {
     });
     final container = ProviderScope.containerOf(context, listen: false);
     try {
-      final r = await container.read(apiProvider).pay(
+      final r = await container
+          .read(apiProvider)
+          .pay(
             widget.loanId,
             amount: amount,
             date: _date,
@@ -167,20 +174,24 @@ class _PaymentFormState extends ConsumerState<PaymentForm> {
       final auth = container.read(authProvider);
       if (e.isNetwork && auth is SignedIn) {
         // Sin conexión (ADR-055): el pago queda en la cola del equipo con su clave y se envía al volver la red.
-        await container.read(offlineProvider.notifier).enqueue(PendingPayment(
-              key: _idempotencyKey,
-              userId: auth.user.id,
-              loanId: widget.loanId,
-              amount: amount,
-              date: _date,
-              createdAt: DateTime.now(),
-              clientName: widget.clientName,
-              currency: widget.currency,
-              method: _methodText(l).isEmpty ? null : _methodText(l),
-              reference: _reference.text.trim().isEmpty ? null : _reference.text.trim(),
-              note: _note.text.trim().isEmpty ? null : _note.text.trim(),
-              cash: _method == 'cash',
-            ));
+        await container
+            .read(offlineProvider.notifier)
+            .enqueue(
+              PendingPayment(
+                key: _idempotencyKey,
+                userId: auth.user.id,
+                loanId: widget.loanId,
+                amount: amount,
+                date: _date,
+                createdAt: DateTime.now(),
+                clientName: widget.clientName,
+                currency: widget.currency,
+                method: _methodText(l).isEmpty ? null : _methodText(l),
+                reference: _reference.text.trim().isEmpty ? null : _reference.text.trim(),
+                note: _note.text.trim().isEmpty ? null : _note.text.trim(),
+                cash: _method == 'cash',
+              ),
+            );
         if (mounted) setState(() => _queued = true);
       } else if (mounted) {
         setState(() => _error = errorText(context, e));
@@ -199,85 +210,111 @@ class _PaymentFormState extends ConsumerState<PaymentForm> {
     if (_queued) {
       return SingleChildScrollView(
         padding: const EdgeInsets.all(CorocSpace.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          const Icon(Icons.cloud_off_outlined, size: 40),
-          const SizedBox(height: CorocSpace.md),
-          Text(l.offlinePaymentQueued, style: t.titleMedium, textAlign: TextAlign.center),
-          const SizedBox(height: CorocSpace.sm),
-          Text(l.offlinePaymentQueuedHelp, style: t.bodyMedium, textAlign: TextAlign.center),
-          const SizedBox(height: CorocSpace.lg),
-          GoldButton(label: l.actionDone, onPressed: () => Navigator.of(context).pop(), expand: true),
-        ]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Icon(Icons.cloud_off_outlined, size: 40),
+            const SizedBox(height: CorocSpace.md),
+            Text(l.offlinePaymentQueued, style: t.titleMedium, textAlign: TextAlign.center),
+            const SizedBox(height: CorocSpace.sm),
+            Text(l.offlinePaymentQueuedHelp, style: t.bodyMedium, textAlign: TextAlign.center),
+            const SizedBox(height: CorocSpace.lg),
+            GoldButton(label: l.actionDone, onPressed: () => Navigator.of(context).pop(), expand: true),
+          ],
+        ),
       );
     }
     if (_result != null) {
       return SingleChildScrollView(
         padding: const EdgeInsets.all(CorocSpace.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          ReceiptSummary(receipt: _result!.receipt, surplus: _result!.surplus),
-          const SizedBox(height: CorocSpace.lg),
-          _ReceiptPdfButton(loanId: widget.loanId, entryId: _result!.entry.id),
-          const SizedBox(height: CorocSpace.sm),
-          GoldButton(label: l.actionDone, onPressed: () => Navigator.of(context).pop(_result), expand: true),
-        ]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ReceiptSummary(receipt: _result!.receipt, surplus: _result!.surplus),
+            const SizedBox(height: CorocSpace.lg),
+            _ReceiptPdfButton(loanId: widget.loanId, entryId: _result!.entry.id),
+            const SizedBox(height: CorocSpace.sm),
+            GoldButton(label: l.actionDone, onPressed: () => Navigator.of(context).pop(_result), expand: true),
+          ],
+        ),
       );
     }
     return SingleChildScrollView(
       padding: const EdgeInsets.all(CorocSpace.lg),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text(l.paymentTitle, style: t.headlineSmall),
-        if (widget.clientName != null) Text(widget.clientName!, style: t.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-        const SizedBox(height: CorocSpace.lg),
-        TextField(
-          controller: _amount,
-          autofocus: true,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          style: t.headlineSmall?.copyWith(fontFamily: 'Inter'),
-          decoration: corocInput(context, label: l.paymentAmount, prefix: const Icon(Icons.payments_outlined)),
-          onChanged: (_) => _schedulePreview(),
-        ),
-        const SizedBox(height: CorocSpace.md),
-        OutlinedButton.icon(onPressed: _pickDate, icon: const Icon(Icons.event), label: Text('${l.paymentDate}: ${Dates.medium(_date, context.lang)}')),
-        const SizedBox(height: CorocSpace.md),
-        Wrap(spacing: 8, runSpacing: 8, children: [
-          for (final m in [('cash', l.methodCash), ('transfer', l.methodTransfer), ('nequi', 'Nequi'), ('daviplata', 'Daviplata'), ('other', l.methodOther)])
-            ChoiceChip(label: Text(m.$2), selected: _method == m.$1, onSelected: (_) => setState(() => _method = m.$1)),
-        ]),
-        if (_method == 'other') ...[
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.paymentTitle, style: t.headlineSmall),
+          if (widget.clientName != null) Text(widget.clientName!, style: t.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          const SizedBox(height: CorocSpace.lg),
+          TextField(
+            controller: _amount,
+            autofocus: true,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            style: t.headlineSmall?.copyWith(fontFamily: 'Inter'),
+            decoration: corocInput(context, label: l.paymentAmount, prefix: const Icon(Icons.payments_outlined)),
+            onChanged: (_) => _schedulePreview(),
+          ),
           const SizedBox(height: CorocSpace.md),
-          TextField(controller: _otherMethod, decoration: corocInput(context, label: l.paymentMethodOther)),
-        ],
-        if (_method != 'cash') ...[
+          OutlinedButton.icon(onPressed: _pickDate, icon: const Icon(Icons.event), label: Text('${l.paymentDate}: ${Dates.medium(_date, context.lang)}')),
           const SizedBox(height: CorocSpace.md),
-          TextField(controller: _reference, decoration: corocInput(context, label: l.paymentReference)),
-        ],
-        const SizedBox(height: CorocSpace.md),
-        TextField(controller: _note, decoration: corocInput(context, label: l.paymentNote), maxLines: 2),
-        const SizedBox(height: CorocSpace.lg),
-        if (_preview != null)
-          Container(
-            padding: const EdgeInsets.all(CorocSpace.md),
-            decoration: BoxDecoration(border: Border.all(color: Theme.of(context).colorScheme.outline), borderRadius: BorderRadius.circular(CorocRadii.control)),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Overline(l.paymentPreview),
-              const SizedBox(height: 8),
-              Text(_preview!.coverage, style: t.bodyMedium),
-              const SizedBox(height: 8),
-              KeyValue(l.receiptPreviousBalance, Money.format(_preview!.previousBalance, widget.currency)),
-              KeyValue(l.receiptNewBalance, Money.format(_preview!.newBalance, widget.currency), emphasize: true),
-              KeyValue(l.receiptRemaining, '${_preview!.remainingInstallments}'),
-              if (_preview!.surplus > 0) KeyValue(l.paymentSurplus, Money.format(_preview!.surplus, widget.currency)),
-            ]),
-          )
-        else if (_previewError != null)
-          Text(_previewError!, style: t.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.error)),
-        if (_error != null) ...[
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final m in [('cash', l.methodCash), ('transfer', l.methodTransfer), ('nequi', 'Nequi'), ('daviplata', 'Daviplata'), ('other', l.methodOther)])
+                ChoiceChip(label: Text(m.$2), selected: _method == m.$1, onSelected: (_) => setState(() => _method = m.$1)),
+            ],
+          ),
+          if (_method == 'other') ...[
+            const SizedBox(height: CorocSpace.md),
+            TextField(
+              controller: _otherMethod,
+              decoration: corocInput(context, label: l.paymentMethodOther),
+            ),
+          ],
+          if (_method != 'cash') ...[
+            const SizedBox(height: CorocSpace.md),
+            TextField(
+              controller: _reference,
+              decoration: corocInput(context, label: l.paymentReference),
+            ),
+          ],
           const SizedBox(height: CorocSpace.md),
-          Text(_error!, style: t.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.error)),
+          TextField(
+            controller: _note,
+            decoration: corocInput(context, label: l.paymentNote),
+            maxLines: 2,
+          ),
+          const SizedBox(height: CorocSpace.lg),
+          if (_preview != null)
+            Container(
+              padding: const EdgeInsets.all(CorocSpace.md),
+              decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).colorScheme.outline),
+                borderRadius: BorderRadius.circular(CorocRadii.control),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Overline(l.paymentPreview),
+                  const SizedBox(height: 8),
+                  Text(_preview!.coverage, style: t.bodyMedium),
+                  const SizedBox(height: 8),
+                  KeyValue(l.receiptPreviousBalance, Money.format(_preview!.previousBalance, widget.currency)),
+                  KeyValue(l.receiptNewBalance, Money.format(_preview!.newBalance, widget.currency), emphasize: true),
+                  KeyValue(l.receiptRemaining, '${_preview!.remainingInstallments}'),
+                  if (_preview!.surplus > 0) KeyValue(l.paymentSurplus, Money.format(_preview!.surplus, widget.currency)),
+                ],
+              ),
+            )
+          else if (_previewError != null)
+            Text(_previewError!, style: t.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.error)),
+          if (_error != null) ...[const SizedBox(height: CorocSpace.md), Text(_error!, style: t.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.error))],
+          const SizedBox(height: CorocSpace.lg),
+          GoldButton(label: l.paymentConfirm, icon: Icons.check, onPressed: _submit, busy: _busy, expand: true),
         ],
-        const SizedBox(height: CorocSpace.lg),
-        GoldButton(label: l.paymentConfirm, icon: Icons.check, onPressed: _submit, busy: _busy, expand: true),
-      ]),
+      ),
     );
   }
 }
@@ -293,36 +330,50 @@ class ReceiptSummary extends StatelessWidget {
     final l = context.l10n;
     final t = Theme.of(context).textTheme;
     String m(int v) => Money.format(v, receipt.currency);
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Container(height: 4, decoration: const BoxDecoration(gradient: CorocColors.brandGradient, borderRadius: BorderRadius.all(Radius.circular(2)))),
-      const SizedBox(height: CorocSpace.lg),
-      Row(children: [
-        const CorocLogo(layout: LogoLayout.isotype, height: 36),
-        const SizedBox(width: 12),
-        Expanded(child: Text(l.receiptThanks, style: t.headlineSmall)),
-        if (receipt.voided) StatusDot(label: l.receiptVoided, tone: StatusTone.error),
-      ]),
-      const SizedBox(height: CorocSpace.md),
-      Row(children: [
-        Expanded(child: _Big(label: l.receiptPaid, value: m(receipt.payment.amount), gold: true)),
-        const SizedBox(width: CorocSpace.md),
-        Expanded(child: _Big(label: l.receiptNewBalance, value: m(receipt.newBalance))),
-      ]),
-      const SizedBox(height: CorocSpace.md),
-      KeyValue(l.receiptNumber, receipt.number),
-      KeyValue(l.receiptIssued, receipt.issuedAt),
-      KeyValue(l.receiptContract, receipt.contract),
-      KeyValue(l.receiptPaymentDate, Dates.medium(receipt.payment.date, context.lang)),
-      if ((receipt.payment.method ?? '').isNotEmpty) KeyValue(l.receiptMethod, [receipt.payment.method, receipt.payment.reference].whereType<String>().where((s) => s.isNotEmpty).join(' · ')),
-      KeyValue(l.receiptTotalInstallments, '${receipt.totalInstallments}'),
-      KeyValue(l.receiptCoverage, receipt.coverage),
-      KeyValue(l.receiptRemaining, '${receipt.remainingInstallments}'),
-      KeyValue(l.receiptAccumulated, m(receipt.accumulatedPaid)),
-      KeyValue(l.receiptPreviousBalance, m(receipt.previousBalance)),
-      if (receipt.next != null) KeyValue(l.receiptNext, '${Dates.medium(receipt.next!.dueDate, context.lang)} · ${m(receipt.next!.amount)}'),
-      if (surplus > 0) KeyValue(l.paymentSurplus, m(surplus)),
-      KeyValue(l.receiptVerification, receipt.verificationCode),
-    ]);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          height: 4,
+          decoration: const BoxDecoration(gradient: CorocColors.brandGradient, borderRadius: BorderRadius.all(Radius.circular(2))),
+        ),
+        const SizedBox(height: CorocSpace.lg),
+        Row(
+          children: [
+            const CorocLogo(layout: LogoLayout.isotype, height: 36),
+            const SizedBox(width: 12),
+            Expanded(child: Text(l.receiptThanks, style: t.headlineSmall)),
+            if (receipt.voided) StatusDot(label: l.receiptVoided, tone: StatusTone.error),
+          ],
+        ),
+        const SizedBox(height: CorocSpace.md),
+        Row(
+          children: [
+            Expanded(
+              child: _Big(label: l.receiptPaid, value: m(receipt.payment.amount), gold: true),
+            ),
+            const SizedBox(width: CorocSpace.md),
+            Expanded(
+              child: _Big(label: l.receiptNewBalance, value: m(receipt.newBalance)),
+            ),
+          ],
+        ),
+        const SizedBox(height: CorocSpace.md),
+        KeyValue(l.receiptNumber, receipt.number),
+        KeyValue(l.receiptIssued, receipt.issuedAt),
+        KeyValue(l.receiptContract, receipt.contract),
+        KeyValue(l.receiptPaymentDate, Dates.medium(receipt.payment.date, context.lang)),
+        if ((receipt.payment.method ?? '').isNotEmpty) KeyValue(l.receiptMethod, [receipt.payment.method, receipt.payment.reference].whereType<String>().where((s) => s.isNotEmpty).join(' · ')),
+        KeyValue(l.receiptTotalInstallments, '${receipt.totalInstallments}'),
+        KeyValue(l.receiptCoverage, receipt.coverage),
+        KeyValue(l.receiptRemaining, '${receipt.remainingInstallments}'),
+        KeyValue(l.receiptAccumulated, m(receipt.accumulatedPaid)),
+        KeyValue(l.receiptPreviousBalance, m(receipt.previousBalance)),
+        if (receipt.next != null) KeyValue(l.receiptNext, '${Dates.medium(receipt.next!.dueDate, context.lang)} · ${m(receipt.next!.amount)}'),
+        if (surplus > 0) KeyValue(l.paymentSurplus, m(surplus)),
+        KeyValue(l.receiptVerification, receipt.verificationCode),
+      ],
+    );
   }
 }
 
@@ -337,16 +388,25 @@ class _Big extends StatelessWidget {
     final dark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(CorocSpace.md),
-      decoration: BoxDecoration(border: Border.all(color: Theme.of(context).colorScheme.outline), borderRadius: BorderRadius.circular(CorocRadii.control)),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Overline(label),
-        const SizedBox(height: 6),
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.centerLeft,
-          child: Text(value, style: t.headlineMedium?.copyWith(fontFamily: 'Inter', fontWeight: FontWeight.w400, color: gold ? (dark ? CorocColors.gold300 : CorocColors.gold800) : null)),
-        ),
-      ]),
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
+        borderRadius: BorderRadius.circular(CorocRadii.control),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Overline(label),
+          const SizedBox(height: 6),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: t.headlineMedium?.copyWith(fontFamily: 'Inter', fontWeight: FontWeight.w400, color: gold ? (dark ? CorocColors.gold300 : CorocColors.gold800) : null),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -370,7 +430,11 @@ class _ReceiptPdfButtonState extends ConsumerState<_ReceiptPdfButton> {
       future: _doc,
       builder: (context, snap) {
         if (snap.connectionState != ConnectionState.done) {
-          return OutlinedButton.icon(onPressed: null, icon: const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)), label: Text(l.receiptPdfPreparing));
+          return OutlinedButton.icon(
+            onPressed: null,
+            icon: const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+            label: Text(l.receiptPdfPreparing),
+          );
         }
         final id = snap.data;
         if (id == null) return Text(l.receiptPdfPending, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodySmall);

@@ -55,40 +55,47 @@ class SettingsPage extends ConsumerWidget {
     if (auth is! SignedIn) return const SizedBox.shrink();
     final u = auth.user;
     const gap = SizedBox(height: CorocSpace.lg);
-    return PageScaffold(maxWidth: 1000, children: [
-      PageHeader(title: l.navSettings, subtitle: l.settingsSubtitle),
-      _Preferences(user: u),
-      gap,
-      _Security(user: u),
-      if (u.can('company.view')) ...[gap, _CompanySection(canEdit: u.can('company.edit'))],
-      if (u.can('company.view')) ...[
+    return PageScaffold(
+      maxWidth: 1000,
+      children: [
+        PageHeader(title: l.navSettings, subtitle: l.settingsSubtitle),
+        _Preferences(user: u),
         gap,
-        ReceivingAccountsSection(canEdit: u.can('company.edit')),
+        _Security(user: u),
+        if (u.can('company.view')) ...[gap, _CompanySection(canEdit: u.can('company.edit'))],
+        if (u.can('company.view')) ...[
+          gap,
+          ReceivingAccountsSection(canEdit: u.can('company.edit')),
+          gap,
+          AutoRegistrationSection(canEdit: u.can('company.edit')),
+          gap,
+          WhatsAppSection(canEdit: u.can('company.edit'), isOwner: u.role == 'owner'),
+          gap,
+          EmailSenderSection(canEdit: u.can('company.edit')),
+        ],
+        if (u.can('compliance.view')) ...[gap, ComplianceSection(canEdit: u.can('compliance.manage'), isOwner: u.role == 'owner')],
+        if (u.can('users.view')) ...[gap, _UsersSection(me: u)],
+        if (u.can('compliance.view')) ...[gap, _RateCapsSection(canManage: u.can('compliance.manage'), country: auth.company.country, isOwner: u.role == 'owner')],
         gap,
-        AutoRegistrationSection(canEdit: u.can('company.edit')),
+        const FolderSection(),
+        if (u.can('audit.view')) ...[gap, SupportSection(canRetry: u.can('documents.upload'))],
+        if (u.can('backup.create')) ...[gap, const BackupSection()],
+        if (u.can('backup.restore')) ...[gap, const RestoreSection()],
         gap,
-        WhatsAppSection(canEdit: u.can('company.edit'), isOwner: u.role == 'owner'),
+        // En teléfonos la Ayuda y los Informes no caben en la barra inferior (§5.6): quedan aquí.
+        if (u.can('reports.view') && MediaQuery.sizeOf(context).width < CorocBreakpoints.tablet)
+          Card(
+            child: ListTile(leading: const Icon(Icons.insert_chart_outlined), title: Text(l.navReports), trailing: const Icon(Icons.chevron_right), onTap: () => GoRouter.of(context).go('/reports')),
+          ),
+        Card(
+          child: ListTile(leading: const Icon(Icons.help_outline), title: Text(l.navHelp), trailing: const Icon(Icons.chevron_right), onTap: () => GoRouter.of(context).go('/help')),
+        ),
         gap,
-        EmailSenderSection(canEdit: u.can('company.edit')),
+        _About(company: auth.company),
+        gap,
+        DeleteAccountSection(user: u, companySlug: auth.company.slug),
       ],
-      if (u.can('compliance.view')) ...[gap, ComplianceSection(canEdit: u.can('compliance.manage'), isOwner: u.role == 'owner')],
-      if (u.can('users.view')) ...[gap, _UsersSection(me: u)],
-      if (u.can('compliance.view')) ...[gap, _RateCapsSection(canManage: u.can('compliance.manage'), country: auth.company.country, isOwner: u.role == 'owner')],
-      gap,
-      const FolderSection(),
-      if (u.can('audit.view')) ...[gap, SupportSection(canRetry: u.can('documents.upload'))],
-      if (u.can('backup.create')) ...[gap, const BackupSection()],
-      if (u.can('backup.restore')) ...[gap, const RestoreSection()],
-      gap,
-      // En teléfonos la Ayuda y los Informes no caben en la barra inferior (§5.6): quedan aquí.
-      if (u.can('reports.view') && MediaQuery.sizeOf(context).width < CorocBreakpoints.tablet)
-        Card(child: ListTile(leading: const Icon(Icons.insert_chart_outlined), title: Text(l.navReports), trailing: const Icon(Icons.chevron_right), onTap: () => GoRouter.of(context).go('/reports'))),
-      Card(child: ListTile(leading: const Icon(Icons.help_outline), title: Text(l.navHelp), trailing: const Icon(Icons.chevron_right), onTap: () => GoRouter.of(context).go('/help'))),
-      gap,
-      _About(company: auth.company),
-      gap,
-      DeleteAccountSection(user: u, companySlug: auth.company.slug),
-    ]);
+    );
   }
 }
 
@@ -102,16 +109,27 @@ class _SettingRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
-    final text = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(label, style: t.titleSmall),
-      if (help != null) ...[const SizedBox(height: 4), Text(help!, style: t.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))],
-    ]);
+    final text = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: t.titleSmall),
+        if (help != null) ...[const SizedBox(height: 4), Text(help!, style: t.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))],
+      ],
+    );
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
-      child: LayoutBuilder(builder: (context, c) {
-        if (c.maxWidth < 620) return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [text, const SizedBox(height: 8), child]);
-        return Row(children: [Expanded(child: text), const SizedBox(width: CorocSpace.md), child]);
-      }),
+      child: LayoutBuilder(
+        builder: (context, c) {
+          if (c.maxWidth < 620) return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [text, const SizedBox(height: 8), child]);
+          return Row(
+            children: [
+              Expanded(child: text),
+              const SizedBox(width: CorocSpace.md),
+              child,
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -122,7 +140,15 @@ Future<String?> _promptText(BuildContext context, {required String title, requir
     context: context,
     builder: (context) => AlertDialog(
       title: Text(title),
-      content: SizedBox(width: 380, child: TextField(controller: c, autofocus: true, decoration: corocInput(context, label: label), onSubmitted: (v) => Navigator.pop(context, v.trim()))),
+      content: SizedBox(
+        width: 380,
+        child: TextField(
+          controller: c,
+          autofocus: true,
+          decoration: corocInput(context, label: label),
+          onSubmitted: (v) => Navigator.pop(context, v.trim()),
+        ),
+      ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: Text(context.l10n.actionCancel)),
         FilledButton(onPressed: () => Navigator.pop(context, c.text.trim()), child: Text(context.l10n.actionSave)),
@@ -152,62 +178,67 @@ class _Preferences extends ConsumerWidget {
     final mode = ref.watch(themeModeProvider);
     return SectionCard(
       title: l.settingsPreferences,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        _SettingRow(
-          label: l.fieldLanguage,
-          help: l.settingsLanguageHelp,
-          child: SegmentedButton<String>(
-            showSelectedIcon: false,
-            segments: [for (final c in supportedLanguages) ButtonSegment(value: c, label: Text(languageName(l, c)))],
-            selected: {lang},
-            onSelectionChanged: (v) async {
-              // CA-14: la interfaz cambia al instante; luego se guarda en el perfil para los demás equipos.
-              await ref.read(localeProvider.notifier).set(v.first);
-              if (context.mounted) await _patch(context, ref, lang: ref.read(localeProvider.notifier).apiCode);
-            },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _SettingRow(
+            label: l.fieldLanguage,
+            help: l.settingsLanguageHelp,
+            child: SegmentedButton<String>(
+              showSelectedIcon: false,
+              segments: [for (final c in supportedLanguages) ButtonSegment(value: c, label: Text(languageName(l, c)))],
+              selected: {lang},
+              onSelectionChanged: (v) async {
+                // CA-14: la interfaz cambia al instante; luego se guarda en el perfil para los demás equipos.
+                await ref.read(localeProvider.notifier).set(v.first);
+                if (context.mounted) await _patch(context, ref, lang: ref.read(localeProvider.notifier).apiCode);
+              },
+            ),
           ),
-        ),
-        _SettingRow(
-          label: l.settingsTheme,
-          child: SegmentedButton<ThemeMode>(
-            showSelectedIcon: false,
-            segments: [
-              ButtonSegment(value: ThemeMode.system, icon: const Icon(Icons.brightness_auto_outlined), label: Text(l.themeSystem)),
-              ButtonSegment(value: ThemeMode.light, icon: const Icon(Icons.light_mode_outlined), label: Text(l.themeLight)),
-              ButtonSegment(value: ThemeMode.dark, icon: const Icon(Icons.dark_mode_outlined), label: Text(l.themeDark)),
-            ],
-            selected: {mode},
-            onSelectionChanged: (v) async {
-              await ref.read(themeModeProvider.notifier).set(v.first);
-              if (context.mounted) await _patch(context, ref, theme: ThemeController.name(v.first));
-            },
+          _SettingRow(
+            label: l.settingsTheme,
+            child: SegmentedButton<ThemeMode>(
+              showSelectedIcon: false,
+              segments: [
+                ButtonSegment(value: ThemeMode.system, icon: const Icon(Icons.brightness_auto_outlined), label: Text(l.themeSystem)),
+                ButtonSegment(value: ThemeMode.light, icon: const Icon(Icons.light_mode_outlined), label: Text(l.themeLight)),
+                ButtonSegment(value: ThemeMode.dark, icon: const Icon(Icons.dark_mode_outlined), label: Text(l.themeDark)),
+              ],
+              selected: {mode},
+              onSelectionChanged: (v) async {
+                await ref.read(themeModeProvider.notifier).set(v.first);
+                if (context.mounted) await _patch(context, ref, theme: ThemeController.name(v.first));
+              },
+            ),
           ),
-        ),
-        _SettingRow(
-          label: l.settingsAutoLock,
-          help: l.settingsAutoLockHelp,
-          child: DropdownMenu<int>(
-            initialSelection: user.autoLockMinutes,
-            width: 180,
-            dropdownMenuEntries: [for (final m in const [1, 2, 5, 10, 15, 30, 60]) DropdownMenuEntry<int>(value: m, label: l.minutesN(m))],
-            onSelected: (m) {
-              if (m != null && m != user.autoLockMinutes) _patch(context, ref, autoLockMinutes: m);
-            },
+          _SettingRow(
+            label: l.settingsAutoLock,
+            help: l.settingsAutoLockHelp,
+            child: DropdownMenu<int>(
+              initialSelection: user.autoLockMinutes,
+              width: 180,
+              dropdownMenuEntries: [
+                for (final m in const [1, 2, 5, 10, 15, 30, 60]) DropdownMenuEntry<int>(value: m, label: l.minutesN(m)),
+              ],
+              onSelected: (m) {
+                if (m != null && m != user.autoLockMinutes) _patch(context, ref, autoLockMinutes: m);
+              },
+            ),
           ),
-        ),
-        _SettingRow(
-          label: l.settingsDisplayName,
-          help: '@${user.username} · ${roleLabel(l, user.role)}',
-          child: OutlinedButton.icon(
-            onPressed: () async {
-              final name = await _promptText(context, title: l.settingsDisplayName, label: l.fieldName, initial: user.name);
-              if (name != null && name.isNotEmpty && name != user.name && context.mounted) await _patch(context, ref, name: name);
-            },
-            icon: const Icon(Icons.edit_outlined, size: 18),
-            label: Text(user.name),
+          _SettingRow(
+            label: l.settingsDisplayName,
+            help: '@${user.username} · ${roleLabel(l, user.role)}',
+            child: OutlinedButton.icon(
+              onPressed: () async {
+                final name = await _promptText(context, title: l.settingsDisplayName, label: l.fieldName, initial: user.name);
+                if (name != null && name.isNotEmpty && name != user.name && context.mounted) await _patch(context, ref, name: name);
+              },
+              icon: const Icon(Icons.edit_outlined, size: 18),
+              label: Text(user.name),
+            ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 }
@@ -226,56 +257,72 @@ class _Security extends ConsumerWidget {
     final ownerLocked = user.role == 'owner';
     return SectionCard(
       title: l.settingsSecurity,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.password_outlined),
-          title: Text(l.passwordChangeTitle),
-          subtitle: Text(l.passwordChangeHelp),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => showDialog<void>(context: context, builder: (_) => const _ChangePasswordDialog()),
-        ),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.verified_user_outlined),
-          title: Text(l.mfaSetting),
-          subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const SizedBox(height: 4),
-            StatusDot(label: user.mfaEnabled ? l.mfaOn : l.mfaOff, tone: user.mfaEnabled ? StatusTone.ok : StatusTone.warn),
-            if (user.mfaEnabled && ownerLocked) ...[const SizedBox(height: 4), Text(l.mfaOwnerRequired, style: t.bodySmall)],
-          ]),
-          trailing: user.mfaEnabled
-              ? (ownerLocked ? null : TextButton(onPressed: () => showDialog<void>(context: context, builder: (_) => const _DisableMfaDialog()), child: Text(l.actionDisable)))
-              : FilledButton.tonal(onPressed: () => showDialog<void>(context: context, builder: (_) => const _EnrollDialog()), child: Text(l.actionEnable)),
-        ),
-        const Divider(height: CorocSpace.xl),
-        Text(l.sessionsTitle, style: t.titleSmall),
-        const SizedBox(height: 4),
-        Text(l.sessionsHelp, style: t.bodySmall),
-        const SizedBox(height: CorocSpace.sm),
-        AsyncBody<List<SessionInfo>>(
-          value: sessions,
-          onRetry: () => ref.invalidate(mySessionsProvider),
-          builder: (list) => Column(children: [
-            for (final s in list)
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Icon(s.current ? Icons.smartphone : Icons.devices_other_outlined),
-                title: Text(s.deviceName ?? s.deviceId, overflow: TextOverflow.ellipsis),
-                subtitle: Text(l.sessionLastUsed(Dates.dateTime(s.lastUsedAt, context.lang))),
-                trailing: s.current
-                    ? Chip(label: Text(l.sessionCurrent), visualDensity: VisualDensity.compact)
-                    : TextButton(
-                        onPressed: () async {
-                          final container = ProviderScope.containerOf(context, listen: false);
-                          if (await _run(context, () => container.read(apiProvider).revokeMySession(s.id))) container.invalidate(mySessionsProvider);
-                        },
-                        child: Text(l.actionSignOutDevice),
-                      ),
-              ),
-          ]),
-        ),
-      ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.password_outlined),
+            title: Text(l.passwordChangeTitle),
+            subtitle: Text(l.passwordChangeHelp),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => showDialog<void>(context: context, builder: (_) => const _ChangePasswordDialog()),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.verified_user_outlined),
+            title: Text(l.mfaSetting),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 4),
+                StatusDot(label: user.mfaEnabled ? l.mfaOn : l.mfaOff, tone: user.mfaEnabled ? StatusTone.ok : StatusTone.warn),
+                if (user.mfaEnabled && ownerLocked) ...[const SizedBox(height: 4), Text(l.mfaOwnerRequired, style: t.bodySmall)],
+              ],
+            ),
+            trailing: user.mfaEnabled
+                ? (ownerLocked
+                      ? null
+                      : TextButton(
+                          onPressed: () => showDialog<void>(context: context, builder: (_) => const _DisableMfaDialog()),
+                          child: Text(l.actionDisable),
+                        ))
+                : FilledButton.tonal(
+                    onPressed: () => showDialog<void>(context: context, builder: (_) => const _EnrollDialog()),
+                    child: Text(l.actionEnable),
+                  ),
+          ),
+          const Divider(height: CorocSpace.xl),
+          Text(l.sessionsTitle, style: t.titleSmall),
+          const SizedBox(height: 4),
+          Text(l.sessionsHelp, style: t.bodySmall),
+          const SizedBox(height: CorocSpace.sm),
+          AsyncBody<List<SessionInfo>>(
+            value: sessions,
+            onRetry: () => ref.invalidate(mySessionsProvider),
+            builder: (list) => Column(
+              children: [
+                for (final s in list)
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(s.current ? Icons.smartphone : Icons.devices_other_outlined),
+                    title: Text(s.deviceName ?? s.deviceId, overflow: TextOverflow.ellipsis),
+                    subtitle: Text(l.sessionLastUsed(Dates.dateTime(s.lastUsedAt, context.lang))),
+                    trailing: s.current
+                        ? Chip(label: Text(l.sessionCurrent), visualDensity: VisualDensity.compact)
+                        : TextButton(
+                            onPressed: () async {
+                              final container = ProviderScope.containerOf(context, listen: false);
+                              if (await _run(context, () => container.read(apiProvider).revokeMySession(s.id))) container.invalidate(mySessionsProvider);
+                            },
+                            child: Text(l.actionSignOutDevice),
+                          ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -330,34 +377,38 @@ class _ChangePasswordDialogState extends ConsumerState<_ChangePasswordDialog> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     Widget field(TextEditingController c, String label, {String? helper}) => Padding(
-          padding: const EdgeInsets.only(bottom: CorocSpace.md),
-          child: TextField(
-            controller: c,
-            obscureText: !_show,
-            autocorrect: false,
-            enableSuggestions: false,
-            decoration: corocInput(context, label: label, helper: helper),
-            onSubmitted: (_) => _save(),
-          ),
-        );
+      padding: const EdgeInsets.only(bottom: CorocSpace.md),
+      child: TextField(
+        controller: c,
+        obscureText: !_show,
+        autocorrect: false,
+        enableSuggestions: false,
+        decoration: corocInput(context, label: label, helper: helper),
+        onSubmitted: (_) => _save(),
+      ),
+    );
     return AlertDialog(
       title: Text(l.passwordChangeTitle),
       content: SizedBox(
         width: 420,
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          field(_current, l.passwordCurrent),
-          field(_next, l.passwordNew, helper: l.passwordRules),
-          field(_confirm, l.passwordConfirm),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              onPressed: () => setState(() => _show = !_show),
-              icon: Icon(_show ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 18),
-              label: Text(_show ? l.actionHidePassword : l.actionShowPassword),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            field(_current, l.passwordCurrent),
+            field(_next, l.passwordNew, helper: l.passwordRules),
+            field(_confirm, l.passwordConfirm),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () => setState(() => _show = !_show),
+                icon: Icon(_show ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 18),
+                label: Text(_show ? l.actionHidePassword : l.actionShowPassword),
+              ),
             ),
-          ),
-          if (_error != null) Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-        ]),
+            if (_error != null) Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          ],
+        ),
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: Text(l.actionCancel)),
@@ -419,38 +470,47 @@ class _EnrollDialogState extends ConsumerState<_EnrollDialog> {
           builder: (context, snap) {
             if (snap.hasError) {
               return ErrorState(
-                  message: errorText(context, snap.error!),
-                  onRetry: () => setState(() {
-                        _enrollment = ref.read(apiProvider).enrollMfa();
-                      }));
+                message: errorText(context, snap.error!),
+                onRetry: () => setState(() {
+                  _enrollment = ref.read(apiProvider).enrollMfa();
+                }),
+              );
             }
-            if (!snap.hasData) return const Center(child: Padding(padding: EdgeInsets.all(CorocSpace.xl), child: CircularProgressIndicator()));
+            if (!snap.hasData) {
+              return const Center(
+                child: Padding(padding: EdgeInsets.all(CorocSpace.xl), child: CircularProgressIndicator()),
+              );
+            }
             final e = snap.data!;
             return SingleChildScrollView(
-              child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                Text(l.enrollSubtitle, style: Theme.of(context).textTheme.bodyMedium),
-                const SizedBox(height: CorocSpace.md),
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(CorocSpace.sm),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(CorocRadii.control)),
-                    child: QrImageView(data: e.otpauthUri, size: 180, backgroundColor: Colors.white),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(l.enrollSubtitle, style: Theme.of(context).textTheme.bodyMedium),
+                  const SizedBox(height: CorocSpace.md),
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(CorocSpace.sm),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(CorocRadii.control)),
+                      child: QrImageView(data: e.otpauthUri, size: 180, backgroundColor: Colors.white),
+                    ),
                   ),
-                ),
-                const SizedBox(height: CorocSpace.sm),
-                Text(l.enrollManual, style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
-                SelectableText(e.secret, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleSmall?.copyWith(letterSpacing: 1.5)),
-                TextButton.icon(
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: e.secret));
-                    _toast(context, l.copied);
-                  },
-                  icon: const Icon(Icons.copy, size: 18),
-                  label: Text(l.actionCopy),
-                ),
-                const SizedBox(height: CorocSpace.sm),
-                CodeField(controller: _code, onSubmit: _confirm, error: _error),
-              ]),
+                  const SizedBox(height: CorocSpace.sm),
+                  Text(l.enrollManual, style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
+                  SelectableText(e.secret, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleSmall?.copyWith(letterSpacing: 1.5)),
+                  TextButton.icon(
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: e.secret));
+                      _toast(context, l.copied);
+                    },
+                    icon: const Icon(Icons.copy, size: 18),
+                    label: Text(l.actionCopy),
+                  ),
+                  const SizedBox(height: CorocSpace.sm),
+                  CodeField(controller: _code, onSubmit: _confirm, error: _error),
+                ],
+              ),
             );
           },
         ),
@@ -511,11 +571,15 @@ class _DisableMfaDialogState extends ConsumerState<_DisableMfaDialog> {
       title: Text(l.mfaDisableTitle),
       content: SizedBox(
         width: 380,
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text(l.mfaDisableHelp),
-          const SizedBox(height: CorocSpace.md),
-          CodeField(controller: _code, onSubmit: _confirm, error: _error),
-        ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l.mfaDisableHelp),
+            const SizedBox(height: CorocSpace.md),
+            CodeField(controller: _code, onSubmit: _confirm, error: _error),
+          ],
+        ),
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: Text(l.actionCancel)),
@@ -528,11 +592,11 @@ class _DisableMfaDialogState extends ConsumerState<_DisableMfaDialog> {
 // ─────────────────────────────── Empresa ───────────────────────────────
 
 String countryName(AppLocalizations l, String code) => switch (code) {
-      'CO' => l.countryCO,
-      'BR' => l.countryBR,
-      'US' => l.countryUS,
-      _ => code,
-    };
+  'CO' => l.countryCO,
+  'BR' => l.countryBR,
+  'US' => l.countryUS,
+  _ => code,
+};
 
 class _CompanySection extends ConsumerWidget {
   const _CompanySection({required this.canEdit});
@@ -547,7 +611,10 @@ class _CompanySection extends ConsumerWidget {
       title: l.settingsCompany,
       trailing: canEdit && current != null
           ? TextButton.icon(
-              onPressed: () => showDialog<void>(context: context, builder: (_) => _CompanyDialog(company: current)),
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (_) => _CompanyDialog(company: current),
+              ),
               icon: const Icon(Icons.edit_outlined, size: 18),
               label: Text(l.actionEdit),
             )
@@ -555,17 +622,20 @@ class _CompanySection extends ConsumerWidget {
       child: AsyncBody<Company>(
         value: company,
         onRetry: () => ref.invalidate(companyProvider),
-        builder: (c) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          KeyValue(l.companyName, c.name, emphasize: true),
-          KeyValue(l.companyCode, c.slug),
-          if (c.taxId case final taxId?) KeyValue(l.companyTaxId, taxId),
-          KeyValue(l.companyCountry, countryName(l, c.country)),
-          KeyValue(l.companyCurrency, c.currency),
-          KeyValue(l.companyTimezone, c.timezone),
-          if (c.phone case final phone?) KeyValue(l.fieldPhone, phone),
-          if (c.email case final email?) KeyValue(l.fieldEmail, email),
-          if (c.address != null || c.city != null) KeyValue(l.fieldAddress, [c.address, c.city].whereType<String>().join(', ')),
-        ]),
+        builder: (c) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            KeyValue(l.companyName, c.name, emphasize: true),
+            KeyValue(l.companyCode, c.slug),
+            if (c.taxId case final taxId?) KeyValue(l.companyTaxId, taxId),
+            KeyValue(l.companyCountry, countryName(l, c.country)),
+            KeyValue(l.companyCurrency, c.currency),
+            KeyValue(l.companyTimezone, c.timezone),
+            if (c.phone case final phone?) KeyValue(l.fieldPhone, phone),
+            if (c.email case final email?) KeyValue(l.fieldEmail, email),
+            if (c.address != null || c.city != null) KeyValue(l.fieldAddress, [c.address, c.city].whereType<String>().join(', ')),
+          ],
+        ),
       ),
     );
   }
@@ -623,23 +693,31 @@ class _CompanyDialogState extends ConsumerState<_CompanyDialog> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     Widget field(TextEditingController c, String label, {String? errorField, TextInputType? type}) => Padding(
-          padding: const EdgeInsets.only(bottom: CorocSpace.md),
-          child: TextField(controller: c, keyboardType: type, decoration: corocInput(context, label: label, error: errorField == null ? null : _error?.fieldMessage(errorField))),
-        );
+      padding: const EdgeInsets.only(bottom: CorocSpace.md),
+      child: TextField(
+        controller: c,
+        keyboardType: type,
+        decoration: corocInput(context, label: label, error: errorField == null ? null : _error?.fieldMessage(errorField)),
+      ),
+    );
     return AlertDialog(
       title: Text(l.editCompanyTitle),
       content: SizedBox(
         width: 480,
         child: SingleChildScrollView(
-          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            field(_name, '${l.companyName} *'),
-            field(_taxId, l.companyTaxId),
-            field(_phone, l.fieldPhone, type: TextInputType.phone),
-            field(_email, l.fieldEmail, errorField: 'email', type: TextInputType.emailAddress),
-            field(_address, l.fieldAddress),
-            field(_city, l.fieldCity),
-            if (_error != null) Text(errorText(context, _error!), style: TextStyle(color: Theme.of(context).colorScheme.error)),
-          ]),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              field(_name, '${l.companyName} *'),
+              field(_taxId, l.companyTaxId),
+              field(_phone, l.fieldPhone, type: TextInputType.phone),
+              field(_email, l.fieldEmail, errorField: 'email', type: TextInputType.emailAddress),
+              field(_address, l.fieldAddress),
+              field(_city, l.fieldCity),
+              if (_error != null) Text(errorText(context, _error!), style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            ],
+          ),
         ),
       ),
       actions: [
@@ -665,20 +743,28 @@ class _UsersSection extends ConsumerWidget {
       title: l.settingsUsers,
       trailing: canManage
           ? TextButton.icon(
-              onPressed: () => showDialog<void>(context: context, builder: (_) => _NewUserDialog(me: me)),
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (_) => _NewUserDialog(me: me),
+              ),
               icon: const Icon(Icons.person_add_alt_1_outlined, size: 18),
               label: Text(l.userNew),
             )
           : null,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text(l.rolesHelp, style: Theme.of(context).textTheme.bodySmall),
-        const SizedBox(height: CorocSpace.sm),
-        AsyncBody<List<User>>(
-          value: users,
-          onRetry: () => ref.invalidate(usersProvider),
-          builder: (list) => Column(children: [for (final u in list) _UserTile(user: u, me: me, canManage: canManage)]),
-        ),
-      ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.rolesHelp, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: CorocSpace.sm),
+          AsyncBody<List<User>>(
+            value: users,
+            onRetry: () => ref.invalidate(usersProvider),
+            builder: (list) => Column(
+              children: [for (final u in list) _UserTile(user: u, me: me, canManage: canManage)],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -703,11 +789,13 @@ class _UserTile extends StatelessWidget {
               for (final r in _assignableRoles(me))
                 SimpleDialogOption(
                   onPressed: () => Navigator.pop(context, r),
-                  child: Row(children: [
-                    Icon(r == user.role ? Icons.radio_button_checked : Icons.radio_button_off, size: 20),
-                    const SizedBox(width: 12),
-                    Expanded(child: Text(roleLabel(l, r))),
-                  ]),
+                  child: Row(
+                    children: [
+                      Icon(r == user.role ? Icons.radio_button_checked : Icons.radio_button_off, size: 20),
+                      const SizedBox(width: 12),
+                      Expanded(child: Text(roleLabel(l, r))),
+                    ],
+                  ),
                 ),
             ],
           ),
@@ -741,24 +829,30 @@ class _UserTile extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       leading: CircleAvatar(
         backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-        child: Text(initials(user.name), style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer, fontWeight: FontWeight.w600)),
+        child: Text(
+          initials(user.name),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer, fontWeight: FontWeight.w600),
+        ),
       ),
       title: Text(isMe ? '${user.name} (${l.userYou})' : user.name, overflow: TextOverflow.ellipsis),
       subtitle: Text(['@${user.username}', roleLabel(l, user.role), if (user.mfaEnabled) l.mfaOn].join(' · '), overflow: TextOverflow.ellipsis),
-      trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-        StatusDot(label: user.active ? l.userActive : l.userInactive, tone: user.active ? StatusTone.ok : StatusTone.neutral),
-        if (canManage && !isMe)
-          PopupMenuButton<String>(
-            tooltip: l.actionMore,
-            onSelected: (a) => _action(context, a),
-            itemBuilder: (_) => [
-              PopupMenuItem(value: 'role', child: Text(l.userChangeRole)),
-              PopupMenuItem(value: 'toggle', child: Text(user.active ? l.userDeactivate : l.userActivate)),
-              PopupMenuItem(value: 'sessions', child: Text(l.userRevokeSessions)),
-              if (user.role != 'owner') PopupMenuItem(value: 'delete', child: Text(l.userDelete)),
-            ],
-          ),
-      ]),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          StatusDot(label: user.active ? l.userActive : l.userInactive, tone: user.active ? StatusTone.ok : StatusTone.neutral),
+          if (canManage && !isMe)
+            PopupMenuButton<String>(
+              tooltip: l.actionMore,
+              onSelected: (a) => _action(context, a),
+              itemBuilder: (_) => [
+                PopupMenuItem(value: 'role', child: Text(l.userChangeRole)),
+                PopupMenuItem(value: 'toggle', child: Text(user.active ? l.userDeactivate : l.userActivate)),
+                PopupMenuItem(value: 'sessions', child: Text(l.userRevokeSessions)),
+                if (user.role != 'owner') PopupMenuItem(value: 'delete', child: Text(l.userDelete)),
+              ],
+            ),
+        ],
+      ),
     );
   }
 }
@@ -807,13 +901,9 @@ class _NewUserDialogState extends ConsumerState<_NewUserDialog> {
     });
     final container = ProviderScope.containerOf(context, listen: false);
     try {
-      final u = await container.read(apiProvider).createUser(
-            username: _username.text.trim().toLowerCase(),
-            name: _name.text.trim(),
-            role: _role,
-            password: _password.text,
-            email: _email.text.trim().isEmpty ? null : _email.text.trim(),
-          );
+      final u = await container
+          .read(apiProvider)
+          .createUser(username: _username.text.trim().toLowerCase(), name: _name.text.trim(), role: _role, password: _password.text, email: _email.text.trim().isEmpty ? null : _email.text.trim());
       container.invalidate(usersProvider);
       if (!mounted) return;
       Navigator.pop(context);
@@ -836,55 +926,66 @@ class _NewUserDialogState extends ConsumerState<_NewUserDialog> {
         child: Form(
           key: _form,
           child: SingleChildScrollView(
-            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              TextFormField(
-                controller: _name,
-                decoration: corocInput(context, label: '${l.fieldName} *', error: _error?.fieldMessage('name')),
-                validator: (v) => (v ?? '').trim().isEmpty ? l.validationRequired : null,
-              ),
-              gap,
-              TextFormField(
-                controller: _username,
-                autocorrect: false,
-                decoration: corocInput(context, label: '${l.fieldUsername} *', helper: l.fieldUsernameHelp, error: _error?.fieldMessage('username')),
-                validator: (v) => RegExp(r'^[a-z0-9._-]{3,32}$').hasMatch((v ?? '').trim().toLowerCase()) ? null : l.fieldUsernameHelp,
-              ),
-              gap,
-              TextFormField(controller: _email, keyboardType: TextInputType.emailAddress, decoration: corocInput(context, label: l.fieldEmail, error: _error?.fieldMessage('email'))),
-              gap,
-              DropdownMenu<String>(
-                initialSelection: _role,
-                label: Text(l.fieldRole),
-                expandedInsets: EdgeInsets.zero,
-                dropdownMenuEntries: [for (final r in _assignableRoles(widget.me)) DropdownMenuEntry<String>(value: r, label: roleLabel(l, r))],
-                onSelected: (r) => setState(() => _role = r ?? _role),
-              ),
-              gap,
-              TextFormField(
-                controller: _password,
-                autocorrect: false,
-                enableSuggestions: false,
-                decoration: corocInput(
-                  context,
-                  label: '${l.fieldTempPassword} *',
-                  helper: l.fieldTempPasswordHelp,
-                  error: _error?.fieldMessage('password'),
-                  suffix: Row(mainAxisSize: MainAxisSize.min, children: [
-                    IconButton(tooltip: l.actionGenerate, onPressed: () => setState(() => _password.text = generatePassword()), icon: const Icon(Icons.autorenew)),
-                    IconButton(
-                      tooltip: l.actionCopy,
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(text: _password.text));
-                        _toast(context, l.copied);
-                      },
-                      icon: const Icon(Icons.copy),
-                    ),
-                  ]),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextFormField(
+                  controller: _name,
+                  decoration: corocInput(context, label: '${l.fieldName} *', error: _error?.fieldMessage('name')),
+                  validator: (v) => (v ?? '').trim().isEmpty ? l.validationRequired : null,
                 ),
-                validator: (v) => (v ?? '').length < 12 ? l.passwordTooShort : null,
-              ),
-              if (_error != null) ...[gap, Text(errorText(context, _error!), style: TextStyle(color: Theme.of(context).colorScheme.error))],
-            ]),
+                gap,
+                TextFormField(
+                  controller: _username,
+                  autocorrect: false,
+                  decoration: corocInput(context, label: '${l.fieldUsername} *', helper: l.fieldUsernameHelp, error: _error?.fieldMessage('username')),
+                  validator: (v) => RegExp(r'^[a-z0-9._-]{3,32}$').hasMatch((v ?? '').trim().toLowerCase()) ? null : l.fieldUsernameHelp,
+                ),
+                gap,
+                TextFormField(
+                  controller: _email,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: corocInput(context, label: l.fieldEmail, error: _error?.fieldMessage('email')),
+                ),
+                gap,
+                DropdownMenu<String>(
+                  initialSelection: _role,
+                  label: Text(l.fieldRole),
+                  expandedInsets: EdgeInsets.zero,
+                  dropdownMenuEntries: [for (final r in _assignableRoles(widget.me)) DropdownMenuEntry<String>(value: r, label: roleLabel(l, r))],
+                  onSelected: (r) => setState(() => _role = r ?? _role),
+                ),
+                gap,
+                TextFormField(
+                  controller: _password,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  decoration: corocInput(
+                    context,
+                    label: '${l.fieldTempPassword} *',
+                    helper: l.fieldTempPasswordHelp,
+                    error: _error?.fieldMessage('password'),
+                    suffix: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(tooltip: l.actionGenerate, onPressed: () => setState(() => _password.text = generatePassword()), icon: const Icon(Icons.autorenew)),
+                        IconButton(
+                          tooltip: l.actionCopy,
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(text: _password.text));
+                            _toast(context, l.copied);
+                          },
+                          icon: const Icon(Icons.copy),
+                        ),
+                      ],
+                    ),
+                  ),
+                  validator: (v) => (v ?? '').length < 12 ? l.passwordTooShort : null,
+                ),
+                if (_error != null) ...[gap, Text(errorText(context, _error!), style: TextStyle(color: Theme.of(context).colorScheme.error))],
+              ],
+            ),
           ),
         ),
       ),
@@ -913,35 +1014,48 @@ class _RateCapsSection extends ConsumerWidget {
       title: l.settingsRateCaps,
       trailing: canManage
           ? TextButton.icon(
-              onPressed: () => showDialog<void>(context: context, builder: (_) => _RateCapDialog(country: country)),
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (_) => _RateCapDialog(country: country),
+              ),
               icon: const Icon(Icons.add, size: 18),
               label: Text(l.rateCapAdd),
             )
           : null,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text(country == 'CO' ? l.rateCapsHelpCO : l.rateCapsHelp, style: Theme.of(context).textTheme.bodySmall),
-        const SizedBox(height: CorocSpace.sm),
-        _RateCapPolicy(isOwner: isOwner),
-        const Divider(height: CorocSpace.lg),
-        AsyncBody<List<RateCap>>(
-          value: caps,
-          onRetry: () => ref.invalidate(rateCapsProvider),
-          builder: (list) {
-            if (list.isEmpty) return Padding(padding: const EdgeInsets.symmetric(vertical: CorocSpace.md), child: StatusDot(label: l.rateCapsEmpty, tone: country == 'CO' ? StatusTone.warn : StatusTone.neutral));
-            final sorted = [...list]..sort((a, b) => b.validFrom.compareTo(a.validFrom));
-            return Column(children: [
-              for (final c in sorted)
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.gavel_outlined),
-                  title: Text(percent(c.effectiveAnnual, context.lang)),
-                  subtitle: Text('${Dates.medium(c.validFrom, context.lang)} – ${Dates.medium(c.validTo, context.lang)} · ${c.source}'),
-                  trailing: c.validFrom.compareTo(today) <= 0 && c.validTo.compareTo(today) >= 0 ? StatusDot(label: l.rateCapCurrent, tone: StatusTone.ok) : null,
-                ),
-            ]);
-          },
-        ),
-      ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(country == 'CO' ? l.rateCapsHelpCO : l.rateCapsHelp, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: CorocSpace.sm),
+          _RateCapPolicy(isOwner: isOwner),
+          const Divider(height: CorocSpace.lg),
+          AsyncBody<List<RateCap>>(
+            value: caps,
+            onRetry: () => ref.invalidate(rateCapsProvider),
+            builder: (list) {
+              if (list.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: CorocSpace.md),
+                  child: StatusDot(label: l.rateCapsEmpty, tone: country == 'CO' ? StatusTone.warn : StatusTone.neutral),
+                );
+              }
+              final sorted = [...list]..sort((a, b) => b.validFrom.compareTo(a.validFrom));
+              return Column(
+                children: [
+                  for (final c in sorted)
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.gavel_outlined),
+                      title: Text(percent(c.effectiveAnnual, context.lang)),
+                      subtitle: Text('${Dates.medium(c.validFrom, context.lang)} – ${Dates.medium(c.validTo, context.lang)} · ${c.source}'),
+                      trailing: c.validFrom.compareTo(today) <= 0 && c.validTo.compareTo(today) >= 0 ? StatusDot(label: l.rateCapCurrent, tone: StatusTone.ok) : null,
+                    ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -970,17 +1084,21 @@ class _RateCapPolicyState extends ConsumerState<_RateCapPolicy> {
             title: Text(l.rateCapPolicyTitle),
             content: SizedBox(
               width: 480,
-              child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                Text(l.rateCapPolicyWarning),
-                const SizedBox(height: CorocSpace.md),
-                CheckboxListTile(
-                  contentPadding: EdgeInsets.zero,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  value: accepted,
-                  onChanged: (v) => setLocal(() => accepted = v ?? false),
-                  title: Text(l.rateCapPolicyAccept),
-                ),
-              ]),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(l.rateCapPolicyWarning),
+                  const SizedBox(height: CorocSpace.md),
+                  CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    value: accepted,
+                    onChanged: (v) => setLocal(() => accepted = v ?? false),
+                    title: Text(l.rateCapPolicyAccept),
+                  ),
+                ],
+              ),
             ),
             actions: [
               TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.actionCancel)),
@@ -1015,10 +1133,7 @@ class _RateCapPolicyState extends ConsumerState<_RateCapPolicy> {
       value: allowed,
       onChanged: widget.isOwner && !_busy ? _set : null,
       title: Text(l.rateCapPolicyTitle),
-      subtitle: Text([
-        allowed ? l.rateCapPolicyOn(since == null ? '—' : Dates.dateTime(since, context.lang)) : l.rateCapPolicyOff,
-        if (!widget.isOwner) l.rateCapPolicyOwnerOnly,
-      ].join(' ')),
+      subtitle: Text([allowed ? l.rateCapPolicyOn(since == null ? '—' : Dates.dateTime(since, context.lang)) : l.rateCapPolicyOff, if (!widget.isOwner) l.rateCapPolicyOwnerOnly].join(' ')),
     );
   }
 }
@@ -1100,24 +1215,39 @@ class _RateCapDialogState extends ConsumerState<_RateCapDialog> {
       title: Text(l.rateCapAdd),
       content: SizedBox(
         width: 440,
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text('${l.companyCountry}: ${countryName(l, widget.country)}', style: Theme.of(context).textTheme.bodySmall),
-          gap,
-          TextField(
-            controller: _rate,
-            autofocus: true,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: corocInput(context, label: '${l.rateCapRate} *', suffix: const Padding(padding: EdgeInsets.all(14), child: Text('%'))),
-          ),
-          gap,
-          Wrap(spacing: CorocSpace.sm, runSpacing: CorocSpace.sm, children: [
-            OutlinedButton.icon(onPressed: () => _pick(true), icon: const Icon(Icons.event), label: Text('${l.rateCapValidFrom}: ${Dates.medium(Dates.iso(_from), context.lang)}')),
-            OutlinedButton.icon(onPressed: () => _pick(false), icon: const Icon(Icons.event_busy), label: Text('${l.rateCapValidTo}: ${Dates.medium(Dates.iso(_to), context.lang)}')),
-          ]),
-          gap,
-          TextField(controller: _source, decoration: corocInput(context, label: '${l.rateCapSource} *', helper: l.rateCapSourceHelp)),
-          if (_error != null) ...[gap, Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error))],
-        ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('${l.companyCountry}: ${countryName(l, widget.country)}', style: Theme.of(context).textTheme.bodySmall),
+            gap,
+            TextField(
+              controller: _rate,
+              autofocus: true,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: corocInput(
+                context,
+                label: '${l.rateCapRate} *',
+                suffix: const Padding(padding: EdgeInsets.all(14), child: Text('%')),
+              ),
+            ),
+            gap,
+            Wrap(
+              spacing: CorocSpace.sm,
+              runSpacing: CorocSpace.sm,
+              children: [
+                OutlinedButton.icon(onPressed: () => _pick(true), icon: const Icon(Icons.event), label: Text('${l.rateCapValidFrom}: ${Dates.medium(Dates.iso(_from), context.lang)}')),
+                OutlinedButton.icon(onPressed: () => _pick(false), icon: const Icon(Icons.event_busy), label: Text('${l.rateCapValidTo}: ${Dates.medium(Dates.iso(_to), context.lang)}')),
+              ],
+            ),
+            gap,
+            TextField(
+              controller: _source,
+              decoration: corocInput(context, label: '${l.rateCapSource} *', helper: l.rateCapSourceHelp),
+            ),
+            if (_error != null) ...[gap, Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error))],
+          ],
+        ),
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: Text(l.actionCancel)),
@@ -1138,23 +1268,29 @@ class _About extends StatelessWidget {
     final l = context.l10n;
     return SectionCard(
       title: l.settingsAbout,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        const Align(alignment: Alignment.centerLeft, child: CorocLogo(layout: LogoLayout.horizontal, height: 40)),
-        const SizedBox(height: CorocSpace.md),
-        KeyValue(l.aboutVersion, AppConfig.appVersion),
-        KeyValue(l.companyCode, company.slug),
-        const SizedBox(height: CorocSpace.sm),
-        Text(l.aboutPrivacy, style: Theme.of(context).textTheme.bodySmall),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton.icon(
-            style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-            onPressed: () => launchUrl(Uri.parse('${AppConfig.apiBaseUrl}/public/privacy?lang=${context.lang == 'pt' ? 'pt-BR' : context.lang}'), mode: LaunchMode.externalApplication),
-            icon: const Icon(Icons.privacy_tip_outlined),
-            label: Text(l.aboutPrivacyPolicy),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: CorocLogo(layout: LogoLayout.horizontal, height: 40),
           ),
-        ),
-      ]),
+          const SizedBox(height: CorocSpace.md),
+          KeyValue(l.aboutVersion, AppConfig.appVersion),
+          KeyValue(l.companyCode, company.slug),
+          const SizedBox(height: CorocSpace.sm),
+          Text(l.aboutPrivacy, style: Theme.of(context).textTheme.bodySmall),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: () => launchUrl(Uri.parse('${AppConfig.apiBaseUrl}/public/privacy?lang=${context.lang == 'pt' ? 'pt-BR' : context.lang}'), mode: LaunchMode.externalApplication),
+              icon: const Icon(Icons.privacy_tip_outlined),
+              label: Text(l.aboutPrivacyPolicy),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

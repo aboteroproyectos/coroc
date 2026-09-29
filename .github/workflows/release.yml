@@ -44,8 +44,8 @@ jobs:
       HAS_KEY: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
       HAS_PLAY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -77,7 +77,7 @@ jobs:
       - name: Sin clave de firma
         if: env.HAS_KEY != 'true'
         run: echo "::warning::Android compilado con la clave de depuración; faltan los secretos ANDROID_KEYSTORE_* (P-2)."
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: coroc-android
           path: |
@@ -100,7 +100,7 @@ jobs:
       HAS_CERT: ${{ secrets.APPLE_CERTIFICATE_P12_BASE64 != '' && secrets.APPLE_PROVISIONING_PROFILE_BASE64 != '' }}
       HAS_ASC: ${{ secrets.APPSTORE_API_KEY_P8 != '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/flutter-setup
       - name: Certificado y perfil de distribución
         if: env.HAS_CERT == 'true'
@@ -140,7 +140,7 @@ jobs:
         run: |
           flutter build ios --release --no-codesign
           echo "::warning::iOS compilado sin firma; faltan los secretos APPLE_* (P-2)."
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: coroc-ios
           path: |
@@ -161,7 +161,7 @@ jobs:
       HAS_DEVID: ${{ secrets.MACOS_DEVELOPER_ID_P12_BASE64 != '' }}
       HAS_ASC: ${{ secrets.APPSTORE_API_KEY_P8 != '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/flutter-setup
       - name: Compilar
         working-directory: apps/coroc_app
@@ -200,7 +200,7 @@ jobs:
       - name: Sin Developer ID
         if: env.HAS_DEVID != 'true'
         run: echo "::warning::DMG sin firma ni notarización; faltan los secretos MACOS_DEVELOPER_ID_* (P-2)."
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: coroc-macos
           path: COROC.dmg
@@ -212,7 +212,7 @@ jobs:
       HAS_CERT: ${{ secrets.WINDOWS_CERTIFICATE_PFX_BASE64 != '' }}
       HAS_STORE: ${{ secrets.WINDOWS_STORE_PUBLISHER != '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/flutter-setup
       - name: Compilar
         shell: bash
@@ -241,7 +241,7 @@ jobs:
         run: |
           dart run msix:create --build-windows false
           echo "::warning::MSIX firmado con el certificado de prueba (solo para instalar en equipos de prueba); faltan los secretos WINDOWS_CERTIFICATE_* o WINDOWS_STORE_PUBLISHER (P-2)."
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: coroc-windows
           path: apps/coroc_app/build/windows/x64/runner/Release/*.msix
@@ -252,11 +252,11 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           path: dist
       - name: Publicar los instaladores en la versión
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           draft: true
           files: |

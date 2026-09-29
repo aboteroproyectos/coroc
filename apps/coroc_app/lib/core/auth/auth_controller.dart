@@ -85,7 +85,9 @@ class AuthController extends Notifier<AuthState> {
   /// Devuelve normalmente; los errores (credenciales, bloqueo) llegan como ApiException ya traducida.
   Future<void> login({required String tenant, required String username, required String password, required bool remember}) async {
     final store = ref.read(sessionStoreProvider);
-    final res = await ref.read(apiProvider).login(tenant: tenant.trim().toLowerCase(), username: username.trim().toLowerCase(), password: password, deviceId: await store.deviceId(), deviceName: _deviceName());
+    final res = await ref
+        .read(apiProvider)
+        .login(tenant: tenant.trim().toLowerCase(), username: username.trim().toLowerCase(), password: password, deviceId: await store.deviceId(), deviceName: _deviceName());
     await store.saveLastLogin(tenant.trim().toLowerCase(), username.trim().toLowerCase(), remember: remember);
     if (res['mfa_required'] == true) {
       state = MfaChallenge(res['challengeId'] as String);
@@ -158,7 +160,9 @@ class AuthController extends Notifier<AuthState> {
     if (s is! SignedIn) return;
     final c = await ref.read(apiProvider).company();
     state = SignedIn(
-      s.session.copyWith(company: s.session.company.copyWith(name: c.name, currency: c.currency, country: c.country, timezone: c.timezone, lang: c.lang)),
+      s.session.copyWith(
+        company: s.session.company.copyWith(name: c.name, currency: c.currency, country: c.country, timezone: c.timezone, lang: c.lang),
+      ),
       locked: s.locked,
     );
   }

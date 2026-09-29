@@ -25,14 +25,14 @@ import '../../design/widgets/brand.dart';
 
 /// Nombre visible de cada tipo de documento (§16.3).
 String docKindLabel(AppLocalizations l, String kind) => switch (kind) {
-      'plan' || 'schedule' => l.docKindSchedule,
-      'receipt_in' => l.docKindReceiptIn,
-      'receipt_out' => l.docKindReceiptOut,
-      'statement' => l.docKindStatement,
-      'payoff' => l.docKindPayoff,
-      'report' => l.docKindReport,
-      _ => l.docKindOther,
-    };
+  'plan' || 'schedule' => l.docKindSchedule,
+  'receipt_in' => l.docKindReceiptIn,
+  'receipt_out' => l.docKindReceiptOut,
+  'statement' => l.docKindStatement,
+  'payoff' => l.docKindPayoff,
+  'report' => l.docKindReport,
+  _ => l.docKindOther,
+};
 
 IconData docIcon(CorocDocument d) => d.isImage
     ? Icons.image_outlined
@@ -119,11 +119,15 @@ Future<void> shareOrSave(BuildContext context, {required String fileName, requir
   await f.writeAsBytes(bytes, flush: true);
   if (!context.mounted) return;
   final box = context.findRenderObject() as RenderBox?;
-  await SharePlus.instance.share(ShareParams(files: [XFile(f.path, mimeType: mime)], sharePositionOrigin: box == null ? null : box.localToGlobal(Offset.zero) & box.size));
+  await SharePlus.instance.share(
+    ShareParams(
+      files: [XFile(f.path, mimeType: mime)],
+      sharePositionOrigin: box == null ? null : box.localToGlobal(Offset.zero) & box.size,
+    ),
+  );
 }
 
-Future<void> openDocument(BuildContext context, String documentId) =>
-    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => DocumentViewerPage(documentId: documentId)));
+Future<void> openDocument(BuildContext context, String documentId) => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => DocumentViewerPage(documentId: documentId)));
 
 final documentProvider = FutureProvider.autoDispose.family<CorocDocument, String>((ref, id) => ref.watch(apiProvider).document(id));
 
@@ -146,9 +150,9 @@ class _DocumentViewerPageState extends ConsumerState<DocumentViewerPage> {
   }
 
   void _select(String id) => setState(() {
-        _id = id;
-        _bytes = fetchDocumentBytes(ref, id);
-      });
+    _id = id;
+    _bytes = fetchDocumentBytes(ref, id);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -161,8 +165,7 @@ class _DocumentViewerPageState extends ConsumerState<DocumentViewerPage> {
         title: Text(doc.valueOrNull?.name ?? l.docViewer, overflow: TextOverflow.ellipsis),
         actions: [
           if (doc.valueOrNull case final d?) ...[
-            if (d.versions.length > 1)
-              IconButton(tooltip: l.docVersions, icon: const Icon(Icons.history), onPressed: () => _versions(context, d)),
+            if (d.versions.length > 1) IconButton(tooltip: l.docVersions, icon: const Icon(Icons.history), onPressed: () => _versions(context, d)),
             IconButton(tooltip: l.docInfo, icon: const Icon(Icons.info_outline), onPressed: () => _info(context, d, canTag)),
             Builder(
               builder: (btn) => IconButton(
@@ -197,10 +200,19 @@ class _DocumentViewerPageState extends ConsumerState<DocumentViewerPage> {
             if (!snap.hasData) return const Center(child: CircularProgressIndicator());
             final bytes = snap.data!;
             if (d.isPdf) {
-              return PdfViewer.data(bytes, sourceName: '${d.id}.pdf', params: PdfViewerParams(backgroundColor: Theme.of(context).scaffoldBackgroundColor));
+              return PdfViewer.data(
+                bytes,
+                sourceName: '${d.id}.pdf',
+                params: PdfViewerParams(backgroundColor: Theme.of(context).scaffoldBackgroundColor),
+              );
             }
             if (d.isImage && d.mime != 'image/heic') {
-              return InteractiveViewer(maxScale: 8, child: Center(child: Image.memory(bytes, fit: BoxFit.contain, semanticLabel: d.name)));
+              return InteractiveViewer(
+                maxScale: 8,
+                child: Center(
+                  child: Image.memory(bytes, fit: BoxFit.contain, semanticLabel: d.name),
+                ),
+              );
             }
             return EmptyState(icon: docIcon(d), title: d.name, message: l.docNoPreview);
           },
@@ -215,16 +227,19 @@ class _DocumentViewerPageState extends ConsumerState<DocumentViewerPage> {
       context: context,
       showDragHandle: true,
       builder: (context) => SafeArea(
-        child: ListView(shrinkWrap: true, children: [
-          ListTile(title: Text(l.docVersions, style: Theme.of(context).textTheme.titleMedium)),
-          for (final v in d.versions)
-            ListTile(
-              leading: Icon(v.id == _id ? Icons.radio_button_checked : Icons.radio_button_unchecked),
-              title: Text(l.docVersionN(v.version)),
-              subtitle: Text([Dates.dateTime(v.createdAt, context.lang), if (!v.superseded) l.docCurrent, if (v.voided) l.receiptVoided].join(' · ')),
-              onTap: () => Navigator.pop(context, v.id),
-            ),
-        ]),
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            ListTile(title: Text(l.docVersions, style: Theme.of(context).textTheme.titleMedium)),
+            for (final v in d.versions)
+              ListTile(
+                leading: Icon(v.id == _id ? Icons.radio_button_checked : Icons.radio_button_unchecked),
+                title: Text(l.docVersionN(v.version)),
+                subtitle: Text([Dates.dateTime(v.createdAt, context.lang), if (!v.superseded) l.docCurrent, if (v.voided) l.receiptVoided].join(' · ')),
+                onTap: () => Navigator.pop(context, v.id),
+              ),
+          ],
+        ),
       ),
     );
     if (pick != null && pick != _id) _select(pick);
@@ -239,26 +254,33 @@ class _DocumentViewerPageState extends ConsumerState<DocumentViewerPage> {
         title: Text(d.name),
         content: SizedBox(
           width: 460,
-          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            KeyValue(l.docType, docKindLabel(l, d.kind)),
-            if (d.contract != null) KeyValue(l.contract, d.contract!),
-            KeyValue(l.docCreated, Dates.dateTime(d.createdAt, context.lang)),
-            KeyValue(l.docSize, fileSize(d.size)),
-            KeyValue(l.docVersion, '${d.version}'),
-            const SizedBox(height: 8),
-            Overline(l.docFolderPath),
-            SelectableText('${d.folderPath}/${d.fileName}', style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 8),
-            Overline(l.docFingerprint),
-            SelectableText(d.sha256, style: Theme.of(context).textTheme.bodySmall?.copyWith(fontFamily: 'monospace')),
-            if (canTag) ...[
-              const SizedBox(height: CorocSpace.md),
-              TextField(controller: tags, decoration: corocInput(context, label: l.docTags, helper: l.docTagsHelp)),
-            ] else if (d.tags.isNotEmpty) ...[
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              KeyValue(l.docType, docKindLabel(l, d.kind)),
+              if (d.contract != null) KeyValue(l.contract, d.contract!),
+              KeyValue(l.docCreated, Dates.dateTime(d.createdAt, context.lang)),
+              KeyValue(l.docSize, fileSize(d.size)),
+              KeyValue(l.docVersion, '${d.version}'),
               const SizedBox(height: 8),
-              Wrap(spacing: 6, children: [for (final t in d.tags) Chip(label: Text(t))]),
+              Overline(l.docFolderPath),
+              SelectableText('${d.folderPath}/${d.fileName}', style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(height: 8),
+              Overline(l.docFingerprint),
+              SelectableText(d.sha256, style: Theme.of(context).textTheme.bodySmall?.copyWith(fontFamily: 'monospace')),
+              if (canTag) ...[
+                const SizedBox(height: CorocSpace.md),
+                TextField(
+                  controller: tags,
+                  decoration: corocInput(context, label: l.docTags, helper: l.docTagsHelp),
+                ),
+              ] else if (d.tags.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Wrap(spacing: 6, children: [for (final t in d.tags) Chip(label: Text(t))]),
+              ],
             ],
-          ]),
+          ),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.actionClose)),
@@ -327,78 +349,100 @@ class _DocumentsTabState extends ConsumerState<DocumentsTab> {
     final docs = ref.watch(clientDocumentsProvider(_query));
     final pad = MediaQuery.sizeOf(context).width < CorocBreakpoints.tablet ? CorocSpace.md : CorocSpace.xl;
     const kinds = ['schedule', 'receipt_out', 'receipt_in', 'statement', 'payoff', 'other'];
-    return ListView(padding: EdgeInsets.fromLTRB(pad, CorocSpace.md, pad, CorocSpace.xxl), children: [
-      Wrap(spacing: CorocSpace.sm, runSpacing: CorocSpace.sm, crossAxisAlignment: WrapCrossAlignment.center, children: [
-        SizedBox(
-          width: 320,
-          child: TextField(
-            controller: _search,
-            decoration: corocInput(context, label: l.docSearch, prefix: const Icon(Icons.search)),
-            onChanged: (v) {
-              _debounce?.cancel();
-              _debounce = Timer(const Duration(milliseconds: 350), () => setState(() => _q = v.trim()));
-            },
-          ),
-        ),
-        if (canUpload)
-          OutlinedButton.icon(onPressed: _busy ? null : () => _upload(context), icon: const Icon(Icons.upload_file), label: Text(l.docUpload)),
-        if (canUpload && widget.loan != null)
-          OutlinedButton.icon(onPressed: _busy ? null : () => _statement(context), icon: const Icon(Icons.account_balance_wallet_outlined), label: Text(l.docRequestStatement)),
-        if (_busy) ...[
-          const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
-          if (_busyLabel != null) Text(_busyLabel!, style: t.bodySmall),
-        ],
-      ]),
-      const SizedBox(height: CorocSpace.sm),
-      Wrap(spacing: 6, runSpacing: 6, children: [
-        ChoiceChip(label: Text(l.docAll), selected: _kind == null, onSelected: (_) => setState(() => _kind = null)),
-        for (final k in kinds) ChoiceChip(label: Text(docKindLabel(l, k)), selected: _kind == k, onSelected: (s) => setState(() => _kind = s ? k : null)),
-        if (_tag != null) InputChip(label: Text('#$_tag'), onDeleted: () => setState(() => _tag = null)),
-      ]),
-      const SizedBox(height: CorocSpace.md),
-      AsyncBody<List<CorocDocument>>(
-        value: docs,
-        onRetry: () => ref.invalidate(clientDocumentsProvider(_query)),
-        builder: (list) {
-          if (list.isEmpty) return EmptyState(icon: Icons.folder_open, title: l.docEmpty, message: l.docEmptyHelp);
-          // Agrupado por carpeta, igual que en la carpeta COROC (§16.3).
-          final groups = <String, List<CorocDocument>>{};
-          for (final d in list) {
-            (groups[d.folderPath] ??= []).add(d);
-          }
-          final keys = groups.keys.toList()..sort();
-          return Column(children: [
-            for (final k in keys)
-              Padding(
-                padding: const EdgeInsets.only(bottom: CorocSpace.md),
-                child: Card(
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(CorocSpace.md, CorocSpace.md, CorocSpace.md, 4),
-                      child: Row(children: [
-                        Icon(Icons.folder_outlined, size: 18, color: Theme.of(context).colorScheme.tertiary),
-                        const SizedBox(width: 8),
-                        Expanded(child: Overline(k.split('/').skip(1).join(' › '))),
-                      ]),
-                    ),
-                    for (final d in groups[k]!) _DocTile(doc: d, onTag: (tag) => setState(() => _tag = tag)),
-                  ]),
-                ),
+    return ListView(
+      padding: EdgeInsets.fromLTRB(pad, CorocSpace.md, pad, CorocSpace.xxl),
+      children: [
+        Wrap(
+          spacing: CorocSpace.sm,
+          runSpacing: CorocSpace.sm,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            SizedBox(
+              width: 320,
+              child: TextField(
+                controller: _search,
+                decoration: corocInput(context, label: l.docSearch, prefix: const Icon(Icons.search)),
+                onChanged: (v) {
+                  _debounce?.cancel();
+                  _debounce = Timer(const Duration(milliseconds: 350), () => setState(() => _q = v.trim()));
+                },
               ),
-          ]);
-        },
-      ),
-    ]);
+            ),
+            if (canUpload) OutlinedButton.icon(onPressed: _busy ? null : () => _upload(context), icon: const Icon(Icons.upload_file), label: Text(l.docUpload)),
+            if (canUpload && widget.loan != null)
+              OutlinedButton.icon(onPressed: _busy ? null : () => _statement(context), icon: const Icon(Icons.account_balance_wallet_outlined), label: Text(l.docRequestStatement)),
+            if (_busy) ...[const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)), if (_busyLabel != null) Text(_busyLabel!, style: t.bodySmall)],
+          ],
+        ),
+        const SizedBox(height: CorocSpace.sm),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            ChoiceChip(label: Text(l.docAll), selected: _kind == null, onSelected: (_) => setState(() => _kind = null)),
+            for (final k in kinds) ChoiceChip(label: Text(docKindLabel(l, k)), selected: _kind == k, onSelected: (s) => setState(() => _kind = s ? k : null)),
+            if (_tag != null) InputChip(label: Text('#$_tag'), onDeleted: () => setState(() => _tag = null)),
+          ],
+        ),
+        const SizedBox(height: CorocSpace.md),
+        AsyncBody<List<CorocDocument>>(
+          value: docs,
+          onRetry: () => ref.invalidate(clientDocumentsProvider(_query)),
+          builder: (list) {
+            if (list.isEmpty) return EmptyState(icon: Icons.folder_open, title: l.docEmpty, message: l.docEmptyHelp);
+            // Agrupado por carpeta, igual que en la carpeta COROC (§16.3).
+            final groups = <String, List<CorocDocument>>{};
+            for (final d in list) {
+              (groups[d.folderPath] ??= []).add(d);
+            }
+            final keys = groups.keys.toList()..sort();
+            return Column(
+              children: [
+                for (final k in keys)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: CorocSpace.md),
+                    child: Card(
+                      clipBehavior: Clip.antiAlias,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(CorocSpace.md, CorocSpace.md, CorocSpace.md, 4),
+                            child: Row(
+                              children: [
+                                Icon(Icons.folder_outlined, size: 18, color: Theme.of(context).colorScheme.tertiary),
+                                const SizedBox(width: 8),
+                                Expanded(child: Overline(k.split('/').skip(1).join(' › '))),
+                              ],
+                            ),
+                          ),
+                          for (final d in groups[k]!) _DocTile(doc: d, onTag: (tag) => setState(() => _tag = tag)),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+      ],
+    );
   }
 
   void _refresh() => ref.invalidate(clientDocumentsProvider);
 
   Future<void> _upload(BuildContext context) async {
     final l = context.l10n;
-    final file = await openFile(acceptedTypeGroups: [
-      XTypeGroup(label: l.docUploadTypes, extensions: const ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'heic'], mimeTypes: const ['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'image/heic'], uniformTypeIdentifiers: const ['com.adobe.pdf', 'public.image']),
-    ]);
+    final file = await openFile(
+      acceptedTypeGroups: [
+        XTypeGroup(
+          label: l.docUploadTypes,
+          extensions: const ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'heic'],
+          mimeTypes: const ['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'image/heic'],
+          uniformTypeIdentifiers: const ['com.adobe.pdf', 'public.image'],
+        ),
+      ],
+    );
     if (file == null || !context.mounted) return;
     final name = TextEditingController(text: p.basenameWithoutExtension(file.name));
     var kind = 'other';
@@ -409,17 +453,27 @@ class _DocumentsTabState extends ConsumerState<DocumentsTab> {
           title: Text(l.docUpload),
           content: SizedBox(
             width: 420,
-            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              TextField(controller: name, decoration: corocInput(context, label: l.docName)),
-              const SizedBox(height: CorocSpace.md),
-              SegmentedButton<String>(
-                segments: [ButtonSegment(value: 'other', label: Text(l.docKindOther)), ButtonSegment(value: 'receipt_in', label: Text(l.docKindReceiptIn))],
-                selected: {kind},
-                onSelectionChanged: (s) => setLocal(() => kind = s.first),
-              ),
-              const SizedBox(height: 8),
-              Text(kind == 'receipt_in' ? l.docUploadReceiptHelp : l.docUploadOtherHelp, style: Theme.of(context).textTheme.bodySmall),
-            ]),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  controller: name,
+                  decoration: corocInput(context, label: l.docName),
+                ),
+                const SizedBox(height: CorocSpace.md),
+                SegmentedButton<String>(
+                  segments: [
+                    ButtonSegment(value: 'other', label: Text(l.docKindOther)),
+                    ButtonSegment(value: 'receipt_in', label: Text(l.docKindReceiptIn)),
+                  ],
+                  selected: {kind},
+                  onSelectionChanged: (s) => setLocal(() => kind = s.first),
+                ),
+                const SizedBox(height: 8),
+                Text(kind == 'receipt_in' ? l.docUploadReceiptHelp : l.docUploadOtherHelp, style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
           ),
           actions: [
             TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.actionCancel)),
@@ -488,12 +542,23 @@ class _DocTile extends StatelessWidget {
     return ListTile(
       leading: Icon(docIcon(doc), color: doc.voided ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.tertiary),
       title: Text(doc.name, overflow: TextOverflow.ellipsis),
-      subtitle: Wrap(spacing: 8, runSpacing: 2, crossAxisAlignment: WrapCrossAlignment.center, children: [
-        Text([docKindLabel(l, doc.kind), Dates.dateTime(doc.createdAt, context.lang), fileSize(doc.size), if (doc.version > 1) l.docVersionN(doc.version)].join(' · '), style: TextStyle(color: muted)),
-        if (doc.voided) StatusDot(label: l.receiptVoided, tone: StatusTone.error),
-        for (final t in doc.tags)
-          InkWell(onTap: () => onTag(t), child: Text('#$t', style: TextStyle(color: Theme.of(context).colorScheme.tertiary))),
-      ]),
+      subtitle: Wrap(
+        spacing: 8,
+        runSpacing: 2,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(
+            [docKindLabel(l, doc.kind), Dates.dateTime(doc.createdAt, context.lang), fileSize(doc.size), if (doc.version > 1) l.docVersionN(doc.version)].join(' · '),
+            style: TextStyle(color: muted),
+          ),
+          if (doc.voided) StatusDot(label: l.receiptVoided, tone: StatusTone.error),
+          for (final t in doc.tags)
+            InkWell(
+              onTap: () => onTag(t),
+              child: Text('#$t', style: TextStyle(color: Theme.of(context).colorScheme.tertiary)),
+            ),
+        ],
+      ),
       trailing: const Icon(Icons.chevron_right),
       onTap: () => openDocument(context, doc.id),
     );

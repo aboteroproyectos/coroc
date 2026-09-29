@@ -1,10 +1,10 @@
 # Copia semanal de la base, cifrada, fuera de Fly.io (docs/06 §5.9 y §6, ADR-060).
 # Complementa las instantáneas diarias del proveedor: pg_dump por el túnel de flyctl, cifrado con AES-256 y guardado en
 # Cloudflare R2, en un depósito distinto al de los documentos. Sin los secretos se omite con un aviso.
-#   Secretos: FLY_API_TOKEN (con acceso a la app de la base), BACKUP_DATABASE_URL (coroc_owner por el túnel, p. ej.
-#             postgres://coroc_owner:…@127.0.0.1:15432/coroc), BACKUP_PASSPHRASE, R2_ACCESS_KEY_ID,
-#             R2_SECRET_ACCESS_KEY y R2_ENDPOINT.
-#   Variables: FLY_DB_APP (por defecto coroc-db) y R2_BACKUP_BUCKET (por defecto coroc-db-backups).
+#   Secretos: FLY_API_TOKEN (con acceso a la app de la base), BACKUP_PASSPHRASE, R2_ACCESS_KEY_ID,
+#             R2_SECRET_ACCESS_KEY y R2_ENDPOINT. BACKUP_DATABASE_URL es opcional (coroc_owner por el túnel, p. ej.
+#             postgres://coroc_owner:…@127.0.0.1:15432/coroc): si falta, se toma DATABASE_ADMIN_URL de la app.
+#   Variables: FLY_APP (coroc-api), FLY_DB_APP (coroc-db) y R2_BACKUP_BUCKET (coroc-db-backups).
 # Restaurar: openssl enc -d -aes-256-cbc -pbkdf2 -iter 600000 -in copia.dump.enc -out copia.dump && pg_restore …
 name: Copia de la base
 
@@ -28,13 +28,14 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
       R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+      FLY_APP: ${{ vars.FLY_APP || 'coroc-api' }}
       FLY_DB_APP: ${{ vars.FLY_DB_APP || 'coroc-db' }}
       BUCKET: ${{ vars.R2_BACKUP_BUCKET || 'coroc-db-backups' }}
     steps:
       - name: ¿Están los secretos?
         id: gate
         run: |
-          for v in FLY_API_TOKEN BACKUP_DATABASE_URL BACKUP_PASSPHRASE AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY R2_ENDPOINT; do
+          for v in FLY_API_TOKEN BACKUP_PASSPHRASE AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY R2_ENDPOINT; do
             if [ -z "${!v}" ]; then echo "::notice::Falta $v: la copia se omite."; echo "ready=false" >> "$GITHUB_OUTPUT"; exit 0; fi
           done
           echo "ready=true" >> "$GITHUB_OUTPUT"
@@ -49,6 +50,14 @@ jobs:
       - name: Copia cifrada
         if: steps.gate.outputs.ready == 'true'
         run: |
+          if [ -z "$BACKUP_DATABASE_URL" ]; then
+            # La misma credencial con la que corren las migraciones, apuntando al túnel.
+            admin="$(flyctl ssh console --app "$FLY_APP" --quiet -C 'printenv DATABASE_ADMIN_URL' | tr -d '\r\n')"
+            [ -n "$admin" ] || { echo "::error::No pude leer DATABASE_ADMIN_URL de $FLY_APP"; exit 1; }
+            echo "::add-mask::$admin"
+            BACKUP_DATABASE_URL="$(node -e 'const u = new URL(process.argv[1]); u.host = "127.0.0.1:15432"; console.log(u.toString())' "$admin")"
+            echo "::add-mask::$BACKUP_DATABASE_URL"
+          fi
           flyctl proxy 15432:5432 --app "$FLY_DB_APP" &
           for i in $(seq 1 30); do pg_isready -h 127.0.0.1 -p 15432 -q && break; sleep 2; done
           name="coroc_$(date -u +%Y-%m-%d_%H%M).dump.enc"

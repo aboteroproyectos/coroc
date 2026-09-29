@@ -64,11 +64,7 @@ class ThemeController extends Notifier<ThemeMode> {
 final themeModeProvider = NotifierProvider<ThemeController, ThemeMode>(ThemeController.new);
 
 final apiClientProvider = Provider<ApiClient>((ref) {
-  final client = ApiClient(
-    baseUrl: AppConfig.apiBaseUrl,
-    store: ref.watch(sessionStoreProvider),
-    language: () => ref.read(localeProvider).languageCode,
-  );
+  final client = ApiClient(baseUrl: AppConfig.apiBaseUrl, store: ref.watch(sessionStoreProvider), language: () => ref.read(localeProvider).languageCode);
   // Modo sin conexión (ADR-055): lecturas cifradas en el equipo y aviso del estado de la red.
   client
     ..cache = ref.watch(offlineCacheProvider)

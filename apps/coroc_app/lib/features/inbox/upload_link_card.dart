@@ -41,7 +41,10 @@ class _UploadLinkCardState extends ConsumerState<UploadLinkCard> {
         context: context,
         builder: (c) => AlertDialog(
           content: Text(text),
-          actions: [TextButton(onPressed: () => Navigator.pop(c, false), child: Text(context.l10n.actionCancel)), FilledButton(onPressed: () => Navigator.pop(c, true), child: Text(context.l10n.actionConfirm))],
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(c, false), child: Text(context.l10n.actionCancel)),
+            FilledButton(onPressed: () => Navigator.pop(c, true), child: Text(context.l10n.actionConfirm)),
+          ],
         ),
       ) ??
       false;
@@ -59,50 +62,56 @@ class _UploadLinkCardState extends ConsumerState<UploadLinkCard> {
       child: AsyncBody<UploadLink?>(
         value: link,
         onRetry: () => ref.invalidate(uploadLinkProvider(widget.loan.id)),
-        builder: (u) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text(l.uploadLinkHelp, style: t.bodySmall),
-          const SizedBox(height: 12),
-          if (u == null)
-            Text(l.uploadLinkNone, style: t.bodyMedium)
-          else ...[
-            SelectableText(u.url, style: t.bodyMedium?.copyWith(fontFamily: 'monospace')),
-            const SizedBox(height: 4),
-            Text('${l.uploadLinkExpires(Dates.medium(u.expiresAt.substring(0, 10), context.lang))} · ${l.uploadLinkUses(u.uses)}', style: t.bodySmall),
-          ],
-          const SizedBox(height: 12),
-          Wrap(spacing: 8, runSpacing: 8, children: [
-            if (u != null) ...[
-              OutlinedButton.icon(
-                onPressed: () async {
-                  await Clipboard.setData(ClipboardData(text: u.url));
-                  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.uploadLinkCopied)));
-                },
-                icon: const Icon(Icons.copy, size: 18),
-                label: Text(l.uploadLinkCopy),
-              ),
-              OutlinedButton.icon(
-                onPressed: () {
-                  final box = context.findRenderObject() as RenderBox?;
-                  SharePlus.instance.share(ShareParams(text: l.uploadLinkShareText(u.url), sharePositionOrigin: box == null ? null : box.localToGlobal(Offset.zero) & box.size));
-                },
-                icon: const Icon(Icons.ios_share, size: 18),
-                label: Text(l.uploadLinkShare),
-              ),
+        builder: (u) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l.uploadLinkHelp, style: t.bodySmall),
+            const SizedBox(height: 12),
+            if (u == null)
+              Text(l.uploadLinkNone, style: t.bodyMedium)
+            else ...[
+              SelectableText(u.url, style: t.bodyMedium?.copyWith(fontFamily: 'monospace')),
+              const SizedBox(height: 4),
+              Text('${l.uploadLinkExpires(Dates.medium(u.expiresAt.substring(0, 10), context.lang))} · ${l.uploadLinkUses(u.uses)}', style: t.bodySmall),
             ],
-            if (canManage && widget.loan.status == 'active')
-              TextButton(
-                onPressed: _busy
-                    ? null
-                    : () async {
-                        if (u != null && !await _confirm(l.uploadLinkRotateConfirm)) return;
-                        await _run(() => api.rotateUploadLink(widget.loan.id));
-                      },
-                child: Text(u == null ? l.uploadLinkCreate : l.uploadLinkRotate),
-              ),
-            if (canManage && u != null)
-              TextButton(onPressed: _busy ? null : () => _run(() => api.revokeUploadLink(widget.loan.id)), child: Text(l.uploadLinkRevoke)),
-          ]),
-        ]),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (u != null) ...[
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      await Clipboard.setData(ClipboardData(text: u.url));
+                      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.uploadLinkCopied)));
+                    },
+                    icon: const Icon(Icons.copy, size: 18),
+                    label: Text(l.uploadLinkCopy),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      final box = context.findRenderObject() as RenderBox?;
+                      SharePlus.instance.share(ShareParams(text: l.uploadLinkShareText(u.url), sharePositionOrigin: box == null ? null : box.localToGlobal(Offset.zero) & box.size));
+                    },
+                    icon: const Icon(Icons.ios_share, size: 18),
+                    label: Text(l.uploadLinkShare),
+                  ),
+                ],
+                if (canManage && widget.loan.status == 'active')
+                  TextButton(
+                    onPressed: _busy
+                        ? null
+                        : () async {
+                            if (u != null && !await _confirm(l.uploadLinkRotateConfirm)) return;
+                            await _run(() => api.rotateUploadLink(widget.loan.id));
+                          },
+                    child: Text(u == null ? l.uploadLinkCreate : l.uploadLinkRotate),
+                  ),
+                if (canManage && u != null) TextButton(onPressed: _busy ? null : () => _run(() => api.revokeUploadLink(widget.loan.id)), child: Text(l.uploadLinkRevoke)),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -19,7 +19,11 @@ const _json = <String, dynamic>{
   'stage': 'EN_REVISIÓN',
   'engine': 'rules',
   'extraction': {
-    'amount': {'value': 60000, 'confidence': 0.96, 'region': {'page': 0, 'x': 0.05, 'y': 0.34, 'w': 0.22, 'h': 0.02}},
+    'amount': {
+      'value': 60000,
+      'confidence': 0.96,
+      'region': {'page': 0, 'x': 0.05, 'y': 0.34, 'w': 0.22, 'h': 0.02},
+    },
     'date': {'value': '2026-10-09', 'confidence': 0.96, 'region': null},
     'payerName': {'value': 'María José Pérez Gómez', 'confidence': 0.96, 'region': null},
     'receiverName': {'value': 'Distribuidora La Esperanza', 'confidence': 0.96, 'region': null},
@@ -66,7 +70,16 @@ void main() {
 
   testWidgets('fila de la Bandeja: cliente, valor en pesos y la alerta «El pago no se hizo a tus cuentas»', (tester) async {
     final it = IntakeItem.fromJson(_json);
-    await tester.pumpWidget(harness(Scaffold(body: ListView(children: [IntakeTile(item: it, onTap: () {})])), store: MemorySessionStore(savedLocale: 'es')));
+    await tester.pumpWidget(
+      harness(
+        Scaffold(
+          body: ListView(
+            children: [IntakeTile(item: it, onTap: () {})],
+          ),
+        ),
+        store: MemorySessionStore(savedLocale: 'es'),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.text('María José Pérez Gómez'), findsOneWidget);
     expect(find.text('\$ 60.000'), findsOneWidget);

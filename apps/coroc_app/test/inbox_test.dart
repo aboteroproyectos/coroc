@@ -48,7 +48,8 @@ Json intakeVariant(FakeApi api, {String id = 'a1b2c3d4-0000-4000-8000-0000000000
         {'clientId': api.id('client2'), 'name': 'Pedro Luis Ramírez Ortiz', 'code': 'C000002', 'score': 0.5},
       ],
     },
-    'flags': flags ??
+    'flags':
+        flags ??
         [
           {'code': 'LOW_CONFIDENCE', 'field': 'payerName', 'severity': 'warning'},
           {'code': 'PAYER_MISMATCH', 'severity': 'warning'},
@@ -136,10 +137,15 @@ void main() {
 
   testWidgets('WhatsApp sin cliente: se asigna, se guarda el número como secundario y el error del servidor se muestra', (tester) async {
     final api = FakeApi();
-    final item = intakeVariant(api, status: 'unassigned', senderPhone: '+573001112233', flags: [
-      {'code': 'SENDER_UNKNOWN', 'severity': 'blocking'},
-      {'code': 'MISSING_FIELD', 'field': 'reference', 'severity': 'warning'},
-    ]);
+    final item = intakeVariant(
+      api,
+      status: 'unassigned',
+      senderPhone: '+573001112233',
+      flags: [
+        {'code': 'SENDER_UNKNOWN', 'severity': 'blocking'},
+        {'code': 'MISSING_FIELD', 'field': 'reference', 'severity': 'warning'},
+      ],
+    );
     serveIntake(api, [item]);
     api.overrides['POST /intake/{id}/approve'] = (_) => FakeApi.problem(409, 'LOAN_NOT_ACTIVE', 'El préstamo ya no está activo.');
     final app = await bootApp(tester, api: api);
@@ -160,13 +166,18 @@ void main() {
 
   testWidgets('aplicado automáticamente: muestra el recibo, abre el archivo y se puede revertir', (tester) async {
     final api = FakeApi();
-    final item = intakeVariant(api, status: 'applied_auto', flags: const [], extra: {
-      'receiptNumber': 'RC-000009',
-      'receiptDocumentId': api.id('document'),
-      'entryId': api.id('entry'),
-      'revertibleUntil': DateTime.now().toUtc().add(const Duration(hours: 20)).toIso8601String(),
-      'reason': 'Aplicado por coincidencia exacta',
-    });
+    final item = intakeVariant(
+      api,
+      status: 'applied_auto',
+      flags: const [],
+      extra: {
+        'receiptNumber': 'RC-000009',
+        'receiptDocumentId': api.id('document'),
+        'entryId': api.id('entry'),
+        'revertibleUntil': DateTime.now().toUtc().add(const Duration(hours: 20)).toIso8601String(),
+        'reason': 'Aplicado por coincidencia exacta',
+      },
+    );
     serveIntake(api, [item]);
     final app = await bootApp(tester, api: api);
     await app.go('/inbox?id=${item['id']}');
@@ -198,7 +209,9 @@ void main() {
 
     await tapOn(tester, find.byType(Checkbox).first);
     await tapOn(tester, find.text(l.inboxApproveSelected(1)));
-    expect(api.lastBody('POST', '/intake/approve-batch'), {'ids': [review['id']]});
+    expect(api.lastBody('POST', '/intake/approve-batch'), {
+      'ids': [review['id']],
+    });
     expect(find.text(l.inboxBatchResult(1, 0)), findsOneWidget);
 
     await tapOn(tester, find.text(l.intakeStatusProcessing).first);

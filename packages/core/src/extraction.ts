@@ -93,7 +93,8 @@ export function parseAmount(raw: string, currency: Currency): number | null {
   return Number.isSafeInteger(minor) ? minor : null;
 }
 
-const AMOUNT_RE = /(R\$|US\$|USD|COP|BRL|\$)\s*(\d{1,3}(?:[.,\s]\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?)/g;
+// «RS» es como el OCR suele leer «R$» en los comprobantes de Pix.
+const AMOUNT_RE = /(R\$|RS(?=\s?\d{1,3}(?:\.\d{3})*,\d{2}\b)|US\$|USD|COP|BRL|\$)\s*(\d{1,3}(?:[.,\s]\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?)/g;
 const BARE_AMOUNT_RE = /(?<![\d/:-])(\d{1,3}(?:[.,]\d{3})+(?:[.,]\d{1,2})?)(?![\d/:])/g;
 
 function detectCurrency(text: string, fallback: Currency, entityCurrency?: Currency): { value: Currency; confidence: number } {
@@ -139,7 +140,7 @@ export function findDates(line: string, receivedOn: IsoDate, monthFirst: boolean
     if (d) out.push(d);
   }
   const W = '([a-záéíóúç]{3,10})\\.?';
-  for (const m of l.matchAll(new RegExp(`\\b(\\d{1,2})\\s*(?:de\\s+)?${W}\\s*(?:de\\s+|,\\s*)?(\\d{4})\\b`, 'g'))) {
+  for (const m of l.matchAll(new RegExp(`\\b(\\d{1,2})\\s*(?:de\\s+|[/-])?${W}\\s*(?:de\\s+|,\\s*|[/-])?(\\d{4})\\b`, 'g'))) {
     const mo = monthNum(m[2]!);
     if (mo) {
       const d = validDate(+m[3]!, mo, +m[1]!);
@@ -159,7 +160,8 @@ export function findDates(line: string, receivedOn: IsoDate, monthFirst: boolean
 }
 
 function findTime(line: string): string | null {
-  const m = /\b(\d{1,2}):(\d{2})(?::\d{2})?\s*(a\.?\s?m\.?|p\.?\s?m\.?|am|pm)?/i.exec(line);
+  // «14:32», «2:32 p. m.» y, en Brasil, «22h25».
+  const m = /\b(\d{1,2})(?::|h(?=\d{2}\b))(\d{2})(?::\d{2})?\s*(a\.?\s?m\.?|p\.?\s?m\.?|am|pm)?/i.exec(line);
   if (!m) return null;
   let h = +m[1]!;
   const mi = +m[2]!;
@@ -207,7 +209,8 @@ function labelValue(lines: string[], labels: string[]): { value: string; confide
       }
       if (low === lab || low === lab + ':') {
         for (let j = i + 1; j < Math.min(i + 3, lines.length); j++) {
-          const n = cleanName(lines[j]!);
+          // Sección con rótulo propio debajo (Nubank, Inter: «Destino» y luego «Nome Federico …»).
+          const n = cleanName(lines[j]!.replace(/^(nome|nombre|name)\s*:?\s+/i, ''));
           if (n) return { value: n, confidence: 0.96 };
         }
       }
@@ -276,11 +279,36 @@ export function extractFromText(text: string, opts: ExtractOptions): Extraction 
   }
 
   // Nombres
-  const recv = labelValue(lines, RECEIVER_LABELS);
-  const payer = labelValue(lines, PAYER_LABELS);
+  let recv = labelValue(lines, RECEIVER_LABELS);
+  let payer = labelValue(lines, PAYER_LABELS);
+  // Mercado Pago: «Origem e destino» y debajo los dos nombres, primero quien paga. El OCR antepone a cada nombre el
+  // ícono de su banco como una o dos letras sueltas («< Federico …», «e Tatiana …»).
+  const both = lines.findIndex((l) => /^(origem e destino|origen y destino)$/i.test(l));
+  if (both >= 0 && (!recv || !payer)) {
+    const names = lines
+      .slice(both + 1, both + 9)
+      .filter((l) => !/\b(cpf|cnpj|nit|c[eé]dula|mercado pago|pagamentos?|institui|banco|bank|ltda|s\.?a\.?)\b|\d/i.test(l))
+      .map((l) => cleanName(l.replace(/^(?:\S{1,2}\s+)+(?=[A-ZÁÉÍÓÚÑÇ])/, '')))
+      .filter((n): n is string => !!n && n.split(' ').length >= 2);
+    if (names.length >= 2) {
+      payer ??= { value: names[0]!, confidence: 0.93 };
+      recv ??= { value: names[1]!, confidence: 0.93 };
+    }
+  }
 
-  // Referencia
+  // Referencia. En Pix, el identificador de la transacción (E2E) tiene forma fija: E + ISPB (8) + fecha y hora (12) +
+  // 11 caracteres. Se busca primero, aunque el OCR lo parta en dos renglones o lea la E como «£».
   let reference: ExtractedField<string> = field<string>(null, 0);
+  for (let i = 0; i < lines.length && !reference.value; i++) {
+    const cands = [lines[i]!, `${lines[i]!} ${lines[i + 1] ?? ''}`.replace(/(\d)\s+(?=[A-Za-z0-9]+$)/, '$1')];
+    for (const c of cands) {
+      const m = /(?:^|[^A-Za-z0-9])[E£](\d{20}[A-Za-z0-9]{11})(?![A-Za-z0-9])/.exec(c);
+      if (m) {
+        reference = field(`E${m[1]!}`.toUpperCase(), 0.96);
+        break;
+      }
+    }
+  }
   for (let i = 0; i < lines.length && !reference.value; i++) {
     const line = lines[i]!;
     if (!L_REFERENCE.test(line)) continue;

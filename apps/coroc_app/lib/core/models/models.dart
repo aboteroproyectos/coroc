@@ -29,15 +29,8 @@ abstract class User with _$User {
 
 @freezed
 abstract class CompanyBrief with _$CompanyBrief {
-  const factory CompanyBrief({
-    required String id,
-    required String slug,
-    required String name,
-    required String currency,
-    required String country,
-    required String timezone,
-    required String lang,
-  }) = _CompanyBrief;
+  const factory CompanyBrief({required String id, required String slug, required String name, required String currency, required String country, required String timezone, required String lang}) =
+      _CompanyBrief;
 
   factory CompanyBrief.fromJson(Map<String, dynamic> json) => _$CompanyBriefFromJson(json);
 }
@@ -64,14 +57,7 @@ abstract class MfaEnrollment with _$MfaEnrollment {
 
 @freezed
 abstract class SessionInfo with _$SessionInfo {
-  const factory SessionInfo({
-    required String id,
-    required String deviceId,
-    String? deviceName,
-    required String createdAt,
-    required String lastUsedAt,
-    @Default(false) bool current,
-  }) = _SessionInfo;
+  const factory SessionInfo({required String id, required String deviceId, String? deviceName, required String createdAt, required String lastUsedAt, @Default(false) bool current}) = _SessionInfo;
 
   factory SessionInfo.fromJson(Map<String, dynamic> json) => _$SessionInfoFromJson(json);
 }
@@ -192,6 +178,7 @@ abstract class Loan with _$Loan {
     required int totalPayable,
     required int totalInterest,
     required double effectiveAnnualRate,
+
     /// Creado por encima del tope legal con la confirmación del usuario (ADR-061).
     @Default(false) bool rateCapOverride,
     required String status,
@@ -239,14 +226,8 @@ abstract class Client with _$Client {
 
 @freezed
 abstract class ScheduledInstallment with _$ScheduledInstallment {
-  const factory ScheduledInstallment({
-    required int number,
-    required String dueDate,
-    required int amount,
-    required int principal,
-    required int interest,
-    required int balanceAfter,
-  }) = _ScheduledInstallment;
+  const factory ScheduledInstallment({required int number, required String dueDate, required int amount, required int principal, required int interest, required int balanceAfter}) =
+      _ScheduledInstallment;
 
   factory ScheduledInstallment.fromJson(Map<String, dynamic> json) => _$ScheduledInstallmentFromJson(json);
 }
@@ -279,6 +260,7 @@ abstract class RateCapCheck with _$RateCapCheck {
     double? cap,
     String? maxRate,
     @Default(false) bool missing,
+
     /// La empresa permite crear el préstamo por encima del tope confirmándolo (ADR-061).
     @Default(false) bool overridable,
   }) = _RateCapCheck;
@@ -302,13 +284,7 @@ abstract class LoanPreview with _$LoanPreview {
 
 @freezed
 abstract class AllocationLine with _$AllocationLine {
-  const factory AllocationLine({
-    required int number,
-    @Default(0) int toLateFee,
-    @Default(0) int toInstallment,
-    @Default(false) bool completed,
-    @Default(false) bool partial,
-  }) = _AllocationLine;
+  const factory AllocationLine({required int number, @Default(0) int toLateFee, @Default(0) int toInstallment, @Default(false) bool completed, @Default(false) bool partial}) = _AllocationLine;
 
   factory AllocationLine.fromJson(Map<String, dynamic> json) => _$AllocationLineFromJson(json);
 }
@@ -540,7 +516,16 @@ abstract class FileLink with _$FileLink {
 @freezed
 abstract class TaskInfo with _$TaskInfo {
   const TaskInfo._();
-  const factory TaskInfo({required String id, required String kind, required String status, @Default(0) int progress, String? documentId, String? error, required String createdAt, String? finishedAt}) = _TaskInfo;
+  const factory TaskInfo({
+    required String id,
+    required String kind,
+    required String status,
+    @Default(0) int progress,
+    String? documentId,
+    String? error,
+    required String createdAt,
+    String? finishedAt,
+  }) = _TaskInfo;
   factory TaskInfo.fromJson(Map<String, dynamic> json) => _$TaskInfoFromJson(json);
   bool get finished => status == 'done' || status == 'failed' || status == 'cancelled';
 }
@@ -837,6 +822,7 @@ abstract class CorocMessage with _$CorocMessage {
 
   bool get pending => status == 'ready' || status == 'scheduled';
   bool get retryable => status == 'failed' || status == 'blocked';
+
   /// La regla que lo bloqueó o lo corrió de hora (la última del motor).
   DecisionReason? get rule => decision.reasons.isEmpty ? null : decision.reasons.last;
 }

@@ -85,46 +85,73 @@ class AppShell extends ConsumerWidget {
     final shortcuts = <ShortcutActivator, Intent>{
       const SingleActivator(LogicalKeyboardKey.keyK, control: true): const SearchIntent(),
       const SingleActivator(LogicalKeyboardKey.keyK, meta: true): const SearchIntent(),
-      if (canCreate) ...{
-        const SingleActivator(LogicalKeyboardKey.keyN, control: true): const NewClientIntent(),
-        const SingleActivator(LogicalKeyboardKey.keyN, meta: true): const NewClientIntent(),
-      },
+      if (canCreate) ...{const SingleActivator(LogicalKeyboardKey.keyN, control: true): const NewClientIntent(), const SingleActivator(LogicalKeyboardKey.keyN, meta: true): const NewClientIntent()},
     };
     final actions = <Type, Action<Intent>>{
-      SearchIntent: CallbackAction<SearchIntent>(onInvoke: (_) {
-        context.go('/clients?focus=1');
-        return null;
-      }),
-      NewClientIntent: CallbackAction<NewClientIntent>(onInvoke: (_) {
-        context.go('/clients/new');
-        return null;
-      }),
+      SearchIntent: CallbackAction<SearchIntent>(
+        onInvoke: (_) {
+          context.go('/clients?focus=1');
+          return null;
+        },
+      ),
+      NewClientIntent: CallbackAction<NewClientIntent>(
+        onInvoke: (_) {
+          context.go('/clients/new');
+          return null;
+        },
+      ),
     };
 
-    final page = Column(children: [const OfflineBanner(), Expanded(child: child)]);
-    final body = ShareReceiver(child: InboxRealtime(child: MessagesRealtime(child: FolderAutoSync(child: Shortcuts(shortcuts: shortcuts, child: Actions(actions: actions, child: Focus(autofocus: true, child: page)))))));
+    final page = Column(
+      children: [
+        const OfflineBanner(),
+        Expanded(child: child),
+      ],
+    );
+    final body = ShareReceiver(
+      child: InboxRealtime(
+        child: MessagesRealtime(
+          child: FolderAutoSync(
+            child: Shortcuts(
+              shortcuts: shortcuts,
+              child: Actions(
+                actions: actions,
+                child: Focus(autofocus: true, child: page),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
 
     if (width >= CorocBreakpoints.desktop) {
       return Scaffold(
-        body: Row(children: [
-          _Sidebar(dests: dests, index: index, onSelect: go, counts: counts),
-          Expanded(child: body),
-        ]),
+        body: Row(
+          children: [
+            _Sidebar(dests: dests, index: index, onSelect: go, counts: counts),
+            Expanded(child: body),
+          ],
+        ),
       );
     }
     if (width >= CorocBreakpoints.tablet) {
       return Scaffold(
-        body: Row(children: [
-          NavigationRail(
-            selectedIndex: index,
-            onDestinationSelected: go,
-            labelType: NavigationRailLabelType.all,
-            leading: const Padding(padding: EdgeInsets.symmetric(vertical: CorocSpace.md), child: CorocLogo(layout: LogoLayout.isotype, height: 36)),
-            destinations: [for (final d in dests) NavigationRailDestination(icon: _icon(d, d.icon, counts), selectedIcon: _icon(d, d.selectedIcon, counts), label: Text(d.label(l)))],
-          ),
-          const VerticalDivider(width: 1),
-          Expanded(child: body),
-        ]),
+        body: Row(
+          children: [
+            NavigationRail(
+              selectedIndex: index,
+              onDestinationSelected: go,
+              labelType: NavigationRailLabelType.all,
+              leading: const Padding(
+                padding: EdgeInsets.symmetric(vertical: CorocSpace.md),
+                child: CorocLogo(layout: LogoLayout.isotype, height: 36),
+              ),
+              destinations: [for (final d in dests) NavigationRailDestination(icon: _icon(d, d.icon, counts), selectedIcon: _icon(d, d.selectedIcon, counts), label: Text(d.label(l)))],
+            ),
+            const VerticalDivider(width: 1),
+            Expanded(child: body),
+          ],
+        ),
       );
     }
     return Scaffold(
@@ -156,47 +183,58 @@ class _Sidebar extends ConsumerWidget {
       width: 264,
       color: Theme.of(context).brightness == Brightness.light ? CorocColors.navy800 : CorocColors.navy900,
       child: SafeArea(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(CorocSpace.lg, CorocSpace.lg, CorocSpace.lg, CorocSpace.xl),
-            child: Align(alignment: Alignment.centerLeft, child: Theme(data: ThemeData.dark(), child: const CorocLogo(layout: LogoLayout.horizontal, height: 40))),
-          ),
-          for (var i = 0; i < dests.length; i++)
-            _SideItem(
-              icon: i == index ? dests[i].selectedIcon : dests[i].icon,
-              label: dests[i].label(l),
-              selected: i == index,
-              onTap: () => onSelect(i),
-              count: counts[dests[i].path] ?? 0,
-            ),
-          const Spacer(),
-          // «Crear respaldo» visible en el menú principal (§19).
-          if (user != null && user.can('backup.create'))
-            _SideItem(icon: Icons.backup_outlined, label: l.backupCreate, selected: false, onTap: () => showCreateBackupDialog(context, ref)),
-          if (user != null)
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             Padding(
-              padding: const EdgeInsets.all(CorocSpace.md),
-              child: Row(children: [
-                CircleAvatar(
-                  radius: 18,
-                  backgroundColor: CorocColors.gold500,
-                  child: Text(initials(user.name), style: t.labelLarge?.copyWith(color: CorocColors.navy800)),
+              padding: const EdgeInsets.fromLTRB(CorocSpace.lg, CorocSpace.lg, CorocSpace.lg, CorocSpace.xl),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Theme(
+                  data: ThemeData.dark(),
+                  child: const CorocLogo(layout: LogoLayout.horizontal, height: 40),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(user.name, style: t.bodyMedium?.copyWith(color: CorocColors.ivory), overflow: TextOverflow.ellipsis),
-                    Text(roleLabel(l, user.role), style: t.bodySmall?.copyWith(color: CorocColors.inkMutedDark)),
-                  ]),
-                ),
-                IconButton(
-                  tooltip: l.actionLogout,
-                  icon: const Icon(Icons.logout, color: CorocColors.ivory),
-                  onPressed: () => ref.read(authProvider.notifier).logout(),
-                ),
-              ]),
+              ),
             ),
-        ]),
+            for (var i = 0; i < dests.length; i++)
+              _SideItem(icon: i == index ? dests[i].selectedIcon : dests[i].icon, label: dests[i].label(l), selected: i == index, onTap: () => onSelect(i), count: counts[dests[i].path] ?? 0),
+            const Spacer(),
+            // «Crear respaldo» visible en el menú principal (§19).
+            if (user != null && user.can('backup.create')) _SideItem(icon: Icons.backup_outlined, label: l.backupCreate, selected: false, onTap: () => showCreateBackupDialog(context, ref)),
+            if (user != null)
+              Padding(
+                padding: const EdgeInsets.all(CorocSpace.md),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 18,
+                      backgroundColor: CorocColors.gold500,
+                      child: Text(initials(user.name), style: t.labelLarge?.copyWith(color: CorocColors.navy800)),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user.name,
+                            style: t.bodyMedium?.copyWith(color: CorocColors.ivory),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(roleLabel(l, user.role), style: t.bodySmall?.copyWith(color: CorocColors.inkMutedDark)),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: l.actionLogout,
+                      icon: const Icon(Icons.logout, color: CorocColors.ivory),
+                      onPressed: () => ref.read(authProvider.notifier).logout(),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -223,12 +261,19 @@ class _SideItem extends StatelessWidget {
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            child: Row(children: [
-              Icon(icon, size: 22, color: selected ? CorocColors.gold300 : CorocColors.ivory),
-              const SizedBox(width: 14),
-              Expanded(child: Text(label, style: t.bodyLarge?.copyWith(color: CorocColors.ivory, fontWeight: selected ? FontWeight.w600 : FontWeight.w400))),
-              if (count > 0) Badge(label: Text(count > 99 ? '99+' : '$count'), backgroundColor: CorocColors.gold500, textColor: CorocColors.navy800),
-            ]),
+            child: Row(
+              children: [
+                Icon(icon, size: 22, color: selected ? CorocColors.gold300 : CorocColors.ivory),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: t.bodyLarge?.copyWith(color: CorocColors.ivory, fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
+                  ),
+                ),
+                if (count > 0) Badge(label: Text(count > 99 ? '99+' : '$count'), backgroundColor: CorocColors.gold500, textColor: CorocColors.navy800),
+              ],
+            ),
           ),
         ),
       ),
@@ -245,12 +290,12 @@ String initials(String name) {
 }
 
 String roleLabel(AppLocalizations l, String role) => switch (role) {
-      'owner' => l.roleOwner,
-      'admin' => l.roleAdmin,
-      'collector' => l.roleCollector,
-      'auditor' => l.roleAuditor,
-      _ => role,
-    };
+  'owner' => l.roleOwner,
+  'admin' => l.roleAdmin,
+  'collector' => l.roleCollector,
+  'auditor' => l.roleAuditor,
+  _ => role,
+};
 
 /// Página con desplazamiento y márgenes consistentes.
 class PageScaffold extends StatelessWidget {

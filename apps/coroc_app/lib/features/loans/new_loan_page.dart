@@ -75,26 +75,32 @@ class _NewLoanFormState extends ConsumerState<_NewLoanForm> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final active = widget.client.loans.where((x) => x.status == 'active').length;
-    return PageScaffold(maxWidth: 920, children: [
-      PageHeader(
-        overline: widget.client.fullName,
-        title: l.actionNewLoan,
-        subtitle: active == 0 ? widget.client.code : '${widget.client.code} · ${l.loansCount(active)}',
-        actions: [TextButton.icon(onPressed: () => context.go('/clients/${widget.client.id}'), icon: const Icon(Icons.close), label: Text(l.actionCancel))],
-      ),
-      SectionCard(child: LoanTermsForm(controller: _terms)),
-      if (_error != null) ...[
-        const SizedBox(height: CorocSpace.md),
-        Semantics(liveRegion: true, child: StatusDot(label: _error!, tone: StatusTone.error)),
-      ],
-      const SizedBox(height: CorocSpace.lg),
-      ListenableBuilder(
-        listenable: _terms,
-        builder: (context, _) => Align(
-          alignment: Alignment.centerRight,
-          child: GoldButton(label: l.newLoanCreate, icon: Icons.check, busy: _busy, onPressed: _terms.toLoanInput() != null && _terms.compliant ? _save : null),
+    return PageScaffold(
+      maxWidth: 920,
+      children: [
+        PageHeader(
+          overline: widget.client.fullName,
+          title: l.actionNewLoan,
+          subtitle: active == 0 ? widget.client.code : '${widget.client.code} · ${l.loansCount(active)}',
+          actions: [TextButton.icon(onPressed: () => context.go('/clients/${widget.client.id}'), icon: const Icon(Icons.close), label: Text(l.actionCancel))],
         ),
-      ),
-    ]);
+        SectionCard(child: LoanTermsForm(controller: _terms)),
+        if (_error != null) ...[
+          const SizedBox(height: CorocSpace.md),
+          Semantics(
+            liveRegion: true,
+            child: StatusDot(label: _error!, tone: StatusTone.error),
+          ),
+        ],
+        const SizedBox(height: CorocSpace.lg),
+        ListenableBuilder(
+          listenable: _terms,
+          builder: (context, _) => Align(
+            alignment: Alignment.centerRight,
+            child: GoldButton(label: l.newLoanCreate, icon: Icons.check, busy: _busy, onPressed: _terms.toLoanInput() != null && _terms.compliant ? _save : null),
+          ),
+        ),
+      ],
+    );
   }
 }

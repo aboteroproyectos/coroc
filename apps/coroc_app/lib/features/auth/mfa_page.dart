@@ -45,12 +45,16 @@ class _MfaPageState extends ConsumerState<MfaPage> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return AuthFrame(title: l.mfaTitle, subtitle: l.mfaSubtitle, children: [
-      CodeField(controller: _code, onSubmit: _verify, error: _error),
-      const SizedBox(height: CorocSpace.lg),
-      GoldButton(label: l.mfaVerify, onPressed: _verify, busy: _busy, expand: true),
-      const SizedBox(height: CorocSpace.sm),
-      TextButton(onPressed: () => ref.read(authProvider.notifier).cancelChallenge(), child: Text(l.actionCancel)),
-    ]);
+    return AuthFrame(
+      title: l.mfaTitle,
+      subtitle: l.mfaSubtitle,
+      children: [
+        CodeField(controller: _code, onSubmit: _verify, error: _error),
+        const SizedBox(height: CorocSpace.lg),
+        GoldButton(label: l.mfaVerify, onPressed: _verify, busy: _busy, expand: true),
+        const SizedBox(height: CorocSpace.sm),
+        TextButton(onPressed: () => ref.read(authProvider.notifier).cancelChallenge(), child: Text(l.actionCancel)),
+      ],
+    );
   }
 }

@@ -24,36 +24,36 @@ import '../settings/support_section.dart' show IntakeTraceCard;
 final intakeItemProvider = FutureProvider.autoDispose.family<IntakeItem, String>((ref, id) => ref.watch(apiProvider).intakeItem(id));
 
 String fieldName(AppLocalizations l, String? field) => switch (field) {
-      'amount' => l.intakeFieldAmount,
-      'date' => l.intakeFieldDate,
-      'payerName' => l.intakeFieldPayer,
-      'receiverName' => l.intakeFieldReceiver,
-      'reference' => l.intakeFieldReference,
-      'entity' => l.intakeFieldEntity,
-      _ => field ?? '',
-    };
+  'amount' => l.intakeFieldAmount,
+  'date' => l.intakeFieldDate,
+  'payerName' => l.intakeFieldPayer,
+  'receiverName' => l.intakeFieldReceiver,
+  'reference' => l.intakeFieldReference,
+  'entity' => l.intakeFieldEntity,
+  _ => field ?? '',
+};
 
 /// Alerta de validación en palabras del usuario (§13.4).
 String flagText(AppLocalizations l, IntakeFlag f) => switch (f.code) {
-      'MISSING_FIELD' => l.flagMissingField(fieldName(l, f.field)),
-      'LOW_CONFIDENCE' => l.flagLowConfidence(fieldName(l, f.field)),
-      'RECEIVER_MISMATCH' => l.flagReceiverMismatch,
-      'PAYER_MISMATCH' => l.flagPayerMismatch,
-      'PAYER_INFERRED' => l.flagPayerInferred,
-      'FUTURE_DATE' => l.flagFutureDate,
-      'BEFORE_DISBURSEMENT' => l.flagBeforeDisbursement,
-      'TOO_OLD' => l.flagTooOld,
-      'NON_POSITIVE_AMOUNT' => l.flagNonPositive,
-      'CURRENCY_MISMATCH' => l.flagCurrencyMismatch,
-      'TAMPER_SIGNAL' => l.flagTamper,
-      'NOT_A_RECEIPT' => l.flagNotReceipt,
-      'OCR_UNAVAILABLE' => l.flagUnreadable,
-      'EXTRACTION_MISMATCH' => l.flagExtractionMismatch(fieldName(l, f.field)),
-      'SENDER_UNKNOWN' => l.flagSenderUnknown,
-      'SENDER_AMBIGUOUS' => l.flagSenderAmbiguous,
-      'LOAN_AMBIGUOUS' => l.flagLoanAmbiguous,
-      _ => f.code,
-    };
+  'MISSING_FIELD' => l.flagMissingField(fieldName(l, f.field)),
+  'LOW_CONFIDENCE' => l.flagLowConfidence(fieldName(l, f.field)),
+  'RECEIVER_MISMATCH' => l.flagReceiverMismatch,
+  'PAYER_MISMATCH' => l.flagPayerMismatch,
+  'PAYER_INFERRED' => l.flagPayerInferred,
+  'FUTURE_DATE' => l.flagFutureDate,
+  'BEFORE_DISBURSEMENT' => l.flagBeforeDisbursement,
+  'TOO_OLD' => l.flagTooOld,
+  'NON_POSITIVE_AMOUNT' => l.flagNonPositive,
+  'CURRENCY_MISMATCH' => l.flagCurrencyMismatch,
+  'TAMPER_SIGNAL' => l.flagTamper,
+  'NOT_A_RECEIPT' => l.flagNotReceipt,
+  'OCR_UNAVAILABLE' => l.flagUnreadable,
+  'EXTRACTION_MISMATCH' => l.flagExtractionMismatch(fieldName(l, f.field)),
+  'SENDER_UNKNOWN' => l.flagSenderUnknown,
+  'SENDER_AMBIGUOUS' => l.flagSenderAmbiguous,
+  'LOAN_AMBIGUOUS' => l.flagLoanAmbiguous,
+  _ => f.code,
+};
 
 /// Color por confianza: verde si alcanza el umbral de aplicación automática, ámbar si es dudosa, rojo si es baja.
 StatusTone confidenceTone(double c) => c >= 0.95 ? StatusTone.ok : (c >= 0.8 ? StatusTone.warn : StatusTone.error);
@@ -64,9 +64,14 @@ class IntakeDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(context.l10n.navInbox)),
-        body: SafeArea(child: Padding(padding: const EdgeInsets.all(CorocSpace.md), child: IntakeDetailView(intakeId: intakeId, onDone: () => Navigator.of(context).maybePop()))),
-      );
+    appBar: AppBar(title: Text(context.l10n.navInbox)),
+    body: SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(CorocSpace.md),
+        child: IntakeDetailView(intakeId: intakeId, onDone: () => Navigator.of(context).maybePop()),
+      ),
+    ),
+  );
 }
 
 /// Vista dividida de la Bandeja (§13.6): el archivo con los campos resaltados y el formulario precargado con la
@@ -102,16 +107,32 @@ class _IntakeDetailViewState extends ConsumerState<IntakeDetailView> {
         final wide = MediaQuery.sizeOf(context).width >= CorocBreakpoints.tablet;
         final doc = _DocumentPane(item: item);
         final form = item.status == 'processing'
-            ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [const CircularProgressIndicator(), const SizedBox(height: 16), Text(l.intakeProcessing)]))
+            ? Center(
+                child: Column(mainAxisSize: MainAxisSize.min, children: [const CircularProgressIndicator(), const SizedBox(height: 16), Text(l.intakeProcessing)]),
+              )
             : _IntakeForm(key: ValueKey('${item.id}-${item.updatedAt}'), item: item, onDone: widget.onDone);
         if (wide) {
-          return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Expanded(child: Card(clipBehavior: Clip.antiAlias, child: doc)),
-            const SizedBox(width: CorocSpace.md),
-            SizedBox(width: 420, child: SingleChildScrollView(child: form)),
-          ]);
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Card(clipBehavior: Clip.antiAlias, child: doc),
+              ),
+              const SizedBox(width: CorocSpace.md),
+              SizedBox(width: 420, child: SingleChildScrollView(child: form)),
+            ],
+          );
         }
-        return ListView(children: [SizedBox(height: 360, child: Card(clipBehavior: Clip.antiAlias, child: doc)), const SizedBox(height: CorocSpace.md), form]);
+        return ListView(
+          children: [
+            SizedBox(
+              height: 360,
+              child: Card(clipBehavior: Clip.antiAlias, child: doc),
+            ),
+            const SizedBox(height: CorocSpace.md),
+            form,
+          ],
+        );
       },
     );
   }
@@ -164,20 +185,34 @@ class _DocumentPaneState extends ConsumerState<_DocumentPane> {
             sourceName: '${widget.item.documentId}.pdf',
             params: PdfViewerParams(
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              pageOverlaysBuilder: (context, rect, page) => [Positioned.fill(child: IgnorePointer(child: CustomPaint(painter: RegionPainter(_regions(page.pageNumber - 1), Theme.of(context).colorScheme))))],
+              pageOverlaysBuilder: (context, rect, page) => [
+                Positioned.fill(
+                  child: IgnorePointer(child: CustomPaint(painter: RegionPainter(_regions(page.pageNumber - 1), Theme.of(context).colorScheme))),
+                ),
+              ],
             ),
           );
         }
-        if (ratio == null) return Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(l.intakePreviewUnavailable, textAlign: TextAlign.center)));
+        if (ratio == null) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(l.intakePreviewUnavailable, textAlign: TextAlign.center),
+            ),
+          );
+        }
         return InteractiveViewer(
           maxScale: 6,
           child: Center(
             child: AspectRatio(
               aspectRatio: ratio,
-              child: Stack(fit: StackFit.expand, children: [
-                Image.memory(bytes, fit: BoxFit.fill, semanticLabel: widget.item.fileName ?? l.intakeFile),
-                IgnorePointer(child: CustomPaint(painter: RegionPainter(_regions(0), Theme.of(context).colorScheme))),
-              ]),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.memory(bytes, fit: BoxFit.fill, semanticLabel: widget.item.fileName ?? l.intakeFile),
+                  IgnorePointer(child: CustomPaint(painter: RegionPainter(_regions(0), Theme.of(context).colorScheme))),
+                ],
+              ),
             ),
           ),
         );
@@ -294,10 +329,21 @@ class _IntakeFormState extends ConsumerState<_IntakeForm> {
     final l = context.l10n;
     String? v(TextEditingController c) => c.text.trim().isEmpty ? null : c.text.trim();
     await _act(() async {
-      final r = await ref.read(apiProvider).approveIntake(it.id,
-          clientId: _clientId!, loanId: _loanId!, amount: _amountValue!, date: _date!, idempotencyKey: _key,
-          payerName: v(_payer), receiverName: v(_receiver), reference: v(_reference), institution: v(_entity),
-          saveSenderAsSecondaryNumber: it.senderPhone != null && it.status == 'unassigned' && _saveSender);
+      final r = await ref
+          .read(apiProvider)
+          .approveIntake(
+            it.id,
+            clientId: _clientId!,
+            loanId: _loanId!,
+            amount: _amountValue!,
+            date: _date!,
+            idempotencyKey: _key,
+            payerName: v(_payer),
+            receiverName: v(_receiver),
+            reference: v(_reference),
+            institution: v(_entity),
+            saveSenderAsSecondaryNumber: it.senderPhone != null && it.status == 'unassigned' && _saveSender,
+          );
       ref.invalidate(clientProvider(_clientId!));
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.intakeApproved(r.receipt.number))));
     });
@@ -310,8 +356,16 @@ class _IntakeFormState extends ConsumerState<_IntakeForm> {
       context: context,
       builder: (c) => AlertDialog(
         title: Text(l.intakeReject),
-        content: TextField(controller: reason, autofocus: true, maxLength: 500, decoration: corocInput(context, label: l.intakeRejectReason)),
-        actions: [TextButton(onPressed: () => Navigator.pop(c, false), child: Text(l.actionCancel)), FilledButton(onPressed: () => Navigator.pop(c, reason.text.trim().isNotEmpty), child: Text(l.intakeReject))],
+        content: TextField(
+          controller: reason,
+          autofocus: true,
+          maxLength: 500,
+          decoration: corocInput(context, label: l.intakeRejectReason),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c, false), child: Text(l.actionCancel)),
+          FilledButton(onPressed: () => Navigator.pop(c, reason.text.trim().isNotEmpty), child: Text(l.intakeReject)),
+        ],
       ),
     );
     if (ok == true) await _act(() => ref.read(apiProvider).rejectIntake(it.id, reason.text.trim()), done: l.intakeStatusRejected);
@@ -325,7 +379,10 @@ class _IntakeFormState extends ConsumerState<_IntakeForm> {
       builder: (c) => AlertDialog(
         title: Text(l.intakeRevert),
         content: Text(l.intakeRevertConfirm),
-        actions: [TextButton(onPressed: () => Navigator.pop(c, false), child: Text(l.actionCancel)), FilledButton(onPressed: () => Navigator.pop(c, true), child: Text(l.intakeRevert))],
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c, false), child: Text(l.actionCancel)),
+          FilledButton(onPressed: () => Navigator.pop(c, true), child: Text(l.intakeRevert)),
+        ],
       ),
     );
     if (ok == true) await _act(() => ref.read(apiProvider).revertIntake(it.id), done: l.intakeStatusReview);
@@ -355,13 +412,25 @@ class _IntakeFormState extends ConsumerState<_IntakeForm> {
     final f = it.field(field);
     if (f.value == null) return const SizedBox.shrink();
     final pct = '${(f.confidence * 100).round()} %';
-    return Tooltip(message: context.l10n.intakeConfidence(pct), child: StatusDot(label: pct, tone: confidenceTone(f.confidence)));
+    return Tooltip(
+      message: context.l10n.intakeConfidence(pct),
+      child: StatusDot(label: pct, tone: confidenceTone(f.confidence)),
+    );
   }
 
   Widget _text(TextEditingController c, String label, String field, {bool enabled = true}) => Padding(
-        padding: const EdgeInsets.only(bottom: CorocSpace.sm),
-        child: TextField(controller: c, enabled: enabled, onSubmitted: (_) => _approve(), decoration: corocInput(context, label: label, suffix: Padding(padding: const EdgeInsets.only(right: 8), child: _confidence(field)))),
-      );
+    padding: const EdgeInsets.only(bottom: CorocSpace.sm),
+    child: TextField(
+      controller: c,
+      enabled: enabled,
+      onSubmitted: (_) => _approve(),
+      decoration: corocInput(
+        context,
+        label: label,
+        suffix: Padding(padding: const EdgeInsets.only(right: 8), child: _confidence(field)),
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -385,142 +454,179 @@ class _IntakeFormState extends ConsumerState<_IntakeForm> {
       bindings: {const SingleActivator(LogicalKeyboardKey.enter): _approve, const SingleActivator(LogicalKeyboardKey.numpadEnter): _approve},
       child: Focus(
         autofocus: true,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          SectionCard(
-            title: status,
-            trailing: StatusDot(label: it.stage.replaceAll('_', ' '), tone: tone),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(children: [
-                Icon(channelIcon, size: 18),
-                const SizedBox(width: 8),
-                Expanded(child: Text([channel, ?it.senderPhone, ?it.senderEmail].join(' · '), style: t.bodyMedium)),
-              ]),
-              const SizedBox(height: 4),
-              Text(Dates.dateTime(it.createdAt, context.lang), style: t.bodySmall),
-              if (it.messageText != null) ...[const SizedBox(height: 8), Text('«${it.messageText}»', style: t.bodyMedium?.copyWith(fontStyle: FontStyle.italic))],
-              if (it.identification.duplicateOf != null) ...[const SizedBox(height: 8), Text(l.intakeDuplicateOf, style: t.bodyMedium)],
-              if (it.reason != null) ...[const SizedBox(height: 8), Text(it.reason!, style: t.bodyMedium)],
-              for (final f in it.flags) ...[
-                const SizedBox(height: 8),
-                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Icon(f.blocking ? Icons.error_outline : Icons.info_outline, size: 18, color: f.blocking ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.tertiary),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(flagText(l, f), style: t.bodyMedium)),
-                ]),
-              ],
-              for (final s in it.tamperSignals) Text('· $s', style: t.bodySmall),
-              if (it.engine != null) ...[const SizedBox(height: 8), Text(l.intakeReadBy(it.engine == 'rules' ? l.intakeEngineRules : it.engine!), style: t.bodySmall)],
-            ]),
-          ),
-          const SizedBox(height: CorocSpace.md),
-          SectionCard(
-            title: l.intakeFields,
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              _text(_amount, '${l.intakeFieldAmount} ($_currency)', 'amount', enabled: editable),
-              Padding(
-                padding: const EdgeInsets.only(bottom: CorocSpace.sm),
-                child: InkWell(
-                  onTap: editable ? _pickDate : null,
-                  borderRadius: BorderRadius.circular(CorocRadii.control),
-                  child: InputDecorator(
-                    decoration: corocInput(context, label: l.intakeFieldDate, suffix: Row(mainAxisSize: MainAxisSize.min, children: [_confidence('date'), const SizedBox(width: 8), const Icon(Icons.event_outlined)])),
-                    child: Text(_date == null ? '—' : Dates.medium(_date!, context.lang)),
-                  ),
-                ),
-              ),
-              _text(_payer, l.intakeFieldPayer, 'payerName', enabled: editable),
-              _text(_receiver, l.intakeFieldReceiver, 'receiverName', enabled: editable),
-              _text(_reference, l.intakeFieldReference, 'reference', enabled: editable),
-              _text(_entity, l.intakeFieldEntity, 'entity', enabled: editable),
-            ]),
-          ),
-          const SizedBox(height: CorocSpace.md),
-          SectionCard(
-            title: l.intakeClient,
-            trailing: editable ? TextButton.icon(onPressed: _pickClient, icon: const Icon(Icons.person_search_outlined, size: 18), label: Text(l.intakeChooseClient)) : null,
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              Text(_clientName ?? l.inboxUnassignedClient, style: t.titleMedium),
-              if (editable && it.identification.candidates.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Overline(l.intakeSuggested),
-                const SizedBox(height: 4),
-                Wrap(spacing: 8, runSpacing: 8, children: [
-                  for (final c in it.identification.candidates.take(5))
-                    ChoiceChip(
-                      label: Text(c.name ?? c.code ?? c.clientId.substring(0, 8)),
-                      selected: c.clientId == _clientId,
-                      onSelected: (_) => setState(() {
-                        _clientId = c.clientId;
-                        _clientName = c.name;
-                        _loanId = null;
-                      }),
-                    ),
-                ]),
-              ],
-              if (_clientId != null) ...[
-                const SizedBox(height: CorocSpace.md),
-                if (loans?.isLoading ?? false)
-                  const LinearProgressIndicator()
-                else if (active.isEmpty && editable)
-                  Text(l.intakeNoLoans, style: t.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.error))
-                else
-                  DropdownMenu<String>(
-                    key: ValueKey('$_clientId-$_loanId'),
-                    enabled: editable,
-                    expandedInsets: EdgeInsets.zero,
-                    label: Text(l.intakeLoan),
-                    initialSelection: _loanId,
-                    onSelected: (v) {
-                      setState(() => _loanId = v);
-                      _schedulePreview();
-                    },
-                    dropdownMenuEntries: [
-                      for (final x in active) DropdownMenuEntry(value: x.id, label: '${x.contract} · ${Money.format(x.summary.balance, x.terms.currency)}'),
-                      if (it.loanId != null && active.every((x) => x.id != it.loanId)) DropdownMenuEntry(value: it.loanId!, label: it.contract ?? it.loanId!),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SectionCard(
+              title: status,
+              trailing: StatusDot(label: it.stage.replaceAll('_', ' '), tone: tone),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(channelIcon, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(child: Text([channel, ?it.senderPhone, ?it.senderEmail].join(' · '), style: t.bodyMedium)),
                     ],
                   ),
-              ],
-              if (editable && it.senderPhone != null && it.status == 'unassigned' && _clientId != null)
-                CheckboxListTile(
-                  contentPadding: EdgeInsets.zero,
-                  value: _saveSender,
-                  onChanged: (v) => setState(() => _saveSender = v ?? false),
-                  title: Text(l.intakeSaveSender(it.senderPhone!)),
-                ),
-            ]),
-          ),
-          if (_preview case final p?) ...[
-            const SizedBox(height: CorocSpace.md),
-            SectionCard(
-              title: l.intakePreview,
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                Text(p.coverage, style: t.bodyMedium),
-                KeyValue(l.intakeBalanceBefore, Money.format(p.previousBalance, _currency)),
-                KeyValue(l.intakeBalanceAfter, Money.format(p.newBalance, _currency), emphasize: true),
-              ]),
-            ),
-          ],
-          const SizedBox(height: CorocSpace.md),
-          if (editable)
-            Wrap(spacing: 8, runSpacing: 8, alignment: WrapAlignment.end, children: [
-              TextButton(onPressed: _busy ? null : () => _act(() => ref.read(apiProvider).archiveIntake(it.id), done: l.intakeStatusArchived), child: Text(l.intakeArchive)),
-              OutlinedButton(onPressed: _busy ? null : _reject, child: Text(l.intakeReject)),
-              GoldButton(label: l.intakeApprove, icon: Icons.check, busy: _busy, onPressed: _canApprove ? _approve : null),
-            ]),
-          if (it.receiptNumber != null)
-            Card(
-              child: ListTile(
-                leading: const Icon(Icons.receipt_long_outlined),
-                title: Text(l.intakeApproved(it.receiptNumber!)),
-                subtitle: it.revertible ? Text(l.intakeRevertUntil(Dates.dateTime(it.revertibleUntil!, context.lang))) : null,
-                trailing: it.receiptDocumentId == null ? null : TextButton(onPressed: () => openDocument(context, it.receiptDocumentId!), child: Text(l.intakeOpenReceipt)),
+                  const SizedBox(height: 4),
+                  Text(Dates.dateTime(it.createdAt, context.lang), style: t.bodySmall),
+                  if (it.messageText != null) ...[const SizedBox(height: 8), Text('«${it.messageText}»', style: t.bodyMedium?.copyWith(fontStyle: FontStyle.italic))],
+                  if (it.identification.duplicateOf != null) ...[const SizedBox(height: 8), Text(l.intakeDuplicateOf, style: t.bodyMedium)],
+                  if (it.reason != null) ...[const SizedBox(height: 8), Text(it.reason!, style: t.bodyMedium)],
+                  for (final f in it.flags) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(f.blocking ? Icons.error_outline : Icons.info_outline, size: 18, color: f.blocking ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.tertiary),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(flagText(l, f), style: t.bodyMedium)),
+                      ],
+                    ),
+                  ],
+                  for (final s in it.tamperSignals) Text('· $s', style: t.bodySmall),
+                  if (it.engine != null) ...[const SizedBox(height: 8), Text(l.intakeReadBy(it.engine == 'rules' ? l.intakeEngineRules : it.engine!), style: t.bodySmall)],
+                ],
               ),
             ),
-          if (it.status != 'processing') ...[const SizedBox(height: CorocSpace.md), IntakeTraceCard(intakeId: it.id)],
-          if (it.revertible && canRevert)
-            Align(alignment: Alignment.centerRight, child: OutlinedButton.icon(onPressed: _busy ? null : _revert, icon: const Icon(Icons.undo), label: Text(l.intakeRevert))),
-          Align(alignment: Alignment.centerRight, child: TextButton.icon(onPressed: () => openDocument(context, it.documentId), icon: const Icon(Icons.open_in_new, size: 18), label: Text(l.intakeOpenFile))),
-        ]),
+            const SizedBox(height: CorocSpace.md),
+            SectionCard(
+              title: l.intakeFields,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _text(_amount, '${l.intakeFieldAmount} ($_currency)', 'amount', enabled: editable),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: CorocSpace.sm),
+                    child: InkWell(
+                      onTap: editable ? _pickDate : null,
+                      borderRadius: BorderRadius.circular(CorocRadii.control),
+                      child: InputDecorator(
+                        decoration: corocInput(
+                          context,
+                          label: l.intakeFieldDate,
+                          suffix: Row(mainAxisSize: MainAxisSize.min, children: [_confidence('date'), const SizedBox(width: 8), const Icon(Icons.event_outlined)]),
+                        ),
+                        child: Text(_date == null ? '—' : Dates.medium(_date!, context.lang)),
+                      ),
+                    ),
+                  ),
+                  _text(_payer, l.intakeFieldPayer, 'payerName', enabled: editable),
+                  _text(_receiver, l.intakeFieldReceiver, 'receiverName', enabled: editable),
+                  _text(_reference, l.intakeFieldReference, 'reference', enabled: editable),
+                  _text(_entity, l.intakeFieldEntity, 'entity', enabled: editable),
+                ],
+              ),
+            ),
+            const SizedBox(height: CorocSpace.md),
+            SectionCard(
+              title: l.intakeClient,
+              trailing: editable ? TextButton.icon(onPressed: _pickClient, icon: const Icon(Icons.person_search_outlined, size: 18), label: Text(l.intakeChooseClient)) : null,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(_clientName ?? l.inboxUnassignedClient, style: t.titleMedium),
+                  if (editable && it.identification.candidates.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Overline(l.intakeSuggested),
+                    const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final c in it.identification.candidates.take(5))
+                          ChoiceChip(
+                            label: Text(c.name ?? c.code ?? c.clientId.substring(0, 8)),
+                            selected: c.clientId == _clientId,
+                            onSelected: (_) => setState(() {
+                              _clientId = c.clientId;
+                              _clientName = c.name;
+                              _loanId = null;
+                            }),
+                          ),
+                      ],
+                    ),
+                  ],
+                  if (_clientId != null) ...[
+                    const SizedBox(height: CorocSpace.md),
+                    if (loans?.isLoading ?? false)
+                      const LinearProgressIndicator()
+                    else if (active.isEmpty && editable)
+                      Text(l.intakeNoLoans, style: t.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.error))
+                    else
+                      DropdownMenu<String>(
+                        key: ValueKey('$_clientId-$_loanId'),
+                        enabled: editable,
+                        expandedInsets: EdgeInsets.zero,
+                        label: Text(l.intakeLoan),
+                        initialSelection: _loanId,
+                        onSelected: (v) {
+                          setState(() => _loanId = v);
+                          _schedulePreview();
+                        },
+                        dropdownMenuEntries: [
+                          for (final x in active) DropdownMenuEntry(value: x.id, label: '${x.contract} · ${Money.format(x.summary.balance, x.terms.currency)}'),
+                          if (it.loanId != null && active.every((x) => x.id != it.loanId)) DropdownMenuEntry(value: it.loanId!, label: it.contract ?? it.loanId!),
+                        ],
+                      ),
+                  ],
+                  if (editable && it.senderPhone != null && it.status == 'unassigned' && _clientId != null)
+                    CheckboxListTile(contentPadding: EdgeInsets.zero, value: _saveSender, onChanged: (v) => setState(() => _saveSender = v ?? false), title: Text(l.intakeSaveSender(it.senderPhone!))),
+                ],
+              ),
+            ),
+            if (_preview case final p?) ...[
+              const SizedBox(height: CorocSpace.md),
+              SectionCard(
+                title: l.intakePreview,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(p.coverage, style: t.bodyMedium),
+                    KeyValue(l.intakeBalanceBefore, Money.format(p.previousBalance, _currency)),
+                    KeyValue(l.intakeBalanceAfter, Money.format(p.newBalance, _currency), emphasize: true),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: CorocSpace.md),
+            if (editable)
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: _busy ? null : () => _act(() => ref.read(apiProvider).archiveIntake(it.id), done: l.intakeStatusArchived),
+                    child: Text(l.intakeArchive),
+                  ),
+                  OutlinedButton(onPressed: _busy ? null : _reject, child: Text(l.intakeReject)),
+                  GoldButton(label: l.intakeApprove, icon: Icons.check, busy: _busy, onPressed: _canApprove ? _approve : null),
+                ],
+              ),
+            if (it.receiptNumber != null)
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.receipt_long_outlined),
+                  title: Text(l.intakeApproved(it.receiptNumber!)),
+                  subtitle: it.revertible ? Text(l.intakeRevertUntil(Dates.dateTime(it.revertibleUntil!, context.lang))) : null,
+                  trailing: it.receiptDocumentId == null ? null : TextButton(onPressed: () => openDocument(context, it.receiptDocumentId!), child: Text(l.intakeOpenReceipt)),
+                ),
+              ),
+            if (it.status != 'processing') ...[const SizedBox(height: CorocSpace.md), IntakeTraceCard(intakeId: it.id)],
+            if (it.revertible && canRevert)
+              Align(
+                alignment: Alignment.centerRight,
+                child: OutlinedButton.icon(onPressed: _busy ? null : _revert, icon: const Icon(Icons.undo), label: Text(l.intakeRevert)),
+              ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(onPressed: () => openDocument(context, it.documentId), icon: const Icon(Icons.open_in_new, size: 18), label: Text(l.intakeOpenFile)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -569,15 +675,22 @@ class _ClientSearchDialogState extends ConsumerState<_ClientSearchDialog> {
       content: SizedBox(
         width: 420,
         height: 420,
-        child: Column(children: [
-          TextField(controller: _q, autofocus: true, onChanged: _search, decoration: corocInput(context, label: l.intakeSearchClient, prefix: const Icon(Icons.search))),
-          const SizedBox(height: 8),
-          Expanded(
-            child: ListView(children: [
-              for (final c in _items) ListTile(title: Text(c.fullName), subtitle: Text(c.code), onTap: () => Navigator.pop(context, c)),
-            ]),
-          ),
-        ]),
+        child: Column(
+          children: [
+            TextField(
+              controller: _q,
+              autofocus: true,
+              onChanged: _search,
+              decoration: corocInput(context, label: l.intakeSearchClient, prefix: const Icon(Icons.search)),
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: ListView(
+                children: [for (final c in _items) ListTile(title: Text(c.fullName), subtitle: Text(c.code), onTap: () => Navigator.pop(context, c))],
+              ),
+            ),
+          ],
+        ),
       ),
       actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(l.actionCancel))],
     );
