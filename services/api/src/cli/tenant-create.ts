@@ -48,7 +48,8 @@ if (isMain) {
   const rl = readline.createInterface({ input: process.stdin, output: process.stderr, terminal: true });
   (rl as unknown as { _writeToOutput: (s: string) => void })._writeToOutput = () => undefined;
   process.stderr.write('Contraseña inicial del Propietario (mínimo 12 caracteres): ');
-  const password = await new Promise<string>((ok) => rl.question('', (x) => { rl.close(); ok(x); }));
+  // Desde Windows PowerShell la línea llega con «\r» al final (instalador del PC, infra/pc/instalar.ps1).
+  const password = await new Promise<string>((ok) => rl.question('', (x) => { rl.close(); ok(x.replace(/\r$/, '')); }));
   process.stderr.write('\n');
   const r = await createTenant(url, { slug: values.slug, name: values.name, country: values.country as 'CO', owner: values.owner, ownerName: values['owner-name'], email: values.email, password });
   console.log(`Empresa creada: ${values.slug} (${r.tenantId}). El Propietario activará la verificación en dos pasos en su primer ingreso.`);

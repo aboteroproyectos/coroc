@@ -1,0 +1,110 @@
+# Paquete «COROC para un PC con Windows» (todo en el mismo equipo, sin nube). Guía: docs/GUIA_PC_WINDOWS.md.
+# Arma un .zip con:
+#   - la app de Windows, que habla con el servidor del mismo PC (http://localhost:3000);
+#   - el servidor ya construido (imagen Docker coroc-api:pc, así el PC no compila nada);
+#   - los scripts de instalar, abrir y detener (infra/pc).
+# A pedido o al cambiar infra/pc en main se publica como versión en GitHub (Releases). En un PR queda como artefacto.
+name: Paquete para PC con Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['infra/pc/**', '.github/workflows/pc-windows.yml']
+  pull_request:
+    paths: ['infra/pc/**', '.github/workflows/pc-windows.yml']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pc-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app:
+    name: App de Windows (servidor local)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/flutter-setup
+      - name: Compilar
+        working-directory: apps/coroc_app
+        shell: bash
+        run: |
+          VERSION="$(sed -n 's/^version: *\([0-9.]*\).*/\1/p' pubspec.yaml)-pc.${GITHUB_RUN_NUMBER}"
+          flutter build windows --release --dart-define=COROC_API=http://localhost:3000/v1 --dart-define=COROC_VERSION="$VERSION"
+      - uses: actions/upload-artifact@v6
+        with:
+          name: app-windows
+          path: apps/coroc_app/build/windows/x64/runner/Release/
+          if-no-files-found: error
+          retention-days: 3
+
+  servidor:
+    name: Servidor (imagen Docker)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v4
+      - name: Construir la imagen
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: services/api/Dockerfile
+          platforms: linux/amd64
+          tags: coroc-api:pc
+          outputs: type=docker,dest=${{ runner.temp }}/coroc-api.tar
+      - uses: actions/upload-artifact@v6
+        with:
+          name: servidor-imagen
+          path: ${{ runner.temp }}/coroc-api.tar
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0
+
+  paquete:
+    name: Paquete .zip
+    runs-on: ubuntu-latest
+    needs: [app, servidor]
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v7
+        with: { name: app-windows, path: COROC/app }
+      - uses: actions/download-artifact@v7
+        with: { name: servidor-imagen, path: COROC/servidor }
+      - name: Armar la carpeta COROC
+        run: |
+          cp infra/pc/docker-compose.yml infra/pc/*.ps1 COROC/servidor/
+          cp infra/pc/*.bat COROC/
+          cp infra/pc/LEEME.txt COROC/
+          test -f COROC/app/coroc.exe
+          test -s COROC/servidor/coroc-api.tar
+          ls -la COROC COROC/servidor
+          zip -r -q COROC-PC-Windows.zip COROC
+          ls -lh COROC-PC-Windows.zip
+      - name: Artefacto (PR)
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v6
+        with:
+          name: COROC-PC-Windows
+          path: COROC-PC-Windows.zip
+          retention-days: 7
+          compression-level: 0
+      - name: Publicar la versión
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: pc-${{ github.run_number }}
+          name: COROC para PC con Windows (${{ github.run_number }})
+          make_latest: true
+          files: COROC-PC-Windows.zip
+          body: |
+            **COROC para un PC con Windows**, todo en el mismo equipo y sin nube.
+
+            1. Descargue **COROC-PC-Windows.zip** (abajo, en *Assets*).
+            2. Siga la guía paso a paso: [docs/GUIA_PC_WINDOWS.md](https://github.com/${{ github.repository }}/blob/main/docs/GUIA_PC_WINDOWS.md).
+
+            Requiere Docker Desktop. La app se conecta al servidor de este mismo PC (`http://localhost:3000`).

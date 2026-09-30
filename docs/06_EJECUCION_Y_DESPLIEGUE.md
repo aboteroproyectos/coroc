@@ -47,6 +47,8 @@ npm run lint:i18n                                                               
 
 ## 2. Todo con Docker
 
+Para un solo PC con Windows y sin nube hay un paquete listo, con la app, el servidor ya construido y un instalador: [GUIA_PC_WINDOWS.md](GUIA_PC_WINDOWS.md) (flujo `pc-windows.yml`, archivos en `infra/pc/`).
+
 ```bash
 cp infra/.env.example infra/.env       # complete secretos y contraseñas
 docker compose -f infra/docker-compose.yml up -d --build

@@ -25,6 +25,8 @@ coroc/
 
 | Documento | Contenido |
 |---|---|
+| [`docs/GUIA_PC_WINDOWS.md`](docs/GUIA_PC_WINDOWS.md) | Instalar COROC completo en un PC con Windows, sin nube (paquete de GitHub Releases) |
+| [`docs/GUIA_PUESTA_EN_MARCHA.md`](docs/GUIA_PUESTA_EN_MARCHA.md) | Poner COROC en la nube (Fly.io y Cloudflare) desde el navegador |
 | [`docs/10_FASE_5_NOTAS_DE_VERSION.md`](docs/10_FASE_5_NOTAS_DE_VERSION.md) | Qué trae la Fase 5: rendimiento con 100.000 clientes, seguridad (penetración, dependencias, ZAP), soporte y trazas, modo sin conexión, accesibilidad, eliminación de cuenta, privacidad, fichas y publicación |
 | [`docs/11_FICHAS_DE_TIENDA.md`](docs/11_FICHAS_DE_TIENDA.md) | Fichas de Google Play, App Store y Microsoft Store en 3 idiomas y declaraciones de privacidad |
 | [`docs/09_FASE_4_NOTAS_DE_VERSION.md`](docs/09_FASE_4_NOTAS_DE_VERSION.md) | Qué trae la Fase 4: mensajes automáticos, plantillas, correo saliente, WhatsApp asistido y Cloud API, reglas de contacto |
