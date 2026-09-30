@@ -1,0 +1,13 @@
+﻿COROC en este PC con Windows
+===========================
+
+1. Instale Docker Desktop (https://www.docker.com/products/docker-desktop/), reinicie, ábralo una vez y espere a
+   que diga «Engine running».
+2. Haga doble clic en «1-Instalar-COROC». Si Windows dice «Windows protegió su PC»: Más información > Ejecutar de
+   todas formas. Responda las preguntas (empresa, usuario y contraseña).
+3. Desde entonces, abra COROC con el acceso «COROC» del escritorio.
+
+Copias de seguridad: cada semana, en COROC > Configuración > Respaldo > Crear respaldo, y guarde el archivo en una
+memoria USB. Una sola vez, copie también servidor\.env a esa memoria (tiene las llaves; no lo comparta).
+
+Guía completa, paso a paso: docs/GUIA_PC_WINDOWS.md en el repositorio de COROC en GitHub.
