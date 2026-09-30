@@ -198,9 +198,36 @@ jobs:
           context: .
           file: services/api/Dockerfile
           push: false
-          tags: coroc-api:ci
+          load: true
+          tags: coroc-api:ci,coroc-api:pc
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      # La imagen se enciende de verdad, igual que en el PC con Windows (infra/pc): migraciones, API, primera empresa
+      # con la contraseña por la entrada estándar (con el «\r» que agrega Windows) e ingreso con esa contraseña.
+      - name: La imagen arranca y se puede entrar (paquete para PC)
+        run: |
+          cat > infra/pc/.env <<ENV
+          POSTGRES_PASSWORD=ci-$(openssl rand -hex 12)
+          COROC_API_DB_PASSWORD=ci-$(openssl rand -hex 12)
+          COROC_JWT_SECRET=$(openssl rand -base64 48 | tr -d '\n')
+          COROC_DATA_KEY=$(openssl rand -base64 32 | tr -d '\n')
+          COROC_PUBLIC_URL=http://localhost:3000
+          COROC_BREACHED_CHECK=local
+          COROC_MFA_OWNER=required
+          ENV
+          compose() { docker compose -f infra/pc/docker-compose.yml --project-directory infra/pc "$@"; }
+          compose up -d
+          for i in $(seq 1 60); do curl -sf http://127.0.0.1:3000/health > /dev/null && break; sleep 3; done
+          curl -sf http://127.0.0.1:3000/health || { compose logs --tail 80 api migrate; exit 1; }
+          echo
+          printf 'Prueba-Del-Paquete-PC-2026\r\n' | compose run --rm -T -e COROC_BREACHED_CHECK=local migrate \
+            node dist/cli/tenant-create.js --slug prueba-ci --name 'Prueba CI' --country BR --owner dueno --owner-name 'Dueño CI'
+          code=$(curl -s -o /tmp/login.json -w '%{http_code}' http://127.0.0.1:3000/v1/auth/login -H 'Content-Type: application/json' \
+            -d '{"tenant":"prueba-ci","username":"dueno","password":"Prueba-Del-Paquete-PC-2026","deviceId":"ci-device-000000000001"}')
+          echo "Ingreso: HTTP $code"; test "$code" = 200
+      - name: Registros del servidor
+        if: failure()
+        run: docker compose -f infra/pc/docker-compose.yml --project-directory infra/pc logs --tail 120 || true
 
   # ─── App Flutter: análisis y pruebas ───
   flutter:
