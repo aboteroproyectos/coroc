@@ -11,7 +11,8 @@ RUN npm ci --workspace @coroc/core --workspace @coroc/api --include-workspace-ro
 COPY packages/core packages/core
 COPY services/api services/api
 RUN npm run build -w @coroc/core && npm run build -w @coroc/api \
- && npm prune --omit=dev --workspace @coroc/core --workspace @coroc/api
+ && npm prune --omit=dev --workspace @coroc/core --workspace @coroc/api \
+ && mkdir -p packages/core/node_modules services/api/node_modules
 
 FROM node:22-bookworm-slim
 ENV NODE_ENV=production PORT=3000 PLAYWRIGHT_BROWSERS_PATH=/opt/coroc-browsers COROC_STORAGE_DIR=/var/lib/coroc/objects
@@ -25,6 +26,10 @@ RUN node node_modules/playwright-core/cli.js install --with-deps chromium-headle
 # Lectura de comprobantes (§13.2): OCR en español, portugués e inglés, y Poppler para los PDF escaneados.
 RUN apt-get update -q && apt-get install -y -q --no-install-recommends tesseract-ocr tesseract-ocr-spa tesseract-ocr-por tesseract-ocr-eng poppler-utils \
  && rm -rf /var/lib/apt/lists/*
+# npm deja en la carpeta de cada paquete las dependencias que no puede subir a la raíz (p. ej. pdfjs-dist, que usa
+# una versión propia): sin ellas la API no arranca.
+COPY --from=build /repo/packages/core/node_modules ./packages/core/node_modules
+COPY --from=build /repo/services/api/node_modules ./services/api/node_modules
 COPY --from=build /repo/packages/core/package.json ./packages/core/package.json
 COPY --from=build /repo/packages/core/dist ./packages/core/dist
 COPY --from=build /repo/services/api/package.json ./services/api/package.json

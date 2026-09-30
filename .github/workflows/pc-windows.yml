@@ -10,9 +10,9 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['infra/pc/**', '.github/workflows/pc-windows.yml']
+    paths: ['infra/pc/**', 'services/api/Dockerfile', '.github/workflows/pc-windows.yml']
   pull_request:
-    paths: ['infra/pc/**', '.github/workflows/pc-windows.yml']
+    paths: ['infra/pc/**', 'services/api/Dockerfile', '.github/workflows/pc-windows.yml']
 
 permissions:
   contents: read

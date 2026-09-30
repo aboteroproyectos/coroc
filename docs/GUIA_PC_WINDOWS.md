@@ -31,6 +31,9 @@ empresas pequeñas (menos de 250 empleados y menos de 10 millones de dólares de
    - acepte las condiciones (**Accept**);
    - si le pide iniciar sesión o crear cuenta, oprima **Skip** (no hace falta);
    - si le pide actualizar WSL o activar la virtualización, siga lo que dice la pantalla y reinicie.
+   - si dice **«WSL not installed»**: oprima **Quit**; abra el menú Inicio, escriba `powershell`, clic derecho sobre
+     **Windows PowerShell › Ejecutar como administrador**; escriba `wsl --install` y Enter. Si al final le pide un
+     usuario y contraseña de Ubuntu, invéntelos (COROC no los usa). Reinicie el PC y vuelva a abrir Docker Desktop.
 5. Espere a que abajo a la izquierda diga **Engine running** (motor encendido) en verde.
 6. Para que COROC esté listo cada vez que prenda el PC: en Docker Desktop, ⚙ **Settings › General**, deje marcada
    **Start Docker Desktop when you sign in to your computer**.
@@ -39,7 +42,7 @@ empresas pequeñas (menos de 250 empleados y menos de 10 millones de dólares de
 
 1. Entre a **https://github.com/aboteroproyectos/coroc** (con su usuario de GitHub).
 2. A la derecha, en **Releases**, abra la más reciente: **COROC para PC con Windows**.
-3. En **Assets**, descargue **COROC-PC-Windows.zip** (pesa unos 500 MB).
+3. En **Assets**, descargue **COROC-PC-Windows.zip** (pesa unos 380 MB).
 4. Abra la carpeta Descargas, haga clic derecho sobre el archivo › **Extraer todo…** › en la ruta escriba `C:\` › **Extraer**.
    Queda la carpeta **C:\COROC**. No la mueva después de instalar.
 
