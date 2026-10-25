@@ -80,6 +80,8 @@ Future<AppUnderTest> bootApp(
   List<String>? permissions,
   bool signedIn = true,
   bool folderAsked = true,
+  List<Override> overrides = const [],
+  MemorySessionStore? store,
 }) async {
   await initializeDateFormatting('es');
   await initializeDateFormatting('pt_BR');
@@ -96,14 +98,16 @@ Future<AppUnderTest> bootApp(
   }
   ((server.session['user'] as Json))['lang'] = locale == 'pt' ? 'pt-BR' : locale;
   // La carpeta COROC ya se ofreció en este dispositivo: el diálogo de permiso tiene su propia prueba.
-  final store = MemorySessionStore(refresh: signedIn ? 'rt1.sesion-de-prueba' : null, savedLocale: locale)..asked = folderAsked;
-  final client = ApiClient(baseUrl: 'https://api.test/v1', store: store, language: () => locale, client: server.client());
-  final container = ProviderContainer(overrides: [sessionStoreProvider.overrideWithValue(store), apiClientProvider.overrideWithValue(client), offlineVaultProvider.overrideWithValue(MemoryVault())]);
+  final memory = (store ?? MemorySessionStore(refresh: signedIn ? 'rt1.sesion-de-prueba' : null, savedLocale: locale))..asked = folderAsked;
+  final client = ApiClient(baseUrl: 'https://api.test/v1', store: memory, language: () => locale, client: server.client());
+  final container = ProviderContainer(
+    overrides: [sessionStoreProvider.overrideWithValue(memory), apiClientProvider.overrideWithValue(client), offlineVaultProvider.overrideWithValue(MemoryVault()), ...overrides],
+  );
   final files = FakeFileSelector();
   FileSelectorPlatform.instance = files;
   await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const CorocApp()));
   await settle(tester);
-  return AppUnderTest(tester, server, container, store, files);
+  return AppUnderTest(tester, server, container, memory, files);
 }
 
 /// Desplaza hasta el control (si está en una lista), lo deja en el centro para que no quede bajo un encabezado fijo y

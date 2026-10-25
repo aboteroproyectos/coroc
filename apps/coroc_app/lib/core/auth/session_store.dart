@@ -16,6 +16,11 @@ class SessionStore {
   static const _remember = 'coroc.remember';
   static const _folder = 'coroc.folder';
   static const _folderAsked = 'coroc.folder_asked';
+  static const _hello = 'coroc.hello';
+  static const _textScale = 'coroc.text_scale';
+  static const _tour = 'coroc.tour_done';
+  static const _trayHint = 'coroc.tray_hint';
+  static const _watchDownloads = 'coroc.watch_downloads';
 
   Future<String> deviceId() async {
     final existing = await _s.read(key: _device);
@@ -55,4 +60,24 @@ class SessionStore {
   /// Si ya se explicó y se pidió permiso para crear la carpeta en este dispositivo (se pregunta una sola vez).
   Future<bool> folderAsked() async => (await _s.read(key: _folderAsked)) == '1';
   Future<void> saveFolderAsked() => _s.write(key: _folderAsked, value: '1');
+
+  /// COROC Escritorio: al abrir COROC con la sesión recordada, se desbloquea con Windows Hello (ADR-063).
+  Future<bool> helloEnabled() async => (await _s.read(key: _hello)) == '1';
+  Future<void> saveHelloEnabled(bool on) => _s.write(key: _hello, value: on ? '1' : '0');
+
+  /// Tamaño de la letra de este equipo: 1, 1,15 o 1,3.
+  Future<double?> textScale() async => double.tryParse(await _s.read(key: _textScale) ?? '');
+  Future<void> saveTextScale(double scale) => _s.write(key: _textScale, value: '$scale');
+
+  /// El recorrido guiado se muestra una sola vez por equipo.
+  Future<bool> tourDone() async => (await _s.read(key: _tour)) == '1';
+  Future<void> saveTourDone() => _s.write(key: _tour, value: '1');
+
+  /// Al cerrar la ventana por primera vez se explica que COROC sigue trabajando en la bandeja.
+  Future<bool> trayHintShown() async => (await _s.read(key: _trayHint)) == '1';
+  Future<void> saveTrayHintShown() => _s.write(key: _trayHint, value: '1');
+
+  /// Preguntar por los comprobantes que llegan a Descargas (activado salvo que se apague).
+  Future<bool> watchDownloads() async => (await _s.read(key: _watchDownloads)) != '0';
+  Future<void> saveWatchDownloads(bool on) => _s.write(key: _watchDownloads, value: on ? '1' : '0');
 }

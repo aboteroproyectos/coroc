@@ -16,12 +16,17 @@ logger.log(`API de COROC escuchando en el puerto ${config.port}`);
 // COROC Escritorio (ADR-062): el supervisor pide el cierre por el canal IPC, porque en Windows no hay SIGTERM. Se
 // terminan las peticiones y tareas en curso y se cierran las conexiones antes de salir.
 let closing = false;
-process.on('message', (m) => {
-  if (m !== 'shutdown' || closing) return;
+const shutdown = () => {
+  if (closing) return;
   closing = true;
   void app.close().then(
     () => process.exit(0),
     () => process.exit(1),
   );
+};
+process.on('message', (m) => {
+  if (m === 'shutdown') shutdown();
 });
+// Si el supervisor se cierra de golpe (cierre forzado, corte de luz), el canal IPC se corta: la API no queda huérfana.
+process.on('disconnect', shutdown);
 process.send?.({ evento: 'escuchando', puerto: config.port });

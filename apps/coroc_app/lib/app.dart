@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'core/auth/auth_controller.dart';
+import 'core/desktop/desktop_runtime.dart';
 import 'core/l10n.dart';
 import 'core/providers.dart';
 import 'design/theme.dart';
@@ -19,11 +20,15 @@ import 'features/auth/mfa_page.dart';
 import 'features/clients/client_page.dart';
 import 'features/clients/clients_page.dart';
 import 'features/dashboard/dashboard_page.dart';
+import 'features/desktop/desktop_splash.dart';
+import 'features/desktop/desktop_window.dart';
+import 'features/desktop/welcome_page.dart';
 import 'features/help/help_page.dart';
 import 'features/inbox/inbox_page.dart';
 import 'features/loans/new_loan_page.dart';
 import 'features/messaging/messages_page.dart';
 import 'features/messaging/templates_page.dart';
+import 'features/messaging/today_messages_page.dart';
 import 'features/new_client/new_client_page.dart';
 import 'features/reports/reports_page.dart';
 import 'features/settings/settings_page.dart';
@@ -33,11 +38,21 @@ import 'features/today/today_page.dart';
 final routerProvider = Provider<GoRouter>((ref) {
   final auth = ValueNotifier<AuthState>(ref.read(authProvider));
   ref.listen<AuthState>(authProvider, (_, next) => auth.value = next);
+  final desktopMode = ref.read(desktopModeProvider);
+  final desktop = ValueNotifier<DesktopState>(ref.read(desktopProvider));
+  ref.listen<DesktopState>(desktopProvider, (_, next) => desktop.value = next);
 
   String? guard(BuildContext context, GoRouterState state) {
     final a = auth.value;
     final loc = state.matchedLocation;
     final public = loc == '/login' || loc == '/forgot';
+    // COROC Escritorio (ADR-062): primero el servidor de este PC; sin empresa todavía, el asistente de primer uso.
+    if (desktopMode) {
+      final d = desktop.value;
+      if (!d.ready) return loc == '/splash' ? null : '/splash';
+      if (!d.configured) return loc == '/bienvenida' ? null : '/bienvenida';
+      if (loc == '/bienvenida') return '/splash';
+    }
     return switch (a) {
       AuthLoading() => loc == '/splash' ? null : '/splash',
       SignedOut() => public ? null : '/login',
@@ -54,10 +69,11 @@ final routerProvider = Provider<GoRouter>((ref) {
 
   final router = GoRouter(
     initialLocation: '/splash',
-    refreshListenable: auth,
+    refreshListenable: Listenable.merge([auth, desktop]),
     redirect: guard,
     routes: [
-      GoRoute(path: '/splash', builder: (_, _) => const _Splash()),
+      GoRoute(path: '/splash', builder: (_, _) => desktopMode ? const DesktopSplash() : const _Splash()),
+      GoRoute(path: '/bienvenida', builder: (_, _) => const WelcomePage()),
       GoRoute(path: '/login', builder: (_, _) => const LoginPage()),
       GoRoute(path: '/login/mfa', builder: (_, _) => const MfaPage()),
       GoRoute(path: '/login/enroll', builder: (_, _) => const EnrollPage()),
@@ -89,7 +105,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/messages',
             pageBuilder: (_, s) => _fade(s, const MessagesPage()),
-            routes: [GoRoute(path: 'templates', pageBuilder: (_, s) => _fade(s, const TemplatesPage()))],
+            routes: [
+              GoRoute(path: 'templates', pageBuilder: (_, s) => _fade(s, const TemplatesPage())),
+              GoRoute(path: 'today', pageBuilder: (_, s) => _fade(s, const TodayMessagesPage())),
+            ],
           ),
           GoRoute(path: '/reports', pageBuilder: (_, s) => _fade(s, const ReportsPage())),
           GoRoute(path: '/settings', pageBuilder: (_, s) => _fade(s, const SettingsPage())),
@@ -100,6 +119,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
   ref.onDispose(() {
     auth.dispose();
+    desktop.dispose();
     router.dispose();
   });
   return router;
@@ -130,7 +150,11 @@ class CorocApp extends ConsumerWidget {
       supportedLocales: const [Locale('es'), Locale('pt'), Locale('en')],
       localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
       routerConfig: ref.watch(routerProvider),
-      builder: (context, child) => _SecurityLayer(child: child ?? const SizedBox.shrink()),
+      // Tamaño de la letra elegido en este equipo (Fase 10) y, en Escritorio, la ventana y la bandeja.
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(ref.watch(textScaleProvider))),
+        child: DesktopWindow(child: _SecurityLayer(child: child ?? const SizedBox.shrink())),
+      ),
     );
   }
 }

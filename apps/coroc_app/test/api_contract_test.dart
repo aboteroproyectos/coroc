@@ -144,6 +144,19 @@ void main() {
       () => api.deleteMyAccount('p'),
       () => api.deleteUser(_id),
       () => api.closeCompany('p', 'slug'),
+      api.desktopStatus,
+      () => api.desktopSetup(companyName: 'Empresa', country: 'CO', ownerName: 'Ana', username: 'ana', password: 'p', deviceId: 'dispositivo-1'),
+      () => api.desktopRestoreUpload(open: open, length: 3),
+      () => api.desktopRestoreApply(_id, 'p'),
+      () => api.desktopResetPassword('ana', 'p'),
+      api.gmail,
+      () => api.saveGmail('cobros@gmail.com', 'abcd efgh ijkl mnop'),
+      api.testGmail,
+      api.deleteGmail,
+      () => api.clientEmails(_id),
+      api.autoBackup,
+      () => api.saveAutoBackup(folder: r'C:\Users\ana\OneDrive\COROC'),
+      api.runAutoBackup,
     ];
     for (final (i, c) in calls.indexed) {
       try {

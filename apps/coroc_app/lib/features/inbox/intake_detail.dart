@@ -10,6 +10,7 @@ import 'package:uuid/uuid.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../core/format.dart';
 import '../../core/l10n.dart';
+import '../desktop/receipt_prompt.dart';
 import '../../core/models/models.dart';
 import '../../core/providers.dart';
 import '../../design/theme.dart';
@@ -327,6 +328,8 @@ class _IntakeFormState extends ConsumerState<_IntakeForm> {
   Future<void> _approve() async {
     if (!_canApprove) return;
     final l = context.l10n;
+    final clientId = _clientId!;
+    String? receipt;
     String? v(TextEditingController c) => c.text.trim().isEmpty ? null : c.text.trim();
     await _act(() async {
       final r = await ref
@@ -345,8 +348,11 @@ class _IntakeFormState extends ConsumerState<_IntakeForm> {
             saveSenderAsSecondaryNumber: it.senderPhone != null && it.status == 'unassigned' && _saveSender,
           );
       ref.invalidate(clientProvider(_clientId!));
+      receipt = r.receipt.number;
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.intakeApproved(r.receipt.number))));
     });
+    // COROC Escritorio (E-3): el recibo sale por WhatsApp con un clic más.
+    if (receipt != null && mounted) await offerReceipt(context, ref, clientId: clientId, receiptNumber: receipt!);
   }
 
   Future<void> _reject() async {

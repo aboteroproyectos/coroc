@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/api/api_client.dart' show ServerEvent;
 import '../../core/auth/auth_controller.dart';
+import '../../core/desktop/desktop_runtime.dart';
 import '../../core/format.dart';
 import '../../core/l10n.dart';
 import '../../core/models/models.dart';
@@ -17,6 +18,7 @@ import '../../design/widgets/labels.dart' show weekdayShort;
 import '../dashboard/dashboard_page.dart' show eventsProvider;
 import '../documents/documents.dart' show fetchDocumentBytes;
 import '../settings/intake_sections.dart' show whatsAppAccountProvider;
+import 'desktop_send.dart';
 
 /// Contadores de la mensajería: la insignia de «Por enviar hoy» en la navegación.
 final messagesSummaryProvider = FutureProvider.autoDispose<MessagesSummary>((ref) async {
@@ -129,6 +131,16 @@ void _toast(BuildContext context, String text) => ScaffoldMessenger.maybeOf(cont
 /// programa de correo con el texto listo. El usuario solo toca «Enviar» en WhatsApp.
 Future<void> sendAssisted(BuildContext context, WidgetRef ref, CorocMessage m) async {
   final l = context.l10n;
+  // COROC Escritorio (ADR-064): WhatsApp para Windows y, si hay recibo, el PDF copiado para pegarlo con Ctrl+V.
+  if (ref.read(desktopModeProvider)) {
+    try {
+      final r = await sendOnDesktop(ref, m);
+      if (context.mounted) _toast(context, r.pdfCopied ? l.todayMessagesPasteHint : (r.opened ? messageStatusLabel(l, r.message.status).$1 : l.msgCannotOpen));
+    } catch (e) {
+      if (context.mounted) _toast(context, errorText(context, e));
+    }
+    return;
+  }
   try {
     final r = await ref.read(apiProvider).sendMessage(m.id);
     ref.invalidate(messagesProvider);

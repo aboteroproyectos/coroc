@@ -4039,5 +4039,833 @@
   "helpDeleteAccountBody": "En Configuración › Eliminar mi cuenta, con su contraseña. Su usuario se elimina y se cierran sus sesiones; los pagos que registró se conservan como prueba contable a nombre de «Usuario eliminado». El Propietario elimina la cuenta cerrando la empresa: nadie más podrá ingresar y, pasados 30 días, se borran los datos personales salvo lo que la ley obliga a guardar. Descargue antes un respaldo. La política de privacidad está en Configuración › Acerca de COROC.",
   "@helpDeleteAccountBody": {
     "description": "Fase 5 · Ayuda"
+  },
+  "desktopStepKeys": "Preparando la seguridad de sus datos…",
+  "@desktopStepKeys": {
+    "description": "Escritorio · pantalla de carga: claves"
+  },
+  "desktopStepDatabase": "Encendiendo su base de datos…",
+  "@desktopStepDatabase": {
+    "description": "Escritorio · pantalla de carga: base de datos"
+  },
+  "desktopStepUpdates": "Poniendo todo al día…",
+  "@desktopStepUpdates": {
+    "description": "Escritorio · pantalla de carga: migraciones"
+  },
+  "desktopStepServer": "Casi listo…",
+  "@desktopStepServer": {
+    "description": "Escritorio · pantalla de carga: servidor"
+  },
+  "desktopStepSession": "Abriendo su sesión…",
+  "@desktopStepSession": {
+    "description": "Escritorio · pantalla de carga: sesión"
+  },
+  "desktopErrorTitle": "COROC no pudo arrancar",
+  "@desktopErrorTitle": {
+    "description": "Escritorio · COROC no arrancó"
+  },
+  "desktopErrorMissing": "Falta una parte de COROC en este PC. Vuelva a abrir el instalador de COROC: sus datos se conservan.",
+  "@desktopErrorMissing": {
+    "description": "Escritorio · falta el servidor"
+  },
+  "desktopErrorDatabase": "La base de datos no encendió. Reinicie el PC y abra COROC de nuevo. Si sigue igual, escríbanos con el código de abajo.",
+  "@desktopErrorDatabase": {
+    "description": "Escritorio · la base no enciende"
+  },
+  "desktopErrorBusy": "COROC ya se está abriendo en este PC. Espere un momento y toque «Reintentar».",
+  "@desktopErrorBusy": {
+    "description": "Escritorio · ya se está abriendo"
+  },
+  "desktopErrorGeneric": "Toque «Reintentar». Si sigue igual, reinicie el PC y abra COROC de nuevo: sus datos están a salvo.",
+  "@desktopErrorGeneric": {
+    "description": "Escritorio · error general al arrancar"
+  },
+  "desktopErrorCopy": "Copiar el código para soporte ({code})",
+  "@desktopErrorCopy": {
+    "description": "Escritorio · copiar el código para soporte",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "desktopErrorCopied": "Código copiado. Péguelo en su mensaje a soporte.",
+  "@desktopErrorCopied": {
+    "description": "Escritorio · código copiado"
+  },
+  "trayTooltip": "COROC sigue trabajando",
+  "@trayTooltip": {
+    "description": "Bandeja: texto al pasar el mouse"
+  },
+  "trayOpen": "Abrir COROC",
+  "@trayOpen": {
+    "description": "Bandeja: abrir"
+  },
+  "trayTodayMessages": "Mensajes de hoy",
+  "@trayTodayMessages": {
+    "description": "Bandeja: mensajes de hoy"
+  },
+  "trayQuit": "Salir de COROC",
+  "@trayQuit": {
+    "description": "Bandeja: salir del todo"
+  },
+  "trayHintTitle": "COROC sigue trabajando",
+  "@trayHintTitle": {
+    "description": "Al cerrar la ventana la primera vez"
+  },
+  "trayHintBody": "COROC queda junto al reloj de Windows, abajo a la derecha: así sigue leyendo los comprobantes del correo y preparando los recordatorios. Para volver, toque el ícono de COROC. Para cerrarlo del todo, use «Salir de COROC».",
+  "@trayHintBody": {
+    "description": "Al cerrar la ventana la primera vez"
+  },
+  "trayHintOk": "Entendido",
+  "@trayHintOk": {
+    "description": "Entendido"
+  },
+  "gmailAddress": "Correo de Gmail de la empresa",
+  "@gmailAddress": {
+    "description": "Gmail: dirección"
+  },
+  "gmailAppPassword": "Contraseña de aplicación (16 letras)",
+  "@gmailAppPassword": {
+    "description": "Gmail: contraseña de aplicación"
+  },
+  "gmailAppPasswordHelp": "Es la que le da Google en el paso 3, no su contraseña de Gmail.",
+  "@gmailAppPasswordHelp": {
+    "description": "Gmail: ayuda de la contraseña de aplicación"
+  },
+  "gmailAddressInvalid": "Escriba el correo completo, por ejemplo cobros@gmail.com.",
+  "@gmailAddressInvalid": {
+    "description": "Gmail: dirección inválida"
+  },
+  "gmailPasswordInvalid": "La contraseña de aplicación tiene 16 letras. Cópiela tal como la muestra Google (los espacios no importan).",
+  "@gmailPasswordInvalid": {
+    "description": "Gmail: contraseña de aplicación inválida"
+  },
+  "gmailConnectedText": "¡Listo! COROC ya lee los comprobantes que lleguen a {address} y responde con el recibo.",
+  "@gmailConnectedText": {
+    "description": "Gmail: conectado",
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "gmailTest": "Probar la conexión",
+  "@gmailTest": {
+    "description": "Gmail: probar la conexión"
+  },
+  "gmailPrivacy": "COROC solo lee los correos de sus clientes y los marca con la etiqueta «COROC/Procesado».",
+  "@gmailPrivacy": {
+    "description": "Gmail: privacidad"
+  },
+  "gmailGuideStep1": "En su cuenta de Google, entre a «Seguridad» y active la «Verificación en 2 pasos».",
+  "@gmailGuideStep1": {
+    "description": "Gmail: guía paso 1"
+  },
+  "gmailGuideStep2": "Abra «Contraseñas de aplicaciones», escriba COROC y toque «Crear».",
+  "@gmailGuideStep2": {
+    "description": "Gmail: guía paso 2"
+  },
+  "gmailGuideStep3": "Copie las 16 letras que aparecen y péguelas aquí abajo.",
+  "@gmailGuideStep3": {
+    "description": "Gmail: guía paso 3"
+  },
+  "gmailGuideNote": "Si no ve «Contraseñas de aplicaciones», primero active la verificación en 2 pasos.",
+  "@gmailGuideNote": {
+    "description": "Gmail: nota de la guía"
+  },
+  "gmailOpenGoogle": "Abrir la página de Google",
+  "@gmailOpenGoogle": {
+    "description": "Gmail: abrir la página de Google"
+  },
+  "gmailNotConnected": "El Gmail de la empresa no está conectado. Con él, COROC lee los comprobantes que le envían por correo y responde con el recibo.",
+  "@gmailNotConnected": {
+    "description": "Gmail: sin conectar"
+  },
+  "gmailConnect": "Conectar Gmail",
+  "@gmailConnect": {
+    "description": "Gmail: conectar"
+  },
+  "gmailReconnect": "Poner una nueva contraseña de aplicación",
+  "@gmailReconnect": {
+    "description": "Gmail: nueva contraseña de aplicación"
+  },
+  "gmailDisconnect": "Desconectar",
+  "@gmailDisconnect": {
+    "description": "Gmail: desconectar"
+  },
+  "gmailDisconnectConfirm": "COROC dejará de leer y enviar correos con esta cuenta. Los correos que ya están en Gmail no se tocan.",
+  "@gmailDisconnectConfirm": {
+    "description": "Gmail: confirmar desconexión"
+  },
+  "gmailStatusActive": "Funcionando",
+  "@gmailStatusActive": {
+    "description": "Gmail: funcionando"
+  },
+  "gmailStatusProblem": "Con un problema",
+  "@gmailStatusProblem": {
+    "description": "Gmail: con problema"
+  },
+  "gmailUsage": "Hoy salieron {sent} de {limit} correos. Los ya leídos quedan con la etiqueta «{label}».",
+  "@gmailUsage": {
+    "description": "Gmail: uso del día",
+    "placeholders": {
+      "sent": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "gmailLastCheck": "Última revisión: {when}",
+  "@gmailLastCheck": {
+    "description": "Gmail: última revisión",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "gmailTestOk": "La conexión con Gmail funciona.",
+  "@gmailTestOk": {
+    "description": "Gmail: prueba correcta"
+  },
+  "gmailProblemAuth": "Google ya no acepta la contraseña de aplicación (quizás la borró o cambió la contraseña de Google). Cree una nueva y póngala aquí.",
+  "@gmailProblemAuth": {
+    "description": "Gmail: Google rechaza la contraseña"
+  },
+  "gmailProblemNetwork": "No hay conexión con Gmail. Revise el internet de este PC; COROC vuelve a intentar solo.",
+  "@gmailProblemNetwork": {
+    "description": "Gmail: sin internet"
+  },
+  "gmailProblemOther": "Hubo un problema con Gmail. Toque «Probar la conexión»; si sigue, ponga una nueva contraseña de aplicación.",
+  "@gmailProblemOther": {
+    "description": "Gmail: otro problema"
+  },
+  "helloReason": "Confirme que es usted para abrir COROC con Windows Hello",
+  "@helloReason": {
+    "description": "Motivo de Windows Hello al activarlo"
+  },
+  "helloResetReason": "Confirme que es usted para poner una contraseña nueva en COROC",
+  "@helloResetReason": {
+    "description": "Motivo de Windows Hello al cambiar la contraseña"
+  },
+  "helloNotConfirmed": "Windows Hello no confirmó que es usted. Inténtelo de nuevo.",
+  "@helloNotConfirmed": {
+    "description": "Windows Hello no confirmó"
+  },
+  "welcomeTitle": "Bienvenido a COROC",
+  "@welcomeTitle": {
+    "description": "Asistente · bienvenida"
+  },
+  "welcomeCompanySubtitle": "Empecemos por su empresa. Son 5 pasos cortos.",
+  "@welcomeCompanySubtitle": {
+    "description": "Asistente · paso 1"
+  },
+  "welcomeStepOf": "Paso {step} de {total}",
+  "@welcomeStepOf": {
+    "description": "Asistente · paso n de 5",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "welcomeCompanyName": "Nombre de la empresa",
+  "@welcomeCompanyName": {
+    "description": "Asistente · nombre de la empresa"
+  },
+  "welcomeCompanyHint": "Por ejemplo: Inversiones Prado",
+  "@welcomeCompanyHint": {
+    "description": "Asistente · ejemplo de empresa"
+  },
+  "welcomeCompanyRequired": "Escriba el nombre de la empresa.",
+  "@welcomeCompanyRequired": {
+    "description": "Asistente · falta el nombre"
+  },
+  "welcomeRestoreLink": "¿Ya usaba COROC en otro PC? Restaurar una copia",
+  "@welcomeRestoreLink": {
+    "description": "Asistente · restaurar copia"
+  },
+  "welcomeOwnerTitle": "Usted, el Propietario",
+  "@welcomeOwnerTitle": {
+    "description": "Asistente · paso 2"
+  },
+  "welcomeOwnerSubtitle": "Con este usuario y contraseña entrará a COROC.",
+  "@welcomeOwnerSubtitle": {
+    "description": "Asistente · paso 2"
+  },
+  "welcomeOwnerName": "Su nombre",
+  "@welcomeOwnerName": {
+    "description": "Asistente · nombre del Propietario"
+  },
+  "welcomeUsernameHelp": "Letras minúsculas, números y punto. Lo usará para entrar.",
+  "@welcomeUsernameHelp": {
+    "description": "Asistente · ayuda del usuario"
+  },
+  "welcomePasswordHelp": "Mínimo 12 caracteres. Una frase fácil de recordar sirve muy bien.",
+  "@welcomePasswordHelp": {
+    "description": "Asistente · ayuda de la contraseña"
+  },
+  "welcomePasswordAgain": "Repita la contraseña",
+  "@welcomePasswordAgain": {
+    "description": "Asistente · repetir la contraseña"
+  },
+  "welcomeEmailOptional": "Su correo (opcional)",
+  "@welcomeEmailOptional": {
+    "description": "Asistente · correo opcional"
+  },
+  "welcomeHello": "Abrir COROC con Windows Hello",
+  "@welcomeHello": {
+    "description": "Windows Hello"
+  },
+  "welcomeHelloHelp": "Con su rostro, su huella o el PIN de este PC, sin escribir la contraseña.",
+  "@welcomeHelloHelp": {
+    "description": "Windows Hello: ayuda"
+  },
+  "welcomeMfaNote": "En este PC la verificación en dos pasos es opcional; puede activarla cuando quiera en Configuración.",
+  "@welcomeMfaNote": {
+    "description": "Asistente · segundo factor opcional (ADR-063)"
+  },
+  "welcomeCreate": "Crear mi empresa",
+  "@welcomeCreate": {
+    "description": "Asistente · crear la empresa"
+  },
+  "welcomeNameRequired": "Escriba su nombre.",
+  "@welcomeNameRequired": {
+    "description": "Asistente · falta el nombre"
+  },
+  "welcomeUsernameInvalid": "El usuario lleva de 3 a 32 letras minúsculas, números, punto o guion.",
+  "@welcomeUsernameInvalid": {
+    "description": "Asistente · usuario inválido"
+  },
+  "welcomePasswordShort": "La contraseña debe tener al menos 12 caracteres.",
+  "@welcomePasswordShort": {
+    "description": "Asistente · contraseña corta"
+  },
+  "welcomePasswordMismatch": "Las dos contraseñas no son iguales.",
+  "@welcomePasswordMismatch": {
+    "description": "Asistente · contraseñas distintas"
+  },
+  "welcomeRatesTitle": "Tasas de interés",
+  "@welcomeRatesTitle": {
+    "description": "Asistente · paso 3"
+  },
+  "welcomeRatesSubtitleCO": "En Colombia la ley fija un tope (la tasa de usura). Si lo registra, COROC le avisa antes de pasarlo. Es opcional.",
+  "@welcomeRatesSubtitleCO": {
+    "description": "Asistente · paso 3 en Colombia"
+  },
+  "welcomeRatesSubtitle": "Si en su país hay un tope legal para la tasa, regístrelo aquí y COROC le avisará antes de pasarlo. Es opcional.",
+  "@welcomeRatesSubtitle": {
+    "description": "Asistente · paso 3"
+  },
+  "welcomeRatesNone": "Sin tope registrado",
+  "@welcomeRatesNone": {
+    "description": "Asistente · sin tope registrado"
+  },
+  "welcomeRatesCurrent": "Tope vigente: {rate} efectivo anual",
+  "@welcomeRatesCurrent": {
+    "description": "Asistente · tope vigente",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "welcomeGmailTitle": "Correo de la empresa (Gmail)",
+  "@welcomeGmailTitle": {
+    "description": "Asistente · paso 4"
+  },
+  "welcomeGmailSubtitle": "COROC lee los comprobantes que le envían por correo y responde con el recibo. Use una «contraseña de aplicación» de Google: así no comparte su contraseña de Gmail.",
+  "@welcomeGmailSubtitle": {
+    "description": "Asistente · paso 4"
+  },
+  "welcomeSkip": "Omitir por ahora (puede hacerlo después en Configuración)",
+  "@welcomeSkip": {
+    "description": "Asistente · omitir"
+  },
+  "welcomeWhatsappTitle": "WhatsApp",
+  "@welcomeWhatsappTitle": {
+    "description": "Asistente · paso 5"
+  },
+  "welcomeWhatsappSubtitle": "COROC prepara cada mensaje y abre el chat del cliente en WhatsApp para Windows: usted solo oprime Enviar. Su número no se conecta a nada.",
+  "@welcomeWhatsappSubtitle": {
+    "description": "Asistente · paso 5 (ADR-064)"
+  },
+  "welcomeWhatsappReady": "WhatsApp para Windows está instalado en este PC. Ábralo una vez y vincúlelo con su celular si aún no lo ha hecho.",
+  "@welcomeWhatsappReady": {
+    "description": "Asistente · WhatsApp instalado"
+  },
+  "welcomeWhatsappMissing": "Falta WhatsApp para Windows. Instálelo gratis desde Microsoft Store y vincúlelo con el código QR que muestra su celular.",
+  "@welcomeWhatsappMissing": {
+    "description": "Asistente · falta WhatsApp"
+  },
+  "welcomeWhatsappStore": "Abrir Microsoft Store",
+  "@welcomeWhatsappStore": {
+    "description": "Asistente · abrir Microsoft Store"
+  },
+  "welcomeWhatsappCheck": "Ya lo instalé",
+  "@welcomeWhatsappCheck": {
+    "description": "Asistente · comprobar de nuevo"
+  },
+  "welcomeStart": "Empezar a usar COROC",
+  "@welcomeStart": {
+    "description": "Asistente · terminar"
+  },
+  "welcomeRestoreTitle": "Restaurar una copia de COROC",
+  "@welcomeRestoreTitle": {
+    "description": "Restaurar copia en este PC"
+  },
+  "welcomeRestoreSubtitle": "Elija el archivo .coroc que guardó (en OneDrive, Google Drive o una memoria USB) y escriba la contraseña de esa copia.",
+  "@welcomeRestoreSubtitle": {
+    "description": "Restaurar copia en este PC"
+  },
+  "welcomeRestorePick": "Elegir el archivo .coroc",
+  "@welcomeRestorePick": {
+    "description": "Restaurar · elegir archivo"
+  },
+  "welcomeRestoreFile": "Copia de «{company}» del {date}.",
+  "@welcomeRestoreFile": {
+    "description": "Restaurar · copia elegida",
+    "placeholders": {
+      "company": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "welcomeRestorePassword": "Contraseña de la copia",
+  "@welcomeRestorePassword": {
+    "description": "Restaurar · contraseña de la copia"
+  },
+  "welcomeRestoreApply": "Restaurar en este PC",
+  "@welcomeRestoreApply": {
+    "description": "Restaurar · aplicar"
+  },
+  "todayMessagesTitle": "Mensajes de hoy",
+  "@todayMessagesTitle": {
+    "description": "Mensajes de hoy (Escritorio)"
+  },
+  "todayMessagesSubtitle": "Uno a la vez: toque «Enviar», oprima Enter en WhatsApp y vuelva aquí.",
+  "@todayMessagesSubtitle": {
+    "description": "Mensajes de hoy · subtítulo"
+  },
+  "todayMessagesPosition": "{current} de {total}",
+  "@todayMessagesPosition": {
+    "description": "Mensajes de hoy · 3 de 12",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "todayMessagesSentN": "{count, plural, =1{1 enviado} other{{count} enviados}}",
+  "@todayMessagesSentN": {
+    "description": "Mensajes de hoy · enviados",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayMessagesDone": "¡Listo! No quedan mensajes por enviar hoy.",
+  "@todayMessagesDone": {
+    "description": "Mensajes de hoy · terminado"
+  },
+  "todayMessagesReload": "Volver a revisar",
+  "@todayMessagesReload": {
+    "description": "Mensajes de hoy · volver a revisar"
+  },
+  "todayMessagesWithPdf": "Con el recibo en PDF",
+  "@todayMessagesWithPdf": {
+    "description": "Mensajes de hoy · con PDF"
+  },
+  "todayMessagesSendWhatsapp": "Enviar por WhatsApp",
+  "@todayMessagesSendWhatsapp": {
+    "description": "Mensajes de hoy · enviar por WhatsApp"
+  },
+  "todayMessagesSendEmail": "Enviar por correo",
+  "@todayMessagesSendEmail": {
+    "description": "Mensajes de hoy · enviar por correo"
+  },
+  "todayMessagesPasteHint": "El recibo quedó copiado: en WhatsApp oprima Ctrl+V y después Enter.",
+  "@todayMessagesPasteHint": {
+    "description": "Mensajes de hoy · pegar el PDF"
+  },
+  "todayMessagesWaiting": "Cuando termine en WhatsApp, vuelva a COROC: pasamos solos al siguiente.",
+  "@todayMessagesWaiting": {
+    "description": "Mensajes de hoy · esperando"
+  },
+  "todayMessagesNext": "Siguiente",
+  "@todayMessagesNext": {
+    "description": "Mensajes de hoy · siguiente"
+  },
+  "todayMessagesSkip": "Dejar para después",
+  "@todayMessagesSkip": {
+    "description": "Mensajes de hoy · saltar"
+  },
+  "todayMessagesStart": "Enviar los mensajes de hoy ({count})",
+  "@todayMessagesStart": {
+    "description": "Mensajería · empezar Mensajes de hoy",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "receiptPromptTitle": "Pago registrado · {number}",
+  "@receiptPromptTitle": {
+    "description": "Recibo listo para enviar",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptPromptBody": "¿Enviamos el recibo al cliente por WhatsApp? COROC abre el chat con el mensaje listo y el PDF copiado.",
+  "@receiptPromptBody": {
+    "description": "Recibo listo para enviar"
+  },
+  "receiptPromptLater": "Ahora no",
+  "@receiptPromptLater": {
+    "description": "Recibo · ahora no"
+  },
+  "receiptPromptSend": "Enviar el recibo",
+  "@receiptPromptSend": {
+    "description": "Recibo · enviar"
+  },
+  "receiptPromptPreparing": "Preparando el recibo…",
+  "@receiptPromptPreparing": {
+    "description": "Recibo · preparando"
+  },
+  "receiptPromptNone": "El recibo quedó en la ficha del cliente. No se preparó mensaje por WhatsApp (revise que el cliente haya autorizado ese canal).",
+  "@receiptPromptNone": {
+    "description": "Recibo · no hay mensaje"
+  },
+  "receiptPromptOpened": "WhatsApp quedó abierto con el mensaje: oprima Enter para enviarlo.",
+  "@receiptPromptOpened": {
+    "description": "Recibo · WhatsApp abierto"
+  },
+  "receiptDropHere": "Suelte aquí el comprobante",
+  "@receiptDropHere": {
+    "description": "Soltar comprobante"
+  },
+  "receiptDropHelp": "COROC lo lee, busca al cliente y le propone el pago.",
+  "@receiptDropHelp": {
+    "description": "Soltar comprobante · ayuda"
+  },
+  "receiptPasteNothing": "No hay un comprobante copiado. En WhatsApp, haga clic derecho en la imagen, «Copiar», y vuelva a oprimir Ctrl+V aquí.",
+  "@receiptPasteNothing": {
+    "description": "Ctrl+V sin imagen"
+  },
+  "receiptNotSupported": "Ese archivo no parece un comprobante. Use una foto, una captura o un PDF.",
+  "@receiptNotSupported": {
+    "description": "Archivo que no es comprobante"
+  },
+  "receiptDownloadTitle": "¿Es un comprobante?",
+  "@receiptDownloadTitle": {
+    "description": "Descargas · aviso"
+  },
+  "receiptDownloadBody": "Llegó «{name}» a Descargas.",
+  "@receiptDownloadBody": {
+    "description": "Descargas · archivo nuevo",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptDownloadMore": "{count, plural, =1{Y 1 archivo más} other{Y {count} archivos más}}",
+  "@receiptDownloadMore": {
+    "description": "Descargas · más archivos",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "receiptDownloadYes": "Sí, registrarlo",
+  "@receiptDownloadYes": {
+    "description": "Descargas · sí"
+  },
+  "receiptDownloadNo": "No",
+  "@receiptDownloadNo": {
+    "description": "Descargas · no"
+  },
+  "desktopPcTitle": "Este PC",
+  "@desktopPcTitle": {
+    "description": "Configuración · este PC"
+  },
+  "desktopAutostart": "Iniciar COROC con Windows",
+  "@desktopAutostart": {
+    "description": "Iniciar con Windows"
+  },
+  "desktopAutostartHelp": "COROC se abre junto al reloj al encender el PC, para leer el correo y preparar los recordatorios aunque no lo abra.",
+  "@desktopAutostartHelp": {
+    "description": "Iniciar con Windows · ayuda"
+  },
+  "desktopAutostartFailed": "Windows no dejó cambiar este ajuste. Cierre COROC, ábralo de nuevo e inténtelo otra vez.",
+  "@desktopAutostartFailed": {
+    "description": "Iniciar con Windows · error"
+  },
+  "desktopWatchDownloads": "Preguntar por los comprobantes que llegan a Descargas",
+  "@desktopWatchDownloads": {
+    "description": "Descargas · ajuste"
+  },
+  "desktopWatchDownloadsHelp": "Cuando guarde una foto o un PDF desde WhatsApp o el navegador, COROC le pregunta si es un comprobante.",
+  "@desktopWatchDownloadsHelp": {
+    "description": "Descargas · ajuste · ayuda"
+  },
+  "settingsTextSize": "Tamaño de la letra",
+  "@settingsTextSize": {
+    "description": "Configuración · tamaño de la letra"
+  },
+  "settingsTextSizeHelp": "Solo en este equipo.",
+  "@settingsTextSizeHelp": {
+    "description": "Configuración · tamaño de la letra · ayuda"
+  },
+  "textSizeNormal": "Normal",
+  "@textSizeNormal": {
+    "description": "Letra normal"
+  },
+  "textSizeLarge": "Grande",
+  "@textSizeLarge": {
+    "description": "Letra grande"
+  },
+  "textSizeLarger": "Más grande",
+  "@textSizeLarger": {
+    "description": "Letra más grande"
+  },
+  "autoBackupTitle": "Copia diaria automática",
+  "@autoBackupTitle": {
+    "description": "Copias automáticas"
+  },
+  "autoBackupHelp": "Cada día COROC guarda una copia cifrada de todo en la carpeta que elija. Si elige OneDrive o Google Drive para escritorio, también queda en la nube. Con esa copia y su contraseña se restaura en otro PC.",
+  "@autoBackupHelp": {
+    "description": "Copias automáticas · ayuda"
+  },
+  "autoBackupFolder": "Carpeta",
+  "@autoBackupFolder": {
+    "description": "Copias · carpeta"
+  },
+  "autoBackupChoose": "Elegir la carpeta",
+  "@autoBackupChoose": {
+    "description": "Copias · elegir carpeta"
+  },
+  "autoBackupFolderHelp": "Recomendado: una carpeta dentro de OneDrive o de Google Drive. Una memoria USB también sirve si la deja conectada.",
+  "@autoBackupFolderHelp": {
+    "description": "Copias · carpeta · ayuda"
+  },
+  "autoBackupFolderRequired": "Elija la carpeta donde se guardan las copias.",
+  "@autoBackupFolderRequired": {
+    "description": "Copias · falta la carpeta"
+  },
+  "autoBackupPassword": "Contraseña de las copias",
+  "@autoBackupPassword": {
+    "description": "Copias · contraseña"
+  },
+  "autoBackupPasswordHelp": "Mínimo 10 caracteres. Anótela en un lugar seguro: sin ella la copia no se puede abrir.",
+  "@autoBackupPasswordHelp": {
+    "description": "Copias · contraseña · ayuda"
+  },
+  "autoBackupPasswordKeep": "Déjela en blanco para seguir usando la misma.",
+  "@autoBackupPasswordKeep": {
+    "description": "Copias · conservar contraseña"
+  },
+  "autoBackupPasswordShort": "La contraseña de las copias debe tener al menos 10 caracteres.",
+  "@autoBackupPasswordShort": {
+    "description": "Copias · contraseña corta"
+  },
+  "autoBackupKeep": "Copias que se guardan",
+  "@autoBackupKeep": {
+    "description": "Copias · cuántas guardar"
+  },
+  "autoBackupLast": "Última copia",
+  "@autoBackupLast": {
+    "description": "Copias · última"
+  },
+  "autoBackupNever": "Todavía ninguna",
+  "@autoBackupNever": {
+    "description": "Copias · nunca"
+  },
+  "autoBackupFile": "Archivo",
+  "@autoBackupFile": {
+    "description": "Copias · archivo"
+  },
+  "autoBackupRun": "Hacer una copia ahora",
+  "@autoBackupRun": {
+    "description": "Copias · hacer copia ahora"
+  },
+  "autoBackupRunning": "Haciendo la copia…",
+  "@autoBackupRunning": {
+    "description": "Copias · en curso"
+  },
+  "autoBackupStarted": "La copia empezó. Tarda unos minutos y puede seguir trabajando.",
+  "@autoBackupStarted": {
+    "description": "Copias · iniciada"
+  },
+  "autoBackupChange": "Cambiar carpeta o contraseña",
+  "@autoBackupChange": {
+    "description": "Copias · cambiar"
+  },
+  "autoBackupConfigure": "Configurar la copia diaria",
+  "@autoBackupConfigure": {
+    "description": "Copias · configurar"
+  },
+  "autoBackupProblemFolder": "No se encontró la carpeta de las copias. Si es una memoria USB, conéctela; si no, elija otra carpeta.",
+  "@autoBackupProblemFolder": {
+    "description": "Copias · carpeta no disponible"
+  },
+  "autoBackupProblemOther": "La última copia no se pudo hacer. COROC lo intenta de nuevo en una hora; también puede tocar «Hacer una copia ahora».",
+  "@autoBackupProblemOther": {
+    "description": "Copias · falló"
+  },
+  "backupOverdue": "Hace más de 7 días que no hay una copia de sus datos.",
+  "@backupOverdue": {
+    "description": "Aviso de 7 días sin copia"
+  },
+  "tourDashboardTitle": "Su cartera de un vistazo",
+  "@tourDashboardTitle": {
+    "description": "Recorrido · inicio"
+  },
+  "tourDashboardBody": "En Inicio ve lo que le deben, lo que cobró hoy y quién está atrasado.",
+  "@tourDashboardBody": {
+    "description": "Recorrido · inicio"
+  },
+  "tourMessagesTitle": "Mensajes de hoy",
+  "@tourMessagesTitle": {
+    "description": "Recorrido · mensajes"
+  },
+  "tourMessagesBody": "COROC prepara los recordatorios y los recibos del día. Usted solo oprime Enviar y WhatsApp hace el resto.",
+  "@tourMessagesBody": {
+    "description": "Recorrido · mensajes"
+  },
+  "tourReceiptsTitle": "Comprobantes sin escribir",
+  "@tourReceiptsTitle": {
+    "description": "Recorrido · comprobantes"
+  },
+  "tourReceiptsBody": "Arrastre la foto del comprobante a COROC o péguela con Ctrl+V: COROC la lee, encuentra al cliente y le propone el pago.",
+  "@tourReceiptsBody": {
+    "description": "Recorrido · comprobantes"
+  },
+  "tourBackupTitle": "Sus datos, a salvo",
+  "@tourBackupTitle": {
+    "description": "Recorrido · copias"
+  },
+  "tourBackupBody": "Elija en Configuración una carpeta de OneDrive o una memoria USB: COROC guarda ahí una copia cifrada cada día.",
+  "@tourBackupBody": {
+    "description": "Recorrido · copias"
+  },
+  "tourSkip": "Saltar",
+  "@tourSkip": {
+    "description": "Recorrido · saltar"
+  },
+  "tourDone": "Empezar",
+  "@tourDone": {
+    "description": "Recorrido · terminar"
+  },
+  "clientEmailsTitle": "Correos con el cliente",
+  "@clientEmailsTitle": {
+    "description": "Ficha · correos"
+  },
+  "clientEmailsEmpty": "Todavía no hay correos con este cliente.",
+  "@clientEmailsEmpty": {
+    "description": "Ficha · sin correos"
+  },
+  "clientEmailsReceived": "Recibido",
+  "@clientEmailsReceived": {
+    "description": "Ficha · correo recibido"
+  },
+  "clientEmailsSent": "Enviado por COROC",
+  "@clientEmailsSent": {
+    "description": "Ficha · correo enviado"
+  },
+  "clientEmailsAttachment": "Adjunto",
+  "@clientEmailsAttachment": {
+    "description": "Ficha · adjunto"
+  },
+  "clientEmailsOpenInbox": "Ver en la Bandeja",
+  "@clientEmailsOpenInbox": {
+    "description": "Ficha · ver en la Bandeja"
+  },
+  "desktopResetSubtitle": "Confirme con Windows Hello que es usted y elija una contraseña nueva. Las sesiones abiertas de ese usuario se cierran.",
+  "@desktopResetSubtitle": {
+    "description": "Escritorio · nueva contraseña"
+  },
+  "desktopResetNewPassword": "Contraseña nueva",
+  "@desktopResetNewPassword": {
+    "description": "Escritorio · nueva contraseña"
+  },
+  "desktopResetSubmit": "Confirmar con Windows Hello y guardar",
+  "@desktopResetSubmit": {
+    "description": "Escritorio · confirmar y guardar"
+  },
+  "desktopResetDone": "Listo: la contraseña nueva ya funciona. Vuelva a ingresar con ella.",
+  "@desktopResetDone": {
+    "description": "Escritorio · contraseña cambiada"
+  },
+  "desktopResetNoHello": "Para cambiar la contraseña en este PC hace falta Windows Hello. Actívelo en Configuración de Windows › Cuentas › Opciones de inicio de sesión › PIN y vuelva aquí. Otro Propietario también puede asignarle una contraseña nueva.",
+  "@desktopResetNoHello": {
+    "description": "Escritorio · sin Windows Hello"
+  },
+  "helpDesktopTitle": "COROC en este PC",
+  "@helpDesktopTitle": {
+    "description": "Ayuda · COROC Escritorio"
+  },
+  "helpDesktopBody": "COROC Escritorio trabaja dentro de su PC, sin nube ni pago mensual. Sus datos quedan en este PC, en la carpeta de su usuario de Windows, y solo los abre esa cuenta.\n\nAl cerrar la ventana, COROC sigue junto al reloj de Windows («COROC sigue trabajando»): lee el correo y prepara los recordatorios. Para salir del todo, haga clic derecho en el ícono y elija «Salir de COROC».\n\nPara actualizar, abra el instalador nuevo: COROC guarda antes una copia de la base y sus datos quedan intactos. En Configuración › Este PC puede hacer que COROC se abra solo al encender el PC.",
+  "@helpDesktopBody": {
+    "description": "Ayuda · COROC Escritorio"
+  },
+  "helpTodayMessagesTitle": "Mensajes de hoy por WhatsApp",
+  "@helpTodayMessagesTitle": {
+    "description": "Ayuda · Mensajes de hoy"
+  },
+  "helpTodayMessagesBody": "COROC prepara los recordatorios, avisos de atraso, recibos y paz y salvos del día, respetando las franjas y límites de la Ley 2300. En «Mensajes de hoy» aparecen uno a la vez: toque «Enviar» y se abre el chat del cliente en WhatsApp para Windows con el texto listo. Oprima Enter allí.\n\nSi el mensaje lleva recibo en PDF, COROC lo deja copiado: en WhatsApp oprima Ctrl+V y después Enter. Al volver a COROC pasa solo al siguiente («3 de 12»).\n\nSu número de WhatsApp no se conecta a ningún programa: usted envía cada mensaje.",
+  "@helpTodayMessagesBody": {
+    "description": "Ayuda · Mensajes de hoy"
+  },
+  "helpReceiptsDesktopTitle": "Recibir comprobantes en el PC",
+  "@helpReceiptsDesktopTitle": {
+    "description": "Ayuda · comprobantes en el PC"
+  },
+  "helpReceiptsDesktopBody": "Hay tres formas, todas llevan el comprobante a la Bandeja, donde COROC lo lee y busca al cliente:\n\n• Arrástrelo desde WhatsApp o el Explorador y suéltelo en cualquier parte de COROC.\n• En WhatsApp haga clic derecho en la imagen, «Copiar», y en COROC oprima Ctrl+V.\n• Si lo guarda en Descargas, COROC le pregunta «¿Es un comprobante?».\n\nCuando el pago queda registrado, COROC ofrece enviar el recibo por WhatsApp con un clic.",
+  "@helpReceiptsDesktopBody": {
+    "description": "Ayuda · comprobantes en el PC"
+  },
+  "helpGmailTitle": "Gmail de la empresa",
+  "@helpGmailTitle": {
+    "description": "Ayuda · Gmail"
+  },
+  "helpGmailBody": "Con el Gmail de la empresa conectado, COROC revisa el correo cada pocos minutos: si un cliente envía un comprobante, lo lee, registra o propone el pago, le responde con el recibo en el mismo hilo y marca el correo con la etiqueta «COROC/Procesado». Solo lee los correos de sus clientes.\n\nSe conecta con una «contraseña de aplicación» de Google (16 letras), no con su contraseña de Gmail; si la borra en Google, COROC deja de usar la cuenta. Gmail permite unos 500 correos por día: COROC usa hasta 400 y deja los demás para el día siguiente. Si un cliente responde SALIR, deja de recibir correos.",
+  "@helpGmailBody": {
+    "description": "Ayuda · Gmail"
+  },
+  "helpDesktopBackupTitle": "Copias diarias y cambiar de PC",
+  "@helpDesktopBackupTitle": {
+    "description": "Ayuda · copias y cambio de PC"
+  },
+  "helpDesktopBackupBody": "En Configuración › Copia diaria automática elija una carpeta (OneDrive, Google Drive para escritorio o una memoria USB) y una contraseña. Cada día COROC guarda ahí un archivo .coroc cifrado y conserva las últimas. Si pasan 7 días sin copia, COROC le avisa arriba de la pantalla.\n\nPara pasar a otro PC: instale COROC allí y, en la primera pantalla, toque «¿Ya usaba COROC en otro PC? Restaurar una copia». Elija el archivo .coroc, escriba la contraseña de la copia y entre con su usuario de siempre.",
+  "@helpDesktopBackupBody": {
+    "description": "Ayuda · copias y cambio de PC"
+  },
+  "helpSmartScreenTitle": "«Windows protegió su PC» al instalar",
+  "@helpSmartScreenTitle": {
+    "description": "Ayuda · aviso de Windows al instalar"
+  },
+  "helpSmartScreenBody": "Mientras el instalador de COROC no tenga firma digital, Windows puede mostrar «Windows protegió su PC». Es normal con programas nuevos: toque «Más información» y después «Ejecutar de todas formas». Descargue el instalador solo desde la página oficial de COROC.",
+  "@helpSmartScreenBody": {
+    "description": "Ayuda · aviso de Windows al instalar"
   }
 }

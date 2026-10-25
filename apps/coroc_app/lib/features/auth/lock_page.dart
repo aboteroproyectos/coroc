@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:local_auth/local_auth.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/desktop/desktop_runtime.dart' show launchMinimizedProvider;
 import '../../core/l10n.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/brand.dart';
@@ -35,7 +36,8 @@ class _LockPageState extends ConsumerState<LockPage> {
     }
     if (!mounted) return;
     setState(() => _available = ok);
-    if (ok) await _unlock();
+    // Con COROC abierto en la bandeja al iniciar Windows no se pide Windows Hello hasta que la persona abra la ventana.
+    if (ok && !ref.read(launchMinimizedProvider)) await _unlock();
   }
 
   Future<void> _unlock() async {

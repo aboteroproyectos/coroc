@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/desktop/desktop_runtime.dart';
 import '../../core/l10n.dart';
 import '../../core/models/models.dart';
 import '../../design/tokens.dart';
+import '../../design/widgets/brand.dart';
 import '../../design/widgets/common.dart';
 import '../settings/intake_sections.dart' show whatsAppAccountProvider;
 import '../shell/app_shell.dart';
@@ -37,7 +39,8 @@ class _MessagesPageState extends ConsumerState<MessagesPage> {
     final auth = ref.watch(authProvider);
     if (auth is! SignedIn || !auth.user.can('messages.view')) return const NoPermission();
     final summary = ref.watch(messagesSummaryProvider).valueOrNull ?? const MessagesSummary();
-    final account = auth.user.can('company.view') ? ref.watch(whatsAppAccountProvider).valueOrNull : null;
+    final desktop = ref.watch(desktopModeProvider);
+    final account = auth.user.can('company.view') && !desktop ? ref.watch(whatsAppAccountProvider).valueOrNull : null;
     final query = (statuses: _statuses(_tab), clientId: null);
     final page = ref.watch(messagesProvider(query));
     Future<void> refresh() async {
@@ -54,6 +57,11 @@ class _MessagesPageState extends ConsumerState<MessagesPage> {
           subtitle: l.messagesSubtitle,
           actions: [OutlinedButton.icon(onPressed: () => context.go('/messages/templates'), icon: const Icon(Icons.edit_note), label: Text(l.templatesTitle))],
         ),
+        // COROC Escritorio (ADR-064): los listos de hoy, uno a la vez, con WhatsApp para Windows.
+        if (desktop && summary.ready > 0) ...[
+          GoldButton(label: l.todayMessagesStart(summary.ready), icon: Icons.outbox_outlined, expand: true, onPressed: () => context.go('/messages/today')),
+          const SizedBox(height: CorocSpace.md),
+        ],
         if (account != null && account.suspended) ...[
           _Banner(icon: Icons.warning_amber_rounded, text: l.whatsappSuspendedBanner, tone: StatusTone.error),
           const SizedBox(height: CorocSpace.md),
