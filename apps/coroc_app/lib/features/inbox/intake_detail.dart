@@ -105,34 +105,38 @@ class _IntakeDetailViewState extends ConsumerState<IntakeDetailView> {
         // Mientras se lee, se consulta cada pocos segundos por si el evento en vivo no llega.
         _poll?.cancel();
         if (item.status == 'processing') _poll = Timer(const Duration(seconds: 3), () => ref.invalidate(intakeItemProvider(widget.intakeId)));
-        final wide = MediaQuery.sizeOf(context).width >= CorocBreakpoints.tablet;
         final doc = _DocumentPane(item: item);
         final form = item.status == 'processing'
             ? Center(
                 child: Column(mainAxisSize: MainAxisSize.min, children: [const CircularProgressIndicator(), const SizedBox(height: 16), Text(l.intakeProcessing)]),
               )
             : _IntakeForm(key: ValueKey('${item.id}-${item.updatedAt}'), item: item, onDone: widget.onDone);
-        if (wide) {
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Card(clipBehavior: Clip.antiAlias, child: doc),
-              ),
-              const SizedBox(width: CorocSpace.md),
-              SizedBox(width: 420, child: SingleChildScrollView(child: form)),
-            ],
-          );
-        }
-        return ListView(
-          children: [
-            SizedBox(
-              height: 360,
-              child: Card(clipBehavior: Clip.antiAlias, child: doc),
-            ),
-            const SizedBox(height: CorocSpace.md),
-            form,
-          ],
+        // Lado a lado solo si el comprobante tiene espacio para verse (en un portátil, junto a la lista, va arriba).
+        return LayoutBuilder(
+          builder: (context, c) {
+            if (c.maxWidth >= 780) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Card(clipBehavior: Clip.antiAlias, child: doc),
+                  ),
+                  const SizedBox(width: CorocSpace.md),
+                  SizedBox(width: 420, child: SingleChildScrollView(child: form)),
+                ],
+              );
+            }
+            return ListView(
+              children: [
+                SizedBox(
+                  height: 360,
+                  child: Card(clipBehavior: Clip.antiAlias, child: doc),
+                ),
+                const SizedBox(height: CorocSpace.md),
+                form,
+              ],
+            );
+          },
         );
       },
     );

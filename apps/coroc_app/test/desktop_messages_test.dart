@@ -99,6 +99,38 @@ void main() {
     await app.finish();
   });
 
+  testWidgets('E-5 · diez mensajes personalizados seguidos: en COROC, un clic en «Enviar» por mensaje y volver', (tester) async {
+    final api = FakeApi();
+    const names = ['María José', 'Carlos', 'Lucía', 'Andrés', 'Paola', 'Jorge', 'Diana', 'Felipe', 'Sandra', 'Julián'];
+    final items = [
+      for (var i = 0; i < names.length; i++) readyWhatsApp(api, id: 'c0c0a000-0000-4000-8000-0000000001${'$i'.padLeft(2, '0')}', body: 'Hola ${names[i]}, le recordamos su cuota de hoy.'),
+    ];
+    final pending = [...items];
+    api.overrides['GET /messages'] = (req) => FakeApi.json(200, {'items': req.url.queryParameters['status'] == 'ready' ? pending : <Json>[], 'nextCursor': null});
+    api.overrides['GET /messages/summary'] = (_) => FakeApi.json(200, {'ready': pending.length, 'scheduled': 0, 'blocked': 0, 'failed': 0});
+    api.overrides['POST /messages/{id}/send'] = (req) {
+      final m = items.firstWhere((x) => x['id'] == req.url.pathSegments[req.url.pathSegments.length - 2]);
+      pending.remove(m);
+      return FakeApi.json(200, sentAssisted(m));
+    };
+    final platform = FakeDesktopPlatform();
+    final app = await bootDesktop(tester, api: api, platform: platform);
+    await app.go('/messages/today');
+    for (var i = 0; i < names.length; i++) {
+      expect(find.text(l.todayMessagesPosition(i + 1, names.length)), findsOneWidget);
+      expect(find.text('Hola ${names[i]}, le recordamos su cuota de hoy.'), findsOneWidget);
+      await tapOn(tester, find.text(l.todayMessagesSendWhatsapp));
+      // En WhatsApp para Windows la persona oprime Enter y vuelve a COROC: pasa solo al siguiente.
+      platform.signal(WindowSignalKind.focused);
+      await settle(tester);
+    }
+    expect(platform.opened, hasLength(names.length));
+    expect(api.sent('POST', '/messages/{id}/send'), hasLength(names.length));
+    expect(find.text(l.todayMessagesDone), findsOneWidget);
+    expect(find.text(l.todayMessagesSentN(names.length)), findsOneWidget);
+    await app.finish();
+  });
+
   testWidgets('si WhatsApp para Windows no abre, se prueba wa.me y si tampoco, se avisa', (tester) async {
     final api = FakeApi();
     serveReady(api);

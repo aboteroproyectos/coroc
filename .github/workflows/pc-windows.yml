@@ -1,4 +1,5 @@
-# Paquete «COROC para un PC con Windows» (todo en el mismo equipo, sin nube). Guía: docs/GUIA_PC_WINDOWS.md.
+# Paquete «COROC para un PC con Windows» con Docker (todo en el mismo equipo, sin nube). Guía: docs/GUIA_PC_WINDOWS.md.
+# Desde la Fase 10 queda solo para soporte: para instalar en un PC se usa COROC Escritorio (escritorio-windows.yml, ADR-067).
 # Arma un .zip con:
 #   - la app de Windows, que habla con el servidor del mismo PC (http://localhost:3000);
 #   - el servidor ya construido (imagen Docker coroc-api:pc, así el PC no compila nada);
@@ -98,11 +99,13 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: pc-${{ github.run_number }}
-          name: COROC para PC con Windows (${{ github.run_number }})
-          make_latest: true
+          name: COROC para PC con Windows, con Docker · soporte (${{ github.run_number }})
+          make_latest: false
           files: COROC-PC-Windows.zip
           body: |
-            **COROC para un PC con Windows**, todo en el mismo equipo y sin nube.
+            **Para instalar COROC en un PC use «COROC Escritorio para Windows»**, sin Docker: [docs/GUIA_ESCRITORIO.md](https://github.com/${{ github.repository }}/blob/main/docs/GUIA_ESCRITORIO.md). Este paquete queda solo para soporte.
+
+            **COROC para un PC con Windows, con Docker**, todo en el mismo equipo y sin nube.
 
             1. Descargue **COROC-PC-Windows.zip** (abajo, en *Assets*).
             2. Siga la guía paso a paso: [docs/GUIA_PC_WINDOWS.md](https://github.com/${{ github.repository }}/blob/main/docs/GUIA_PC_WINDOWS.md).

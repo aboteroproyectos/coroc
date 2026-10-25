@@ -1,10 +1,10 @@
 openapi: 3.1.0
 info:
   title: COROC API
-  version: 0.7.0
+  version: 0.8.0
   summary: Gestión y cobro de préstamos personales
   description: |
-    Contrato de la API de COROC (§24.1-3 del prompt maestro). Versión 0.6.0: operaciones de las fases 1 a 5 implementadas y verificadas
+    Contrato de la API de COROC (§24.1-3 del prompt maestro). Versión 0.8.0: operaciones de las fases 1 a 10, también las de COROC Escritorio, implementadas y verificadas
     contra este contrato en cada prueba (el servidor valida las peticiones con él y las pruebas validan las respuestas).
 
     **Convenciones**

@@ -1,5 +1,11 @@
 # COROC en su PC con Windows (todo en el mismo equipo)
 
+> **Esta guía queda solo para soporte.** Para instalar COROC en un PC use **COROC Escritorio para Windows**: un solo
+> instalador, sin Docker y sin derechos de administrador ([GUIA_ESCRITORIO.md](GUIA_ESCRITORIO.md)). Este paquete con
+> Docker Desktop se conserva para quien ya lo usa. Para pasar a COROC Escritorio: cree un respaldo en **Configuración ›
+> Respaldo**, instale COROC Escritorio y, en su primera pantalla, toque **¿Ya usaba COROC en otro PC? Restaurar una
+> copia**.
+
 Esta guía instala COROC completo en **un solo PC con Windows**: la aplicación y el servidor donde se guardan los datos.
 No usa la nube ni tiene costo mensual. No hace falta saber de sistemas: son clics y unas preguntas.
 
