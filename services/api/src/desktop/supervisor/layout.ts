@@ -34,10 +34,13 @@ export interface Layout {
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
-/** `servidor\api\dist\desktop\supervisor\layout.js` → `servidor\api` y `servidor`. */
+/**
+ * `servidor\services\api\dist\desktop\supervisor\layout.js` → la API en `servidor\services\api` y los programas en
+ * `servidor` (la misma estructura del monorepo y de la imagen Docker).
+ */
 export function layout(opts: { data?: string; programs?: string; pgBin?: string } = {}): Layout {
   const api = path.resolve(here, '../../..');
-  const programs = path.resolve(opts.programs ?? path.join(api, '..'));
+  const programs = path.resolve(opts.programs ?? path.join(api, '..', '..'));
   const data = path.resolve(opts.data ?? path.join(process.env.LOCALAPPDATA ?? path.join(programs, '..'), process.env.LOCALAPPDATA ? 'COROC/datos' : 'datos'));
   return {
     data,

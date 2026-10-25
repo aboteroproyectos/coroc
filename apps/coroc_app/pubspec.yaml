@@ -1,7 +1,7 @@
 name: coroc
 description: "COROC · Gestión y cobro de préstamos personales (Android, iOS, Windows y macOS)."
 publish_to: none
-version: 0.5.0+5
+version: 0.10.0+10
 
 environment:
   sdk: ^3.8.0
