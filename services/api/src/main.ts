@@ -6,9 +6,9 @@ import { loadConfig } from './config.js';
 delete process.env.DATABASE_ADMIN_URL;
 delete process.env.DATABASE_SUPERUSER_URL;
 const config = loadConfig();
-// La clave de esta ejecución de Escritorio tampoco pasa a los procesos hijos: ya quedó en la configuración.
-delete process.env.COROC_DESKTOP_TOKEN;
 const app = await createApp();
+// La configuración ya quedó cargada: las claves de Escritorio no pasan a Chromium, Tesseract ni otros procesos hijos.
+for (const k of ['COROC_DESKTOP_TOKEN', 'COROC_JWT_SECRET', 'COROC_DATA_KEY', 'DATABASE_URL']) if (config.mode === 'desktop') delete process.env[k];
 if (config.host) await app.listen(config.port, config.host);
 else await app.listen(config.port);
 logger.log(`API de COROC escuchando en el puerto ${config.port}`);

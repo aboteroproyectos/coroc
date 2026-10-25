@@ -45,6 +45,15 @@ jobs:
         run: npx playwright-core install --with-deps chromium-headless-shell
       - name: Tesseract y Poppler para la lectura de comprobantes (Fase 3)
         run: sudo apt-get update -q && sudo apt-get install -y -q tesseract-ocr tesseract-ocr-spa tesseract-ocr-por tesseract-ocr-eng poppler-utils
+      - name: Binarios de PostgreSQL 16 para la prueba del supervisor de Escritorio (Fase 10)
+        # supervisor.test.ts crea una base propia con initdb y pg_ctl, como en el PC del usuario. El servicio que el
+        # paquete enciende al instalarse no se usa: se apaga para no ocupar memoria.
+        run: |
+          if [ ! -x /usr/lib/postgresql/16/bin/initdb ]; then
+            sudo apt-get install -y -q postgresql-16
+            sudo systemctl stop postgresql || true
+          fi
+          /usr/lib/postgresql/16/bin/initdb --version
       - name: Compilar
         run: npm run build
       - name: Tipos (incluye pruebas)
