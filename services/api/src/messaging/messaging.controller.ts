@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Post, Put, Query } from '@nestjs/common';
 import {
   CONTACT_PRESETS,
-  DEFAULT_TEMPLATES,
+  defaultTemplate,
   EMAIL_SUBJECTS,
   MESSAGE_EVENTS,
   evaluateContact,
@@ -238,7 +238,7 @@ export class TemplatesController {
   constructor(private readonly db: DbService, private readonly svc: MessagingService, private readonly tenants: TenantCache, private readonly audit: AuditService, @Inject(CONFIG) private readonly config: AppConfig) {}
 
   private json(event: MessageEvent, lang: Lang, r: Record<string, any> | null) {
-    const body = (r?.active ? r.body : null) ?? DEFAULT_TEMPLATES[lang][event];
+    const body = (r?.active ? r.body : null) ?? defaultTemplate(lang, event, this.config.mode === 'desktop');
     return {
       event, lang, body, subject: (r?.active ? r.subject : null) ?? EMAIL_SUBJECTS[lang][event], custom: !!r?.active,
       metaTemplateName: r?.meta_template_name ?? null, metaTemplateLang: r?.meta_template_lang ?? null,
@@ -281,7 +281,7 @@ export class TemplatesController {
          ON CONFLICT (tenant_id, event, lang) DO UPDATE SET body = EXCLUDED.body, subject = EXCLUDED.subject, meta_template_name = EXCLUDED.meta_template_name,
                 meta_template_lang = EXCLUDED.meta_template_lang, active = EXCLUDED.active, updated_by = EXCLUDED.updated_by, updated_at = now()
          RETURNING *`,
-        [event, lang, active ? b.body : (before?.body ?? DEFAULT_TEMPLATES[lang][event]), b.subject?.trim() || null, metaName, b.metaTemplateLang?.trim() || null, active, a.userId],
+        [event, lang, active ? b.body : (before?.body ?? defaultTemplate(lang, event, this.config.mode === 'desktop')), b.subject?.trim() || null, metaName, b.metaTemplateLang?.trim() || null, active, a.userId],
       );
       await this.audit.log(tx, 'template.saved', 'company', a.tenantId, { before: before ? { body: before.body, active: before.active } : undefined, after: { event, lang, body: b.body, active } });
       return this.json(event, lang, r);

@@ -416,7 +416,11 @@ export class BackupService implements OnModuleInit {
   }
 
   private summary(manifest: Manifest, header: BackupHeader, size: number) {
-    return { company: String(manifest.company.name ?? header.company), createdAt: manifest.createdAt, format: manifest.format, schema: manifest.schema, counts: manifest.counts, documents: manifest.counts.documents ?? 0, bytes: size };
+    const c = manifest.company as { name?: string; country?: string; currency?: string };
+    return {
+      company: String(c.name ?? header.company), country: c.country ?? null, currency: c.currency ?? null, createdAt: manifest.createdAt, format: manifest.format,
+      schema: manifest.schema, counts: manifest.counts, documents: manifest.counts.documents ?? 0, bytes: size,
+    };
   }
 
   private async restoreRow(auth: AuthContext, id: string) {

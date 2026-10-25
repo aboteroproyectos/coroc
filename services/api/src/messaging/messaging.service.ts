@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { Inject, Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
 import {
-  DEFAULT_TEMPLATES,
+  defaultTemplate,
   EMAIL_SUBJECTS,
   EVENT_DEFAULTS,
   LOCALE_OF,
@@ -19,6 +19,7 @@ import {
   templateVariables,
   toLocalDateTime,
   validateTemplate,
+  whatsappAppLink,
   whatsappLink,
   type Channel,
   type ContactDecision,
@@ -126,7 +127,7 @@ export class MessagingService implements OnApplicationBootstrap, OnModuleDestroy
   async template(tx: Tx, event: MessageEvent, lang: Lang) {
     const r = await tx.one<Record<string, any>>('SELECT * FROM message_templates WHERE event = $1 AND lang = $2 AND active', [event, lang]);
     return {
-      body: (r?.body as string) ?? DEFAULT_TEMPLATES[lang][event],
+      body: (r?.body as string) ?? defaultTemplate(lang, event, this.config.mode === 'desktop'),
       subject: (r?.subject as string | null) ?? EMAIL_SUBJECTS[lang][event],
       metaName: (r?.meta_template_name as string | null) ?? null,
       metaLang: (r?.meta_template_lang as string | null) ?? (lang === 'pt-BR' ? 'pt_BR' : lang === 'en' ? 'en_US' : 'es'),
@@ -165,8 +166,9 @@ export class MessagingService implements OnApplicationBootstrap, OnModuleDestroy
       cuotas_restantes: String(r.summary.remainingInstallments),
       saldo: money(r.summary.balance),
       valor_pagado: entry ? money(entry.amount) : '',
-      enlace_carga: args.uploadUrl,
-      enlace_recibo: WITH_DOCUMENT.has(args.event) ? this.deliveryLink(tenant.id, args.messageId) : '',
+      // En Escritorio no hay enlaces: el PC no está en internet (ADR-064). El PDF va adjunto o se pega en WhatsApp.
+      enlace_carga: this.config.mode === 'desktop' ? '' : args.uploadUrl,
+      enlace_recibo: WITH_DOCUMENT.has(args.event) && this.config.mode !== 'desktop' ? this.deliveryLink(tenant.id, args.messageId) : '',
       empresa: tenant.name,
       telefono_empresa: tenant.phone ?? tenant.email ?? '',
     };
@@ -671,7 +673,10 @@ export class MessagingService implements OnApplicationBootstrap, OnModuleDestroy
       readAt: m.read_at ? new Date(m.read_at).toISOString() : null, failedAt: m.failed_at ? new Date(m.failed_at).toISOString() : null,
       via: m.via ?? null, error: m.error ?? null, createdAt: new Date(m.created_at).toISOString(),
       assisted: m.status === 'ready' || m.status === 'scheduled'
-        ? { ...(phone ? { whatsappUrl: whatsappLink(phone, m.body) } : {}), ...(email ? { mailtoUrl: mailtoLink(email, m.subject ?? '', m.body) } : {}) }
+        ? {
+            ...(phone ? { whatsappUrl: whatsappLink(phone, m.body), whatsappAppUrl: whatsappAppLink(phone, m.body) } : {}),
+            ...(email ? { mailtoUrl: mailtoLink(email, m.subject ?? '', m.body) } : {}),
+          }
         : undefined,
     };
   }

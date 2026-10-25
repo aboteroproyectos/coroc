@@ -217,7 +217,27 @@
     "CONTACT_EXCEPTION_EVIDENCE": "A exceção de horário exige como evidência um documento do cliente, diferente do contrato e posterior a ele.",
     "OWNER_REQUIRED": "Somente o Proprietário pode fazer esta alteração.",
     "WHATSAPP_NOT_READY": "Primeiro conecte o número do WhatsApp Business com o id da conta e configure o servidor (segredo do app e token de verificação).",
-    "WHATSAPP_CHECKLIST_INCOMPLETE": "Complete toda a lista de verificação antes de ativar o modo automático."
+    "WHATSAPP_CHECKLIST_INCOMPLETE": "Complete toda a lista de verificação antes de ativar o modo automático.",
+    "DESKTOP_ALREADY_SET_UP": {
+      "title": "O COROC já está pronto neste PC",
+      "detail": "Este PC já tem uma empresa. Entre com seu usuário e senha."
+    },
+    "DESKTOP_NOT_SET_UP": {
+      "title": "Falta criar a empresa",
+      "detail": "Abra o COROC e siga o assistente de primeiro uso."
+    },
+    "DESKTOP_SEVERAL_COMPANIES": {
+      "title": "Instalação com várias empresas",
+      "detail": "O COROC Desktop trabalha com uma só empresa por PC. Peça ajuda ao suporte."
+    },
+    "DESKTOP_BUSY": {
+      "title": "O COROC está restaurando uma cópia",
+      "detail": "Aguarde terminar; pode levar alguns minutos."
+    },
+    "DESKTOP_USER_NOT_FOUND": {
+      "title": "Usuário não encontrado",
+      "detail": "Confira o nome de usuário e tente de novo."
+    }
   },
   "terms": {
     "PRINCIPAL": "O capital deve ser um valor positivo.",

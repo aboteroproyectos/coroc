@@ -143,7 +143,8 @@ export class PaymentsService {
       before: before.summary,
       after: after.summary,
       verificationCode: verification,
-      verificationUrl: `${this.config.verifyUrlBase}${verification}`,
+      // En Escritorio no hay dirección pública: el recibo lleva el código sin QR (ADR-062).
+      verificationUrl: this.config.verifyUrlBase ? `${this.config.verifyUrlBase}${verification}` : undefined,
     });
     await tx.exec(
       `INSERT INTO receipts (tenant_id, number, entry_id, loan_id, document_id, verification_hash, data, lang)

@@ -90,6 +90,59 @@ export const DEFAULT_TEMPLATES: Record<Lang, Record<MessageEvent, string>> = {
   },
 };
 
+/**
+ * Plantillas por defecto de COROC Escritorio (ADR-064): el PC no está en internet, así que no llevan enlaces; el
+ * comprobante se responde por el mismo chat o correo y el PDF va adjunto (o se pega en WhatsApp con Ctrl+V).
+ */
+export const DESKTOP_TEMPLATES: Record<Lang, Record<MessageEvent, string>> = {
+  es: {
+    welcome:
+      'Hola {{nombre}}, te damos la bienvenida a {{empresa}}. Tu préstamo {{contrato}} quedó registrado. La primera cuota es de {{valor_cuota}} y vence el {{fecha_vencimiento}}. Cuando pagues, envíanos el comprobante por este mismo chat o correo.',
+    reminder:
+      'Hola {{nombre}}, te recordamos que la cuota {{cuota_numero}} de tu préstamo {{contrato}}, por {{valor_cuota}}, vence el {{fecha_vencimiento}}. Cuando pagues, envíanos el comprobante por este mismo chat o correo.',
+    overdue:
+      'Hola {{nombre}}, la cuota {{cuota_numero}} de tu préstamo {{contrato}}, por {{valor_cuota}}, venció el {{fecha_vencimiento}}. Si ya pagaste, envíanos el comprobante por este mismo chat o correo. Si necesitas ayuda, escríbenos al {{telefono_empresa}}.',
+    receipt:
+      '¡Gracias por tu pago, {{nombre}}! Recibimos {{valor_pagado}} para tu préstamo {{contrato}}. Tu nuevo saldo es {{saldo}} y te quedan {{cuotas_restantes}} cuotas. Te enviamos el recibo junto con este mensaje.',
+    statement: 'Hola {{nombre}}, te enviamos el estado de cuenta de tu préstamo {{contrato}}. Tu saldo es {{saldo}}.',
+    payoff:
+      '¡Felicitaciones, {{nombre}}! Pagaste por completo tu préstamo {{contrato}}. Te enviamos tu paz y salvo junto con este mensaje. Gracias por confiar en {{empresa}}.',
+    manual: DEFAULT_TEMPLATES.es.manual,
+  },
+  'pt-BR': {
+    welcome:
+      'Olá {{nombre}}, boas-vindas à {{empresa}}. Seu empréstimo {{contrato}} foi registrado. A primeira parcela é de {{valor_cuota}} e vence em {{fecha_vencimiento}}. Quando pagar, envie o comprovante por esta mesma conversa ou e-mail.',
+    reminder:
+      'Olá {{nombre}}, lembramos que a parcela {{cuota_numero}} do seu empréstimo {{contrato}}, de {{valor_cuota}}, vence em {{fecha_vencimiento}}. Quando pagar, envie o comprovante por esta mesma conversa ou e-mail.',
+    overdue:
+      'Olá {{nombre}}, a parcela {{cuota_numero}} do seu empréstimo {{contrato}}, de {{valor_cuota}}, venceu em {{fecha_vencimiento}}. Se já pagou, envie o comprovante por esta mesma conversa ou e-mail. Se precisar de ajuda, fale conosco pelo {{telefono_empresa}}.',
+    receipt:
+      'Obrigado pelo seu pagamento, {{nombre}}! Recebemos {{valor_pagado}} para o seu empréstimo {{contrato}}. Seu novo saldo é {{saldo}} e restam {{cuotas_restantes}} parcelas. Enviamos o recibo junto com esta mensagem.',
+    statement: 'Olá {{nombre}}, enviamos o extrato do seu empréstimo {{contrato}}. Seu saldo é {{saldo}}.',
+    payoff:
+      'Parabéns, {{nombre}}! Você quitou o seu empréstimo {{contrato}}. Enviamos sua declaração de quitação junto com esta mensagem. Obrigado por confiar na {{empresa}}.',
+    manual: DEFAULT_TEMPLATES['pt-BR'].manual,
+  },
+  en: {
+    welcome:
+      'Hi {{nombre}}, welcome to {{empresa}}. Your loan {{contrato}} has been set up. The first installment is {{valor_cuota}}, due on {{fecha_vencimiento}}. Once you pay, send us the receipt in this same chat or email.',
+    reminder:
+      'Hi {{nombre}}, a friendly reminder that installment {{cuota_numero}} of your loan {{contrato}}, for {{valor_cuota}}, is due on {{fecha_vencimiento}}. Once you pay, send us the receipt in this same chat or email.',
+    overdue:
+      'Hi {{nombre}}, installment {{cuota_numero}} of your loan {{contrato}}, for {{valor_cuota}}, was due on {{fecha_vencimiento}}. If you have already paid, send us the receipt in this same chat or email. If you need help, contact us at {{telefono_empresa}}.',
+    receipt:
+      'Thank you for your payment, {{nombre}}! We received {{valor_pagado}} for your loan {{contrato}}. Your new balance is {{saldo}} with {{cuotas_restantes}} installments left. Your receipt is attached to this message.',
+    statement: 'Hi {{nombre}}, here is the statement for your loan {{contrato}}. Your balance is {{saldo}}.',
+    payoff: 'Congratulations, {{nombre}}! Your loan {{contrato}} is paid in full. Your payoff letter is attached to this message. Thank you for trusting {{empresa}}.',
+    manual: DEFAULT_TEMPLATES.en.manual,
+  },
+};
+
+/** Plantilla por defecto de un evento: la de la nube o, en Escritorio, la que no lleva enlaces. */
+export function defaultTemplate(lang: Lang, event: MessageEvent, desktop = false): string {
+  return (desktop ? DESKTOP_TEMPLATES : DEFAULT_TEMPLATES)[lang][event];
+}
+
 /** Asuntos de los correos por evento. */
 export const EMAIL_SUBJECTS: Record<Lang, Record<MessageEvent, string>> = {
   es: {
@@ -192,6 +245,11 @@ export function isOptOut(text: string | null | undefined): boolean {
 /** Enlace de WhatsApp con el texto listo para el modo asistido (§11.1, modo B). */
 export function whatsappLink(phoneE164: string, text: string): string {
   return `https://wa.me/${phoneE164.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`;
+}
+
+/** Enlace que abre WhatsApp para Windows directamente en el chat del cliente con el texto listo (ADR-064). */
+export function whatsappAppLink(phoneE164: string, text: string): string {
+  return `whatsapp://send?phone=${phoneE164.replace(/\D/g, '')}&text=${encodeURIComponent(text)}`;
 }
 
 /** Enlace `mailto:` para enviar un correo desde el programa del usuario en el modo asistido. */

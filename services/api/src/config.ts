@@ -1,6 +1,15 @@
 /** Configuración leída del entorno una sola vez al iniciar. Nunca se registra en los logs. */
 export interface AppConfig {
+  /**
+   * 'cloud': servidor en internet para varias empresas. 'desktop': COROC Escritorio (ADR-062), todo en el PC del
+   * usuario: una sola empresa, solo 127.0.0.1 y cada petición con la clave de esta ejecución.
+   */
+  mode: 'cloud' | 'desktop';
   port: number;
+  /** Interfaz en la que escucha (Escritorio: 127.0.0.1). Vacío: todas. */
+  host: string | null;
+  /** Escritorio: clave que el supervisor genera en cada arranque y la app envía en `X-Coroc-Desktop`. */
+  desktopToken: string | null;
   databaseUrl: string;
   redisUrl: string | null;
   jwtSecret: Uint8Array;
@@ -12,8 +21,8 @@ export interface AppConfig {
   publicAppUrl: string;
   /** URL pública de esta API, para los enlaces firmados de descarga. */
   publicApiUrl: string;
-  /** Dirección que abre el código QR del recibo (§15), seguida del código de verificación. */
-  verifyUrlBase: string;
+  /** Dirección que abre el código QR del recibo (§15), seguida del código de verificación. En Escritorio no hay QR. */
+  verifyUrlBase: string | null;
   clockNow: string | null;
   logLevel: string;
   corsOrigins: string[];
@@ -82,15 +91,22 @@ export function loadConfig(env = process.env): AppConfig {
   if (Buffer.byteLength(jwt) < 32) throw new Error('COROC_JWT_SECRET debe tener al menos 32 bytes');
   const dataKey = Buffer.from(required('COROC_DATA_KEY'), 'base64');
   if (dataKey.length !== 32) throw new Error('COROC_DATA_KEY debe ser una clave AES-256 en base64 (32 bytes)');
+  const mode = env.COROC_MODE === 'desktop' ? 'desktop' : 'cloud';
+  const desktopToken = env.COROC_DESKTOP_TOKEN || null;
+  if (mode === 'desktop' && (!desktopToken || desktopToken.length < 32)) throw new Error('COROC_DESKTOP_TOKEN debe tener al menos 32 caracteres en el modo Escritorio');
   return {
+    mode,
     port: Number(env.PORT ?? 3000),
+    host: env.COROC_HOST || (mode === 'desktop' ? '127.0.0.1' : null),
+    desktopToken: mode === 'desktop' ? desktopToken : null,
     databaseUrl: required('DATABASE_URL'),
     redisUrl: env.REDIS_URL || null,
     jwtSecret: new TextEncoder().encode(jwt),
     dataKey,
     accessTtlSeconds: Number(env.COROC_ACCESS_TTL ?? 900),
     refreshTtlDays: Number(env.COROC_REFRESH_TTL_DAYS ?? 30),
-    mfaRequiredForOwner: env.COROC_MFA_OWNER !== 'optional',
+    // En Escritorio la verificación en dos pasos se ofrece y es opcional (ADR-063); en la nube es obligatoria.
+    mfaRequiredForOwner: env.COROC_MFA_OWNER ? env.COROC_MFA_OWNER !== 'optional' : mode !== 'desktop',
     breachedPasswordCheck: env.COROC_BREACHED_CHECK === 'local' ? 'local' : 'hibp',
     publicAppUrl: env.COROC_PUBLIC_URL ?? 'https://app.coroc.app',
     publicApiUrl: (env.COROC_API_PUBLIC_URL ?? `http://localhost:${env.PORT ?? 3000}`).replace(/\/+$/, ''),
@@ -99,7 +115,7 @@ export function loadConfig(env = process.env): AppConfig {
     corsOrigins: (env.COROC_CORS_ORIGINS ?? '').split(',').map((s) => s.trim()).filter(Boolean),
     storage: storageConfig(env),
     chromiumPath: env.COROC_CHROMIUM_PATH || null,
-    verifyUrlBase: env.COROC_VERIFY_URL ?? `${(env.COROC_API_PUBLIC_URL ?? `http://localhost:${env.PORT ?? 3000}`).replace(/\/+$/, '')}/v1/public/receipts/`,
+    verifyUrlBase: mode === 'desktop' ? null : env.COROC_VERIFY_URL ?? `${(env.COROC_API_PUBLIC_URL ?? `http://localhost:${env.PORT ?? 3000}`).replace(/\/+$/, '')}/v1/public/receipts/`,
     documentWorker: env.COROC_DOCUMENT_WORKER === 'off' ? 'off' : env.COROC_DOCUMENT_WORKER === 'inline' ? 'inline' : 'on',
     restoreMaxBytes: Number(env.COROC_RESTORE_MAX_BYTES ?? 20 * 1024 ** 3),
     linkTtlSeconds: Math.min(3600, Math.max(30, Number(env.COROC_LINK_TTL ?? 300))),
