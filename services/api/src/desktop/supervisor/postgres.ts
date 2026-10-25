@@ -1,4 +1,4 @@
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -44,8 +44,35 @@ export class Cluster {
     return fs.existsSync(path.join(this.l.pg, 'PG_VERSION'));
   }
 
-  private async pgCtl(args: string[], timeout = 120_000) {
-    return run(this.exe('pg_ctl'), args, { windowsHide: true, timeout });
+  /**
+   * Se espera a que pg_ctl termine, no a que se cierren sus salidas: en Windows, `pg_ctl start` deja la base corriendo
+   * bajo un cmd.exe que hereda esas salidas, y esperar su cierre sería esperar a que se apague la base.
+   */
+  private pgCtl(args: string[], timeout = 120_000): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const p = spawn(this.exe('pg_ctl'), args, { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
+      let out = '';
+      const take = (d: Buffer) => {
+        if (out.length < 16_384) out += d.toString();
+      };
+      p.stdout.on('data', take);
+      p.stderr.on('data', take);
+      const timer = setTimeout(() => p.kill(), timeout);
+      p.once('error', (e) => {
+        clearTimeout(timer);
+        reject(e);
+      });
+      p.once('exit', (code, signal) => {
+        clearTimeout(timer);
+        // Lo que aún venía en camino por las salidas llega en unos milisegundos.
+        setTimeout(() => {
+          p.stdout.destroy();
+          p.stderr.destroy();
+          if (code === 0) resolve(out);
+          else reject(new Error(`pg_ctl ${args[0]} terminó con ${code ?? signal}: ${out.trim().slice(-600)}`));
+        }, 200);
+      });
+    });
   }
 
   /** Crea la base la primera vez. La contraseña del superusuario va en un archivo temporal que solo lee el usuario. */

@@ -1,6 +1,6 @@
 ; COROC Escritorio para Windows (ADR-067): un solo instalador, por usuario y sin derechos de administrador.
 ; Se compila en CI después de construir.ps1:
-;   ISCC.exe /DStage=<carpeta de construir.ps1> /DAppVersion=0.10.0+123 /DIcono=<app_icon.ico> /O<salida> infra\escritorio\coroc.iss
+;   ISCC.exe /DStage=<carpeta de construir.ps1> /DAppVersion=0.10.0.123 /DIcono=<app_icon.ico> /O<salida> infra\escritorio\coroc.iss
 ;
 ; Programas en %LOCALAPPDATA%\COROC\app y \servidor (se reemplazan en cada actualización); datos en
 ; %LOCALAPPDATA%\COROC\datos (el instalador nunca los toca; el desinstalador los conserva salvo que se pida borrarlos).
@@ -36,6 +36,8 @@ OutputBaseFilename=COROC-Escritorio-Windows
 Compression=lzma2/ultra64
 SolidCompression=yes
 LZMANumBlockThreads=4
+; El compilador de 32 bits se queda sin memoria con ultra64 y 4 hilos: el compresor corre aparte, en 64 bits.
+LZMAUseSeparateProcess=yes
 WizardStyle=modern
 ShowLanguageDialog=no
 LanguageDetectionMethod=uilanguage

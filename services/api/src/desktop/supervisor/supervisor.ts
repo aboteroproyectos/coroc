@@ -17,7 +17,10 @@ export type Event =
   | { evento: 'listo'; api: string; clave: string; version: string; datos: string }
   | { evento: 'reiniciando'; motivo: 'servidor' | 'base' }
   | { evento: 'error'; codigo: string; detalle?: string }
-  | { evento: 'detenido' };
+  | { evento: 'detenido'; motivo: StopReason };
+
+/** Por qué se apagó: la app lo pidió (o se cerró), el instalador va a actualizar o desinstalar, o falló el arranque. */
+export type StopReason = 'app' | 'instalador' | 'error';
 
 export class SupervisorError extends Error {
   constructor(readonly code: string, detail?: string) {
@@ -107,7 +110,7 @@ export class Supervisor {
     } catch (e) {
       const code = e instanceof SupervisorError ? e.code : 'INICIO_FALLIDO';
       this.log.write(`error al iniciar: ${code} ${(e as Error).message}`);
-      await this.stop();
+      await this.stop('error');
       throw e instanceof SupervisorError ? e : new SupervisorError(code, (e as Error).message);
     }
   }
@@ -254,7 +257,7 @@ export class Supervisor {
       if (fs.existsSync(this.l.stopRequest)) {
         fs.rmSync(this.l.stopRequest, { force: true });
         this.log.write('apagado pedido por el instalador');
-        void this.stop();
+        void this.stop('instalador');
       }
     }, 1000));
     for (const t of this.timers) t.unref();
@@ -277,7 +280,7 @@ export class Supervisor {
   }
 
   /** Apaga en orden: primero el servidor (termina lo que tenía en curso) y después la base. */
-  stop(): Promise<void> {
+  stop(reason: StopReason = 'app'): Promise<void> {
     this.stopping ??= (async () => {
       for (const t of this.timers) clearInterval(t);
       await this.stopApi().catch(() => undefined);
@@ -289,7 +292,7 @@ export class Supervisor {
         /* ya no estaba */
       }
       this.log.write('detenido');
-      this.emit({ evento: 'detenido' });
+      this.emit({ evento: 'detenido', motivo: reason });
     })();
     return this.stopping;
   }

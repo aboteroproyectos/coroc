@@ -96,6 +96,7 @@ run('Supervisor de COROC Escritorio (Fase 10)', () => {
     expect(st).toMatchObject({ configured: true, company: { name: 'Prueba del Supervisor', slug: 'prueba-del-supervisor' } });
     const off = await cli(data, 'detener');
     expect(off).toEqual([{ evento: 'detenido' }]);
+    expect(b.events.at(-1)).toEqual({ evento: 'detenido', motivo: 'instalador' });
     await exited(b.child);
   }, 300_000);
 });
