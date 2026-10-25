@@ -2,9 +2,13 @@
 // propia (como la de un PC recién instalado): la clave de la ejecución, el asistente de primer uso, el ingreso sin
 // segundo factor obligatorio, los mensajes sin enlaces y la restauración en otro PC de una copia hecha en la nube (E-7).
 import crypto from 'node:crypto';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { migrate } from '../src/db/migrate.js';
+import { AutoBackups } from '../src/desktop/auto-backup.js';
 import { DocumentTasks } from '../src/documents/tasks.js';
 import { MessagingService } from '../src/messaging/messaging.service.js';
 import { receiptHtml } from '../src/pdf/templates.js';
@@ -174,6 +178,60 @@ describe('COROC Escritorio (Fase 10)', () => {
     expect(welcome.assisted.whatsappUrl).toMatch(/^https:\/\/wa\.me\/573001234567\?text=/);
     const tpl = (await desktop.http().get('/v1/message-templates').set(KEY).set(auth(s.accessToken)).expect(200)).body;
     expect(tpl.templates.find((x: any) => x.event === 'receipt' && x.lang === 'es').body).toContain('Te enviamos el recibo junto con este mensaje');
+  });
+
+
+  it('E-7: la copia automática diaria queda cifrada en la carpeta elegida (solo las últimas) y se restaura en otro PC', async () => {
+    const st = (await desktop.http().get('/v1/desktop/status').set(KEY).expect(200)).body;
+    const s = (await desktop.http().post('/v1/auth/login').set(KEY).send({ tenant: st.company.slug, username: 'andres', password: OWNER_PASSWORD, deviceId: 'pc-escritorio-1' }).expect(200)).body;
+    const tenantId = s.company.id as string;
+    const before = (await desktop.http().get('/v1/company/auto-backup').set(KEY).set(auth(s.accessToken)).expect(200)).body;
+    expectContract('getAutoBackup', 200, before);
+    // Nunca se ha hecho una copia: la app avisa.
+    expect(before).toMatchObject({ configured: false, overdue: true, lastBackupAt: null });
+    const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'coroc-onedrive-'));
+    fs.writeFileSync(path.join(folder, 'notas-personales.txt'), 'no se toca');
+    const bad = await desktop.http().put('/v1/company/auto-backup').set(KEY).set(auth(s.accessToken)).send({ folder: path.join(folder, 'no-existe'), password: BACKUP_PASSWORD }).expect(422);
+    expect(bad.body.code).toBe('AUTO_BACKUP_FOLDER_INVALID');
+    await desktop.http().put('/v1/company/auto-backup').set(KEY).set(auth(s.accessToken)).send({ folder }).expect(422);
+    const saved = (await desktop.http().put('/v1/company/auto-backup').set(KEY).set(auth(s.accessToken)).send({ folder, password: BACKUP_PASSWORD, keep: 2 }).expect(200)).body;
+    expectContract('saveAutoBackup', 200, saved);
+    expect(saved).toMatchObject({ configured: true, enabled: true, folder, keep: 2 });
+    const auto = desktop.app.get(AutoBackups);
+    for (const at of ['2026-10-21T15:00:00Z', '2026-10-22T15:00:00Z', '2026-10-23T15:00:00Z']) {
+      desktop.clock.set(at);
+      await auto.start(tenantId);
+    }
+    const files = fs.readdirSync(folder).sort();
+    expect(files).toEqual(['COROC_Respaldo_Inversiones_Andres_S_A_S_2026-10-22_1000.coroc', 'COROC_Respaldo_Inversiones_Andres_S_A_S_2026-10-23_1000.coroc', 'notas-personales.txt']);
+    // Pasaron días: se vuelve a ingresar.
+    s.accessToken = (await desktop.http().post('/v1/auth/login').set(KEY).send({ tenant: st.company.slug, username: 'andres', password: OWNER_PASSWORD, deviceId: 'pc-escritorio-1' }).expect(200)).body.accessToken;
+    const now = (await desktop.http().get('/v1/company/auto-backup').set(KEY).set(auth(s.accessToken)).expect(200)).body;
+    expect(now).toMatchObject({ overdue: false, lastError: null, lastFile: files[1], lastSuccessAt: '2026-10-23T15:00:00.000Z' });
+    // En el PC queda solo la última copia automática; las anteriores están en la carpeta.
+    const list = (await desktop.http().get('/v1/backups').set(KEY).set(auth(s.accessToken)).expect(200)).body;
+    expect(list.map((b: any) => [b.auto, b.downloadable])).toEqual([[true, true], [true, false], [true, false]]);
+    expect((await desktop.http().post(`/v1/backups/${list[1].id}/link`).set(KEY).set(auth(s.accessToken)).expect(410)).body.code).toBe('BACKUP_IN_FOLDER');
+    const fromFolder = fs.readFileSync(path.join(folder, files[1]!));
+    // La USB se desconectó: la copia del día no se pierde de vista, la app muestra qué pasó.
+    fs.rmSync(folder, { recursive: true, force: true });
+    desktop.clock.set('2026-10-24T15:00:00Z');
+    await auto.start(tenantId);
+    s.accessToken = (await desktop.http().post('/v1/auth/login').set(KEY).send({ tenant: st.company.slug, username: 'andres', password: OWNER_PASSWORD, deviceId: 'pc-escritorio-1' }).expect(200)).body.accessToken;
+    expect((await desktop.http().get('/v1/company/auto-backup').set(KEY).set(auth(s.accessToken)).expect(200)).body.lastError).toBe('AUTO_BACKUP_FOLDER_UNAVAILABLE');
+    expect((await desktop.http().post('/v1/company/auto-backup/run').set(KEY).set(auth(s.accessToken)).expect(202)).body.configured).toBe(true);
+    await auto.start(tenantId);
+
+    // Otro PC: instalación nueva; la copia de la carpeta se restaura desde el asistente de primer uso.
+    await desktop.app.close();
+    desktop = await bootDesktop(await emptyInstallation(), '2026-10-24T16:00:00Z');
+    const up = (await desktop.http().post('/v1/desktop/restore').set(KEY).set('Content-Type', 'application/octet-stream').send(fromFolder).expect(201)).body;
+    expect(up.company).toBe('Inversiones Andrés S.A.S.');
+    const done = (await desktop.http().post(`/v1/desktop/restore/${up.id}/apply`).set(KEY).send({ password: BACKUP_PASSWORD }).expect(200)).body;
+    expect(done).toMatchObject({ company: { name: 'Inversiones Andrés S.A.S.', country: 'CO' }, owners: ['andres'] });
+    const again = (await desktop.http().post('/v1/auth/login').set(KEY).send({ tenant: done.company.slug, username: 'andres', password: OWNER_PASSWORD, deviceId: 'pc-nuevo-1' }).expect(200)).body;
+    const clients = (await desktop.http().get('/v1/clients').set(KEY).set(auth(again.accessToken)).expect(200)).body;
+    expect(clients.items.map((x: any) => x.fullName)).toEqual(['Lucía Ríos']);
   });
 
   it('el recibo del PC lleva el código de verificación sin QR (no hay dirección pública)', async () => {

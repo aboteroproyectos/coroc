@@ -73,6 +73,12 @@ export interface AppConfig {
     /** `include` de SPF del proveedor, para el asistente de dominio (Postmark: spf.mtasv.net). */
     spfInclude: string | null;
   };
+  /**
+   * Gmail de la empresa con contraseña de aplicación (ADR-065): IMAP para leer los comprobantes y SMTP para enviar. Por
+   * defecto solo en Escritorio. `worker`: lector de correo en este proceso ('inline' en pruebas: `GmailInbox.syncTenant`).
+   * Los servidores y `tls` solo se cambian en pruebas (servidores IMAP y SMTP locales).
+   */
+  gmail: { enabled: boolean; worker: 'on' | 'off' | 'inline'; imap: { host: string; port: number }; smtp: { host: string; port: number }; tls: boolean; pollSeconds: number };
   /** Mensajería (§11): vigencia del enlace seguro de descarga del recibo (días) y despachador en este proceso. */
   deliveryLinkDays: number;
   messageWorker: 'on' | 'off' | 'inline';
@@ -151,10 +157,23 @@ export function loadConfig(env = process.env): AppConfig {
       eventsSecret: env.COROC_EMAIL_EVENTS_SECRET || null,
       spfInclude: env.COROC_EMAIL_SPF_INCLUDE || (env.COROC_EMAIL_PROVIDER === 'postmark' ? 'spf.mtasv.net' : null),
     },
+    gmail: {
+      enabled: env.COROC_GMAIL ? env.COROC_GMAIL === 'on' : mode === 'desktop',
+      worker: env.COROC_GMAIL_WORKER === 'off' ? 'off' : env.COROC_GMAIL_WORKER === 'inline' ? 'inline' : 'on',
+      imap: hostPort(env.COROC_GMAIL_IMAP, 'imap.gmail.com', 993),
+      smtp: hostPort(env.COROC_GMAIL_SMTP, 'smtp.gmail.com', 465),
+      tls: env.COROC_GMAIL_TLS !== 'off',
+      pollSeconds: Math.min(900, Math.max(5, Number(env.COROC_GMAIL_POLL_SECONDS ?? 120))),
+    },
     deliveryLinkDays: Math.min(365, Math.max(1, Number(env.COROC_DELIVERY_LINK_DAYS ?? 30))),
     messageWorker: env.COROC_MESSAGE_WORKER === 'off' ? 'off' : env.COROC_MESSAGE_WORKER === 'inline' ? 'inline' : 'on',
     privacyContact: env.COROC_PRIVACY_CONTACT || 'privacidad@coroc.app',
   };
+}
+
+function hostPort(v: string | undefined, host: string, port: number): { host: string; port: number } {
+  const m = /^\[?([^\]]+?)\]?:(\d+)$/.exec(v ?? '');
+  return m ? { host: m[1]!, port: Number(m[2]) } : { host, port };
 }
 
 function storageConfig(env: NodeJS.ProcessEnv): AppConfig['storage'] {

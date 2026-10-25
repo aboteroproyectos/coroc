@@ -54,8 +54,12 @@ import { EmailProvider, emailProviderFactory } from './messaging/email.js';
 import { ContactExceptionController, ContactRulesController, EmailSenderController, MessagesController, TemplatesController } from './messaging/messaging.controller.js';
 import { MessagingService } from './messaging/messaging.service.js';
 import { ProviderMailer } from './common/mailer.js';
-import { DesktopController } from './desktop/desktop.controller.js';
+import { AutoBackups } from './desktop/auto-backup.js';
+import { AutoBackupController, DesktopController } from './desktop/desktop.controller.js';
 import { DesktopService } from './desktop/desktop.service.js';
+import { ClientEmailsController, GmailController } from './gmail/gmail.controller.js';
+import { GmailInbox } from './gmail/gmail-inbox.js';
+import { GmailAccounts } from './gmail/gmail.js';
 
 @Controller('health')
 class HealthController {
@@ -87,7 +91,7 @@ function requestMetaMiddleware(req: Request, _res: Response, next: NextFunction)
     DocumentsController, ClientDocumentsController, LoanDocumentsController, TasksController, FolderController, FilesController, PublicReceiptsController, ReportsController, BackupsController, RestoresController,
     IntakeController, UploadLinksController, PortalController, WebhooksController, WhatsAppAccountController,
     MessagesController, TemplatesController, ContactRulesController, ContactExceptionController, EmailSenderController, SupportController, AccountController, PrivacyController,
-    DesktopController],
+    DesktopController, AutoBackupController, GmailController, ClientEmailsController],
   providers: [
     { provide: CONFIG, useFactory: () => loadConfig() },
     Clock,
@@ -127,6 +131,9 @@ function requestMetaMiddleware(req: Request, _res: Response, next: NextFunction)
     IntakeService,
     UploadLinksService,
     DesktopService,
+    AutoBackups,
+    GmailAccounts,
+    GmailInbox,
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_INTERCEPTOR, useClass: ContractInterceptor },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },

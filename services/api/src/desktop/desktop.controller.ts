@@ -1,7 +1,9 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Put, Req } from '@nestjs/common';
 import type { Request } from 'express';
-import { Op, Public } from '../common/decorators.js';
+import type { AuthContext } from '../common/context.js';
+import { Auth, Op, Public, Requires } from '../common/decorators.js';
 import { RateLimiter } from '../common/rate-limit.js';
+import { AutoBackups } from './auto-backup.js';
 import { DesktopService, type DesktopSetupInput } from './desktop.service.js';
 
 /**
@@ -53,5 +55,33 @@ export class DesktopController {
   async reset(@Body() b: { username: string; password: string }): Promise<void> {
     this.limiter.hit('desktop:password', 10, 60_000);
     await this.desktop.resetPassword(b.username, b.password);
+  }
+}
+
+/** Copias automáticas diarias a una carpeta de este PC (ADR-066). Solo el Propietario y el Administrador. */
+@Controller('company/auto-backup')
+export class AutoBackupController {
+  constructor(private readonly auto: AutoBackups) {}
+
+  @Get()
+  @Requires('backup.create')
+  @Op('getAutoBackup')
+  get(@Auth() a: AuthContext) {
+    return this.auto.get(a);
+  }
+
+  @Put()
+  @Requires('backup.create')
+  @Op('saveAutoBackup')
+  save(@Auth() a: AuthContext, @Body() b: { enabled?: boolean; folder: string; password?: string; keep?: number }) {
+    return this.auto.save(a, b);
+  }
+
+  @Post('run')
+  @HttpCode(202)
+  @Requires('backup.create')
+  @Op('runAutoBackup')
+  run(@Auth() a: AuthContext) {
+    return this.auto.runNow(a);
   }
 }
