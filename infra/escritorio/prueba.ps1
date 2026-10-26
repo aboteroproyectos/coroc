@@ -108,12 +108,16 @@ $ha = $h + @{ Authorization = "Bearer $($s.accessToken)" }
 Api PUT '/compliance/rate-cap-policy' @{ policy = 'warn'; acceptResponsibility = $true } -h $ha | Out-Null
 Ok "empresa creada ($($s.company.slug))"
 
+# «Hoy» es el de la empresa (Colombia, UTC-5), no el del runner (UTC): entre las 00:00 y las 05:00 UTC
+# la fecha UTC ya es mañana en Bogotá y la API rechaza el pago por fecha futura.
+$hoy = [TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::UtcNow, 'SA Pacific Standard Time').ToString('yyyy-MM-dd')
+
 Paso 'E-6 · préstamo sin tope de usura registrado, confirmado con la casilla; pago y recibo en PDF con Edge'
-$loan = @{ principal = 500000; currency = 'COP'; method = 'simple'; rate = '0.10'; installments = 5; frequency = 'weekly'; disbursementDate = (Get-Date).ToString('yyyy-MM-dd') }
+$loan = @{ principal = 500000; currency = 'COP'; method = 'simple'; rate = '0.10'; installments = 5; frequency = 'weekly'; disbursementDate = $hoy }
 Api POST '/clients' @{ client = @{ firstName = 'Luz Mery'; lastName = 'Mora Díaz'; phone = '+57 300 111 2233'; lang = 'es' }; loan = $loan } -h $ha -esperado 422 | Out-Null
 $loan.acknowledgeRateCap = $true
 $c = Api POST '/clients' @{ client = @{ firstName = 'Luz Mery'; lastName = 'Mora Díaz'; phone = '+57 300 111 2233'; lang = 'es' }; loan = $loan } -h $ha -esperado 201
-$p = Api POST "/loans/$($c.loan.id)/payments" @{ amount = 110000; date = (Get-Date).ToString('yyyy-MM-dd') } -h $ha -esperado 201
+$p = Api POST "/loans/$($c.loan.id)/payments" @{ amount = 110000; date = $hoy } -h $ha -esperado 201
 $doc = $null
 for ($i = 0; $i -lt 120 -and -not $doc; $i++) {
   Start-Sleep -Seconds 1
