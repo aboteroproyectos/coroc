@@ -213,3 +213,56 @@ coroc/
 ## 11. Despliegue (Fase 1 en adelante)
 
 Contenedores Docker para API y workers; PostgreSQL gestionado con réplicas y PITR (RPO 1 h); Redis gestionado; almacenamiento S3/R2 con versionado; Terraform para toda la infraestructura; CI con pruebas, lint de traducciones (cero textos sin traducir) y análisis estático; observabilidad con OpenTelemetry y Sentry con traza por documento desde la recepción hasta el recibo enviado.
+
+## 12. COROC Escritorio para Windows (Fase 10)
+
+La misma API y el mismo núcleo, encendidos dentro de un PC con Windows y sin Docker (ADR-062 a ADR-067). La app
+enciende y vigila el **supervisor**, que enciende la base y la API bajo la cuenta de Windows de la persona.
+
+```mermaid
+flowchart LR
+  subgraph PC["PC con Windows · cuenta de la persona"]
+    APP[App COROC<br/>modo Escritorio]:::app
+    SUP[Supervisor<br/>node.exe]:::srv
+    API[API NestJS<br/>127.0.0.1 · clave por ejecución]:::srv
+    DB[(PostgreSQL 16 portátil<br/>127.0.0.1 · RLS)]:::db
+    FS[(datos · archivos<br/>cifrados)]:::db
+    SEC[(secretos.bin<br/>DPAPI)]:::db
+    PDF[Microsoft Edge<br/>PDF]:::ext
+    OCR[Tesseract y pdftoppm<br/>OCR]:::ext
+    WAD[WhatsApp para Windows]:::ext
+  end
+  GM[Gmail de la empresa<br/>IMAP · SMTP]:::ext
+  CP[(Carpeta de copias<br/>OneDrive · Google Drive · USB)]:::db
+  APP -->|enciende y vigila · eventos JSON| SUP
+  SUP --> SEC
+  SUP -->|initdb · pg_ctl · migraciones| DB
+  SUP -->|enciende · IPC para apagar| API
+  APP -->|HTTP · X-Coroc-Desktop · JWT| API
+  API --> DB & FS & PDF & OCR
+  API <-->|contraseña de aplicación| GM
+  API -->|copia diaria .coroc| CP
+  APP -->|whatsapp://send · PDF con Ctrl+V| WAD
+  classDef app fill:#130E42,color:#FFFDE7,stroke:#CAA555
+  classDef srv fill:#FFFDE7,color:#130E42,stroke:#A57E33
+  classDef db fill:#F6F6F6,color:#130E42,stroke:#8A6A2B
+  classDef ext fill:#ffffff,color:#5B5878,stroke:#B8B4D6,stroke-dasharray:4 3
+```
+
+| Tema | Nube | Escritorio |
+|---|---|---|
+| Empresas | Varias, aisladas con RLS | Una por PC (`installation_tenant()`); RLS igual |
+| Acceso a la API | HTTPS público con JWT | Solo 127.0.0.1, JWT y la clave de la ejecución, que solo tiene la app |
+| Claves | Secretos del proveedor | Generadas al instalar y cifradas con DPAPI |
+| Colas y eventos en vivo | Redis (o memoria con una instancia) | Memoria |
+| Archivos | S3 o R2, cifrados por la aplicación | Disco, cifrados por la aplicación |
+| PDF | Chromium sin interfaz | Microsoft Edge (Chromium si falta) |
+| Comprobantes que entran | WhatsApp Cloud API, correo de Postmark, portal, «Compartir», carpeta | Soltar, Ctrl+V y Descargas en la app; Gmail por IMAP; carpeta |
+| Mensajes que salen | WhatsApp Cloud API o asistido, correo de Postmark o SMTP | «Mensajes de hoy» con WhatsApp para Windows (asistido) y Gmail por SMTP |
+| Segundo factor | Obligatorio para el Propietario | Opcional; Windows Hello para abrir y para cambiar la contraseña (ADR-063) |
+| Copias | Instantáneas y `pg_dump` cifrado en R2 | Copia `.coroc` diaria en la carpeta elegida y copia en frío antes de actualizar |
+| Actualizar | Despliegue con migraciones (`release_command`) | Abrir el instalador nuevo: copia previa y migraciones al encender |
+
+Lo que necesita una dirección pública (cobradores desde el celular, portal y enlace de carga del deudor, QR del
+recibo) queda en la nube. La copia `.coroc` es la misma en los dos modos, así que se pasa de uno a otro sin volver a
+digitar nada.

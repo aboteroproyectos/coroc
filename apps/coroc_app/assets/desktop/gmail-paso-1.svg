@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" width="320" height="180">
+  <rect x="1" y="1" width="318" height="178" rx="12" fill="#FFFFFF" stroke="#E8E4D8" stroke-width="2"/>
+  <rect x="1" y="1" width="318" height="30" rx="12" fill="#F6F6F6"/>
+  <circle cx="16" cy="16" r="4" fill="#E8E4D8"/><circle cx="29" cy="16" r="4" fill="#E8E4D8"/><circle cx="42" cy="16" r="4" fill="#E8E4D8"/>
+  <rect x="58" y="8" width="246" height="16" rx="8" fill="#FFFFFF" stroke="#E8E4D8"/>
+  <text x="68" y="20" font-family="Inter" font-size="10" fill="#5B5878">myaccount.google.com/security</text>
+  <rect x="14" y="46" width="80" height="10" rx="5" fill="#E8E4D8"/>
+  <rect x="14" y="66" width="70" height="10" rx="5" fill="#E8E4D8"/>
+  <rect x="8" y="82" width="96" height="22" rx="11" fill="#FFF6DC" stroke="#CAA555" stroke-width="2"/>
+  <path d="M20 89 l6 -3 l6 3 v5 c0 4 -3 6 -6 7 c-3 -1 -6 -3 -6 -7z" fill="#CAA555"/>
+  <rect x="38" y="89" width="56" height="8" rx="4" fill="#8A6A2B"/>
+  <rect x="14" y="114" width="76" height="10" rx="5" fill="#E8E4D8"/>
+  <rect x="118" y="46" width="186" height="12" rx="6" fill="#130E42"/>
+  <rect x="118" y="74" width="186" height="44" rx="10" fill="#FFFFFF" stroke="#CAA555" stroke-width="2"/>
+  <rect x="130" y="86" width="96" height="9" rx="4.5" fill="#130E42"/>
+  <rect x="130" y="101" width="70" height="7" rx="3.5" fill="#B8B4D6"/>
+  <rect x="254" y="87" width="38" height="20" rx="10" fill="#2E7D5B"/>
+  <circle cx="282" cy="97" r="7" fill="#FFFFFF"/>
+  <rect x="118" y="132" width="150" height="9" rx="4.5" fill="#E8E4D8"/>
+  <rect x="118" y="150" width="120" height="9" rx="4.5" fill="#E8E4D8"/>
+</svg>

@@ -7,5 +7,26 @@ delete process.env.DATABASE_ADMIN_URL;
 delete process.env.DATABASE_SUPERUSER_URL;
 const config = loadConfig();
 const app = await createApp();
-await app.listen(config.port);
+// La configuración ya quedó cargada: las claves de Escritorio no pasan a Chromium, Tesseract ni otros procesos hijos.
+for (const k of ['COROC_DESKTOP_TOKEN', 'COROC_JWT_SECRET', 'COROC_DATA_KEY', 'DATABASE_URL']) if (config.mode === 'desktop') delete process.env[k];
+if (config.host) await app.listen(config.port, config.host);
+else await app.listen(config.port);
 logger.log(`API de COROC escuchando en el puerto ${config.port}`);
+
+// COROC Escritorio (ADR-062): el supervisor pide el cierre por el canal IPC, porque en Windows no hay SIGTERM. Se
+// terminan las peticiones y tareas en curso y se cierran las conexiones antes de salir.
+let closing = false;
+const shutdown = () => {
+  if (closing) return;
+  closing = true;
+  void app.close().then(
+    () => process.exit(0),
+    () => process.exit(1),
+  );
+};
+process.on('message', (m) => {
+  if (m === 'shutdown') shutdown();
+});
+// Si el supervisor se cierra de golpe (cierre forzado, corte de luz), el canal IPC se corta: la API no queda huérfana.
+process.on('disconnect', shutdown);
+process.send?.({ evento: 'escuchando', puerto: config.port });

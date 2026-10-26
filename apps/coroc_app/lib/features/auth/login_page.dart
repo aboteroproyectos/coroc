@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/desktop/desktop_runtime.dart';
 import '../../core/l10n.dart';
 import '../../core/providers.dart';
 import '../../design/theme.dart';
@@ -73,8 +74,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       _busy = true;
       _error = null;
     });
+    // En COROC Escritorio hay una sola empresa por PC: su identificador lo completa la app.
+    final company = ref.read(desktopProvider).status?.company;
     try {
-      await ref.read(authProvider.notifier).login(tenant: _tenant.text, username: _user.text, password: _pass.text, remember: _remember);
+      await ref.read(authProvider.notifier).login(tenant: company?.slug ?? _tenant.text, username: _user.text, password: _pass.text, remember: _remember);
     } catch (e) {
       if (mounted) setState(() => _error = errorText(context, e));
     } finally {
@@ -87,6 +90,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final expired = ref.watch(authProvider) is SignedOut && (ref.watch(authProvider) as SignedOut).expired;
+    final company = ref.watch(desktopModeProvider) ? ref.watch(desktopProvider).status?.company : null;
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -105,13 +109,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       const Center(child: CorocLogo(height: 170)),
                       const SizedBox(height: CorocSpace.xl),
                       if (expired) ...[_Notice(text: l.loginSessionExpired), const SizedBox(height: CorocSpace.md)],
-                      TextFormField(
-                        controller: _tenant,
-                        decoration: corocInput(context, label: l.loginCompany, hint: l.loginCompanyHint, prefix: const Icon(Icons.apartment_outlined)),
-                        textInputAction: TextInputAction.next,
-                        autocorrect: false,
-                        validator: (v) => (v ?? '').trim().length < 3 ? l.validationRequired : null,
-                      ),
+                      if (company != null)
+                        Text(company.name, style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center)
+                      else
+                        TextFormField(
+                          controller: _tenant,
+                          decoration: corocInput(context, label: l.loginCompany, hint: l.loginCompanyHint, prefix: const Icon(Icons.apartment_outlined)),
+                          textInputAction: TextInputAction.next,
+                          autocorrect: false,
+                          validator: (v) => (v ?? '').trim().length < 3 ? l.validationRequired : null,
+                        ),
                       const SizedBox(height: CorocSpace.md),
                       TextFormField(
                         controller: _user,

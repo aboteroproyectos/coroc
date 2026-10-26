@@ -153,7 +153,7 @@ ${kv(R.client!, d.client.fullName)}${kv(R.contract!, d.contract)}${kv(R.paymentD
 <div class="hero"><div><div class="label">${esc(R.amountPaid)}</div><div class="big num paid">${esc(m(d.payment.amount))}</div></div>
 <div><div class="label">${esc(R.newBalance)}</div><div class="big num">${esc(m(d.newBalance))}</div>${d.newBalance === 0 ? `<div class="okline">${esc(R.paidOff)}</div>` : ''}</div></div>
 <div class="lines num">${rows.map(([k, v]) => `<div><span>${esc(k)}</span><span>${esc(v)}</span></div>`).join('')}</div>
-${qr ? `<div class="verify">${qr}<div>${esc(R.verify)}<br><span class="num">${esc(d.verificationCode)}</span></div></div>` : ''}
+${qr ? `<div class="verify">${qr}<div>${esc(R.verify)}<br><span class="num">${esc(d.verificationCode)}</span></div></div>` : d.verificationCode ? `<div class="verify"><div>${esc(R.verifyCode)}<br><span class="num">${esc(d.verificationCode)}</span></div></div>` : ''}
 <div class="foot">${esc(R.generated)}</div>
 ${d.voided ? `<div class="void">${esc(R.void)}</div>` : ''}</div>`;
   return page(lang, body, css);

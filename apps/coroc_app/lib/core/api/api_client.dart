@@ -17,7 +17,11 @@ typedef LanguageGetter = String Function();
 class ApiClient {
   ApiClient({required this.baseUrl, required this.store, required this.language, http.Client? client}) : _http = client ?? http.Client();
 
-  final String baseUrl;
+  /// Dirección de la API. En COROC Escritorio la entrega el supervisor al arrancar (puerto de este PC).
+  String baseUrl;
+
+  /// Encabezados de todas las peticiones: en Escritorio, la clave de la ejecución (`X-Coroc-Desktop`, ADR-062).
+  final Map<String, String> fixedHeaders = {};
   final SessionStore store;
   final LanguageGetter language;
   final http.Client _http;
@@ -53,8 +57,15 @@ class ApiClient {
       'Accept-Language': lang == 'pt' ? 'pt-BR' : lang,
       'X-Coroc-Device': await store.deviceId(),
       if (auth && _accessToken != null) 'Authorization': 'Bearer $_accessToken',
+      ...fixedHeaders,
       ...?extra,
     };
+  }
+
+  /// COROC Escritorio: la API de este PC y la clave de esta ejecución, que cambian cada vez que COROC arranca.
+  void useDesktopServer(String api, String key) {
+    baseUrl = api;
+    fixedHeaders['X-Coroc-Desktop'] = key;
   }
 
   Future<dynamic> get(String path, {Map<String, Object?>? query}) => send('GET', path, query: query);
@@ -146,7 +157,7 @@ class ApiClient {
     var received = await target.exists() ? await target.length() : 0;
     var total = -1;
     for (var attempt = 1; ; attempt++) {
-      final req = http.Request('GET', fileUri(path));
+      final req = http.Request('GET', fileUri(path))..headers.addAll(fixedHeaders);
       if (received > 0) req.headers['Range'] = 'bytes=$received-';
       try {
         final res = await _http.send(req).timeout(const Duration(seconds: 60));
@@ -181,7 +192,7 @@ class ApiClient {
   Future<List<int>> downloadBytes(String path) async {
     final http.Response res;
     try {
-      res = await _http.get(fileUri(path)).timeout(const Duration(seconds: 60));
+      res = await _http.get(fileUri(path), headers: fixedHeaders).timeout(const Duration(seconds: 60));
     } on Object catch (e) {
       if (e is TimeoutException || e is http.ClientException || e is SocketException) throw ApiException.network();
       rethrow;

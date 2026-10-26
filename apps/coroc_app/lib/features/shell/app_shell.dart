@@ -4,14 +4,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/desktop/desktop_runtime.dart';
 import '../../core/l10n.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/brand.dart';
 import '../../design/widgets/common.dart';
+import '../desktop/guided_tour.dart';
+import '../desktop/receipt_catcher.dart';
 import '../inbox/inbox_page.dart' show InboxRealtime, intakeSummaryProvider;
 import '../inbox/share_receiver.dart';
 import '../messaging/messaging_common.dart' show MessagesRealtime, messagesSummaryProvider;
 import '../settings/data_sections.dart' show FolderAutoSync, showCreateBackupDialog;
+import '../settings/desktop_sections.dart' show BackupReminder;
 import 'offline_banner.dart';
 
 class _Dest {
@@ -26,6 +30,8 @@ class _Dest {
 final _destinations = <_Dest>[
   _Dest('/dashboard', Icons.space_dashboard_outlined, Icons.space_dashboard, (l) => l.navDashboard),
   _Dest('/today', Icons.event_available_outlined, Icons.event_available, (l) => l.navToday),
+  // Solo en COROC Escritorio (ADR-064): la cola del día para enviar por WhatsApp para Windows.
+  _Dest('/messages/today', Icons.outbox_outlined, Icons.outbox, (l) => l.todayMessagesTitle, 'messages.view'),
   _Dest('/clients', Icons.people_alt_outlined, Icons.people_alt, (l) => l.navClients),
   _Dest('/inbox', Icons.inbox_outlined, Icons.inbox, (l) => l.navInbox, 'intake.view'),
   _Dest('/messages', Icons.forum_outlined, Icons.forum, (l) => l.navMessages, 'messages.view'),
@@ -51,8 +57,8 @@ class AppShell extends ConsumerWidget {
 
   /// Destinos que el rol puede ver. En teléfonos la barra inferior tiene 5 (§5.6): si no caben, la Ayuda y los Informes
   /// pasan a Configuración, y «Hoy» queda en el tablero (su botón «Ver hoy»).
-  static List<_Dest> _visible(bool Function(String) can, {bool compact = false}) {
-    final list = _destinations.where((d) => d.permission == null || can(d.permission!)).toList();
+  static List<_Dest> _visible(bool Function(String) can, {bool compact = false, bool desktop = false}) {
+    final list = _destinations.where((d) => (d.permission == null || can(d.permission!)) && (desktop || d.path != '/messages/today')).toList();
     for (final path in const ['/help', '/reports', '/today']) {
       if (compact && list.length > 5) list.removeWhere((d) => d.path == path);
     }
@@ -73,10 +79,13 @@ class AppShell extends ConsumerWidget {
     final canCreate = session?.user.can('clients.create') ?? false;
     final width = MediaQuery.sizeOf(context).width;
     bool can(String p) => session?.user.can(p) ?? false;
-    final dests = _visible(can, compact: width < CorocBreakpoints.tablet);
+    final desktop = ref.watch(desktopModeProvider);
+    final dests = _visible(can, compact: width < CorocBreakpoints.tablet, desktop: desktop);
+    final ready = can('messages.view') ? ref.watch(messagesSummaryProvider).valueOrNull?.ready ?? 0 : 0;
     final counts = {
       '/inbox': can('intake.view') ? ref.watch(intakeSummaryProvider).valueOrNull?.pending ?? 0 : 0,
-      '/messages': can('messages.view') ? ref.watch(messagesSummaryProvider).valueOrNull?.ready ?? 0 : 0,
+      // En Escritorio el contador de los listos va en «Mensajes de hoy».
+      if (desktop) '/messages/today': ready else '/messages': ready,
     };
     final found = dests.indexWhere((d) => location.startsWith(d.path));
     final index = found < 0 ? 0 : found;
@@ -105,18 +114,23 @@ class AppShell extends ConsumerWidget {
     final page = Column(
       children: [
         const OfflineBanner(),
+        if (desktop && can('backup.create')) const BackupReminder(),
         Expanded(child: child),
       ],
     );
-    final body = ShareReceiver(
-      child: InboxRealtime(
-        child: MessagesRealtime(
-          child: FolderAutoSync(
-            child: Shortcuts(
-              shortcuts: shortcuts,
-              child: Actions(
-                actions: actions,
-                child: Focus(autofocus: true, child: page),
+    final body = GuidedTour(
+      child: ReceiptCatcher(
+        child: ShareReceiver(
+          child: InboxRealtime(
+            child: MessagesRealtime(
+              child: FolderAutoSync(
+                child: Shortcuts(
+                  shortcuts: shortcuts,
+                  child: Actions(
+                    actions: actions,
+                    child: Focus(autofocus: true, child: page),
+                  ),
+                ),
               ),
             ),
           ),
@@ -196,9 +210,16 @@ class _Sidebar extends ConsumerWidget {
                 ),
               ),
             ),
-            for (var i = 0; i < dests.length; i++)
-              _SideItem(icon: i == index ? dests[i].selectedIcon : dests[i].icon, label: dests[i].label(l), selected: i == index, onTap: () => onSelect(i), count: counts[dests[i].path] ?? 0),
-            const Spacer(),
+            // Con la letra grande o en una pantalla baja, el menú se desplaza en vez de cortarse.
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  for (var i = 0; i < dests.length; i++)
+                    _SideItem(icon: i == index ? dests[i].selectedIcon : dests[i].icon, label: dests[i].label(l), selected: i == index, onTap: () => onSelect(i), count: counts[dests[i].path] ?? 0),
+                ],
+              ),
+            ),
             // «Crear respaldo» visible en el menú principal (§19).
             if (user != null && user.can('backup.create')) _SideItem(icon: Icons.backup_outlined, label: l.backupCreate, selected: false, onTap: () => showCreateBackupDialog(context, ref)),
             if (user != null)

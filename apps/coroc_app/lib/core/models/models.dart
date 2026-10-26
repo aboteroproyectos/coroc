@@ -574,6 +574,9 @@ abstract class BackupInfo with _$BackupInfo {
     @Default(<String, int>{}) Map<String, int> counts,
     required String createdAt,
     String? finishedAt,
+    // COROC Escritorio (ADR-066): copia diaria automática; las anteriores quedan solo en la carpeta elegida.
+    @Default(false) bool auto,
+    @Default(true) bool downloadable,
   }) = _BackupInfo;
   factory BackupInfo.fromJson(Map<String, dynamic> json) => _$BackupInfoFromJson(json);
   bool get running => status == 'pending' || status == 'running';
@@ -781,10 +784,11 @@ abstract class ContactDecision with _$ContactDecision {
   factory ContactDecision.fromJson(Map<String, dynamic> json) => _$ContactDecisionFromJson(json);
 }
 
-/// Enlaces listos del modo asistido: WhatsApp con el texto (`wa.me`) o el correo (`mailto:`).
+/// Enlaces listos del modo asistido: WhatsApp con el texto (`wa.me`) o el correo (`mailto:`). En COROC Escritorio,
+/// además, el chat del cliente en WhatsApp para Windows (`whatsapp://send`, ADR-064).
 @freezed
 abstract class AssistedLinks with _$AssistedLinks {
-  const factory AssistedLinks({String? whatsappUrl, String? mailtoUrl}) = _AssistedLinks;
+  const factory AssistedLinks({String? whatsappUrl, String? mailtoUrl, String? whatsappAppUrl}) = _AssistedLinks;
   factory AssistedLinks.fromJson(Map<String, dynamic> json) => _$AssistedLinksFromJson(json);
 }
 
@@ -966,4 +970,95 @@ abstract class EmailSender with _$EmailSender {
   }) = _EmailSender;
   factory EmailSender.fromJson(Map<String, dynamic> json) => _$EmailSenderFromJson(json);
   bool get verified => verifiedAt != null;
+}
+
+// ─────────────────────────── Fase 10 · COROC Escritorio para Windows (ADR-062 a ADR-067) ───────────────────────────
+
+/// La empresa de esta instalación: una por PC. El identificador de ingreso lo completa la app sola.
+@freezed
+abstract class DesktopCompany with _$DesktopCompany {
+  const factory DesktopCompany({required String slug, required String name, required String country, @Default('es') String lang}) = _DesktopCompany;
+  factory DesktopCompany.fromJson(Map<String, dynamic> json) => _$DesktopCompanyFromJson(json);
+}
+
+/// Copia subida para restaurar en este PC que aún no se aplicó (se retoma al volver a abrir COROC).
+@freezed
+abstract class DesktopRestore with _$DesktopRestore {
+  const factory DesktopRestore({required String id, required String status, required String company, String? backupCreatedAt}) = _DesktopRestore;
+  factory DesktopRestore.fromJson(Map<String, dynamic> json) => _$DesktopRestoreFromJson(json);
+}
+
+/// Estado de la instalación: sin empresa aún (asistente de primer uso), con empresa (ingreso) o restaurando una copia.
+@freezed
+abstract class DesktopStatus with _$DesktopStatus {
+  const factory DesktopStatus({@Default(false) bool configured, DesktopCompany? company, DesktopRestore? restore}) = _DesktopStatus;
+  factory DesktopStatus.fromJson(Map<String, dynamic> json) => _$DesktopStatusFromJson(json);
+}
+
+/// Copia restaurada en este PC: la empresa y los Propietarios con los que se puede ingresar.
+@freezed
+abstract class DesktopRestored with _$DesktopRestored {
+  const factory DesktopRestored({required DesktopCompany company, @Default(<String>[]) List<String> owners}) = _DesktopRestored;
+  factory DesktopRestored.fromJson(Map<String, dynamic> json) => _$DesktopRestoredFromJson(json);
+}
+
+/// Gmail de la empresa con contraseña de aplicación (ADR-065): lee los comprobantes y envía los recibos.
+@freezed
+abstract class GmailAccount with _$GmailAccount {
+  const GmailAccount._();
+  const factory GmailAccount({
+    @Default(false) bool connected,
+    String? address,
+    String? status,
+    String? lastError,
+    String? lastCheckAt,
+    @Default(0) int sentToday,
+    @Default(400) int dailyLimit,
+    @Default('COROC/Procesado') String label,
+  }) = _GmailAccount;
+  factory GmailAccount.fromJson(Map<String, dynamic> json) => _$GmailAccountFromJson(json);
+  bool get failing => status == 'error';
+}
+
+@freezed
+abstract class EmailAttachment with _$EmailAttachment {
+  const factory EmailAttachment({String? name, @Default(0) int size, String? intakeId}) = _EmailAttachment;
+  factory EmailAttachment.fromJson(Map<String, dynamic> json) => _$EmailAttachmentFromJson(json);
+}
+
+/// Un correo del hilo con el cliente: recibido (`in`, con sus comprobantes) o enviado por COROC (`out`).
+@freezed
+abstract class EmailThreadItem with _$EmailThreadItem {
+  const factory EmailThreadItem({
+    required String id,
+    required String direction,
+    String? subject,
+    String? snippet,
+    String? from,
+    String? to,
+    @Default(<EmailAttachment>[]) List<EmailAttachment> attachments,
+    String? messageId,
+    required String at,
+  }) = _EmailThreadItem;
+  factory EmailThreadItem.fromJson(Map<String, dynamic> json) => _$EmailThreadItemFromJson(json);
+}
+
+/// Copia automática diaria a una carpeta de este PC: OneDrive, Google Drive para escritorio o una memoria USB (ADR-066).
+@freezed
+abstract class AutoBackup with _$AutoBackup {
+  const factory AutoBackup({
+    @Default(false) bool configured,
+    @Default(false) bool enabled,
+    String? folder,
+    @Default(7) int keep,
+    String? lastRunAt,
+    String? lastSuccessAt,
+    String? lastFile,
+    int? lastSize,
+    String? lastError,
+    String? lastBackupAt,
+    @Default(false) bool overdue,
+    @Default(false) bool running,
+  }) = _AutoBackup;
+  factory AutoBackup.fromJson(Map<String, dynamic> json) => _$AutoBackupFromJson(json);
 }

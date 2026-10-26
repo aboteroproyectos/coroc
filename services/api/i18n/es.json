@@ -217,7 +217,75 @@
     "CONTACT_EXCEPTION_EVIDENCE": "La excepción horaria exige como evidencia un documento del cliente, distinto del contrato y posterior a él.",
     "OWNER_REQUIRED": "Solo el Propietario puede hacer este cambio.",
     "WHATSAPP_NOT_READY": "Primero conecte el número de WhatsApp Business con el id de la cuenta y configure el servidor (secreto de la app y token de verificación).",
-    "WHATSAPP_CHECKLIST_INCOMPLETE": "Complete toda la lista de verificación antes de activar el modo automático."
+    "WHATSAPP_CHECKLIST_INCOMPLETE": "Complete toda la lista de verificación antes de activar el modo automático.",
+    "DESKTOP_ALREADY_SET_UP": {
+      "title": "COROC ya está listo en este PC",
+      "detail": "Este PC ya tiene una empresa. Ingrese con su usuario y contraseña."
+    },
+    "DESKTOP_NOT_SET_UP": {
+      "title": "Falta crear la empresa",
+      "detail": "Abra COROC y siga el asistente de primer uso."
+    },
+    "DESKTOP_SEVERAL_COMPANIES": {
+      "title": "Instalación con varias empresas",
+      "detail": "COROC Escritorio maneja una sola empresa por PC. Pida ayuda al soporte."
+    },
+    "DESKTOP_BUSY": {
+      "title": "COROC está restaurando una copia",
+      "detail": "Espere a que termine; puede tardar unos minutos."
+    },
+    "DESKTOP_USER_NOT_FOUND": {
+      "title": "Usuario no encontrado",
+      "detail": "Revise el nombre de usuario e inténtelo de nuevo."
+    },
+    "GMAIL_AUTH_FAILED": {
+      "title": "Gmail no aceptó la contraseña de aplicación",
+      "detail": "Revise que copió las 16 letras completas y que la verificación en dos pasos de Google sigue activa. Si la borró, cree una contraseña de aplicación nueva."
+    },
+    "GMAIL_APP_PASSWORD_REQUIRED": {
+      "title": "Falta la contraseña de aplicación",
+      "detail": "Gmail no deja usar la contraseña normal. Cree una contraseña de aplicación en su cuenta de Google y péguela aquí."
+    },
+    "GMAIL_APP_PASSWORD_FORMAT": {
+      "title": "Esa no parece una contraseña de aplicación",
+      "detail": "La contraseña de aplicación de Google tiene 16 letras. Cópiela tal como Google la muestra."
+    },
+    "GMAIL_UNREACHABLE": {
+      "title": "No hay conexión con Gmail",
+      "detail": "Revise que el PC tenga internet e inténtelo de nuevo."
+    },
+    "GMAIL_IMAP_FAILED": {
+      "title": "Gmail no dejó leer el correo",
+      "detail": "Inténtelo de nuevo en unos minutos. Si sigue igual, cree una contraseña de aplicación nueva."
+    },
+    "GMAIL_SMTP_FAILED": {
+      "title": "Gmail no dejó enviar correos",
+      "detail": "Inténtelo de nuevo en unos minutos. Si sigue igual, cree una contraseña de aplicación nueva."
+    },
+    "GMAIL_NOT_CONNECTED": {
+      "title": "Gmail no está conectado",
+      "detail": "Conecte el Gmail de la empresa en Configuración."
+    },
+    "AUTO_BACKUP_FOLDER_INVALID": {
+      "title": "No se puede usar esa carpeta",
+      "detail": "Elija una carpeta de este PC que exista y deje guardar archivos, por ejemplo la de OneDrive, la de Google Drive o una USB conectada."
+    },
+    "AUTO_BACKUP_FOLDER_UNAVAILABLE": {
+      "title": "La carpeta de las copias no está disponible",
+      "detail": "Conecte la USB o revise que la carpeta siga en este PC. COROC lo intentará de nuevo en un rato."
+    },
+    "AUTO_BACKUP_NOT_CONFIGURED": {
+      "title": "Falta elegir dónde guardar las copias",
+      "detail": "Elija la carpeta y la contraseña de las copias automáticas."
+    },
+    "BACKUP_FAILED": {
+      "title": "No se pudo hacer la copia",
+      "detail": "COROC lo intentará de nuevo en un rato. Si sigue igual, pida ayuda al soporte."
+    },
+    "BACKUP_IN_FOLDER": {
+      "title": "Esta copia está en la carpeta de copias",
+      "detail": "Ábrala desde la carpeta que eligió (OneDrive, Google Drive o la USB)."
+    }
   },
   "terms": {
     "PRINCIPAL": "El capital debe ser un valor positivo.",
@@ -478,6 +546,7 @@
     "emailFooter": "Este mensaje fue enviado por {company} a través de COROC.",
     "unsubscribe": "Para no recibir más correos",
     "suspendedSubject": "COROC · WhatsApp pasó al modo asistido",
-    "suspendedNotice": "Meta suspendió o restringió la cuenta de WhatsApp Business de {company}. COROC pasó automáticamente al modo asistido: ningún mensaje se perdió y los pendientes están en «Por enviar hoy», listos para enviarlos con un toque. Revise el estado de la cuenta en el Administrador de WhatsApp de Meta y, cuando esté restablecida, vuelva a activar el modo automático en Configuración."
+    "suspendedNotice": "Meta suspendió o restringió la cuenta de WhatsApp Business de {company}. COROC pasó automáticamente al modo asistido: ningún mensaje se perdió y los pendientes están en «Por enviar hoy», listos para enviarlos con un toque. Revise el estado de la cuenta en el Administrador de WhatsApp de Meta y, cuando esté restablecida, vuelva a activar el modo automático en Configuración.",
+    "replyStop": "Si no quieres recibir más correos, responde SALIR."
   }
 }

@@ -47,7 +47,7 @@ npm run lint:i18n                                                               
 
 ## 2. Todo con Docker
 
-Para un solo PC con Windows y sin nube hay un paquete listo, con la app, el servidor ya construido y un instalador: [GUIA_PC_WINDOWS.md](GUIA_PC_WINDOWS.md) (flujo `pc-windows.yml`, archivos en `infra/pc/`).
+Para un solo PC con Windows y sin nube se usa **COROC Escritorio**, sin Docker (§7 y [GUIA_ESCRITORIO.md](GUIA_ESCRITORIO.md)). El paquete con Docker de la Fase 8 ([GUIA_PC_WINDOWS.md](GUIA_PC_WINDOWS.md), flujo `pc-windows.yml`, archivos en `infra/pc/`) queda solo para soporte.
 
 ```bash
 cp infra/.env.example infra/.env       # complete secretos y contraseñas
@@ -106,11 +106,12 @@ tool/coverage_report.sh 85 --files     # cobertura sin código generado; la CI f
 
 Los instaladores quedan como artefactos de cada ejecución, en la pestaña Actions del repositorio.
 
-Además, fuera de `ci.yml` (ADR-060):
-- `deploy.yml` despliega la API en Fly.io cuando la CI termina en verde en `main`;
-- `backup-db.yml` guarda los domingos una copia cifrada de la base en R2.
+Además, fuera de `ci.yml`:
+- `escritorio-windows.yml` construye el instalador de COROC Escritorio y lo prueba de punta a punta en Windows en cada push a `main` o `fase-*` y en cada pull request; en `main` lo publica en Releases (§7, ADR-067);
+- `deploy.yml` despliega la API en Fly.io cuando la CI termina en verde en `main` (ADR-060);
+- `backup-db.yml` guarda los domingos una copia cifrada de la base en R2 (ADR-060).
 
-Ambos se omiten con un aviso mientras no existan sus secretos.
+`deploy.yml` y `backup-db.yml` se omiten con un aviso mientras no existan sus secretos.
 
 ### Publicación (`.github/workflows/release.yml`, ADR-059)
 
@@ -266,3 +267,67 @@ Los recibos ya emitidos conservan el código QR con la dirección anterior. Esa 
   - Fly Postgres toma instantáneas diarias del volumen;
   - `backup-db.yml` guarda los domingos un `pg_dump` cifrado en R2, fuera de Fly.io;
   - pruebe restaurar una copia al menos una vez por trimestre (comando al inicio de `backup-db.yml`).
+
+## 7. COROC Escritorio para Windows (Fase 10, ADR-062 a ADR-067)
+
+Un solo instalador `.exe` con la app, la API y todo lo que necesita: sin Docker, sin nube y sin administrador. La guía
+para quien lo usa es [GUIA_ESCRITORIO.md](GUIA_ESCRITORIO.md).
+
+### Piezas
+
+| Pieza | Dónde |
+|---|---|
+| App en modo Escritorio | `flutter build windows --release --dart-define=COROC_DESKTOP=true`; el código propio está en `apps/coroc_app/lib/core/desktop/` y `lib/features/desktop/` |
+| Supervisor | `services/api/src/desktop/supervisor/` (se compila con la API) |
+| Modo Escritorio de la API | `COROC_MODE=desktop`, `services/api/src/desktop/` y `services/api/src/gmail/` |
+| Armado del servidor portátil | `infra/escritorio/construir.ps1`: Node.js 22, PostgreSQL 16, Tesseract con `spa`, `por` y `eng`, Poppler y el runtime de Visual C++, cada uno con versión y SHA-256 fijos |
+| Instalador | `infra/escritorio/coroc.iss` (Inno Setup 6) |
+| Prueba de punta a punta | `infra/escritorio/prueba.ps1` |
+
+### Construir y probar en un PC con Windows
+
+Con Node.js 22, Flutter, Python 3, Inno Setup 6 y Tesseract de UB Mannheim (`choco install tesseract innosetup`):
+
+```powershell
+npm ci; npm run build
+cd apps/coroc_app
+flutter create --platforms=windows --org co.coroc --project-name coroc --no-pub .; python tool/patch_platforms.py
+flutter pub get; dart run build_runner build --delete-conflicting-outputs; flutter gen-l10n
+flutter build windows --release --dart-define=COROC_DESKTOP=true --dart-define=COROC_VERSION=0.10.0.1
+cd ../..
+pwsh infra/escritorio/construir.ps1 -Salida C:\coroc-armado -App apps\coroc_app\build\windows\x64\runner\Release -Version 0.10.0.1
+& "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DStage=C:\coroc-armado /DAppVersion=0.10.0.1 /DIcono=apps\coroc_app\windows\runner\resources\app_icon.ico /OC:\coroc-instalador infra\escritorio\coroc.iss
+pwsh infra/escritorio/prueba.ps1 -Instalador C:\coroc-instalador\COROC-Escritorio-Windows.exe
+```
+
+`prueba.ps1` instala en silencio en la cuenta actual, prueba y desinstala borrando los datos: úsela en una cuenta de
+Windows de prueba o en una máquina virtual, nunca en el PC de una empresa.
+
+En Linux o macOS se prueba el supervisor con los binarios de PostgreSQL 16 del sistema (`COROC_PG_BIN`), como en la
+CI: `npx vitest run test/supervisor.test.ts` en `services/api`, con un usuario que no sea root (`initdb` no corre como
+root).
+
+### Supervisor (para soporte)
+
+```text
+node servidor\services\api\dist\desktop\supervisor\cli.js <orden>
+  iniciar [--datos <carpeta>] [--programas <carpeta>]   lo usa la app: enciende la base y la API
+  detener                                               apaga COROC en orden (lo usa el desinstalador)
+  respaldo-previo                                       apaga y copia la base en frío (lo usa el instalador)
+  restaurar-previo <carpeta>                            vuelve a una de las copias de datos\respaldos-previos
+  estado                                                versión y puertos de la última ejecución
+```
+
+- **Datos:** `%LOCALAPPDATA%\COROC\datos`, con `pg` (la base), `archivos` (cifrados), `secretos.bin` (DPAPI),
+  `estado.json`, `registros` (sin datos personales) y `respaldos-previos` (las 3 últimas).
+- **Registros para soporte:** `datos\registros`. Ante un error, la pantalla de carga muestra un código (por ejemplo,
+  `BASE_NO_INICIA`) que la persona puede copiar.
+- **Cambiar la versión de una pieza:** en `construir.ps1`, la URL nueva y su SHA-256 publicado en `$Pins`.
+
+### Publicación
+
+- Cada ejecución de `escritorio-windows.yml` deja el instalador como artefacto `COROC-Escritorio-Windows` (14 días).
+- En `main` se publica en Releases como «COROC Escritorio para Windows <versión>», con la etiqueta
+  `escritorio-<versión>`. La versión es la de `pubspec.yaml` más el número de ejecución (por ejemplo, `0.10.0.123`).
+- **Firma (P-2):** mientras no haya certificado de firma de código, Windows SmartScreen avisa al abrir el instalador
+  (la guía lo explica). Con el certificado, se firma `COROC-Escritorio-Windows.exe` con `signtool` antes de publicarlo.

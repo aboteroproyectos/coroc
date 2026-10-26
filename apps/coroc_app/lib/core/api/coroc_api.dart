@@ -303,6 +303,54 @@ class CorocApi {
   Future<void> retryTask(String id) async => client.post('/tasks/$id/retry');
   Future<IntakeTrace> traceIntake(String id) async => IntakeTrace.fromJson(await client.get('/intake/$id/trace') as Json);
 
+  // ─── COROC Escritorio para Windows (Fase 10, ADR-062 a ADR-066) ───
+  Future<DesktopStatus> desktopStatus() async => DesktopStatus.fromJson(await client.get('/desktop/status') as Json);
+
+  /// Primera vez en este PC: crea la empresa y su Propietario y devuelve la sesión para seguir con el asistente.
+  Future<Session> desktopSetup({
+    required String companyName,
+    required String country,
+    String? lang,
+    required String ownerName,
+    required String username,
+    required String password,
+    String? email,
+    required String deviceId,
+    String? deviceName,
+  }) async => Session.fromJson(
+    await client.post(
+          '/desktop/setup',
+          auth: false,
+          body: {
+            'company': {'name': companyName, 'country': country, 'lang': ?lang},
+            'owner': {'name': ownerName, 'username': username, 'password': password, 'email': ?email},
+            'deviceId': deviceId,
+            'deviceName': ?deviceName,
+          },
+        )
+        as Json,
+  );
+
+  /// Copia `.coroc` de otro PC (E-7): se sube aquí y se aplica con su contraseña.
+  Future<DesktopRestore> desktopRestoreUpload({required Stream<List<int>> Function() open, required int length, void Function(int, int)? onProgress}) async =>
+      DesktopRestore.fromJson(await client.upload('/desktop/restore', open: open, length: length, onProgress: onProgress) as Json);
+  Future<DesktopRestored> desktopRestoreApply(String id, String password) async =>
+      DesktopRestored.fromJson(await client.post('/desktop/restore/$id/apply', auth: false, body: {'password': password}) as Json);
+
+  /// Nueva contraseña después de confirmar con Windows Hello (ADR-063).
+  Future<void> desktopResetPassword(String username, String password) async => client.post('/desktop/password', auth: false, body: {'username': username, 'password': password});
+
+  Future<GmailAccount> gmail() async => GmailAccount.fromJson(await client.get('/company/gmail') as Json);
+  Future<GmailAccount> saveGmail(String address, String appPassword) async => GmailAccount.fromJson(await client.put('/company/gmail', body: {'address': address, 'appPassword': appPassword}) as Json);
+  Future<GmailAccount> testGmail() async => GmailAccount.fromJson(await client.post('/company/gmail/test') as Json);
+  Future<void> deleteGmail() async => client.delete('/company/gmail');
+  Future<List<EmailThreadItem>> clientEmails(String clientId) async => _list((await client.get('/clients/$clientId/emails') as Json)['items'], EmailThreadItem.fromJson);
+
+  Future<AutoBackup> autoBackup() async => AutoBackup.fromJson(await client.get('/company/auto-backup') as Json);
+  Future<AutoBackup> saveAutoBackup({required String folder, String? password, int? keep, bool? enabled}) async =>
+      AutoBackup.fromJson(await client.put('/company/auto-backup', body: {'folder': folder, 'password': ?password, 'keep': ?keep, 'enabled': ?enabled}) as Json);
+  Future<AutoBackup> runAutoBackup() async => AutoBackup.fromJson(await client.post('/company/auto-backup/run') as Json);
+
   // ─── Eliminación de cuentas (App Store 5.1.1(v), Google Play) ───
   Future<void> deleteMyAccount(String password) async => client.delete('/me', body: {'password': password});
   Future<void> deleteUser(String id) async => client.delete('/users/$id');

@@ -1,10 +1,10 @@
 openapi: 3.1.0
 info:
   title: COROC API
-  version: 0.7.0
+  version: 0.8.0
   summary: Gestión y cobro de préstamos personales
   description: |
-    Contrato de la API de COROC (§24.1-3 del prompt maestro). Versión 0.6.0: operaciones de las fases 1 a 5 implementadas y verificadas
+    Contrato de la API de COROC (§24.1-3 del prompt maestro). Versión 0.8.0: operaciones de las fases 1 a 10, también las de COROC Escritorio, implementadas y verificadas
     contra este contrato en cada prueba (el servidor valida las peticiones con él y las pruebas validan las respuestas).
 
     **Convenciones**
@@ -61,6 +61,8 @@ tags:
     description: Soporte — cola de fallidos, reintentos y traza de un comprobante (Fase 5)
   - name: webhooks
     description: Eventos entrantes de WhatsApp y correo
+  - name: desktop
+    description: COROC Escritorio — asistente de primer uso, restauración en otro PC y recuperación con Windows Hello (Fase 10)
 
 paths:
   /auth/login:
@@ -366,6 +368,81 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Company' }
         '409': { $ref: '#/components/responses/Problem' }
+  /company/gmail:
+    get:
+      tags: [company]
+      operationId: getGmail
+      summary: Gmail de la empresa (contraseña de aplicación; Fase 10)
+      responses:
+        '200':
+          description: Estado de la conexión
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GmailAccount' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+    put:
+      tags: [company]
+      operationId: saveGmail
+      summary: Conectar el Gmail de la empresa con una contraseña de aplicación
+      description: Prueba IMAP (lectura) y SMTP (envío) antes de guardar. Desde ese momento COROC lee solo los correos que lleguen desde la dirección de un cliente y los etiqueta «COROC/Procesado».
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [address, appPassword]
+              additionalProperties: false
+              properties:
+                address: { type: string, format: email, maxLength: 200 }
+                appPassword: { type: string, format: password, minLength: 16, maxLength: 40, description: Las 16 letras que muestra Google; se aceptan con espacios }
+      responses:
+        '200':
+          description: Conectado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GmailAccount' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+    delete:
+      tags: [company]
+      operationId: deleteGmail
+      summary: Desconectar el Gmail de la empresa
+      responses:
+        '204': { description: Desconectado }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /company/gmail/test:
+    post:
+      tags: [company]
+      operationId: testGmail
+      summary: Probar la conexión con Gmail con la contraseña guardada
+      responses:
+        '200':
+          description: Funciona
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GmailAccount' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /clients/{id}/emails:
+    get:
+      tags: [clients]
+      operationId: clientEmails
+      summary: Hilo de correo del cliente (recibidos y enviados por COROC)
+      parameters:
+        - { $ref: '#/components/parameters/Id' }
+        - { $ref: '#/components/parameters/Limit' }
+      responses:
+        '200':
+          description: Correos, del más reciente al más antiguo
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/EmailThreadItem' }
+        '4XX': { $ref: '#/components/responses/Problem' }
   /receiving-accounts:
     get:
       tags: [company]
@@ -1948,6 +2025,55 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/FileLink' }
         '4XX': { $ref: '#/components/responses/Problem' }
+  /company/auto-backup:
+    get:
+      tags: [backup]
+      operationId: getAutoBackup
+      summary: Copias automáticas diarias a una carpeta de este PC (Escritorio, Fase 10)
+      responses:
+        '200':
+          description: Configuración y estado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AutoBackup' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+    put:
+      tags: [backup]
+      operationId: saveAutoBackup
+      summary: Elegir la carpeta y la contraseña de las copias automáticas
+      description: La carpeta debe existir en este PC y dejar escribir (OneDrive, Google Drive para escritorio o una USB). La contraseña se pide la primera vez; sin ella la copia no se abre en otro PC.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [folder]
+              additionalProperties: false
+              properties:
+                enabled: { type: boolean, default: true }
+                folder: { type: string, minLength: 2, maxLength: 1000 }
+                password: { type: string, format: password, minLength: 10, maxLength: 200 }
+                keep: { type: integer, minimum: 1, maximum: 90 }
+      responses:
+        '200':
+          description: Guardado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AutoBackup' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /company/auto-backup/run:
+    post:
+      tags: [backup]
+      operationId: runAutoBackup
+      summary: Hacer la copia ahora (además de la diaria)
+      responses:
+        '202':
+          description: Copia en curso
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AutoBackup' }
+        '4XX': { $ref: '#/components/responses/Problem' }
   /restores:
     post:
       tags: [backup]
@@ -2012,6 +2138,131 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Restore' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+
+  /desktop/status:
+    get:
+      tags: [desktop]
+      operationId: desktopStatus
+      summary: Estado de la instalación de Escritorio (¿ya hay empresa o una restauración a medias?)
+      description: Solo en COROC Escritorio (ADR-062); en la nube responde 404. Como toda la API de Escritorio, exige la clave de la ejecución en `X-Coroc-Desktop`.
+      security: []
+      responses:
+        '200':
+          description: Estado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DesktopStatus' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /desktop/setup:
+    post:
+      tags: [desktop]
+      operationId: desktopSetup
+      summary: Crear la empresa y su Propietario desde el asistente de primer uso
+      description: Solo mientras la instalación no tiene empresa. Devuelve la sesión del Propietario para seguir con el asistente.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [company, owner, deviceId]
+              additionalProperties: false
+              properties:
+                company:
+                  type: object
+                  required: [name, country]
+                  additionalProperties: false
+                  properties:
+                    name: { type: string, minLength: 2, maxLength: 120 }
+                    country: { type: string, enum: [CO, BR, US] }
+                    lang: { $ref: '#/components/schemas/Lang' }
+                owner:
+                  type: object
+                  required: [name, username, password]
+                  additionalProperties: false
+                  properties:
+                    name: { type: string, minLength: 1, maxLength: 120 }
+                    username: { type: string, pattern: '^[a-z0-9._-]{3,32}$' }
+                    password: { type: string, format: password, minLength: 12, maxLength: 128 }
+                    email: { type: [string, 'null'], format: email, maxLength: 200 }
+                deviceId: { type: string, minLength: 8, maxLength: 120 }
+                deviceName: { type: [string, 'null'], maxLength: 120 }
+      responses:
+        '201':
+          description: Empresa creada y sesión iniciada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /desktop/restore:
+    post:
+      tags: [desktop]
+      operationId: desktopRestoreUpload
+      summary: Recibir el `.coroc` de otro PC en una instalación nueva (E-7). El cuerpo es el archivo
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema: { type: string, contentMediaType: application/octet-stream }
+      responses:
+        '201':
+          description: Copia recibida; aún no se ha descifrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DesktopRestore' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /desktop/restore/{id}/apply:
+    post:
+      tags: [desktop]
+      operationId: desktopRestoreApply
+      summary: Verificar y restaurar la copia con su contraseña; la empresa queda lista para ingresar
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              additionalProperties: false
+              properties:
+                password: { type: string, format: password, minLength: 1, maxLength: 200 }
+      responses:
+        '200':
+          description: Empresa restaurada
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [company, owners]
+                properties:
+                  company: { $ref: '#/components/schemas/DesktopCompany' }
+                  owners: { type: array, items: { type: string }, description: 'Usuarios Propietarios de la copia, para ingresar' }
+        '4XX': { $ref: '#/components/responses/Problem' }
+  /desktop/password:
+    post:
+      tags: [desktop]
+      operationId: desktopResetPassword
+      summary: Crear una contraseña nueva tras confirmar con Windows Hello (ADR-063)
+      description: Solo en Escritorio. La app pide Windows Hello antes de llamar; se cierran las sesiones del usuario.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              additionalProperties: false
+              properties:
+                username: { type: string, pattern: '^[a-z0-9._-]{3,32}$' }
+                password: { type: string, format: password, minLength: 12, maxLength: 128 }
+      responses:
+        '204': { description: Contraseña cambiada }
         '4XX': { $ref: '#/components/responses/Problem' }
 
   /public/upload/{token}:
@@ -2336,6 +2587,67 @@ components:
     IntakeStatus: { type: string, enum: [processing, review, unassigned, applied_auto, approved, duplicate, rejected, archived, failed] }
     MessageStatus: { type: string, enum: [ready, scheduled, sent, delivered, read, failed, blocked, cancelled] }
     MessageEvent: { type: string, enum: [welcome, reminder, overdue, receipt, statement, payoff, manual] }
+    GmailAccount:
+      type: object
+      required: [connected, address, status, lastError, lastCheckAt, sentToday, dailyLimit, label]
+      properties:
+        connected: { type: boolean }
+        address: { type: [string, 'null'] }
+        status: { type: [string, 'null'], enum: [active, error, null] }
+        lastError: { type: [string, 'null'], description: 'Código del último problema (GMAIL_AUTH_FAILED, GMAIL_UNREACHABLE, …)' }
+        lastCheckAt: { type: [string, 'null'], format: date-time }
+        sentToday: { type: integer, description: Correos enviados hoy por esta cuenta }
+        dailyLimit: { type: integer, description: Máximo diario que usa COROC (Gmail admite unos 500) }
+        label: { type: string, description: Etiqueta de Gmail de los correos ya procesados }
+    EmailThreadItem:
+      type: object
+      required: [id, direction, subject, snippet, from, to, attachments, messageId, at]
+      properties:
+        id: { type: string, format: uuid }
+        direction: { type: string, enum: [in, out] }
+        subject: { type: [string, 'null'] }
+        snippet: { type: [string, 'null'], description: Primeras líneas del correo }
+        from: { type: [string, 'null'] }
+        to: { type: [string, 'null'] }
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: [string, 'null'] }
+              size: { type: integer }
+              intakeId: { type: [string, 'null'], format: uuid, description: Comprobante en la Bandeja }
+        messageId: { type: [string, 'null'], format: uuid, description: Mensaje de COROC que salió en este correo }
+        at: { type: string, format: date-time }
+    DesktopCompany:
+      type: object
+      required: [slug, name, country, lang]
+      properties:
+        slug: { type: string, description: Identificador de ingreso; en Escritorio la app lo completa sola }
+        name: { type: string }
+        country: { type: string, enum: [CO, BR, US] }
+        lang: { $ref: '#/components/schemas/Lang' }
+    DesktopRestore:
+      type: object
+      required: [id, status, company, backupCreatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        status: { type: string, enum: [uploading, uploaded, verified, applied, failed] }
+        company: { type: string, description: Empresa según el encabezado de la copia }
+        backupCreatedAt: { type: [string, 'null'], description: Fecha y hora local de la copia }
+    DesktopStatus:
+      type: object
+      required: [configured, company, restore]
+      properties:
+        configured: { type: boolean }
+        company:
+          oneOf:
+            - type: 'null'
+            - $ref: '#/components/schemas/DesktopCompany'
+        restore:
+          oneOf:
+            - type: 'null'
+            - $ref: '#/components/schemas/DesktopRestore'
     Session:
       type: object
       required: [accessToken, refreshToken, expiresIn, user, company, mfaEnrollmentRequired]
@@ -3197,6 +3509,7 @@ components:
           description: En modo asistido, enlaces listos para que el usuario envíe
           properties:
             whatsappUrl: { type: string, format: uri }
+            whatsappAppUrl: { type: string, description: 'Abre WhatsApp para Windows en el chat del cliente con el texto listo (whatsapp://send, Fase 10)' }
             mailtoUrl: { type: string }
     RateCap:
       type: object
@@ -3279,8 +3592,26 @@ components:
         size: { type: [integer, 'null'] }
         sha256: { type: [string, 'null'] }
         counts: { type: object, additionalProperties: { type: integer } }
+        auto: { type: boolean, description: Copia automática diaria (Escritorio) }
+        downloadable: { type: boolean, description: 'Se puede descargar desde este PC; las copias automáticas viejas solo están en la carpeta elegida' }
         createdAt: { type: string, format: date-time }
         finishedAt: { type: [string, 'null'], format: date-time }
+    AutoBackup:
+      type: object
+      required: [configured, enabled, folder, keep, lastRunAt, lastSuccessAt, lastFile, lastSize, lastError, lastBackupAt, overdue, running]
+      properties:
+        configured: { type: boolean }
+        enabled: { type: boolean }
+        folder: { type: [string, 'null'], description: Carpeta de este PC donde se guardan las copias }
+        keep: { type: integer, description: Copias que se conservan en la carpeta }
+        lastRunAt: { type: [string, 'null'], format: date-time }
+        lastSuccessAt: { type: [string, 'null'], format: date-time }
+        lastFile: { type: [string, 'null'] }
+        lastSize: { type: [integer, 'null'] }
+        lastError: { type: [string, 'null'], description: 'AUTO_BACKUP_FOLDER_UNAVAILABLE, BACKUP_FAILED, …' }
+        lastBackupAt: { type: [string, 'null'], format: date-time, description: 'Última copia terminada, automática o manual' }
+        overdue: { type: boolean, description: Pasaron más de 7 días sin copia (la app avisa) }
+        running: { type: boolean }
     Restore:
       type: object
       required: [id, status, size, summary, createdAt, appliedAt]
@@ -3295,6 +3626,8 @@ components:
               required: [company, createdAt, format, schema, counts, documents, bytes]
               properties:
                 company: { type: string }
+                country: { type: [string, 'null'], description: País de la empresa de la copia (Fase 10) }
+                currency: { type: [string, 'null'], description: Moneda de la empresa de la copia (Fase 10) }
                 createdAt: { type: string }
                 format: { type: string }
                 schema: { type: string }

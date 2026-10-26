@@ -2,14 +2,12 @@
 // Uso: DATABASE_ADMIN_URL=... node dist/cli/tenant-create.js --slug inversiones-coroc --name "Inversiones Coroc S.A.S." \
 //        --country CO --owner andres --owner-name "Andrés Botero" --email andres@example.com
 // La contraseña inicial se pide por la entrada estándar y nunca se escribe en la terminal ni en los logs.
+import crypto from 'node:crypto';
 import { parseArgs } from 'node:util';
 import readline from 'node:readline';
 import pg from 'pg';
-import { assertStrongPassword, hashPassword } from '../auth/password.js';
-
-const CURRENCY: Record<string, string> = { CO: 'COP', BR: 'BRL', US: 'USD' };
-const TZ: Record<string, string> = { CO: 'America/Bogota', BR: 'America/Sao_Paulo', US: 'America/New_York' };
-const LANG: Record<string, string> = { CO: 'es', BR: 'pt-BR', US: 'en' };
+import { assertStrongPassword } from '../auth/password.js';
+import { insertTenantRows } from '../company/tenant-setup.js';
 
 export async function createTenant(adminUrl: string, a: { slug: string; name: string; country: 'CO' | 'BR' | 'US'; owner: string; ownerName: string; email?: string; password: string; timezone?: string; lang?: string }) {
   await assertStrongPassword(a.password, { username: a.owner, tenantSlug: a.slug, mode: process.env.COROC_BREACHED_CHECK === 'local' ? 'local' : 'hibp' });
@@ -18,17 +16,11 @@ export async function createTenant(adminUrl: string, a: { slug: string; name: st
   try {
     await c.query('BEGIN');
     await c.query('SET search_path = coroc, public');
-    const t = await c.query(
-      'INSERT INTO tenants (slug, name, country, currency, timezone, lang) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-      [a.slug, a.name, a.country, CURRENCY[a.country], a.timezone ?? TZ[a.country], a.lang ?? LANG[a.country]],
-    );
-    const id = t.rows[0].id as string;
+    const id = crypto.randomUUID();
     await c.query("SELECT set_config('app.tenant_id', $1, true)", [id]);
-    await c.query("INSERT INTO number_sequences (tenant_id, name, prefix) VALUES ($1, 'client', 'C'), ($1, 'contract', 'CT-'), ($1, 'receipt', 'RC-')", [id]);
-    const u = await c.query("INSERT INTO users (tenant_id, username, name, role, password_hash, email) VALUES ($1, $2, $3, 'owner', $4, $5) RETURNING id", [id, a.owner, a.ownerName, await hashPassword(a.password), a.email ?? null]);
-    await c.query("INSERT INTO audit_log (tenant_id, user_id, action, entity, entity_id, after) VALUES ($1::uuid, $2, 'tenant.created', 'tenant', $1::text, $3)", [id, u.rows[0].id, JSON.stringify({ slug: a.slug, country: a.country })]);
+    const r = await insertTenantRows((sql, params) => c.query(sql, params).then((x) => x.rows), id, { slug: a.slug, name: a.name, country: a.country, timezone: a.timezone, lang: a.lang }, { username: a.owner, name: a.ownerName, email: a.email ?? null, password: a.password });
     await c.query('COMMIT');
-    return { tenantId: id, ownerId: u.rows[0].id as string };
+    return { tenantId: id, ownerId: r.ownerId! };
   } catch (e) {
     await c.query('ROLLBACK');
     throw e;

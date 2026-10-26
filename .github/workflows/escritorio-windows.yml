@@ -1,0 +1,102 @@
+# COROC Escritorio para Windows (Fase 10, ADR-067): un solo instalador .exe, sin Docker, sin nube y sin administrador.
+# En windows-latest: compila la app y la API, arma el servidor portátil (Node.js, PostgreSQL 16, Tesseract, Poppler),
+# crea el instalador con Inno Setup y lo prueba de punta a punta (instalar en silencio, crear empresa, préstamo y pago,
+# PDF con Edge, comprobante con Tesseract, reiniciar, actualizar y desinstalar). En main se publica en Releases.
+name: COROC Escritorio para Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, 'fase-*']
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: escritorio-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  instalador:
+    name: Instalador y prueba de punta a punta
+    runs-on: windows-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - name: Versión
+        id: v
+        shell: bash
+        run: |
+          BASE="$(sed -n 's/^version: *\([0-9.]*\).*/\1/p' apps/coroc_app/pubspec.yaml)"
+          echo "version=${BASE}.${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+      - uses: ./.github/actions/flutter-setup
+      - name: App de Windows en modo Escritorio
+        working-directory: apps/coroc_app
+        shell: bash
+        run: flutter build windows --release --dart-define=COROC_DESKTOP=true --dart-define=COROC_VERSION=${{ steps.v.outputs.version }}
+      - name: API y núcleo
+        run: |
+          npm ci
+          npm run build
+      - name: Tesseract para Windows (UB Mannheim)
+        run: choco install tesseract -y --no-progress
+      - uses: actions/cache@v4
+        with:
+          path: .descargas
+          key: descargas-escritorio-${{ hashFiles('infra/escritorio/construir.ps1') }}
+      - name: Armar el servidor portátil y la app
+        shell: pwsh
+        run: ./infra/escritorio/construir.ps1 -Salida "$env:RUNNER_TEMP\coroc" -App apps\coroc_app\build\windows\x64\runner\Release -Version '${{ steps.v.outputs.version }}'
+      - name: Instalador (Inno Setup)
+        shell: pwsh
+        run: |
+          $iscc = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress }
+          & $iscc /Q "/DStage=$env:RUNNER_TEMP\coroc" '/DAppVersion=${{ steps.v.outputs.version }}' "/DIcono=$PWD\apps\coroc_app\windows\runner\resources\app_icon.ico" "/O$env:RUNNER_TEMP\instalador" infra\escritorio\coroc.iss
+          if ($LASTEXITCODE) { throw 'Inno Setup falló' }
+          Get-Item "$env:RUNNER_TEMP\instalador\COROC-Escritorio-Windows.exe" | Format-Table Name, @{ n = 'MB'; e = { [math]::Round($_.Length / 1MB, 1) } }
+      - name: Prueba de punta a punta (E-1, E-2, E-6, PDF con Edge, OCR, actualizar y desinstalar)
+        shell: pwsh
+        run: ./infra/escritorio/prueba.ps1 -Instalador "$env:RUNNER_TEMP\instalador\COROC-Escritorio-Windows.exe"
+      - name: Registros para soporte
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: registros-escritorio
+          path: |
+            ${{ runner.temp }}/*.log
+            ${{ runner.temp }}/*.out*
+            ~/AppData/Local/COROC/datos/registros/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Instalador como artefacto
+        uses: actions/upload-artifact@v6
+        with:
+          name: COROC-Escritorio-Windows
+          path: ${{ runner.temp }}/instalador/COROC-Escritorio-Windows.exe
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+      - name: Publicar la versión
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: escritorio-${{ steps.v.outputs.version }}
+          name: COROC Escritorio para Windows ${{ steps.v.outputs.version }}
+          make_latest: true
+          files: ${{ runner.temp }}/instalador/COROC-Escritorio-Windows.exe
+          body: |
+            **COROC Escritorio para Windows 10 y 11 (64 bits)**: un solo instalador, sin Docker, sin nube y sin costo mensual.
+
+            1. Descargue **COROC-Escritorio-Windows.exe** (abajo, en *Assets*) y ábralo con doble clic.
+            2. Si Windows muestra «Windows protegió su PC», toque **Más información** y después **Ejecutar de todas formas** (el instalador aún no tiene firma digital).
+            3. Siga la guía: [docs/GUIA_ESCRITORIO.md](https://github.com/${{ github.repository }}/blob/main/docs/GUIA_ESCRITORIO.md).
+
+            Para actualizar, abra el instalador nuevo: COROC guarda antes una copia de la base y sus datos quedan intactos.

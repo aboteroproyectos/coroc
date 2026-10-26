@@ -217,7 +217,75 @@
     "CONTACT_EXCEPTION_EVIDENCE": "A exceção de horário exige como evidência um documento do cliente, diferente do contrato e posterior a ele.",
     "OWNER_REQUIRED": "Somente o Proprietário pode fazer esta alteração.",
     "WHATSAPP_NOT_READY": "Primeiro conecte o número do WhatsApp Business com o id da conta e configure o servidor (segredo do app e token de verificação).",
-    "WHATSAPP_CHECKLIST_INCOMPLETE": "Complete toda a lista de verificação antes de ativar o modo automático."
+    "WHATSAPP_CHECKLIST_INCOMPLETE": "Complete toda a lista de verificação antes de ativar o modo automático.",
+    "DESKTOP_ALREADY_SET_UP": {
+      "title": "O COROC já está pronto neste PC",
+      "detail": "Este PC já tem uma empresa. Entre com seu usuário e senha."
+    },
+    "DESKTOP_NOT_SET_UP": {
+      "title": "Falta criar a empresa",
+      "detail": "Abra o COROC e siga o assistente de primeiro uso."
+    },
+    "DESKTOP_SEVERAL_COMPANIES": {
+      "title": "Instalação com várias empresas",
+      "detail": "O COROC Desktop trabalha com uma só empresa por PC. Peça ajuda ao suporte."
+    },
+    "DESKTOP_BUSY": {
+      "title": "O COROC está restaurando uma cópia",
+      "detail": "Aguarde terminar; pode levar alguns minutos."
+    },
+    "DESKTOP_USER_NOT_FOUND": {
+      "title": "Usuário não encontrado",
+      "detail": "Confira o nome de usuário e tente de novo."
+    },
+    "GMAIL_AUTH_FAILED": {
+      "title": "O Gmail não aceitou a senha de app",
+      "detail": "Confira se copiou as 16 letras completas e se a verificação em duas etapas do Google continua ativa. Se você a apagou, crie uma nova senha de app."
+    },
+    "GMAIL_APP_PASSWORD_REQUIRED": {
+      "title": "Falta a senha de app",
+      "detail": "O Gmail não deixa usar a senha normal. Crie uma senha de app na sua conta do Google e cole aqui."
+    },
+    "GMAIL_APP_PASSWORD_FORMAT": {
+      "title": "Isso não parece uma senha de app",
+      "detail": "A senha de app do Google tem 16 letras. Copie exatamente como o Google mostra."
+    },
+    "GMAIL_UNREACHABLE": {
+      "title": "Sem conexão com o Gmail",
+      "detail": "Confira se o PC tem internet e tente de novo."
+    },
+    "GMAIL_IMAP_FAILED": {
+      "title": "O Gmail não deixou ler o e-mail",
+      "detail": "Tente de novo em alguns minutos. Se continuar, crie uma nova senha de app."
+    },
+    "GMAIL_SMTP_FAILED": {
+      "title": "O Gmail não deixou enviar e-mails",
+      "detail": "Tente de novo em alguns minutos. Se continuar, crie uma nova senha de app."
+    },
+    "GMAIL_NOT_CONNECTED": {
+      "title": "O Gmail não está conectado",
+      "detail": "Conecte o Gmail da empresa em Configurações."
+    },
+    "AUTO_BACKUP_FOLDER_INVALID": {
+      "title": "Não é possível usar essa pasta",
+      "detail": "Escolha uma pasta deste PC que exista e permita salvar arquivos, por exemplo a do OneDrive, a do Google Drive ou um pendrive conectado."
+    },
+    "AUTO_BACKUP_FOLDER_UNAVAILABLE": {
+      "title": "A pasta das cópias não está disponível",
+      "detail": "Conecte o pendrive ou confira se a pasta continua neste PC. O COROC tentará de novo em instantes."
+    },
+    "AUTO_BACKUP_NOT_CONFIGURED": {
+      "title": "Falta escolher onde salvar as cópias",
+      "detail": "Escolha a pasta e a senha das cópias automáticas."
+    },
+    "BACKUP_FAILED": {
+      "title": "Não foi possível fazer a cópia",
+      "detail": "O COROC tentará de novo em instantes. Se continuar, peça ajuda ao suporte."
+    },
+    "BACKUP_IN_FOLDER": {
+      "title": "Esta cópia está na pasta de cópias",
+      "detail": "Abra-a pela pasta que você escolheu (OneDrive, Google Drive ou o pendrive)."
+    }
   },
   "terms": {
     "PRINCIPAL": "O capital deve ser um valor positivo.",
@@ -478,6 +546,7 @@
     "emailFooter": "Esta mensagem foi enviada por {company} pelo COROC.",
     "unsubscribe": "Para não receber mais e-mails",
     "suspendedSubject": "COROC · WhatsApp passou para o modo assistido",
-    "suspendedNotice": "A Meta suspendeu ou restringiu a conta do WhatsApp Business de {company}. O COROC passou automaticamente para o modo assistido: nenhuma mensagem foi perdida e as pendentes estão em «Para enviar hoje», prontas para enviar com um toque. Verifique a conta no Gerenciador do WhatsApp da Meta e, quando for restabelecida, reative o modo automático em Configurações."
+    "suspendedNotice": "A Meta suspendeu ou restringiu a conta do WhatsApp Business de {company}. O COROC passou automaticamente para o modo assistido: nenhuma mensagem foi perdida e as pendentes estão em «Para enviar hoje», prontas para enviar com um toque. Verifique a conta no Gerenciador do WhatsApp da Meta e, quando for restabelecida, reative o modo automático em Configurações.",
+    "replyStop": "Se não quiser mais receber e-mails, responda SAIR."
   }
 }

@@ -167,6 +167,47 @@ edit('macos/Runner/Configs/AppInfo.xcconfig', lambda t: re.sub(r'^PRODUCT_NAME =
 edit('windows/runner/main.cpp', lambda t: re.sub(r'window\.Create\(L"[^"]*"', 'window.Create(L"COROC"', t))
 
 
+# COROC Escritorio (ADR-062): una sola ventana; si ya está abierta (aunque sea oculta en la bandeja), se trae al frente y
+# la copia nueva termina. Con «--minimizado» (inicio con Windows) la ventana no se muestra: COROC queda en la bandeja.
+SINGLE_INSTANCE = r'''  // COROC: una sola ventana. Si ya hay una abierta, se trae al frente y esta copia termina.
+  ::CreateMutexW(nullptr, TRUE, L"Local\\COROC.App");
+  if (::GetLastError() == ERROR_ALREADY_EXISTS) {
+    HWND other = ::FindWindowW(L"FLUTTER_RUNNER_WIN32_WINDOW", L"COROC");
+    if (other != nullptr && ::wcsstr(command_line, L"--minimizado") == nullptr) {
+      ::ShowWindow(other, ::IsIconic(other) ? SW_RESTORE : SW_SHOW);
+      ::SetForegroundWindow(other);
+    }
+    return EXIT_SUCCESS;
+  }
+
+'''
+
+SHOW_ON_FIRST_FRAME = '''  flutter_controller_->engine()->SetNextFrameCallback([&]() {
+    this->Show();
+  });'''
+
+SHOW_UNLESS_MINIMIZED = '''  flutter_controller_->engine()->SetNextFrameCallback([&]() {
+    // COROC Escritorio: con --minimizado la ventana queda oculta en la bandeja hasta que la abran desde ahi.
+    if (::wcsstr(::GetCommandLineW(), L"--minimizado") == nullptr) this->Show();
+  });'''
+
+
+def single_instance(t):
+    if 'COROC.App' in t:
+        return t
+    t = t.replace('#include <windows.h>', '#include <windows.h>\n\n#include <cwchar>', 1)
+    return t.replace('  // Attach to console when present', SINGLE_INSTANCE + '  // Attach to console when present', 1)
+
+
+def start_hidden(t):
+    if '--minimizado' in t:
+        return t
+    return t.replace('#include <optional>', '#include <cwchar>\n#include <optional>', 1).replace(SHOW_ON_FIRST_FRAME, SHOW_UNLESS_MINIMIZED, 1)
+
+
+edit('windows/runner/main.cpp', single_instance)
+edit('windows/runner/flutter_window.cpp', start_hidden)
+
 # local_auth_windows (hasta 2.0.2) compila con /await y <experimental/coroutine>, que MSVC 14.51+ rechaza (STL1011)
 # salvo que se defina esta macro. Se agrega antes de incluir los complementos para que les aplique.
 SILENCE = '_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS'

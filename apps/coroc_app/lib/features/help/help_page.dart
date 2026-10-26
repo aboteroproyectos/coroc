@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/config.dart';
+import '../../core/desktop/desktop_runtime.dart';
 import '../../core/l10n.dart';
 import '../../design/theme.dart';
 import '../../design/tokens.dart';
@@ -11,13 +13,13 @@ typedef _Topic = ({IconData icon, String title, String body});
 
 /// Ayuda integrada (§20): guías breves de lo que ya hace la app en esta fase, con búsqueda.
 /// El contenido vive en los ARB, así que siempre está en el idioma de la interfaz.
-class HelpPage extends StatefulWidget {
+class HelpPage extends ConsumerStatefulWidget {
   const HelpPage({super.key});
   @override
-  State<HelpPage> createState() => _HelpPageState();
+  ConsumerState<HelpPage> createState() => _HelpPageState();
 }
 
-class _HelpPageState extends State<HelpPage> {
+class _HelpPageState extends ConsumerState<HelpPage> {
   final _search = TextEditingController();
   String _q = '';
 
@@ -41,6 +43,15 @@ class _HelpPageState extends State<HelpPage> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final List<_Topic> topics = [
+      // COROC Escritorio para Windows (Fase 10): primero lo propio de este PC.
+      if (ref.watch(desktopModeProvider)) ...[
+        (icon: Icons.computer_outlined, title: l.helpDesktopTitle, body: l.helpDesktopBody),
+        (icon: Icons.outbox_outlined, title: l.helpTodayMessagesTitle, body: l.helpTodayMessagesBody),
+        (icon: Icons.file_download_outlined, title: l.helpReceiptsDesktopTitle, body: l.helpReceiptsDesktopBody),
+        (icon: Icons.alternate_email, title: l.helpGmailTitle, body: l.helpGmailBody),
+        (icon: Icons.backup_outlined, title: l.helpDesktopBackupTitle, body: l.helpDesktopBackupBody),
+        (icon: Icons.shield_outlined, title: l.helpSmartScreenTitle, body: l.helpSmartScreenBody),
+      ],
       (icon: Icons.login, title: l.helpLoginTitle, body: l.helpLoginBody),
       (icon: Icons.person_add_alt_1_outlined, title: l.helpNewClientTitle, body: l.helpNewClientBody),
       (icon: Icons.calculate_outlined, title: l.helpMethodsTitle, body: l.helpMethodsBody),

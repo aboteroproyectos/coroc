@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/desktop/desktop_runtime.dart';
 import '../../core/format.dart';
 import '../../core/l10n.dart';
 import '../../core/models/models.dart';
@@ -10,6 +11,7 @@ import '../../design/theme.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/common.dart';
 import '../loans/loan_providers.dart';
+import 'client_emails.dart';
 import 'messaging_common.dart';
 
 /// Mensajes de la ficha del cliente (§5.7-7): historial con el estado de cada mensaje, envío manual sujeto a las reglas
@@ -54,6 +56,8 @@ class ClientMessagesTab extends ConsumerWidget {
                   children: [for (final m in p.items) MessageTile(key: ValueKey(m.id), message: m, showClient: false)],
                 ),
         ),
+        // COROC Escritorio: el hilo de correo con el cliente en el Gmail de la empresa (ADR-065).
+        if (ref.watch(desktopModeProvider)) ...[const SizedBox(height: CorocSpace.lg), ClientEmails(clientId: client.id)],
       ],
     );
   }

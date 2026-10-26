@@ -63,6 +63,28 @@ class ThemeController extends Notifier<ThemeMode> {
 
 final themeModeProvider = NotifierProvider<ThemeController, ThemeMode>(ThemeController.new);
 
+/// Tamaño de la letra de este equipo (Fase 10): normal, grande o más grande. Se aplica a toda la app al instante.
+class TextScaleController extends Notifier<double> {
+  static const sizes = [1.0, 1.15, 1.3];
+
+  @override
+  double build() {
+    Future.microtask(() async {
+      final saved = await ref.read(sessionStoreProvider).textScale();
+      if (saved != null && sizes.contains(saved)) state = saved;
+    });
+    return 1.0;
+  }
+
+  Future<void> set(double scale) async {
+    if (!sizes.contains(scale)) return;
+    state = scale;
+    await ref.read(sessionStoreProvider).saveTextScale(scale);
+  }
+}
+
+final textScaleProvider = NotifierProvider<TextScaleController, double>(TextScaleController.new);
+
 final apiClientProvider = Provider<ApiClient>((ref) {
   final client = ApiClient(baseUrl: AppConfig.apiBaseUrl, store: ref.watch(sessionStoreProvider), language: () => ref.read(localeProvider).languageCode);
   // Modo sin conexión (ADR-055): lecturas cifradas en el equipo y aviso del estado de la red.

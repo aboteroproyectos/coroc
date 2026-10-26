@@ -11,8 +11,10 @@ import { loadConfig } from './config.js';
 export async function createApp(opts: { logger?: false } = {}): Promise<INestApplication> {
   const config = loadConfig();
   const app = await NestFactory.create<NestExpressApplication>(AppModule, { logger: opts.logger ?? ['error', 'warn', 'log'], bodyParser: false });
-  app.set('trust proxy', 1);
+  // En Escritorio no hay balanceador delante: la dirección es la del propio PC.
+  app.set('trust proxy', config.mode === 'desktop' ? false : 1);
   app.use(helmet());
+  if (config.desktopToken) app.use(desktopGate(config.desktopToken));
   const http = new Logger('HTTP');
   app.use((req: { headers: Record<string, string | string[] | undefined>; method: string; path: string; requestId?: string }, res: any, next: () => void) => {
     // Id de petición (§20.4): se acepta el del balanceador si es seguro, o se genera; viaja en la respuesta y en los registros.
@@ -36,3 +38,22 @@ export async function createApp(opts: { logger?: false } = {}): Promise<INestApp
 }
 
 export const logger = new Logger('COROC');
+
+/** Rutas que no llevan la clave de Escritorio: la salud (supervisor) y los enlaces firmados de descarga. */
+const DESKTOP_OPEN = [/^\/health$/, /^\/v1\/files\/[^/]+$/, /^\/v1\/public\/privacy$/];
+
+/**
+ * COROC Escritorio (ADR-062): la API escucha solo en 127.0.0.1 y, además, exige en cada petición la clave que el
+ * supervisor generó para esta ejecución y entregó solo a la app. Así ni otra cuenta de Windows del mismo PC ni una página
+ * web abierta en el navegador (CSRF o «DNS rebinding» hacia 127.0.0.1) pueden usarla.
+ */
+export function desktopGate(token: string) {
+  const expected = crypto.createHash('sha256').update(token).digest();
+  return (req: { headers: Record<string, string | string[] | undefined>; method: string; path: string }, res: any, next: () => void) => {
+    if ((req.method === 'GET' || req.method === 'HEAD') && DESKTOP_OPEN.some((r) => r.test(req.path))) return next();
+    const got = req.headers['x-coroc-desktop'];
+    const ok = typeof got === 'string' && crypto.timingSafeEqual(crypto.createHash('sha256').update(got).digest(), expected);
+    if (ok) return next();
+    res.status(403).type('application/problem+json').send(JSON.stringify({ type: 'https://docs.coroc.app/problems/desktop-only', title: 'COROC', status: 403, code: 'DESKTOP_ONLY' }));
+  };
+}

@@ -217,7 +217,75 @@
     "CONTACT_EXCEPTION_EVIDENCE": "The time exception requires as evidence a client document, separate from the contract and dated after it.",
     "OWNER_REQUIRED": "Only the Owner can make this change.",
     "WHATSAPP_NOT_READY": "First connect the WhatsApp Business number with the account id and configure the server (app secret and verify token).",
-    "WHATSAPP_CHECKLIST_INCOMPLETE": "Complete the whole checklist before turning on automatic mode."
+    "WHATSAPP_CHECKLIST_INCOMPLETE": "Complete the whole checklist before turning on automatic mode.",
+    "DESKTOP_ALREADY_SET_UP": {
+      "title": "COROC is already set up on this PC",
+      "detail": "This PC already has a company. Sign in with your username and password."
+    },
+    "DESKTOP_NOT_SET_UP": {
+      "title": "The company is not set up yet",
+      "detail": "Open COROC and follow the first-run assistant."
+    },
+    "DESKTOP_SEVERAL_COMPANIES": {
+      "title": "Installation with several companies",
+      "detail": "COROC Desktop handles one company per PC. Ask support for help."
+    },
+    "DESKTOP_BUSY": {
+      "title": "COROC is restoring a backup",
+      "detail": "Please wait until it finishes; it may take a few minutes."
+    },
+    "DESKTOP_USER_NOT_FOUND": {
+      "title": "User not found",
+      "detail": "Check the username and try again."
+    },
+    "GMAIL_AUTH_FAILED": {
+      "title": "Gmail did not accept the app password",
+      "detail": "Check that you copied all 16 letters and that Google 2-Step Verification is still on. If you deleted it, create a new app password."
+    },
+    "GMAIL_APP_PASSWORD_REQUIRED": {
+      "title": "An app password is needed",
+      "detail": "Gmail does not allow your normal password here. Create an app password in your Google account and paste it here."
+    },
+    "GMAIL_APP_PASSWORD_FORMAT": {
+      "title": "That does not look like an app password",
+      "detail": "A Google app password has 16 letters. Copy it exactly as Google shows it."
+    },
+    "GMAIL_UNREACHABLE": {
+      "title": "No connection to Gmail",
+      "detail": "Check that the PC is online and try again."
+    },
+    "GMAIL_IMAP_FAILED": {
+      "title": "Gmail did not let COROC read the email",
+      "detail": "Try again in a few minutes. If it keeps happening, create a new app password."
+    },
+    "GMAIL_SMTP_FAILED": {
+      "title": "Gmail did not let COROC send emails",
+      "detail": "Try again in a few minutes. If it keeps happening, create a new app password."
+    },
+    "GMAIL_NOT_CONNECTED": {
+      "title": "Gmail is not connected",
+      "detail": "Connect the company Gmail in Settings."
+    },
+    "AUTO_BACKUP_FOLDER_INVALID": {
+      "title": "That folder cannot be used",
+      "detail": "Choose a folder on this PC that exists and lets you save files, for example your OneDrive or Google Drive folder or a connected USB drive."
+    },
+    "AUTO_BACKUP_FOLDER_UNAVAILABLE": {
+      "title": "The backup folder is not available",
+      "detail": "Connect the USB drive or check that the folder is still on this PC. COROC will try again shortly."
+    },
+    "AUTO_BACKUP_NOT_CONFIGURED": {
+      "title": "Choose where to save the backups",
+      "detail": "Choose the folder and the password for automatic backups."
+    },
+    "BACKUP_FAILED": {
+      "title": "The backup could not be made",
+      "detail": "COROC will try again shortly. If it keeps happening, ask support for help."
+    },
+    "BACKUP_IN_FOLDER": {
+      "title": "This backup is in the backup folder",
+      "detail": "Open it from the folder you chose (OneDrive, Google Drive or the USB drive)."
+    }
   },
   "terms": {
     "PRINCIPAL": "The principal must be a positive amount.",
@@ -478,6 +546,7 @@
     "emailFooter": "This message was sent by {company} through COROC.",
     "unsubscribe": "To stop receiving emails",
     "suspendedSubject": "COROC · WhatsApp switched to assisted mode",
-    "suspendedNotice": "Meta suspended or restricted the WhatsApp Business account of {company}. COROC switched to assisted mode automatically: no message was lost, and the pending ones are in “To send today”, ready to send with one tap. Check the account in Meta's WhatsApp Manager and, once it is restored, turn automatic mode back on in Settings."
+    "suspendedNotice": "Meta suspended or restricted the WhatsApp Business account of {company}. COROC switched to assisted mode automatically: no message was lost, and the pending ones are in “To send today”, ready to send with one tap. Check the account in Meta's WhatsApp Manager and, once it is restored, turn automatic mode back on in Settings.",
+    "replyStop": "To stop receiving emails, reply STOP."
   }
 }

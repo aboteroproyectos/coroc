@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { Inject, Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
 import {
-  DEFAULT_TEMPLATES,
+  defaultTemplate,
   EMAIL_SUBJECTS,
   EVENT_DEFAULTS,
   LOCALE_OF,
@@ -19,6 +19,7 @@ import {
   templateVariables,
   toLocalDateTime,
   validateTemplate,
+  whatsappAppLink,
   whatsappLink,
   type Channel,
   type ContactDecision,
@@ -43,7 +44,8 @@ import { LinkSigner } from '../documents/links.js';
 import { UploadLinksService } from '../intake/upload-links.service.js';
 import { LoanStateService } from '../loans/loan-state.service.js';
 import { ObjectStore } from '../storage/object-store.js';
-import { EmailProvider, LOGO_CID, emailHtml, emailLogo } from './email.js';
+import { GmailAccounts } from '../gmail/gmail.js';
+import { EmailProvider, LOGO_CID, emailHtml, emailLogo, type SendResult } from './email.js';
 import { SUSPENSION_CODES, isSuspensionUpdate, sendCloudMessage } from './whatsapp.js';
 
 export interface EnqueueRequest {
@@ -93,6 +95,7 @@ export class MessagingService implements OnApplicationBootstrap, OnModuleDestroy
     private readonly signer: LinkSigner,
     private readonly store: ObjectStore,
     private readonly email: EmailProvider,
+    private readonly gmail: GmailAccounts,
     private readonly audit: AuditService,
     private readonly bus: EventBus,
     private readonly clock: Clock,
@@ -126,7 +129,7 @@ export class MessagingService implements OnApplicationBootstrap, OnModuleDestroy
   async template(tx: Tx, event: MessageEvent, lang: Lang) {
     const r = await tx.one<Record<string, any>>('SELECT * FROM message_templates WHERE event = $1 AND lang = $2 AND active', [event, lang]);
     return {
-      body: (r?.body as string) ?? DEFAULT_TEMPLATES[lang][event],
+      body: (r?.body as string) ?? defaultTemplate(lang, event, this.config.mode === 'desktop'),
       subject: (r?.subject as string | null) ?? EMAIL_SUBJECTS[lang][event],
       metaName: (r?.meta_template_name as string | null) ?? null,
       metaLang: (r?.meta_template_lang as string | null) ?? (lang === 'pt-BR' ? 'pt_BR' : lang === 'en' ? 'en_US' : 'es'),
@@ -165,8 +168,9 @@ export class MessagingService implements OnApplicationBootstrap, OnModuleDestroy
       cuotas_restantes: String(r.summary.remainingInstallments),
       saldo: money(r.summary.balance),
       valor_pagado: entry ? money(entry.amount) : '',
-      enlace_carga: args.uploadUrl,
-      enlace_recibo: WITH_DOCUMENT.has(args.event) ? this.deliveryLink(tenant.id, args.messageId) : '',
+      // En Escritorio no hay enlaces: el PC no está en internet (ADR-064). El PDF va adjunto o se pega en WhatsApp.
+      enlace_carga: this.config.mode === 'desktop' ? '' : args.uploadUrl,
+      enlace_recibo: WITH_DOCUMENT.has(args.event) && this.config.mode !== 'desktop' ? this.deliveryLink(tenant.id, args.messageId) : '',
       empresa: tenant.name,
       telefono_empresa: tenant.phone ?? tenant.email ?? '',
     };
@@ -375,8 +379,11 @@ export class MessagingService implements OnApplicationBootstrap, OnModuleDestroy
 
   private async deliverEmail(tenant: TenantInfo, m: MessageRow, client: Record<string, any>, doc: { storage_key: string; size_bytes: number; mime: string; file_name: string } | null, uploadUrl: string | null): Promise<boolean> {
     const lang = m.lang as Lang;
-    if (this.email.name === 'none') {
-      const out = await this.db.tx({ tenantId: tenant.id }, (tx) => this.toAssisted(tx, m, client, 'EMAIL_NOT_CONFIGURED'));
+    // Gmail de la empresa (ADR-065): si está conectado, el correo sale por ahí; si no, por el proveedor del servidor.
+    const gmail = await this.gmail.account(tenant.id);
+    const viaGmail = gmail?.status === 'active';
+    if (this.email.name === 'none' && !viaGmail) {
+      const out = await this.db.tx({ tenantId: tenant.id }, (tx) => this.toAssisted(tx, m, client, gmail ? (gmail.last_error ?? 'GMAIL_NOT_CONNECTED') : 'EMAIL_NOT_CONFIGURED'));
       this.publishOne(tenant.id, out);
       return true;
     }
@@ -384,14 +391,36 @@ export class MessagingService implements OnApplicationBootstrap, OnModuleDestroy
     if (doc) attachments.push({ name: doc.file_name, content: await this.store.getBuffer(tenant.id, doc.storage_key, Number(doc.size_bytes)), contentType: doc.mime } as (typeof attachments)[number]);
     const sender = await this.sender(tenant);
     const footer = t(lang, 'messaging.emailFooter', { company: tenant.name });
-    const unsubscribeUrl = uploadUrl ? `${uploadUrl}/opt-out?channel=email` : null;
-    const text = `${m.body}\n\n${footer}${unsubscribeUrl ? `\n${t(lang, 'messaging.unsubscribe')}: ${unsubscribeUrl}` : ''}`;
-    const r = await this.email.send({
-      from: sender.from, replyTo: sender.replyTo, to: client.email, subject: m.subject || EMAIL_SUBJECTS[lang][m.event as MessageEvent], text,
-      html: emailHtml({ company: tenant.name, text: m.body, footer, lang }), attachments, metadata: { tenant: tenant.id, message: m.id }, unsubscribeUrl,
-    });
+    // En Escritorio no hay portal público: la exclusión es respondiendo SALIR, que el lector de Gmail atiende (§20.1).
+    const unsubscribeUrl = uploadUrl && this.config.mode !== 'desktop' ? `${uploadUrl}/opt-out?channel=email` : null;
+    const text = `${m.body}\n\n${footer}\n${unsubscribeUrl ? `${t(lang, 'messaging.unsubscribe')}: ${unsubscribeUrl}` : t(lang, 'messaging.replyStop')}`;
+    const subject = m.subject || EMAIL_SUBJECTS[lang][m.event as MessageEvent];
+    const mail = {
+      from: sender.from, replyTo: sender.replyTo, to: client.email, subject, text,
+      html: emailHtml({ company: tenant.name, text: m.body, footer: unsubscribeUrl ? footer : `${footer} ${t(lang, 'messaging.replyStop')}`, lang }), attachments, metadata: { tenant: tenant.id, message: m.id }, unsubscribeUrl,
+    };
+    let r: SendResult & { limited?: boolean };
+    let thread: { messageId: string; subject: string | null } | null = null;
+    if (viaGmail) {
+      // El recibo de un comprobante que llegó por correo responde en el mismo hilo de Gmail.
+      thread = await this.db.tx({ tenantId: tenant.id }, (tx) => this.gmail.replyTarget(tx, m.entry_id ?? null));
+      if (thread?.subject) mail.subject = /^(re|res|aw):/i.test(thread.subject) ? thread.subject : `Re: ${thread.subject}`;
+      r = await this.gmail.send(tenant.id, { ...mail, inReplyTo: thread?.messageId ?? null, references: thread ? [thread.messageId] : [] });
+    } else {
+      r = await this.email.send(mail);
+    }
     const out = await this.db.tx({ tenantId: tenant.id }, async (tx) => {
+      if (r.ok && viaGmail) {
+        await this.gmail.record(tx, {
+          clientId: client.id, direction: 'out', messageId: r.providerId, inReplyTo: thread?.messageId ?? null, subject: mail.subject, text: m.body,
+          from: String(gmail!.address), to: client.email, attachments: doc ? [{ name: doc.file_name, size: Number(doc.size_bytes), intakeId: null }] : [], outboundId: m.id, at: this.clock.now(),
+        });
+      }
       if (r.ok) return this.update(tx, m.id, { status: 'sent', sent_at: this.clock.now(), provider_message_id: r.providerId, via: 'email', address: client.email, attempts: m.attempts + 1, locked_until: null, error: null });
+      // Límite diario de Gmail: el mensaje espera al día siguiente (las reglas de contacto se vuelven a aplicar al enviarlo).
+      if (r.limited) return this.update(tx, m.id, { scheduled_at: fromLocalDateTime(`${addDays(this.clock.today(tenant.timezone), 1)}T00:05`, tenant.timezone), error: r.error, locked_until: null });
+      // Gmail rechazó la contraseña: el correo pasa a «Mensajes de hoy» para enviarlo a mano y no se pierde.
+      if (r.error === 'GMAIL_AUTH_FAILED' || r.error === 'GMAIL_APP_PASSWORD_REQUIRED' || r.error === 'GMAIL_NOT_CONNECTED') return this.toAssisted(tx, m, client, r.error);
       if (r.permanent) {
         // Dirección inválida: se marca en la ficha del cliente y no se vuelve a usar (§11.2).
         await tx.exec("UPDATE clients SET email_status = 'bounced', email_status_at = now() WHERE id = $1", [client.id]);
@@ -671,7 +700,10 @@ export class MessagingService implements OnApplicationBootstrap, OnModuleDestroy
       readAt: m.read_at ? new Date(m.read_at).toISOString() : null, failedAt: m.failed_at ? new Date(m.failed_at).toISOString() : null,
       via: m.via ?? null, error: m.error ?? null, createdAt: new Date(m.created_at).toISOString(),
       assisted: m.status === 'ready' || m.status === 'scheduled'
-        ? { ...(phone ? { whatsappUrl: whatsappLink(phone, m.body) } : {}), ...(email ? { mailtoUrl: mailtoLink(email, m.subject ?? '', m.body) } : {}) }
+        ? {
+            ...(phone ? { whatsappUrl: whatsappLink(phone, m.body), whatsappAppUrl: whatsappAppLink(phone, m.body) } : {}),
+            ...(email ? { mailtoUrl: mailtoLink(email, m.subject ?? '', m.body) } : {}),
+          }
         : undefined,
     };
   }

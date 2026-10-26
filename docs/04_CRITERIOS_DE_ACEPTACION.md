@@ -1,6 +1,25 @@
 # COROC · Estado de los criterios de aceptación (§22)
 
-Corte: 23 de septiembre de 2026 · Fase 5.
+Corte: 25 de octubre de 2026 · Fase 10.
+
+## Fase 10: COROC Escritorio para Windows
+
+Criterios del encargo del 24 de octubre de 2026. Los comprueban, en cada cambio:
+- la prueba de punta a punta en Windows del flujo «COROC Escritorio para Windows» (`infra/escritorio/prueba.ps1` en
+  `windows-latest`, con el instalador real);
+- la API con PostgreSQL 16 real, un servidor IMAP con las extensiones de Gmail y un SMTP local;
+- la app completa con un supervisor de prueba y un Windows de prueba.
+
+| Criterio | Estado | Evidencia |
+|---|---|---|
+| E-1 · Instalación limpia en Windows 10 y 11, sin Docker ni administrador: de doble clic a la pantalla de ingreso en menos de 5 minutos, sin preguntas técnicas | ✅ Instalación sin administrador y COROC listo (claves, base nueva, migraciones y servidor) en 62 a 85 s en la CI. El asistente tiene 5 pantallas, sin puertos, direcciones ni «servidor». ⚠️ La CI corre en Windows Server: falta repetirlo en Windows 10 y 11 de escritorio (P-9) | `prueba.ps1` · «E-1»; `desktop_welcome_test.dart` · «E-1 · asistente» |
+| E-2 · Tras reiniciar el PC, COROC abre con los datos intactos; una actualización conserva los datos y hace respaldo previo | ✅ Apagar y encender conserva los datos. Instalar encima deja la copia previa en `respaldos-previos` y los datos intactos. Si la copia no se puede hacer, el instalador no cambia nada | `prueba.ps1` · «E-2» (2); `supervisor.test.ts` · «E-2» |
+| E-3 · Comprobante arrastrado o pegado desde WhatsApp: se registra o propone el pago y el recibo sale por WhatsApp asistido en máximo 3 clics | ✅ Soltar o Ctrl+V lo lleva a la Bandeja, que lo lee y propone el pago. Después, «Aprobar» y «Enviar el recibo»: 2 clics. Si COROC lo registra solo, basta «Enviar el recibo» | `desktop_receipts_test.dart` · «E-3» (4); `desktop_messages_test.dart` · «E-3» (2) |
+| E-4 · Comprobante enviado por un cliente a Gmail: se registra o propone sin intervención y sale el recibo por correo, sin duplicados (CA-07) | ✅ Registrado solo, recibo en el mismo hilo y etiqueta «COROC/Procesado»; revisar otra vez no repite nada y el mismo comprobante en otro correo queda como duplicado | `gmail.test.ts` · «E-4», «CA-07», «IDLE» |
+| E-5 · «Mensajes de hoy» respeta la Ley 2300 (CA-10, CA-11) y permite enviar 10 mensajes personalizados en menos de 2 minutos | ✅ Las reglas se vuelven a aplicar al enviar: el mensaje fuera de franja no sale y se dice por qué. 10 mensajes seguidos: en COROC, un clic por mensaje; al volver de WhatsApp pasa solo al siguiente. ⚠️ El tiempo con una persona y WhatsApp para Windows real queda para la prueba en PCs (P-9) | `desktop_messages_test.dart` · «E-5» (2); `messaging.test.ts` · «CA-10», «CA-11» |
+| E-6 · Préstamo con tasa por encima del tope: se guarda marcando la casilla (ADR-061) | ✅ En Windows, con el instalador real: préstamo sin tope de usura registrado, confirmado con la casilla, y su pago con recibo en PDF hecho con Edge | `prueba.ps1` · «E-6»; `rate-cap-policy.test.ts` |
+| E-7 · Respaldo automático diario y restauración en otro PC | ✅ Copia cifrada en la carpeta elegida, solo las últimas; restaurada en otro PC, se entra con el usuario y la contraseña de siempre. Aviso a los 7 días sin copia | `desktop.test.ts` · «E-7» (2); `desktop_settings_test.dart` · «E-7»; `desktop_welcome_test.dart` · «E-7» |
+| CA-01 a CA-20 y el modo nube | ✅ Sin cambios de comportamiento en la nube; las mismas pruebas en verde | Trabajos «Núcleo y API», «App · análisis y pruebas», «Seguridad» y «Rendimiento» |
 
 ## Fase 5: endurecimiento y publicación (§21, §23)
 

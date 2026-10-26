@@ -55,6 +55,8 @@ const TABLES: { name: string; order: string; exclude?: string[] }[] = [
   { name: 'extraction_corrections', order: 'created_at, id' },
   // Las tareas no se respaldan: el vínculo del mensaje con la tarea que generaba su PDF se descarta (el PDF ya está vinculado).
   { name: 'messages', order: 'created_at, id', exclude: ['document_task_id', 'locked_until'] },
+  // Hilo de correo de cada cliente (Fase 10). La conexión con Gmail no viaja: es de cada instalación.
+  { name: 'email_messages', order: 'at, id' },
   { name: 'audit_log', order: 'at, id', exclude: ['id'] },
 ];
 
@@ -149,6 +151,9 @@ export class BackupService implements OnModuleInit {
       size: r.size_bytes === null || r.size_bytes === undefined ? null : Number(r.size_bytes),
       sha256: r.sha256 ?? null,
       counts: (r.manifest?.counts as Record<string, number>) ?? {},
+      // Las copias automáticas viejas solo están en la carpeta elegida (ADR-066), no en este PC.
+      auto: !!r.auto,
+      downloadable: status === 'done' && !!r.storage_key,
       createdAt: new Date(r.created_at).toISOString(),
       finishedAt: r.finished_at ? new Date(r.finished_at).toISOString() : null,
     };
@@ -156,7 +161,7 @@ export class BackupService implements OnModuleInit {
 
   private readonly selectBackup = `SELECT b.*, t.status AS task_status, t.progress AS task_progress FROM backups b LEFT JOIN document_tasks t ON t.id = b.task_id`;
 
-  async create(auth: AuthContext, password: string) {
+  async create(auth: AuthContext, password: string, opts: { auto?: boolean } = {}) {
     if (password.length < 10) throw new Problem(422, 'VALIDATION_FAILED', {}, [{ field: 'password', message: 'minLength' }]);
     // La contraseña nunca se guarda: se deriva aquí la clave y viaja a la tarea cifrada con la clave del servidor.
     const salt = crypto.randomBytes(16);
@@ -167,7 +172,7 @@ export class BackupService implements OnModuleInit {
     const row = await this.db.tx(this.ctx(auth), async (tx) => {
       const running = await tx.one("SELECT 1 FROM backups b JOIN document_tasks t ON t.id = b.task_id WHERE t.status IN ('pending', 'running')");
       if (running) throw new Problem(409, 'BACKUP_IN_PROGRESS');
-      const b = (await tx.one<{ id: string }>("INSERT INTO backups (tenant_id, status, created_by) VALUES (current_tenant(), 'pending', $1) RETURNING id", [auth.userId]))!;
+      const b = (await tx.one<{ id: string }>("INSERT INTO backups (tenant_id, status, created_by, auto) VALUES (current_tenant(), 'pending', $1, $2) RETURNING id", [auth.userId, !!opts.auto]))!;
       const taskId = await this.tasks.enqueue(tx, { kind: 'backup', params: { backupId: b.id, salt: salt.toString('base64'), secret: sealed }, createdBy: auth.userId });
       await tx.exec('UPDATE backups SET task_id = $2 WHERE id = $1', [b.id, taskId]);
       await this.audit.log(tx, 'backup.requested', 'backup', b.id);
@@ -202,9 +207,10 @@ export class BackupService implements OnModuleInit {
   }
 
   async link(auth: AuthContext, id: string) {
-    const r = await this.db.tx(this.ctx(auth), (tx) => tx.one<{ status: string }>('SELECT status FROM backups WHERE id = $1', [id]));
+    const r = await this.db.tx(this.ctx(auth), (tx) => tx.one<{ status: string; storage_key: string | null }>('SELECT status, storage_key FROM backups WHERE id = $1', [id]));
     if (!r) throw Problem.notFound();
     if (r.status !== 'done') throw new Problem(409, 'BACKUP_NOT_READY');
+    if (!r.storage_key) throw new Problem(410, 'BACKUP_IN_FOLDER');
     // Un respaldo puede pesar varios GB: el enlace dura más y la descarga se reanuda con Range.
     const { token, expiresAt } = this.links.sign({ t: auth.tenantId, k: 'backup', i: id }, 3600);
     return { url: this.links.url(token), path: `/files/${token}`, expiresAt };
@@ -416,7 +422,11 @@ export class BackupService implements OnModuleInit {
   }
 
   private summary(manifest: Manifest, header: BackupHeader, size: number) {
-    return { company: String(manifest.company.name ?? header.company), createdAt: manifest.createdAt, format: manifest.format, schema: manifest.schema, counts: manifest.counts, documents: manifest.counts.documents ?? 0, bytes: size };
+    const c = manifest.company as { name?: string; country?: string; currency?: string };
+    return {
+      company: String(c.name ?? header.company), country: c.country ?? null, currency: c.currency ?? null, createdAt: manifest.createdAt, format: manifest.format,
+      schema: manifest.schema, counts: manifest.counts, documents: manifest.counts.documents ?? 0, bytes: size,
+    };
   }
 
   private async restoreRow(auth: AuthContext, id: string) {

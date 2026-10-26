@@ -18,6 +18,7 @@ export class MaintenanceJobs implements OnApplicationBootstrap, OnModuleDestroy 
   private queue: Queue | null = null;
   private worker: Worker | null = null;
   private timer: NodeJS.Timeout | null = null;
+  private first: NodeJS.Timeout | null = null;
 
   constructor(
     private readonly db: DbService,
@@ -46,8 +47,8 @@ export class MaintenanceJobs implements OnApplicationBootstrap, OnModuleDestroy 
   }
 
   /**
-   * Estado de cuenta mensual de cada préstamo activo (§16.4), el primer día del mes en la zona de la empresa. La tarea
-   * guarda el período, así que correr este trabajo varias veces el mismo día no duplica documentos.
+   * Estado de cuenta mensual de cada préstamo activo (§16.4), al comenzar el mes en la zona de la empresa. La tarea
+   * guarda el período, así que correr este trabajo varias veces no duplica documentos.
    */
   async monthlyStatements(): Promise<number> {
     const ids = await this.db.tx(null, (tx) => tx.many<{ id: string }>('SELECT tenants_with_active_loans() AS id'));
@@ -55,7 +56,8 @@ export class MaintenanceJobs implements OnApplicationBootstrap, OnModuleDestroy 
     for (const { id } of ids) {
       const t = await this.tenants.get(id);
       const today = this.clock.today(t.timezone);
-      if (!today.endsWith('-01')) continue;
+      // Del 1 al 7 del mes, no solo el 1: un PC de Escritorio puede estar apagado ese día. El período evita duplicados.
+      if (Number(today.slice(8, 10)) > 7) continue;
       const d = new Date(`${today}T00:00:00Z`);
       d.setUTCMonth(d.getUTCMonth() - 1);
       const period = d.toISOString().slice(0, 7);
@@ -94,11 +96,16 @@ export class MaintenanceJobs implements OnApplicationBootstrap, OnModuleDestroy 
     } else {
       this.timer = setInterval(() => void this.runOnce().catch((e) => this.log.error(e.message)), 3600_000);
       this.timer.unref();
+      // Sin Redis (un solo servidor, como COROC Escritorio): también al minuto de encender, porque el PC puede estar
+      // apagado a la hora del trabajo y los recordatorios del día deben llegar a «Mensajes de hoy». Es idempotente.
+      this.first = setTimeout(() => void this.runOnce().catch((e) => this.log.error(e.message)), 60_000);
+      this.first.unref();
     }
   }
 
   async onModuleDestroy(): Promise<void> {
     if (this.timer) clearInterval(this.timer);
+    if (this.first) clearTimeout(this.first);
     await this.worker?.close();
     await this.queue?.close();
   }

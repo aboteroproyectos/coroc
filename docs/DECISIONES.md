@@ -472,3 +472,116 @@ Garantías:
 
 **Consecuencias:** COROC sirve para los préstamos diarios de tasas altas que describe el Propietario. La responsabilidad legal queda documentada en la empresa y el control sigue activo por defecto. Los préstamos marcados se pueden listar para una revisión legal. CA-12 sigue en verde con la política predeterminada.
 
+
+### ADR-062 · COROC Escritorio sin Docker: supervisor, PostgreSQL portátil y clave por ejecución
+**Contexto:** el modo PC de la Fase 8 (`GUIA_PC_WINDOWS.md`) exige Docker Desktop: derechos de administrador, WSL 2, unos 15 minutos de instalación y bastante memoria. El Propietario no quiere instalarlo, y quien usa COROC no tiene destreza con computadores. Se pidió un solo instalador y una sola app, sin nube y sin costo mensual (encargo del 24 de octubre de 2026).
+
+**Decisión:**
+- **Modo Escritorio de la API** (`COROC_MODE=desktop`): la misma API compilada corre con `node.exe` 22 portátil dentro del PC.
+  - Escucha solo en 127.0.0.1 y exige en cada petición la clave de la ejecución (`X-Coroc-Desktop`). La clave cambia cada vez que COROC enciende y solo la conoce la app, así que ni otra cuenta de Windows ni una página abierta en el navegador pueden usar la API.
+  - Una sola empresa por PC: el asistente de primer uso (`/desktop/setup`) la crea con su Propietario o restaura la copia de otro PC (ADR-066). La migración `0008` agrega `installation_tenant()`, que solo revela cuántas empresas hay.
+  - El PC no está en internet: los mensajes no llevan enlaces al portal y el recibo lleva su código de verificación sin QR.
+- **Supervisor** (`services/api/src/desktop/supervisor`). Lo enciende la app, sin ventana de consola, y lo usa el instalador; nadie lo escribe a mano.
+  - **Primera vez:** genera las claves de la instalación (firma de sesiones, clave de los documentos y contraseñas de la base). Las guarda cifradas con DPAPI de Windows en `datos\secretos.bin`, que solo abre esa cuenta de Windows en ese PC. Crea la base PostgreSQL 16 portátil (`initdb` con orden ICU y contraseña obligatoria).
+  - **Cada vez:** enciende la base con `pg_ctl`, bajo el usuario, en 127.0.0.1 y en un puerto libre. Aplica las migraciones pendientes y deja el usuario de la API sin BYPASSRLS. Después enciende la API con una clave nueva.
+  - **Pantalla de carga:** avisa cada paso con una línea JSON (`iniciando`, `listo`, `reiniciando`, `error` y `detenido` con su motivo).
+  - **Vigilancia:** revisa la salud cada 10 s y reinicia la API con espera creciente (1, 2, 5, 10 y 30 s). La app también vuelve a encender el supervisor si se cierra solo, y deja de insistir con un mensaje claro después de cinco intentos.
+  - **Apagado en orden:** cuando la app sale, cuando se cierra de golpe (fin de la entrada estándar) o cuando el instalador deja la solicitud de apagado. Windows no tiene SIGTERM, así que la API se apaga por el canal IPC.
+  - **Carpetas:** los programas van en `%LOCALAPPDATA%\COROC\servidor` y `app`; los datos, en `%LOCALAPPDATA%\COROC\datos` (base, archivos, claves, registros sin datos personales y copias previas a cada actualización).
+- **Sin Redis:** las colas y los límites usan los modos en memoria que ya existían. El mantenimiento corre también al minuto de encender, y el estado de cuenta mensual se genera del 1 al 7 del mes, porque el PC puede estar apagado el 1.
+- **Archivos en disco** (`COROC_STORAGE=fs`), cifrados como en la nube (ADR-031).
+- **PDF con Microsoft Edge** del sistema (`COROC_CHROMIUM_PATH`). Si el PC no lo tiene, se descarga Chromium una sola vez.
+- **OCR:** Tesseract con español, portugués e inglés, y `pdftoppm`, incluidos en el instalador.
+- **App:** compilada con `--dart-define=COROC_DESKTOP=true`, enciende el servidor del PC en vez de usar la nube.
+  - Cerrar la ventana deja a COROC junto al reloj («COROC sigue trabajando»), para que el correo y los recordatorios sigan funcionando.
+  - «Iniciar COROC con Windows» la abre en la bandeja. Un segundo doble clic muestra la ventana que ya estaba abierta, en vez de abrir otra.
+
+**Consecuencias:** COROC queda completo en un PC, sin Docker, sin administrador y sin costo mensual. Lo que exige estar en internet (cobradores desde el celular y portal del deudor) sigue siendo de la nube, y pasar a ella se hace con una copia `.coroc`. La API y sus pruebas son las mismas en los dos modos: CA-01 a CA-20 se siguen verificando con la nube, y el supervisor tiene su propia prueba de punta a punta en Linux (`supervisor.test.ts`) y en Windows (`infra/escritorio/prueba.ps1`).
+
+### ADR-063 · Escritorio: segundo factor opcional y Windows Hello
+**Contexto:** §7.1 hace obligatorio el segundo factor para el Propietario y recupera la contraseña por correo. En la nube la API está en internet y eso protege de verdad. En Escritorio la API solo atiende a la app del mismo PC (ADR-062): el riesgo real es otra persona frente a ese PC, y una app autenticadora es un paso difícil para quien no tiene destreza con computadores. Además, el PC no puede enviar un enlace de recuperación que se abra desde otro equipo.
+
+**Decisión:**
+- **Segundo factor opcional** en Escritorio para todos, también para el Propietario. El asistente lo menciona y se activa cuando se quiera en Configuración › Seguridad. En la nube sigue obligatorio.
+- **Windows Hello** (rostro, huella o PIN del PC) para abrir COROC: si se elige en el asistente o en Configuración › Este PC, la sesión recordada se abre bloqueada hasta que Windows Hello confirme. Si COROC se abrió con Windows, en la bandeja, Windows Hello no aparece solo: se pide al abrir la ventana.
+- **«¿Olvidó su contraseña?» sin correo:** la app pide Windows Hello y `POST /desktop/password` pone la contraseña nueva.
+  - Aplica las mismas reglas de contraseña fuerte, desbloquea la cuenta y cierra las sesiones abiertas de ese usuario.
+  - Queda en la auditoría (`auth.password_reset` con `via: windows_hello`) y admite 10 intentos por minuto.
+  - Sin Windows Hello, la app explica cómo activar el PIN de Windows; otro Propietario también puede asignar una contraseña nueva.
+
+**Consecuencias:** la seguridad de COROC Escritorio descansa en la cuenta de Windows: quien la abre puede abrir COROC, igual que ya podría abrir los archivos de esa cuenta. Por eso la guía pide una cuenta de Windows con contraseña o PIN para cada persona. Se aparta de §7.1 solo en Escritorio.
+
+### ADR-064 · WhatsApp asistido en Windows: «Mensajes de hoy» y comprobantes sin menús
+**Contexto:** el Propietario eligió el modo asistido: sin vincular el número a ningún programa y sin clientes no oficiales (ADR-007). En el PC, WhatsApp para Windows es la forma natural de enviar y recibir, pero copiar textos, adjuntar el PDF y buscar cada chat a mano es lento y propenso a errores.
+
+**Decisión:**
+- **«Mensajes de hoy»:** la cola de los mensajes listos del día (recordatorios, atrasos, recibos y paz y salvos), uno a la vez y con un botón grande «Enviar».
+  - El servidor devuelve un enlace `whatsapp://send` que abre el chat del cliente en WhatsApp para Windows con el texto listo. Si no abre, se prueba `wa.me`, y si tampoco, se dice qué hacer.
+  - Si el mensaje lleva PDF, la app lo copia al portapapeles como archivo (`CF_HDROP`) y dice «oprima Ctrl+V y después Enter».
+  - Al volver a la ventana de COROC pasa solo al siguiente y muestra la posición («3 de 12»). También hay «Siguiente», «Dejar para después» y «Descartar».
+  - El servidor vuelve a aplicar las reglas de contacto (Ley 2300, ADR-045) al enviar. Si un mensaje no puede salir, se muestra el motivo y queda para después.
+- **Recibir comprobantes,** todos a la Bandeja de la Fase 3:
+  - soltarlos en cualquier parte de la app («Suelte aquí el comprobante»);
+  - pegarlos con Ctrl+V: una imagen copiada de WhatsApp o archivos copiados en el Explorador. En un campo de texto, Ctrl+V pega texto como siempre;
+  - aceptar «¿Es un comprobante?» cuando llega una imagen o un PDF a Descargas. Se puede apagar en Configuración › Este PC.
+- **El recibo en ≤ 3 clics:** al aprobar el comprobante en la Bandeja, o en cuanto COROC registra el pago solo, la app ofrece «Enviar el recibo»: un clic abre WhatsApp con el mensaje y el PDF copiado.
+
+**Consecuencias:** el número de WhatsApp no se conecta a nada y cada mensaje lo envía la persona, como pide la Política de WhatsApp. Enviar 10 mensajes es un clic en COROC y un Enter en WhatsApp por mensaje (E-5). El portapapeles y la carpeta Descargas solo se leen cuando la persona lo pide o lo acepta.
+
+### ADR-065 · Gmail de la empresa con contraseña de aplicación (IMAP y SMTP)
+**Contexto:** P-7. El Propietario eligió el Gmail de la empresa con una contraseña de aplicación (24 de octubre de 2026). OAuth exigiría registrar COROC en Google Cloud y pasar su verificación, y Escritorio no tiene una dirección pública a la cual volver.
+
+**Decisión:**
+- **Conexión** en el asistente o en Configuración, con una guía ilustrada: activar la verificación en 2 pasos, crear la contraseña de aplicación y pegar las 16 letras.
+  - `PUT /company/gmail` prueba IMAP y SMTP antes de guardar y explica en palabras simples qué falta (la contraseña de aplicación, la verificación en 2 pasos o el internet).
+  - La contraseña se guarda cifrada con la clave de la instalación y nunca se muestra.
+- **Lectura:** con la conexión abierta (IMAP IDLE), y además una revisión cada 2 minutos.
+  - Solo se abren los correos que llegan desde la dirección de un cliente. Sus comprobantes adjuntos entran a la recepción de la Fase 3: se registran o se proponen según el modo de supervisión, y la huella evita duplicados (CA-07).
+  - El correo queda con la etiqueta «COROC/Procesado». Una respuesta «SALIR» excluye al cliente del correo (ADR-049).
+- **Envío por el SMTP de Gmail:** recibos, recordatorios, estados de cuenta y paz y salvos, con las reglas de contacto y un tope de 400 correos al día (Gmail permite unos 500).
+  - El recibo responde en el mismo hilo del comprobante.
+  - Si se alcanza el tope, el correo espera al día siguiente. Si Google rechaza la contraseña, el mensaje pasa a «Mensajes de hoy» y no se pierde.
+- **Hilo de correo de cada cliente** en su ficha (`/clients/{id}/emails`), con el comprobante a un clic. El hilo va incluido en las copias.
+
+**Consecuencias:** el correo funciona sin cuentas de desarrollador ni costo, con la cuenta que la empresa ya tiene. Si la persona borra la contraseña de aplicación o cambia la de Google, COROC lo detecta, deja de usar la cuenta y lo dice en Configuración. En la nube sigue el correo de la ADR-048; si una empresa conecta Gmail, el correo sale por ahí.
+
+### ADR-066 · Copia diaria automática y cambio de PC
+**Contexto:** en Escritorio los datos viven en un solo PC. Un disco dañado, un robo o un PC nuevo no pueden costar la cartera, y la persona no va a recordar hacer copias a mano.
+
+**Decisión:**
+- **Copia diaria** (`/company/auto-backup`): el Propietario o el Administrador elige una carpeta de este PC (OneDrive, Google Drive para escritorio o una memoria USB) y la contraseña de las copias, de al menos 10 caracteres.
+  - Una vez al día, en el primer momento en que el PC está encendido, COROC guarda ahí la copia `.coroc` cifrada (ADR-034), con los documentos y los correos.
+  - En la carpeta quedan las últimas N (3, 7, 14 o 30; 14 por defecto) y en el PC solo la última. Nunca se tocan otros archivos.
+  - La contraseña se guarda cifrada con la clave de la instalación. Si se pierde, la copia no se puede abrir: la app pide anotarla.
+- **Avisos:** si pasan 7 días sin copia, un aviso arriba de la pantalla lleva a configurarla o a hacerla. Si la carpeta no está (una USB desconectada), se dice así. Si una copia falla, se intenta de nuevo en una hora.
+- **Cambio de PC (E-7):** en la primera pantalla del asistente, «¿Ya usaba COROC en otro PC? Restaurar una copia».
+  - La copia se sube (`/desktop/restore`), se verifica con su contraseña y se restaura completa en una empresa provisional inactiva.
+  - Al terminar, se entra con el usuario y la contraseña de siempre.
+- **Antes de cada actualización** el instalador guarda además una copia de la base en frío (ADR-067).
+
+**Consecuencias:** con una carpeta de OneDrive o de Google Drive, la copia queda también fuera del PC sin pagar un servidor. La copia es la misma de la ADR-034, así que también sirve para pasar a la nube.
+
+### ADR-067 · Instalador Inno Setup por usuario y actualización instalando encima
+**Contexto:** la persona debe instalar y actualizar COROC sin saber de sistemas, sin pedir derechos de administrador y sin perder datos. El MSIX de la ADR-059 no admite acciones propias al instalar, actualizar o desinstalar: no puede apagar la base y copiarla antes de actualizar, ni preguntar si se conservan los datos.
+
+**Decisión:**
+- **Un solo `.exe`** hecho con Inno Setup (`infra/escritorio/coroc.iss`), por usuario y sin administrador, en `%LOCALAPPDATA%\COROC`.
+  - Lleva accesos en el escritorio y en el menú Inicio, y habla español, portugués o inglés según Windows.
+  - Exige Windows 10 versión 1809 o posterior, de 64 bits.
+- **Contenido** armado por `construir.ps1`: la app, el runtime de Visual C++, `node.exe` 22, la API con sus dependencias de producción para Windows (se comprueba que argon2 cargue), PostgreSQL 16, Tesseract y Poppler. Cada descarga tiene versión y SHA-256 fijos: si un archivo cambia, el armado se detiene.
+- **Actualizar es abrir el instalador nuevo.**
+  - Antes de reemplazar los programas, el supervisor instalado apaga COROC y copia la base en frío (`respaldo-previo`; quedan las 3 últimas). La app se cierra sola al ver que el servidor se apagó.
+  - Si la copia no se puede hacer, no se cambia nada y se explica qué hacer.
+  - Al abrir de nuevo, el supervisor aplica las migraciones pendientes. Los datos (`datos\`) nunca los toca el instalador.
+  - `restaurar-previo` vuelve a una de esas copias (soporte).
+- **Desinstalar** conserva los datos salvo que se pida borrarlos: con ventana se pregunta y la respuesta por defecto es «No»; en silencio solo se borran con `/BORRARDATOS`. También se quita «Iniciar COROC con Windows».
+- **CI** («COROC Escritorio para Windows», `escritorio-windows.yml`, en `windows-latest`): construye el instalador y `prueba.ps1` lo prueba de punta a punta.
+  - Instala en silencio y mide hasta COROC listo (E-1).
+  - Comprueba las claves con DPAPI y que sin la clave de la ejecución la API no responde.
+  - Crea la empresa desde el asistente, un préstamo por encima del tope con la casilla (E-6) y un pago con su recibo en PDF hecho con Edge.
+  - Lee un comprobante con Tesseract.
+  - Reinicia y actualiza con los datos intactos y su copia previa (E-2), y desinstala, con y sin borrar los datos.
+  - El instalador queda como artefacto de cada ejecución. En `main` se publica en Releases como «COROC Escritorio para Windows».
+- **Sin firma digital** por ahora: Windows SmartScreen muestra «Windows protegió su PC» hasta tener el certificado de firma de código (P-2). La guía y la Ayuda explican «Más información › Ejecutar de todas formas».
+
+**Consecuencias:** instalar y actualizar son un doble clic. Con el certificado basta firmar el `.exe` en la CI (`signtool`), sin cambiar nada más. El paquete de Docker de la Fase 8 queda solo para soporte.

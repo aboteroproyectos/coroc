@@ -166,6 +166,14 @@ export class AuthService {
     return result;
   }
 
+  /**
+   * COROC Escritorio (ADR-062): sesión del Propietario que el asistente de primer uso acaba de crear, en la misma
+   * transacción. Pide activar el segundo factor solo si la instalación lo exige (en Escritorio es opcional, ADR-063).
+   */
+  async firstSession(tx: Tx, tenant: Record<string, any>, u: Record<string, any>, dev: DeviceInfo): Promise<SessionJson> {
+    return this.openSession(tx, tenant, u, dev, u.role === 'owner' && this.config.mfaRequiredForOwner ? 'enroll_required' : 'none');
+  }
+
   /** Una sesión por dispositivo: iniciar sesión de nuevo en el mismo equipo cierra la anterior. */
   private async openSession(tx: Tx, tenant: Record<string, any>, u: Record<string, any>, dev: DeviceInfo, level: 'none' | 'totp' | 'enroll_required'): Promise<SessionJson> {
     const now = this.clock.now();

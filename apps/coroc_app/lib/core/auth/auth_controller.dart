@@ -4,6 +4,7 @@ import 'dart:io' show Platform;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/api_exception.dart';
+import '../desktop/desktop_runtime.dart' show desktopModeProvider;
 import '../models/models.dart';
 import '../providers.dart';
 import '../offline/offline_sync.dart';
@@ -54,11 +55,13 @@ class AuthController extends Notifier<AuthState> {
       final current = state;
       if (current is SignedIn) state = SignedIn(s, locked: current.locked);
     };
-    Future.microtask(_restore);
+    // En COROC Escritorio la sesión se retoma cuando el servidor de este PC está listo (DesktopRuntime).
+    if (!ref.read(desktopModeProvider)) Future.microtask(restore);
     return const AuthLoading();
   }
 
-  Future<void> _restore() async {
+  /// Retoma la sesión recordada. `locked`: COROC Escritorio abre bloqueado hasta confirmar con Windows Hello.
+  Future<void> restore({bool locked = false}) async {
     final store = ref.read(sessionStoreProvider);
     final token = await store.refreshToken();
     if (token == null) {
@@ -66,7 +69,7 @@ class AuthController extends Notifier<AuthState> {
       return;
     }
     try {
-      await _accept(await ref.read(apiProvider).refresh(token, await store.deviceId()));
+      await _accept(await ref.read(apiProvider).refresh(token, await store.deviceId()), locked: locked);
     } on ApiException catch (e) {
       // Solo un rechazo del servidor invalida la sesión; sin red se conserva para el próximo intento.
       if (e.status == 401 || e.status == 403) await store.saveRefreshToken(null);
@@ -74,13 +77,22 @@ class AuthController extends Notifier<AuthState> {
     }
   }
 
-  Future<void> _accept(Session s) async {
+  Future<void> _accept(Session s, {bool locked = false}) async {
     ref.read(apiClientProvider).setAccessToken(s.accessToken);
     await ref.read(sessionStoreProvider).saveRefreshToken(s.refreshToken);
     await ref.read(localeProvider.notifier).set(s.user.lang);
     await ref.read(themeModeProvider.notifier).set(ThemeController.parse(s.user.theme));
-    state = s.mfaEnrollmentRequired ? EnrollRequired(s) : SignedIn(s);
+    state = s.mfaEnrollmentRequired ? EnrollRequired(s) : SignedIn(s, locked: locked);
   }
+
+  /// La sesión que devuelve el asistente de primer uso de COROC Escritorio (empresa y Propietario recién creados).
+  Future<void> acceptSession(Session s) async {
+    await ref.read(sessionStoreProvider).saveLastLogin(s.company.slug, s.user.username, remember: true);
+    await _accept(s);
+  }
+
+  /// Instalación de Escritorio sin empresa todavía: el asistente se encarga.
+  void signedOut() => state = const SignedOut();
 
   /// Devuelve normalmente; los errores (credenciales, bloqueo) llegan como ApiException ya traducida.
   Future<void> login({required String tenant, required String username, required String password, required bool remember}) async {

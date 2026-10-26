@@ -16,7 +16,9 @@ export default defineConfig({
       enabled: process.env.COVERAGE === '1',
       provider: 'v8',
       include: ['src/**'],
-      exclude: ['src/main.ts', 'src/cli/**', 'src/db/migrate.ts'],
+      // El supervisor de Escritorio corre como proceso aparte: lo prueban de punta a punta supervisor.test.ts (Linux) y el
+      // flujo «COROC Escritorio para Windows» (instalar, iniciar, usar y desinstalar en windows-latest).
+      exclude: ['src/main.ts', 'src/cli/**', 'src/db/migrate.ts', 'src/desktop/supervisor/**'],
       reporter: ['text-summary', 'lcov'],
       thresholds: { lines: 80, statements: 80, functions: 80, branches: 65 },
     },

@@ -10,6 +10,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../../core/api/api_exception.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../core/config.dart';
+import '../../core/desktop/desktop_runtime.dart';
 import '../../core/format.dart';
 import '../../core/l10n.dart';
 import '../../core/models/models.dart';
@@ -25,6 +26,7 @@ import '../loans/loan_terms_form.dart' show percentToRate;
 import '../shell/app_shell.dart';
 import 'account_section.dart';
 import 'data_sections.dart';
+import 'desktop_sections.dart';
 import 'intake_sections.dart';
 import 'messaging_sections.dart';
 import 'support_section.dart';
@@ -54,6 +56,8 @@ class SettingsPage extends ConsumerWidget {
     final auth = ref.watch(authProvider);
     if (auth is! SignedIn) return const SizedBox.shrink();
     final u = auth.user;
+    // COROC Escritorio: WhatsApp siempre asistido y el correo por el Gmail de la empresa (ADR-064, ADR-065).
+    final desktop = ref.watch(desktopModeProvider);
     const gap = SizedBox(height: CorocSpace.lg);
     return PageScaffold(
       maxWidth: 1000,
@@ -62,16 +66,22 @@ class SettingsPage extends ConsumerWidget {
         _Preferences(user: u),
         gap,
         _Security(user: u),
+        if (desktop) ...[gap, const DesktopPcSection()],
         if (u.can('company.view')) ...[gap, _CompanySection(canEdit: u.can('company.edit'))],
         if (u.can('company.view')) ...[
           gap,
           ReceivingAccountsSection(canEdit: u.can('company.edit')),
           gap,
           AutoRegistrationSection(canEdit: u.can('company.edit')),
-          gap,
-          WhatsAppSection(canEdit: u.can('company.edit'), isOwner: u.role == 'owner'),
-          gap,
-          EmailSenderSection(canEdit: u.can('company.edit')),
+          if (desktop) ...[
+            gap,
+            GmailSection(canEdit: u.can('company.edit')),
+          ] else ...[
+            gap,
+            WhatsAppSection(canEdit: u.can('company.edit'), isOwner: u.role == 'owner'),
+            gap,
+            EmailSenderSection(canEdit: u.can('company.edit')),
+          ],
         ],
         if (u.can('compliance.view')) ...[gap, ComplianceSection(canEdit: u.can('compliance.manage'), isOwner: u.role == 'owner')],
         if (u.can('users.view')) ...[gap, _UsersSection(me: u)],
@@ -79,6 +89,7 @@ class SettingsPage extends ConsumerWidget {
         gap,
         const FolderSection(),
         if (u.can('audit.view')) ...[gap, SupportSection(canRetry: u.can('documents.upload'))],
+        if (desktop && u.can('backup.create')) ...[gap, const AutoBackupSection()],
         if (u.can('backup.create')) ...[gap, const BackupSection()],
         if (u.can('backup.restore')) ...[gap, const RestoreSection()],
         gap,
@@ -176,6 +187,7 @@ class _Preferences extends ConsumerWidget {
     final l = context.l10n;
     final lang = ref.watch(localeProvider).languageCode;
     final mode = ref.watch(themeModeProvider);
+    final scale = ref.watch(textScaleProvider);
     return SectionCard(
       title: l.settingsPreferences,
       child: Column(
@@ -209,6 +221,20 @@ class _Preferences extends ConsumerWidget {
                 await ref.read(themeModeProvider.notifier).set(v.first);
                 if (context.mounted) await _patch(context, ref, theme: ThemeController.name(v.first));
               },
+            ),
+          ),
+          _SettingRow(
+            label: l.settingsTextSize,
+            help: l.settingsTextSizeHelp,
+            child: SegmentedButton<double>(
+              showSelectedIcon: false,
+              segments: [
+                ButtonSegment(value: 1.0, label: Text(l.textSizeNormal)),
+                ButtonSegment(value: 1.15, label: Text(l.textSizeLarge)),
+                ButtonSegment(value: 1.3, label: Text(l.textSizeLarger)),
+              ],
+              selected: {scale},
+              onSelectionChanged: (v) => ref.read(textScaleProvider.notifier).set(v.first),
             ),
           ),
           _SettingRow(
@@ -1016,7 +1042,7 @@ class _RateCapsSection extends ConsumerWidget {
           ? TextButton.icon(
               onPressed: () => showDialog<void>(
                 context: context,
-                builder: (_) => _RateCapDialog(country: country),
+                builder: (_) => RateCapDialog(country: country),
               ),
               icon: const Icon(Icons.add, size: 18),
               label: Text(l.rateCapAdd),
@@ -1027,7 +1053,7 @@ class _RateCapsSection extends ConsumerWidget {
         children: [
           Text(country == 'CO' ? l.rateCapsHelpCO : l.rateCapsHelp, style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: CorocSpace.sm),
-          _RateCapPolicy(isOwner: isOwner),
+          RateCapPolicySwitch(isOwner: isOwner),
           const Divider(height: CorocSpace.lg),
           AsyncBody<List<RateCap>>(
             value: caps,
@@ -1062,14 +1088,14 @@ class _RateCapsSection extends ConsumerWidget {
 
 /// Préstamos por encima del tope (P-6, ADR-061): bloqueado por defecto; el Propietario puede permitirlos aceptando la
 /// responsabilidad legal. Aun así, cada préstamo por encima del tope se confirma uno por uno.
-class _RateCapPolicy extends ConsumerStatefulWidget {
-  const _RateCapPolicy({required this.isOwner});
+class RateCapPolicySwitch extends ConsumerStatefulWidget {
+  const RateCapPolicySwitch({super.key, required this.isOwner});
   final bool isOwner;
   @override
-  ConsumerState<_RateCapPolicy> createState() => _RateCapPolicyState();
+  ConsumerState<RateCapPolicySwitch> createState() => RateCapPolicySwitchState();
 }
 
-class _RateCapPolicyState extends ConsumerState<_RateCapPolicy> {
+class RateCapPolicySwitchState extends ConsumerState<RateCapPolicySwitch> {
   bool _busy = false;
 
   Future<void> _set(bool allow) async {
@@ -1138,14 +1164,14 @@ class _RateCapPolicyState extends ConsumerState<_RateCapPolicy> {
   }
 }
 
-class _RateCapDialog extends ConsumerStatefulWidget {
-  const _RateCapDialog({required this.country});
+class RateCapDialog extends ConsumerStatefulWidget {
+  const RateCapDialog({super.key, required this.country});
   final String country;
   @override
-  ConsumerState<_RateCapDialog> createState() => _RateCapDialogState();
+  ConsumerState<RateCapDialog> createState() => RateCapDialogState();
 }
 
-class _RateCapDialogState extends ConsumerState<_RateCapDialog> {
+class RateCapDialogState extends ConsumerState<RateCapDialog> {
   final _rate = TextEditingController();
   final _source = TextEditingController();
   late DateTime _from;

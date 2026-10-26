@@ -12,6 +12,11 @@ class MemorySessionStore implements SessionStore {
   String? folder;
   bool asked = false;
   int refreshWrites = 0;
+  bool hello = false;
+  double? scale;
+  bool tour = false;
+  bool trayHint = false;
+  bool downloads = true;
 
   @override
   Future<String> deviceId() async => 'coroc-test-device-0001';
@@ -58,4 +63,34 @@ class MemorySessionStore implements SessionStore {
 
   @override
   Future<void> saveFolderAsked() async => asked = true;
+
+  @override
+  Future<bool> helloEnabled() async => hello;
+
+  @override
+  Future<void> saveHelloEnabled(bool on) async => hello = on;
+
+  @override
+  Future<double?> textScale() async => scale;
+
+  @override
+  Future<void> saveTextScale(double value) async => scale = value;
+
+  @override
+  Future<bool> tourDone() async => tour;
+
+  @override
+  Future<void> saveTourDone() async => tour = true;
+
+  @override
+  Future<bool> trayHintShown() async => trayHint;
+
+  @override
+  Future<void> saveTrayHintShown() async => trayHint = true;
+
+  @override
+  Future<bool> watchDownloads() async => downloads;
+
+  @override
+  Future<void> saveWatchDownloads(bool on) async => downloads = on;
 }

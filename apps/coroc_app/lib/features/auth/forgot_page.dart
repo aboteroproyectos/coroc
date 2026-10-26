@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/desktop/desktop_runtime.dart';
 import '../../core/l10n.dart';
 import '../../core/providers.dart';
 import '../../design/theme.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/brand.dart';
 import '../../design/widgets/common.dart';
+import '../desktop/password_reset.dart';
 import 'login_page.dart';
 
 /// Recuperación de contraseña por correo con enlace de un solo uso (§7.1).
@@ -50,6 +52,8 @@ class _ForgotPageState extends ConsumerState<ForgotPage> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    // COROC Escritorio: nueva contraseña confirmando con Windows Hello en este PC (ADR-063).
+    if (ref.watch(desktopModeProvider)) return const DesktopPasswordReset();
     return AuthFrame(
       title: l.forgotTitle,
       subtitle: _sent ? l.forgotSent : l.forgotSubtitle,

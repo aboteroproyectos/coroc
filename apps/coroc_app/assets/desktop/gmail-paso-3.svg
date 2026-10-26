@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" width="320" height="180">
+  <rect x="1" y="1" width="318" height="178" rx="12" fill="#F6F6F6" stroke="#E8E4D8" stroke-width="2"/>
+  <rect x="24" y="22" width="272" height="96" rx="14" fill="#FFFFFF" stroke="#E8E4D8" stroke-width="2"/>
+  <rect x="44" y="38" width="150" height="11" rx="5.5" fill="#130E42"/>
+  <rect x="44" y="62" width="232" height="38" rx="8" fill="#FFF6DC" stroke="#CAA555" stroke-width="2"/>
+  <text x="160" y="87" text-anchor="middle" font-family="Inter" font-size="17" font-weight="bold" fill="#130E42">abcd efgh ijkl mnop</text>
+  <path d="M160 122 v16 M152 131 l8 8 l8 -8" stroke="#CAA555" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="44" y="144" width="232" height="26" rx="13" fill="#130E42"/>
+  <circle cx="62" cy="157" r="6" fill="#CAA555"/>
+  <text x="76" y="161" font-family="Inter" font-size="11" font-weight="bold" fill="#FFFDE7">COROC</text>
+  <rect x="122" y="153" width="140" height="8" rx="4" fill="#FFFDE7" opacity="0.5"/>
+</svg>

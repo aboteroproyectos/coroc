@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import pg from 'pg';
 import { CONFIG, type AppConfig } from '../config.js';
 
@@ -33,10 +33,14 @@ export class Tx {
 @Injectable()
 export class DbService implements OnModuleDestroy {
   readonly pool: pg.Pool;
+  private readonly log = new Logger('Base');
 
   constructor(@Inject(CONFIG) config: AppConfig) {
     this.pool = new pg.Pool({ connectionString: config.databaseUrl, max: 20, idleTimeoutMillis: 30_000, application_name: 'coroc-api' });
     this.pool.on('connect', (c) => void c.query("SET search_path = coroc, public; SET TIME ZONE 'UTC'"));
+    // Si la base cierra una conexión inactiva (reinicio, apagado del PC, cambio de servidor en la nube), el pool la
+    // descarta y abre otra cuando haga falta; sin este manejador el error tumbaría el proceso entero.
+    this.pool.on('error', (e) => this.log.warn(`conexión inactiva cerrada por la base: ${e.message}`));
   }
 
   /**
