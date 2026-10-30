@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:coroc/app.dart';
 import 'package:coroc/core/desktop/desktop_platform.dart';
 import 'package:coroc/core/desktop/desktop_runtime.dart';
 import 'package:flutter/material.dart';
@@ -189,6 +188,7 @@ Future<AppUnderTest> bootDesktop(
   MemorySessionStore? store,
   bool tourDone = true,
   bool minimized = false,
+  bool personal = false,
 }) async {
   final server = api ?? FakeApi();
   final fake = platform ?? FakeDesktopPlatform();
@@ -217,6 +217,7 @@ Future<AppUnderTest> bootDesktop(
     signedIn: signedIn,
     store: memory,
     overrides: [desktopModeProvider.overrideWithValue(true), desktopPlatformProvider.overrideWithValue(fake), launchMinimizedProvider.overrideWithValue(minimized)],
+    personal: personal,
   );
   await settle(tester);
   return app;
@@ -250,4 +251,4 @@ Json sentAssisted(Json message) => {
 };
 
 /// Ruta en la que quedó la app (con su consulta).
-String location(AppUnderTest app) => app.container.read(routerProvider).routerDelegate.currentConfiguration.uri.toString();
+String location(AppUnderTest app) => app.location;

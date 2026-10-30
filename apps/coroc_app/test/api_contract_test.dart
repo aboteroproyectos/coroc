@@ -85,6 +85,7 @@ void main() {
       () => api.reversePayment(_id, _id2, 'motivo'),
       api.dashboard,
       api.today,
+      () => api.recentPayments(limit: 5),
       api.documents,
       () => api.document(_id),
       () => api.setDocumentTags(_id, ['a']),

@@ -590,8 +590,8 @@ class BankPage extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (leading != null) ...[leading!, const SizedBox(width: 12)],
-                          ConstrainedBox(
-                            constraints: BoxConstraints(maxWidth: math.max(240, c.maxWidth - 2 * pad - 80)),
+                          // El título y el subtítulo se parten en renglones dentro del ancho de la página.
+                          Flexible(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [

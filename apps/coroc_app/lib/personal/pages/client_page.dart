@@ -183,10 +183,11 @@ class _Totals extends StatelessWidget {
             caption: next.isEmpty ? l.pLoanPaidOff : Dates.long(next.first.dueDate, context.lang),
           ),
         ];
-        if (box.maxWidth < 760)
+        if (box.maxWidth < 760) {
           return Column(
             children: [for (final t in tiles) Padding(padding: const EdgeInsets.only(bottom: 12), child: t)],
           );
+        }
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

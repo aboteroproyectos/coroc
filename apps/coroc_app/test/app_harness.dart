@@ -5,10 +5,13 @@ import 'package:coroc/core/api/api_client.dart';
 import 'package:coroc/core/offline/offline_store.dart';
 import 'package:coroc/core/offline/offline_sync.dart';
 import 'package:coroc/core/providers.dart';
+import 'package:coroc/personal/app.dart';
+import 'package:coroc/personal/router.dart';
 import 'package:file_selector_platform_interface/file_selector_platform_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -41,12 +44,20 @@ class FakeFileSelector extends FileSelectorPlatform with MockPlatformInterfaceMi
 }
 
 class AppUnderTest {
-  AppUnderTest(this.tester, this.api, this.container, this.store, this.files);
+  AppUnderTest(this.tester, this.api, this.container, this.store, this.files, {this.personal = false});
   final WidgetTester tester;
   final FakeApi api;
   final ProviderContainer container;
   final MemorySessionStore store;
   final FakeFileSelector files;
+
+  /// El nuevo COROC de Escritorio (Fase 11) en vez de COROC para equipos.
+  final bool personal;
+
+  GoRouter get router => container.read(personal ? personalRouterProvider : routerProvider);
+
+  /// Ruta en la que quedó la app (con su consulta).
+  String get location => router.routerDelegate.currentConfiguration.uri.toString();
 
   /// Desmonta la app y libera los proveedores (temporizadores de la carpeta y del bloqueo por inactividad).
   Future<void> finish() async {
@@ -57,7 +68,7 @@ class AppUnderTest {
 
   /// Navega como lo haría un enlace de la app y espera a que la pantalla cargue.
   Future<void> go(String location) async {
-    container.read(routerProvider).go(location);
+    router.go(location);
     await settle(tester);
   }
 }
@@ -82,6 +93,7 @@ Future<AppUnderTest> bootApp(
   bool folderAsked = true,
   List<Override> overrides = const [],
   MemorySessionStore? store,
+  bool personal = false,
 }) async {
   await initializeDateFormatting('es');
   await initializeDateFormatting('pt_BR');
@@ -105,9 +117,9 @@ Future<AppUnderTest> bootApp(
   );
   final files = FakeFileSelector();
   FileSelectorPlatform.instance = files;
-  await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const CorocApp()));
+  await tester.pumpWidget(UncontrolledProviderScope(container: container, child: personal ? const PersonalApp() : const CorocApp()));
   await settle(tester);
-  return AppUnderTest(tester, server, container, memory, files);
+  return AppUnderTest(tester, server, container, memory, files, personal: personal);
 }
 
 /// Desplaza hasta el control (si está en una lista), lo deja en el centro para que no quede bajo un encabezado fijo y
