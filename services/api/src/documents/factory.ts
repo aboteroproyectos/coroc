@@ -7,7 +7,7 @@ import { EventBus } from '../dashboard/event-bus.js';
 import { DbService, type Tx } from '../db/db.service.js';
 import { LoanStateService, type LoadedLoan } from '../loans/loan-state.service.js';
 import { PdfRenderer } from '../pdf/renderer.js';
-import { footerTemplate, payoffHtml, planHtml, receiptHtml, statementHtml, type Company } from '../pdf/templates.js';
+import { footerTemplate, payoffHtml, planHtml, receiptHtml, statementHtml, type Company, type ReceiptStatement } from '../pdf/templates.js';
 import { DocumentsService } from './documents.service.js';
 import { DocumentTasks, type TaskRow } from './tasks.js';
 
@@ -93,7 +93,9 @@ export class DocumentFactory implements OnModuleInit {
     // El PDF se genera fuera de la transacción que bloquea: un render lento no retiene filas (ADR-057).
     const pre = await this.db.tx(ctx, (tx) => tx.one<Record<string, any>>('SELECT * FROM receipts WHERE entry_id = $1', [task.entry_id]));
     if (!pre) throw new Error('Recibo no encontrado');
-    const render = async (voided: boolean) => this.pdf.render(await receiptHtml({ ...(pre.data as ReceiptData), voided }, companyOf(tenant)));
+    // El recibo lleva en una segunda hoja el estado de cuenta a la fecha (Fase 11): la respuesta al cliente lo trae todo.
+    let statement = await this.db.tx(ctx, (tx) => this.receiptStatement(tx, pre.loan_id, tenant));
+    const render = async (voided: boolean) => this.pdf.render(await receiptHtml({ ...(pre.data as ReceiptData), voided }, companyOf(tenant), statement));
     let voided = !!pre.voided_at;
     let body = (!voidTask && pre.document_id) || (voidTask && pre.void_document_id) ? null : await render(voided);
     const out = await this.db.tx(ctx, async (tx) => {
@@ -107,6 +109,7 @@ export class DocumentFactory implements OnModuleInit {
       // Si el pago se reversó mientras se generaba el PDF, se vuelve a generar con el sello ANULADO.
       if (!body || !!rc.voided_at !== voided) {
         voided = !!rc.voided_at;
+        statement = await this.receiptStatement(tx, rc.loan_id, tenant);
         body = await render(voided);
       }
       const data = rc.data as ReceiptData;
@@ -123,6 +126,31 @@ export class DocumentFactory implements OnModuleInit {
     });
     if (out.created) this.published(task.tenant_id, out.client.id, out.client.collector_id, out.id, 'receipt_out');
     return out.id;
+  }
+
+  /** Estado de cuenta compacto para la segunda hoja del recibo: los últimos pagos y las próximas cuotas. */
+  private async receiptStatement(tx: Tx, loanId: string, tenant: TenantInfo): Promise<ReceiptStatement> {
+    const today = this.clock.today(tenant.timezone);
+    const { l, lang } = await this.loan(tx, loanId);
+    const r = this.state.replay(l, today);
+    const receipts = new Map((await tx.many<{ entry_id: string; number: string }>('SELECT entry_id, number FROM receipts WHERE loan_id = $1', [loanId])).map((x) => [x.entry_id, x.number]));
+    const payments = l.ledger
+      .filter((e) => e.type === 'payment')
+      .map((e) => ({
+        date: e.entry_date, receipt: receipts.get(e.id) ?? '', amount: e.amount, reversed: !!e.reversed_by,
+        method: e.method || e.institution || t(lang, e.source === 'cash' ? 'doc.statement.cash' : 'doc.statement.manual'),
+      }));
+    const pending = r.states.filter((s) => s.paid < s.amount);
+    const SHOW_PAYMENTS = 8;
+    const SHOW_PENDING = 10;
+    return {
+      asOf: today, totalPayable: r.summary.totalPayable, paidTotal: r.summary.paidTotal, balance: r.summary.balance,
+      remaining: r.summary.remainingInstallments, totalInstallments: r.summary.totalInstallments, daysPastDue: r.summary.daysPastDue,
+      overdueAmount: r.states.filter((s) => s.status === 'overdue' || (s.status === 'partial' && s.dueDate < today)).reduce((acc, s) => acc + s.amount - s.paid, 0),
+      payments: payments.slice(-SHOW_PAYMENTS), earlierPayments: Math.max(0, payments.length - SHOW_PAYMENTS),
+      pending: pending.slice(0, SHOW_PENDING).map((s) => ({ number: s.number, dueDate: s.dueDate, outstanding: s.amount - s.paid, status: s.status })),
+      morePending: pending.length > SHOW_PENDING ? { count: pending.length - SHOW_PENDING, until: pending[pending.length - 1]!.dueDate } : null,
+    };
   }
 
   /** Estado de cuenta a la fecha (§16.4): bajo demanda, cada mes y al cerrar el préstamo. */

@@ -413,7 +413,9 @@
       "noPayments": "Aún no hay pagos registrados.",
       "allPaid": "No hay cuotas pendientes.",
       "cash": "Efectivo",
-      "manual": "Registro manual"
+      "manual": "Registro manual",
+      "earlierPayments": "Y {n} pagos anteriores, en el estado de cuenta completo.",
+      "morePending": "Y {n} cuotas más, hasta el {fecha}."
     },
     "payoff": {
       "title": "Paz y salvo",

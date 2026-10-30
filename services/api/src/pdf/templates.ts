@@ -119,8 +119,29 @@ export function footerTemplate(lang: Lang, stamp: string): string {
 
 const kv = (label: string, value: string) => `<div class="kv"><div class="label">${esc(label)}</div><div class="value num">${esc(value)}</div></div>`;
 
+/**
+ * Estado de cuenta que acompaña al recibo (Fase 11): en la misma respuesta el cliente recibe la confirmación, el recibo
+ * y cómo va su préstamo. Es una segunda hoja A5 con el saldo, los últimos pagos y las próximas cuotas.
+ */
+export interface ReceiptStatement {
+  asOf: string;
+  totalPayable: number;
+  paidTotal: number;
+  balance: number;
+  remaining: number;
+  totalInstallments: number;
+  daysPastDue: number;
+  overdueAmount: number;
+  payments: { date: string; receipt: string; method: string; amount: number; reversed: boolean }[];
+  /** Pagos más antiguos que no caben en la hoja. */
+  earlierPayments: number;
+  pending: { number: number; dueDate: string; outstanding: number; status: string }[];
+  /** Cuotas por pagar que no caben en la hoja: cuántas y hasta qué fecha. */
+  morePending: { count: number; until: string } | null;
+}
+
 // ─────────────────────────── Recibo «Gracias por tu pago» (§15), A5 ───────────────────────────
-export async function receiptHtml(d: ReceiptData & { voided?: boolean; lastPaymentLine?: string }, company: Company): Promise<string> {
+export async function receiptHtml(d: ReceiptData & { voided?: boolean; lastPaymentLine?: string }, company: Company, statement?: ReceiptStatement | null): Promise<string> {
   const lang = d.lang;
   const R = RECEIPT_TEXT[lang]!;
   const m = (v: number) => money(v, d.currency, lang);
@@ -137,14 +158,15 @@ export async function receiptHtml(d: ReceiptData & { voided?: boolean; lastPayme
   ];
   if (d.next) rows.push([R.nextInstallment!, `${longDate(d.next.dueDate, lang)} · ${m(d.next.amount)}`]);
   const meta = [d.payment.method, d.payment.reference].filter(Boolean).join(' · ');
-  const css = `@page{size:A5;margin:0}body{background:var(--ivory)}.sheet{padding:0 11mm 10mm;min-height:210mm;position:relative}
+  const css = `@page{size:A5;margin:0}body{background:var(--ivory)}.sheet{padding:0 11mm 10mm;min-height:207.6mm;position:relative}
 .head img{height:9.5mm}.hero{display:grid;grid-template-columns:1fr 1fr;background:#fff;border:1px solid var(--line);border-radius:4mm;margin:5mm 0 4mm}
 .hero>div{padding:4mm 5mm}.hero>div+div{border-left:1px solid var(--line)}.big{font-size:18pt;font-weight:600;margin-top:1.5mm;line-height:1.1}
 .paid{color:var(--gold8)}.okline{color:var(--ok);font-size:7pt;margin-top:1mm}
 .lines div{display:flex;justify-content:space-between;gap:6mm;padding:1.7mm 0;border-bottom:1px solid var(--line);font-size:8.3pt}
 .lines span:first-child{color:var(--muted)}.lines span:last-child{font-weight:600;text-align:right}
 .verify{display:flex;gap:4mm;align-items:center;margin-top:5mm;font-size:6.8pt;color:var(--muted)}.verify svg{width:21mm;height:21mm;flex:none}
-.foot{position:absolute;left:11mm;right:11mm;bottom:6mm;text-align:center;font-size:6.6pt;color:var(--muted)}`;
+.foot{position:absolute;left:11mm;right:11mm;bottom:6mm;text-align:center;font-size:6.6pt;color:var(--muted)}
+.statement{break-before:page}.statement .sheet{min-height:auto}.statement h2{margin:5mm 0 2mm}.more{font-size:7pt;margin-top:1.5mm}`;
   const body = `<div class="rule"></div><div class="sheet">
 <div class="head"><img src="${logo()}" alt="COROC"><div class="company">${companyLines(company, lang)}</div></div>
 <div class="title"><h1>${esc(R.title)}</h1><div class="sub">${esc(R.thanks)}</div></div><hr>
@@ -155,8 +177,37 @@ ${kv(R.client!, d.client.fullName)}${kv(R.contract!, d.contract)}${kv(R.paymentD
 <div class="lines num">${rows.map(([k, v]) => `<div><span>${esc(k)}</span><span>${esc(v)}</span></div>`).join('')}</div>
 ${qr ? `<div class="verify">${qr}<div>${esc(R.verify)}<br><span class="num">${esc(d.verificationCode)}</span></div></div>` : d.verificationCode ? `<div class="verify"><div>${esc(R.verifyCode)}<br><span class="num">${esc(d.verificationCode)}</span></div></div>` : ''}
 <div class="foot">${esc(R.generated)}</div>
-${d.voided ? `<div class="void">${esc(R.void)}</div>` : ''}</div>`;
+${d.voided ? `<div class="void">${esc(R.void)}</div>` : ''}</div>${statement ? receiptStatementSheet(d, statement, company) : ''}`;
   return page(lang, body, css);
+}
+
+/** Segunda hoja del recibo: el estado de cuenta a la fecha, compacto (A5). */
+function receiptStatementSheet(d: ReceiptData, s: ReceiptStatement, company: Company): string {
+  const L = d.lang;
+  const m = (v: number) => money(v, d.currency, L);
+  const cells: [string, string][] = [
+    [t(L, 'doc.statement.agreed'), m(s.totalPayable)],
+    [t(L, 'doc.statement.paid'), m(s.paidTotal)],
+    [t(L, 'doc.statement.balance'), m(s.balance)],
+    [t(L, 'doc.statement.remaining'), `${s.remaining} / ${s.totalInstallments}`],
+    [t(L, 'doc.statement.overdue'), m(s.overdueAmount)],
+    [t(L, 'doc.statement.dpd'), String(s.daysPastDue)],
+  ];
+  const pay = s.payments.length
+    ? `<table><thead><tr><th>${esc(t(L, 'doc.statement.colDate'))}</th><th>${esc(t(L, 'doc.statement.colReceipt'))}</th><th>${esc(t(L, 'doc.statement.colMethod'))}</th><th class="r">${esc(t(L, 'doc.statement.colAmount'))}</th></tr></thead><tbody>
+${s.payments.map((p) => `<tr${p.reversed ? ' class="s-overdue"' : ''}><td class="num">${esc(shortDate(p.date, L))}</td><td class="num">${esc(p.receipt)}</td><td>${esc(p.reversed ? t(L, 'doc.statement.reversed') : p.method)}</td><td class="r num">${esc(m(p.amount))}</td></tr>`).join('')}</tbody></table>
+${s.earlierPayments ? `<p class="muted more">${esc(t(L, 'doc.statement.earlierPayments', { n: s.earlierPayments }))}</p>` : ''}`
+    : `<p class="muted">${esc(t(L, 'doc.statement.noPayments'))}</p>`;
+  const pend = s.pending.length
+    ? `<table><thead><tr><th>${esc(t(L, 'doc.plan.colNumber'))}</th><th>${esc(t(L, 'doc.plan.colDue'))}</th><th>${esc(t(L, 'doc.plan.colStatus'))}</th><th class="r">${esc(t(L, 'doc.statement.colAmount'))}</th></tr></thead><tbody>
+${s.pending.map((p) => `<tr><td class="num">${p.number}</td><td class="num">${esc(shortDate(p.dueDate, L))}</td><td class="s-${esc(p.status)}"><span class="dot"></span>${esc(t(L, `doc.status.${p.status}`))}</td><td class="r num">${esc(m(p.outstanding))}</td></tr>`).join('')}</tbody></table>
+${s.morePending ? `<p class="muted more">${esc(t(L, 'doc.statement.morePending', { n: s.morePending.count, fecha: longDate(s.morePending.until, L) }))}</p>` : ''}`
+    : `<p class="muted">${esc(t(L, 'doc.statement.allPaid'))}</p>`;
+  return `<div class="statement"><div class="rule"></div><div class="sheet">
+<div class="head"><img src="${logo()}" alt="COROC"><div class="company">${companyLines(company, L)}</div></div>
+<div class="title"><h1>${esc(t(L, 'doc.statement.title'))}</h1><div class="sub">${esc(`${t(L, 'doc.common.contract')} ${d.contract} · ${d.client.fullName} · ${t(L, 'doc.common.cutoff')} ${longDate(s.asOf, L)}`)}</div></div><hr>
+<div class="grid g3">${cells.map(([k, v]) => kv(k, v)).join('')}</div>
+<h2>${esc(t(L, 'doc.statement.payments'))}</h2>${pay}<h2>${esc(t(L, 'doc.statement.pendingInstallments'))}</h2>${pend}</div></div>`;
 }
 
 // ─────────────────────────── Contrato y plan de pagos (§8.3, §10), A4 ───────────────────────────

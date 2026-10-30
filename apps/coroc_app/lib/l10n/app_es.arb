@@ -4867,5 +4867,902 @@
   "helpSmartScreenBody": "Mientras el instalador de COROC no tenga firma digital, Windows puede mostrar «Windows protegió su PC». Es normal con programas nuevos: toque «Más información» y después «Ejecutar de todas formas». Descargue el instalador solo desde la página oficial de COROC.",
   "@helpSmartScreenBody": {
     "description": "Ayuda · aviso de Windows al instalar"
+  },
+  "pGreetingMorning": "Buenos días",
+  "@pGreetingMorning": {
+    "description": "Saludo de Inicio antes del mediodía"
+  },
+  "pGreetingAfternoon": "Buenas tardes",
+  "@pGreetingAfternoon": {
+    "description": "Saludo de Inicio en la tarde"
+  },
+  "pGreetingEvening": "Buenas noches",
+  "@pGreetingEvening": {
+    "description": "Saludo de Inicio en la noche"
+  },
+  "pDocument": "Documento",
+  "@pDocument": {
+    "description": "Tipo de documento cuando no se conoce"
+  },
+  "pEditClient": "Editar datos",
+  "@pEditClient": {
+    "description": "Botón de la ficha del cliente"
+  },
+  "pSendStatement": "Enviar estado de cuenta",
+  "@pSendStatement": {
+    "description": "Botón de la ficha del cliente"
+  },
+  "pRegisterPayment": "Registrar pago",
+  "@pRegisterPayment": {
+    "description": "Botón de la ficha del cliente"
+  },
+  "pClientLoans": "Préstamos",
+  "@pClientLoans": {
+    "description": "Sección de la ficha del cliente"
+  },
+  "pNewLoanForClient": "Nuevo préstamo",
+  "@pNewLoanForClient": {
+    "description": "Acción de la sección Préstamos de la ficha"
+  },
+  "pStatementHow": "¿Cómo lo envía?",
+  "@pStatementHow": {
+    "description": "Título del diálogo para enviar el estado de cuenta"
+  },
+  "pStatementWhatsappHelp": "COROC abre el chat del cliente con el mensaje y el PDF listos para pegar.",
+  "@pStatementWhatsappHelp": {
+    "description": "Opción WhatsApp del estado de cuenta"
+  },
+  "pStatementEmailHelp": "Sale por correo a {email} con el PDF.",
+  "@pStatementEmailHelp": {
+    "description": "Opción correo del estado de cuenta",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "pStatementBlocked": "COROC no pudo enviarlo ahora por una regla de contacto (horario, festivo o autorización del cliente).",
+  "@pStatementBlocked": {
+    "description": "El estado de cuenta por correo quedó bloqueado por una regla"
+  },
+  "pStatementEmailSent": "Listo: el estado de cuenta sale por correo en unos segundos.",
+  "@pStatementEmailSent": {
+    "description": "Estado de cuenta enviado por correo"
+  },
+  "pStatementPreparing": "Preparando el estado de cuenta…",
+  "@pStatementPreparing": {
+    "description": "Mientras se arma el PDF del estado de cuenta"
+  },
+  "pClientBalance": "Saldo por cobrar",
+  "@pClientBalance": {
+    "description": "Indicador de la ficha del cliente"
+  },
+  "pDaysLate": "{days, plural, =1{1 día de atraso} other{{days} días de atraso}}",
+  "@pDaysLate": {
+    "description": "Días de mora del cliente",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "pClientPaid": "Pagado hasta hoy",
+  "@pClientPaid": {
+    "description": "Indicador de la ficha del cliente"
+  },
+  "pClientNext": "Próxima cuota",
+  "@pClientNext": {
+    "description": "Indicador de la ficha del cliente"
+  },
+  "pLoanPaidOff": "Préstamo pagado",
+  "@pLoanPaidOff": {
+    "description": "Sin cuotas pendientes"
+  },
+  "pFilterPaid": "Pagados",
+  "@pFilterPaid": {
+    "description": "Filtro y estado de préstamos cerrados"
+  },
+  "pLoanTitle": "Préstamo {contract}",
+  "@pLoanTitle": {
+    "description": "Título de la tarjeta del préstamo",
+    "placeholders": {
+      "contract": {
+        "type": "String"
+      }
+    }
+  },
+  "pLoanSince": "Desde el {date} · {terms}",
+  "@pLoanSince": {
+    "description": "Fecha de entrega y cuotas del préstamo",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "terms": {
+        "type": "String"
+      }
+    }
+  },
+  "pTermsDaily": "{count, plural, =1{1 cuota diaria} other{{count} cuotas diarias}}",
+  "@pTermsDaily": {
+    "description": "Cuotas de un préstamo diario",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pTermsWeekly": "{count, plural, =1{1 cuota semanal} other{{count} cuotas semanales}}",
+  "@pTermsWeekly": {
+    "description": "Cuotas de un préstamo semanal",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pTermsMonthly": "{count, plural, =1{1 cuota mensual} other{{count} cuotas mensuales}}",
+  "@pTermsMonthly": {
+    "description": "Cuotas de un préstamo mensual",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pLent": "Prestado",
+  "@pLent": {
+    "description": "Cifra del préstamo"
+  },
+  "pInterest": "Interés",
+  "@pInterest": {
+    "description": "Cifra del préstamo"
+  },
+  "pTotalToPay": "Total a pagar",
+  "@pTotalToPay": {
+    "description": "Cifra del préstamo"
+  },
+  "pInstallmentsPaid": "{paid} de {total} cuotas pagadas",
+  "@pInstallmentsPaid": {
+    "description": "Avance del préstamo",
+    "placeholders": {
+      "paid": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "pNextInstallment": "Próxima: {date} · {amount}",
+  "@pNextInstallment": {
+    "description": "Próxima cuota con su fecha y valor",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "pShowInstallments": "Cuotas",
+  "@pShowInstallments": {
+    "description": "Mostrar las cuotas del préstamo"
+  },
+  "pShowPayments": "Pagos",
+  "@pShowPayments": {
+    "description": "Mostrar los pagos del préstamo"
+  },
+  "pOpenContract": "Contrato en PDF",
+  "@pOpenContract": {
+    "description": "Abrir el contrato del préstamo"
+  },
+  "pPerDay": "por día",
+  "@pPerDay": {
+    "description": "Interés por período: diario"
+  },
+  "pPerWeek": "por semana",
+  "@pPerWeek": {
+    "description": "Interés por período: semanal"
+  },
+  "pPerMonth": "por mes",
+  "@pPerMonth": {
+    "description": "Interés por período: mensual"
+  },
+  "pContractPreparing": "El contrato se está preparando. Intente de nuevo en unos segundos.",
+  "@pContractPreparing": {
+    "description": "El PDF del contrato aún no está listo"
+  },
+  "pNoPaymentsYet": "Aún no hay pagos",
+  "@pNoPaymentsYet": {
+    "description": "Préstamo sin pagos"
+  },
+  "pMoveReceipt": "Recibo {number}",
+  "@pMoveReceipt": {
+    "description": "Número de recibo de un pago",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "pMoveReversed": "Anulado",
+  "@pMoveReversed": {
+    "description": "Pago anulado"
+  },
+  "pOpenReceipt": "Ver recibo",
+  "@pOpenReceipt": {
+    "description": "Abrir el recibo de un pago"
+  },
+  "pClientRequired": "Escriba nombres, apellidos y un celular de al menos 7 dígitos.",
+  "@pClientRequired": {
+    "description": "Datos mínimos del cliente"
+  },
+  "pFilterAll": "Todos",
+  "@pFilterAll": {
+    "description": "Filtro de clientes"
+  },
+  "pFilterOverdue": "Atrasados",
+  "@pFilterOverdue": {
+    "description": "Filtro de clientes"
+  },
+  "pClientsSubtitle": "Las personas a las que les ha prestado.",
+  "@pClientsSubtitle": {
+    "description": "Subtítulo de Clientes"
+  },
+  "pNavNewLoan": "Nuevo préstamo",
+  "@pNavNewLoan": {
+    "description": "Sección y botón Nuevo préstamo"
+  },
+  "pClientsSearch": "Buscar por nombre, documento o celular",
+  "@pClientsSearch": {
+    "description": "Buscador de clientes"
+  },
+  "pClear": "Borrar",
+  "@pClear": {
+    "description": "Borrar la búsqueda"
+  },
+  "pClientsEmpty": "Aún no tiene clientes",
+  "@pClientsEmpty": {
+    "description": "Clientes vacío"
+  },
+  "pClientsNoMatch": "No hay clientes con esa búsqueda",
+  "@pClientsNoMatch": {
+    "description": "Búsqueda sin resultados"
+  },
+  "pClientsEmptyBody": "Cada cliente aparece aquí al registrar su primer préstamo.",
+  "@pClientsEmptyBody": {
+    "description": "Clientes vacío, explicación"
+  },
+  "pHomeStartAction": "Registrar mi primer préstamo",
+  "@pHomeStartAction": {
+    "description": "Botón cuando aún no hay préstamos"
+  },
+  "pClientsHint": "Toque un cliente para ver sus préstamos y sus pagos, y enviarle el estado de cuenta.",
+  "@pClientsHint": {
+    "description": "Ayuda al pie de Clientes"
+  },
+  "pBalance": "Saldo",
+  "@pBalance": {
+    "description": "Rótulo del saldo en la fila del cliente"
+  },
+  "pHomeUpload": "Subir comprobante",
+  "@pHomeUpload": {
+    "description": "Botón de Inicio"
+  },
+  "pHomeStartTitle": "Bienvenido a COROC",
+  "@pHomeStartTitle": {
+    "description": "Inicio sin préstamos"
+  },
+  "pHomeStartBody": "Registre su primer préstamo: COROC arma el plan de cuotas y el contrato en PDF, y le avisa cuándo cobrar.",
+  "@pHomeStartBody": {
+    "description": "Inicio sin préstamos"
+  },
+  "pHomeDropHint": "¿Le llegó un comprobante? Arrástrelo a esta ventana en cualquier momento.",
+  "@pHomeDropHint": {
+    "description": "Ayuda para soltar comprobantes"
+  },
+  "pHomeToSendTitle": "Por enviar",
+  "@pHomeToSendTitle": {
+    "description": "Tarjeta y sección de mensajes por WhatsApp"
+  },
+  "pHomeToSendBody": "{count, plural, =1{1 recibo o aviso listo para WhatsApp.} other{{count} recibos y avisos listos para WhatsApp.}}",
+  "@pHomeToSendBody": {
+    "description": "Mensajes listos para enviar",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pHomeToSendIdle": "Nada por enviar. COROC le avisa cuando haya algo.",
+  "@pHomeToSendIdle": {
+    "description": "Sin mensajes por enviar"
+  },
+  "pHomeToSendAction": "Enviar ahora",
+  "@pHomeToSendAction": {
+    "description": "Ir a enviar los mensajes"
+  },
+  "pHomeReviewTitle": "Comprobantes por revisar",
+  "@pHomeReviewTitle": {
+    "description": "Tarjeta de Inicio"
+  },
+  "pHomeReviewBody": "{count, plural, =1{1 comprobante espera su visto bueno.} other{{count} comprobantes esperan su visto bueno.}}",
+  "@pHomeReviewBody": {
+    "description": "Comprobantes por revisar",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pHomeReviewIdle": "Todo al día: COROC registró solo lo que llegó.",
+  "@pHomeReviewIdle": {
+    "description": "Sin comprobantes por revisar"
+  },
+  "pHomeReviewAction": "Revisar",
+  "@pHomeReviewAction": {
+    "description": "Ir a revisar comprobantes"
+  },
+  "pHomeReceivable": "Por cobrar",
+  "@pHomeReceivable": {
+    "description": "Saldo de la cartera en Inicio"
+  },
+  "pHomeActiveClients": "{count, plural, =1{1 cliente activo} other{{count} clientes activos}}",
+  "@pHomeActiveClients": {
+    "description": "Clientes con préstamos activos",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pHomeLent": "{amount} prestados",
+  "@pHomeLent": {
+    "description": "Total prestado",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "pHomeCollected30": "Cobrado en 30 días",
+  "@pHomeCollected30": {
+    "description": "Cifra de Inicio"
+  },
+  "pHomeOverdue": "En mora",
+  "@pHomeOverdue": {
+    "description": "Cifra de Inicio"
+  },
+  "pHomeTrend": "Pagos recibidos en los últimos días",
+  "@pHomeTrend": {
+    "description": "Descripción de la gráfica"
+  },
+  "pHomeToday": "Hoy",
+  "@pHomeToday": {
+    "description": "Tarjeta de Inicio"
+  },
+  "pHomeDueToday": "Por cobrar hoy",
+  "@pHomeDueToday": {
+    "description": "Cifra de hoy"
+  },
+  "pHomeCollectedToday": "Cobrado hoy",
+  "@pHomeCollectedToday": {
+    "description": "Cifra de hoy"
+  },
+  "pHomeTodayProgress": "{percent} % de lo de hoy ya está cobrado",
+  "@pHomeTodayProgress": {
+    "description": "Avance del día",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "pHomeMovements": "Movimientos recientes",
+  "@pHomeMovements": {
+    "description": "Tarjeta de Inicio"
+  },
+  "pHomeMovementsEmpty": "Aquí verá cada pago apenas llegue.",
+  "@pHomeMovementsEmpty": {
+    "description": "Sin movimientos"
+  },
+  "pMoveAuto": "automático",
+  "@pMoveAuto": {
+    "description": "Pago registrado solo por COROC"
+  },
+  "pHomeDueList": "Cobros de hoy",
+  "@pHomeDueList": {
+    "description": "Tarjeta de Inicio"
+  },
+  "pHomeDueEmpty": "Hoy no vence ninguna cuota.",
+  "@pHomeDueEmpty": {
+    "description": "Sin cobros hoy"
+  },
+  "pDueTodayShort": "Vence hoy",
+  "@pDueTodayShort": {
+    "description": "Etiqueta de un cobro de hoy"
+  },
+  "pInstallmentDueToday": "Cuota {number} vence hoy",
+  "@pInstallmentDueToday": {
+    "description": "Etiqueta de un cobro de hoy",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "pHomeDueMore": "{count, plural, =1{Y 1 cobro más en Clientes.} other{Y {count} cobros más en Clientes.}}",
+  "@pHomeDueMore": {
+    "description": "Cobros de hoy que no caben",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pLoginMissing": "Escriba su usuario y su contraseña.",
+  "@pLoginMissing": {
+    "description": "Ingreso sin datos"
+  },
+  "pLoginTitle": "Bienvenido de nuevo",
+  "@pLoginTitle": {
+    "description": "Título del ingreso"
+  },
+  "pLoginNotYou": "¿No es usted?",
+  "@pLoginNotYou": {
+    "description": "Cambiar de usuario en el ingreso"
+  },
+  "pLoanCreated": "Listo: préstamo {contract} de {name}. El contrato en PDF quedó en su ficha.",
+  "@pLoanCreated": {
+    "description": "Préstamo creado",
+    "placeholders": {
+      "contract": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pNewLoanSubtitle": "Todo en una sola pantalla: a quién, cuánto y cómo paga.",
+  "@pNewLoanSubtitle": {
+    "description": "Subtítulo de Nuevo préstamo"
+  },
+  "pWhoTitle": "¿A quién le presta?",
+  "@pWhoTitle": {
+    "description": "Sección del cliente en Nuevo préstamo"
+  },
+  "pClientNew": "Cliente nuevo",
+  "@pClientNew": {
+    "description": "Opción de Nuevo préstamo"
+  },
+  "pClientExisting": "Ya es mi cliente",
+  "@pClientExisting": {
+    "description": "Opción de Nuevo préstamo"
+  },
+  "pEmailOptional": "Correo (opcional)",
+  "@pEmailOptional": {
+    "description": "Campo del cliente"
+  },
+  "pEmailHelp": "Para enviarle recibos y leer los comprobantes que mande desde ese correo.",
+  "@pEmailHelp": {
+    "description": "Ayuda del correo del cliente"
+  },
+  "pAuthorization": "El cliente autoriza el uso de sus datos y recibir mensajes",
+  "@pAuthorization": {
+    "description": "Autorización del cliente"
+  },
+  "pAuthorizationHelp": "Obligatoria. Incluye recordatorios y recibos por WhatsApp y, si dio su correo, por correo.",
+  "@pAuthorizationHelp": {
+    "description": "Ayuda de la autorización"
+  },
+  "pChange": "Cambiar",
+  "@pChange": {
+    "description": "Botón para cambiar un dato"
+  },
+  "pLoanSectionTitle": "El préstamo",
+  "@pLoanSectionTitle": {
+    "description": "Sección del préstamo"
+  },
+  "pAmountLent": "Monto prestado",
+  "@pAmountLent": {
+    "description": "Campo y cifra del préstamo"
+  },
+  "pHowOften": "¿Cada cuánto paga?",
+  "@pHowOften": {
+    "description": "Frecuencia de las cuotas"
+  },
+  "pEveryDay": "Cada día",
+  "@pEveryDay": {
+    "description": "Frecuencia diaria"
+  },
+  "pEveryWeek": "Cada semana",
+  "@pEveryWeek": {
+    "description": "Frecuencia semanal"
+  },
+  "pEveryMonth": "Cada mes",
+  "@pEveryMonth": {
+    "description": "Frecuencia mensual"
+  },
+  "pInterestRate": "Tasa de interés",
+  "@pInterestRate": {
+    "description": "Campo de la tasa"
+  },
+  "pInterestUnit": "El interés es",
+  "@pInterestUnit": {
+    "description": "Unidad de la tasa: por período o en total"
+  },
+  "pRateTotal": "en total",
+  "@pRateTotal": {
+    "description": "Tasa sobre el total del préstamo"
+  },
+  "pDeliveredOn": "Entrega: {date}",
+  "@pDeliveredOn": {
+    "description": "Fecha de entrega del dinero",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pInstallmentOf": "Cuota de",
+  "@pInstallmentOf": {
+    "description": "Resumen del préstamo"
+  },
+  "pPreviewEmpty": "Escriba el monto, el interés y las cuotas: aquí verá el plan al instante.",
+  "@pPreviewEmpty": {
+    "description": "Resumen sin datos"
+  },
+  "pInterestTotal": "Intereses",
+  "@pInterestTotal": {
+    "description": "Resumen del préstamo"
+  },
+  "pFirstInstallment": "Primera cuota",
+  "@pFirstInstallment": {
+    "description": "Resumen del préstamo"
+  },
+  "pLastInstallment": "Última cuota",
+  "@pLastInstallment": {
+    "description": "Resumen del préstamo"
+  },
+  "pEffectiveRate": "Tasa efectiva anual",
+  "@pEffectiveRate": {
+    "description": "Resumen del préstamo"
+  },
+  "pCreateLoan": "Crear el préstamo",
+  "@pCreateLoan": {
+    "description": "Botón de Nuevo préstamo"
+  },
+  "pCreateLoanHelp": "COROC guarda el préstamo, arma el contrato en PDF y deja listo el mensaje de bienvenida con el plan de cuotas.",
+  "@pCreateLoanHelp": {
+    "description": "Qué pasa al crear el préstamo"
+  },
+  "pCapMissing": "Falta registrar la tasa de usura vigente. Puede hacerlo en Configuración › Tasas de interés.",
+  "@pCapMissing": {
+    "description": "Préstamo sin tope legal registrado"
+  },
+  "pNavReceipts": "Comprobantes",
+  "@pNavReceipts": {
+    "description": "Sección Comprobantes"
+  },
+  "pReceiptsSubtitle": "Los pagos que le mandan por correo o WhatsApp. COROC los lee y los registra.",
+  "@pReceiptsSubtitle": {
+    "description": "Subtítulo de Comprobantes"
+  },
+  "pReviewTitle": "Por revisar ({count})",
+  "@pReviewTitle": {
+    "description": "Comprobantes por revisar",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pReviewEmpty": "Nada por revisar",
+  "@pReviewEmpty": {
+    "description": "Sin comprobantes por revisar"
+  },
+  "pReviewEmptyBody": "Cuando COROC no esté seguro de un pago, se lo mostrará aquí.",
+  "@pReviewEmptyBody": {
+    "description": "Sin comprobantes por revisar"
+  },
+  "pAutoTitle": "Registrados solos",
+  "@pAutoTitle": {
+    "description": "Comprobantes que COROC registró solo"
+  },
+  "pAutoSubtitle": "COROC reconoció al cliente y el monto, asentó el pago y respondió con el recibo.",
+  "@pAutoSubtitle": {
+    "description": "Comprobantes que COROC registró solo"
+  },
+  "pDropTitle": "Arrastre aquí el comprobante",
+  "@pDropTitle": {
+    "description": "Zona para soltar comprobantes"
+  },
+  "pDropBody": "Una foto o un PDF de WhatsApp, del correo o de su carpeta de Descargas. COROC lee el monto y quién pagó.",
+  "@pDropBody": {
+    "description": "Zona para soltar comprobantes"
+  },
+  "pReceiptRegistered": "Pago registrado. Recibo {number} listo para enviar.",
+  "@pReceiptRegistered": {
+    "description": "Comprobante aprobado",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "pNotAPaymentTitle": "¿No es un pago?",
+  "@pNotAPaymentTitle": {
+    "description": "Descartar un comprobante"
+  },
+  "pNotAPaymentBody": "COROC lo quitará de la lista sin registrar nada. El archivo queda guardado.",
+  "@pNotAPaymentBody": {
+    "description": "Descartar un comprobante"
+  },
+  "pNotAPayment": "No es un pago",
+  "@pNotAPayment": {
+    "description": "Descartar un comprobante"
+  },
+  "pNotAPaymentReason": "No es un pago (marcado por el dueño)",
+  "@pNotAPaymentReason": {
+    "description": "Motivo guardado al descartar"
+  },
+  "pReadAmount": "Monto",
+  "@pReadAmount": {
+    "description": "Dato leído del comprobante"
+  },
+  "pReadDate": "Fecha",
+  "@pReadDate": {
+    "description": "Dato leído del comprobante"
+  },
+  "pReadReference": "Referencia",
+  "@pReadReference": {
+    "description": "Dato leído del comprobante"
+  },
+  "pReadBank": "Banco o billetera",
+  "@pReadBank": {
+    "description": "Dato leído del comprobante"
+  },
+  "pReadPayer": "Quién pagó",
+  "@pReadPayer": {
+    "description": "Dato leído del comprobante"
+  },
+  "pWhoPaidUnknown": "¿De quién es este pago?",
+  "@pWhoPaidUnknown": {
+    "description": "Comprobante sin cliente"
+  },
+  "pLooksLike": "Parece de {name}",
+  "@pLooksLike": {
+    "description": "Cliente probable del comprobante",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pRegisterThisPayment": "Sí, registrar el pago",
+  "@pRegisterThisPayment": {
+    "description": "Aprobar el comprobante"
+  },
+  "pReviewDetail": "Revisar y corregir",
+  "@pReviewDetail": {
+    "description": "Abrir el comprobante en detalle"
+  },
+  "pUndoTitle": "¿Deshacer este pago?",
+  "@pUndoTitle": {
+    "description": "Deshacer un pago registrado solo"
+  },
+  "pUndoBody": "COROC anula el recibo y deja el comprobante otra vez por revisar. El saldo del cliente vuelve a como estaba.",
+  "@pUndoBody": {
+    "description": "Deshacer un pago registrado solo"
+  },
+  "pUndo": "Deshacer",
+  "@pUndo": {
+    "description": "Deshacer un pago registrado solo"
+  },
+  "pUndoReason": "Deshecho por el dueño desde Comprobantes",
+  "@pUndoReason": {
+    "description": "Motivo guardado al deshacer"
+  },
+  "pSendNothing": "Cuando haya recibos o avisos por enviar, aparecerán aquí.",
+  "@pSendNothing": {
+    "description": "Nada por enviar"
+  },
+  "pWithPdf": "Con PDF",
+  "@pWithPdf": {
+    "description": "El mensaje lleva un PDF"
+  },
+  "pSettingsSubtitle": "Su negocio, el correo, las copias y la seguridad.",
+  "@pSettingsSubtitle": {
+    "description": "Subtítulo de Configuración"
+  },
+  "pSecurityTitle": "Seguridad",
+  "@pSecurityTitle": {
+    "description": "Tarjeta de Configuración"
+  },
+  "pYourUser": "Su usuario: {username}",
+  "@pYourUser": {
+    "description": "Usuario actual",
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "pLockNow": "Bloquear ahora",
+  "@pLockNow": {
+    "description": "Bloquear COROC"
+  },
+  "pLockNowHelp": "Si se aleja del PC. COROC también se bloquea solo tras unos minutos sin uso.",
+  "@pLockNowHelp": {
+    "description": "Bloquear COROC"
+  },
+  "pVersion": "COROC {version}",
+  "@pVersion": {
+    "description": "Versión instalada",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "pBusinessTitle": "Su negocio",
+  "@pBusinessTitle": {
+    "description": "Tarjeta de Configuración"
+  },
+  "pBusinessHelp": "Aparece en recibos, contratos y correos",
+  "@pBusinessHelp": {
+    "description": "Para qué sirve el nombre del negocio"
+  },
+  "pLooksTitle": "Cómo se ve COROC",
+  "@pLooksTitle": {
+    "description": "Tarjeta de Configuración"
+  },
+  "pLanguage": "Idioma",
+  "@pLanguage": {
+    "description": "Selector de idioma"
+  },
+  "pWelcomeSubtitle": "Le tomará dos minutos. Empecemos por su negocio.",
+  "@pWelcomeSubtitle": {
+    "description": "Primer paso del primer uso"
+  },
+  "pWelcomeBusinessRequired": "Escriba el nombre de su negocio.",
+  "@pWelcomeBusinessRequired": {
+    "description": "Falta el nombre del negocio"
+  },
+  "pWelcomeBusinessName": "Nombre de su negocio",
+  "@pWelcomeBusinessName": {
+    "description": "Campo del primer uso"
+  },
+  "pWelcomeBusinessHelp": "Puede ser su propio nombre. Aparece en los recibos y contratos.",
+  "@pWelcomeBusinessHelp": {
+    "description": "Ayuda del nombre del negocio"
+  },
+  "pWelcomeCountry": "País y moneda",
+  "@pWelcomeCountry": {
+    "description": "Campo del primer uso"
+  },
+  "pWelcomeYouTitle": "Ahora usted",
+  "@pWelcomeYouTitle": {
+    "description": "Segundo paso del primer uso"
+  },
+  "pWelcomeYouSubtitle": "Con esta contraseña abrirá COROC. Solo usted la sabe.",
+  "@pWelcomeYouSubtitle": {
+    "description": "Segundo paso del primer uso"
+  },
+  "pWelcomeCreate": "Crear mi COROC",
+  "@pWelcomeCreate": {
+    "description": "Crear el negocio y el usuario"
+  },
+  "pWelcomeUserWillBe": "Su usuario será «{username}»",
+  "@pWelcomeUserWillBe": {
+    "description": "Usuario sugerido",
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "pWelcomeGmailTitle": "Su correo de Gmail",
+  "@pWelcomeGmailTitle": {
+    "description": "Tercer paso del primer uso"
+  },
+  "pWelcomeGmailSubtitle": "Conecte el Gmail donde le mandan los comprobantes. COROC los lee, registra el pago solo y responde con el recibo y el estado de cuenta. Use una «contraseña de aplicación» de Google: no comparte su contraseña de Gmail.",
+  "@pWelcomeGmailSubtitle": {
+    "description": "Tercer paso del primer uso"
+  },
+  "pWelcomeWhatsappSubtitle": "Cuando un cliente le mande el comprobante por WhatsApp, arrástrelo a COROC: registra el pago y deja lista la respuesta con el recibo. Usted solo oprime Enviar. Su número no se conecta a nada.",
+  "@pWelcomeWhatsappSubtitle": {
+    "description": "Cuarto paso del primer uso"
+  },
+  "pTourHomeTitle": "Su dinero, de un vistazo",
+  "@pTourHomeTitle": {
+    "description": "Recorrido de bienvenida"
+  },
+  "pTourHomeBody": "En Inicio ve cuánto le deben, lo que cobró y los pagos que van llegando, como en la app de su banco.",
+  "@pTourHomeBody": {
+    "description": "Recorrido de bienvenida"
+  },
+  "pTourLoanTitle": "Un préstamo, una pantalla",
+  "@pTourLoanTitle": {
+    "description": "Recorrido de bienvenida"
+  },
+  "pTourLoanBody": "Escriba a quién le presta, cuánto, el interés y cada cuánto paga. COROC arma las cuotas y el contrato en PDF.",
+  "@pTourLoanBody": {
+    "description": "Recorrido de bienvenida"
+  },
+  "pTourAutoTitle": "Los pagos se registran solos",
+  "@pTourAutoTitle": {
+    "description": "Recorrido de bienvenida"
+  },
+  "pTourAutoBody": "COROC lee su Gmail, reconoce quién pagó y responde con el recibo y el estado de cuenta. Si un comprobante llega por WhatsApp, arrástrelo a la ventana.",
+  "@pTourAutoBody": {
+    "description": "Recorrido de bienvenida"
+  },
+  "pChannelCash": "Efectivo",
+  "@pChannelCash": {
+    "description": "Canal del pago"
+  },
+  "pChannelManual": "Registrado a mano",
+  "@pChannelManual": {
+    "description": "Canal del pago"
+  },
+  "pChannelPc": "Desde este PC",
+  "@pChannelPc": {
+    "description": "Canal del pago"
+  },
+  "pReplySentEmail": "Recibo enviado por correo",
+  "@pReplySentEmail": {
+    "description": "Respuesta al pago"
+  },
+  "pReplySentWhatsapp": "Recibo enviado por WhatsApp",
+  "@pReplySentWhatsapp": {
+    "description": "Respuesta al pago"
+  },
+  "pReplyReady": "Recibo por enviar",
+  "@pReplyReady": {
+    "description": "Respuesta al pago"
+  },
+  "pReplyScheduled": "Recibo programado",
+  "@pReplyScheduled": {
+    "description": "Respuesta al pago"
+  },
+  "pReplyFailed": "No se pudo enviar el recibo",
+  "@pReplyFailed": {
+    "description": "Respuesta al pago"
+  },
+  "pToday": "Hoy",
+  "@pToday": {
+    "description": "Fecha relativa"
+  },
+  "pYesterday": "Ayer",
+  "@pYesterday": {
+    "description": "Fecha relativa"
+  },
+  "pStageTitle": "Sus préstamos, en orden.",
+  "@pStageTitle": {
+    "description": "Frase de la marca en las pantallas de entrada"
+  },
+  "pStageBody": "COROC lleva la cuenta de lo que prestó, de lo que le pagan y de lo que falta, sin hojas de cálculo.",
+  "@pStageBody": {
+    "description": "Pantallas de entrada"
+  },
+  "pStagePromiseLoans": "Cada préstamo en una sola pantalla, con su contrato en PDF.",
+  "@pStagePromiseLoans": {
+    "description": "Pantallas de entrada"
+  },
+  "pStagePromiseEmail": "Lee su correo y registra los pagos solo.",
+  "@pStagePromiseEmail": {
+    "description": "Pantallas de entrada"
+  },
+  "pStagePromiseWhatsapp": "Responde con el recibo y el estado de cuenta, también por WhatsApp.",
+  "@pStagePromiseWhatsapp": {
+    "description": "Pantallas de entrada"
+  },
+  "pStageFoot": "Sus datos se quedan en este PC y sus copias van cifradas.",
+  "@pStageFoot": {
+    "description": "Pantallas de entrada"
   }
 }

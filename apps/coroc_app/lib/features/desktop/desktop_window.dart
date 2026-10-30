@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../app.dart' show routerProvider;
 import '../../core/desktop/desktop_platform.dart';
@@ -14,8 +15,14 @@ import '../../design/widgets/brand.dart';
 /// («COROC sigue trabajando»: el correo y los recordatorios no se detienen); «Salir» apaga el servidor de este PC en
 /// orden. Si el instalador va a actualizar, la app se cierra sola. Fuera de Escritorio no hace nada.
 class DesktopWindow extends ConsumerStatefulWidget {
-  const DesktopWindow({super.key, required this.child});
+  const DesktopWindow({super.key, required this.child, this.router, this.messagesRoute = '/messages/today'});
   final Widget child;
+
+  /// Router de la app que la usa (el nuevo COROC tiene el suyo); por defecto, el de la app completa.
+  final GoRouter? router;
+
+  /// Adónde lleva «Mensajes de hoy» del menú de la bandeja.
+  final String messagesRoute;
 
   @override
   ConsumerState<DesktopWindow> createState() => DesktopWindowState();
@@ -28,6 +35,7 @@ class DesktopWindowState extends ConsumerState<DesktopWindow> {
 
   bool get _on => ref.read(desktopModeProvider);
   DesktopPlatform get _platform => ref.read(desktopPlatformProvider);
+  GoRouter get _router => widget.router ?? ref.read(routerProvider);
 
   @override
   void initState() {
@@ -63,7 +71,7 @@ class DesktopWindowState extends ConsumerState<DesktopWindow> {
       case WindowSignalKind.trayItem:
         if (s.key == 'salir') return quit();
         await _platform.showWindow();
-        if (s.key == 'mensajes') ref.read(routerProvider).go('/messages/today');
+        if (s.key == 'mensajes') _router.go(widget.messagesRoute);
       case WindowSignalKind.focused:
         break;
     }
@@ -73,7 +81,7 @@ class DesktopWindowState extends ConsumerState<DesktopWindow> {
   Future<void> _toTray() async {
     final store = ref.read(sessionStoreProvider);
     if (!await store.trayHintShown()) {
-      final ctx = ref.read(routerProvider).routerDelegate.navigatorKey.currentContext;
+      final ctx = _router.routerDelegate.navigatorKey.currentContext;
       if (ctx != null && ctx.mounted) {
         final l = ctx.l10n;
         final choice = await showDialog<String>(

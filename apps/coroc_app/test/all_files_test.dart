@@ -72,7 +72,25 @@ import 'package:coroc/features/settings/settings_page.dart';
 import 'package:coroc/features/settings/support_section.dart';
 import 'package:coroc/features/shell/app_shell.dart';
 import 'package:coroc/features/shell/offline_banner.dart';
+import 'package:coroc/features/shell/security_layer.dart';
 import 'package:coroc/features/today/today_page.dart';
+import 'package:coroc/personal/app.dart';
+import 'package:coroc/personal/data.dart';
+import 'package:coroc/personal/pages/client_page.dart';
+import 'package:coroc/personal/pages/clients_page.dart';
+import 'package:coroc/personal/pages/home_page.dart';
+import 'package:coroc/personal/pages/login_page.dart';
+import 'package:coroc/personal/pages/new_loan_page.dart';
+import 'package:coroc/personal/pages/receipts_page.dart';
+import 'package:coroc/personal/pages/send_page.dart';
+import 'package:coroc/personal/pages/settings_page.dart';
+import 'package:coroc/personal/pages/welcome_page.dart';
+import 'package:coroc/personal/router.dart';
+import 'package:coroc/personal/shell.dart';
+import 'package:coroc/personal/tour.dart';
+import 'package:coroc/personal/ui/bank.dart';
+import 'package:coroc/personal/ui/labels.dart';
+import 'package:coroc/personal/ui/stage.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -26,6 +26,7 @@ import { Problem } from '../common/problem.js';
 import { TenantCache } from '../company/tenant-cache.js';
 import { CONFIG, type AppConfig } from '../config.js';
 import { DbService, type Tx } from '../db/db.service.js';
+import { DocumentTasks } from '../documents/tasks.js';
 import { checkDomain, DnsResolver } from './dns.js';
 import { EmailProvider } from './email.js';
 import { MessagingService, type MessageRow } from './messaging.service.js';
@@ -56,6 +57,7 @@ export class MessagesController {
     private readonly tenants: TenantCache,
     private readonly clock: Clock,
     private readonly audit: AuditService,
+    private readonly tasks: DocumentTasks,
   ) {}
 
   @Get()
@@ -131,8 +133,10 @@ export class MessagesController {
     const out = await this.db.tx(ctxOf(a), async (tx) => {
       const loan = await tx.one<{ id: string; client_id: string }>('SELECT id, client_id FROM loans WHERE id = $1', [b.loanId]);
       if (!loan) return this.access.deny(tx, a, 'loan', b.loanId);
+      // El estado de cuenta va con su PDF a la fecha (Fase 11): se genera ahora y el mensaje sale cuando está listo.
+      const documentTaskId = b.event === 'statement' ? await this.tasks.enqueue(tx, { kind: 'statement', loanId: loan.id, params: { reason: 'on_demand' }, createdBy: a.userId }) : null;
       const rows = await this.svc.enqueueTx(tx, a.tenantId, {
-        event: b.event, loanId: loan.id, channels: [b.channel], dedupeKey: `manual:${crypto.randomUUID()}`, body: b.body ?? null, createdBy: a.userId,
+        event: b.event, loanId: loan.id, channels: [b.channel], dedupeKey: `manual:${crypto.randomUUID()}`, body: b.body ?? null, createdBy: a.userId, documentTaskId,
       });
       await this.audit.log(tx, 'message.composed', 'client', loan.client_id, { after: { event: b.event, channel: b.channel, status: rows[0]?.status } });
       return { rows, items: await withClients(tx, this.svc, rows) };

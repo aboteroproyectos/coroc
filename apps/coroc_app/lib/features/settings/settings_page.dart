@@ -292,7 +292,7 @@ class _Security extends ConsumerWidget {
             title: Text(l.passwordChangeTitle),
             subtitle: Text(l.passwordChangeHelp),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => showDialog<void>(context: context, builder: (_) => const _ChangePasswordDialog()),
+            onTap: () => showDialog<void>(context: context, builder: (_) => const ChangePasswordDialog()),
           ),
           ListTile(
             contentPadding: EdgeInsets.zero,
@@ -353,13 +353,13 @@ class _Security extends ConsumerWidget {
   }
 }
 
-class _ChangePasswordDialog extends ConsumerStatefulWidget {
-  const _ChangePasswordDialog();
+class ChangePasswordDialog extends ConsumerStatefulWidget {
+  const ChangePasswordDialog({super.key});
   @override
-  ConsumerState<_ChangePasswordDialog> createState() => _ChangePasswordDialogState();
+  ConsumerState<ChangePasswordDialog> createState() => ChangePasswordDialogState();
 }
 
-class _ChangePasswordDialogState extends ConsumerState<_ChangePasswordDialog> {
+class ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
   final _current = TextEditingController();
   final _next = TextEditingController();
   final _confirm = TextEditingController();

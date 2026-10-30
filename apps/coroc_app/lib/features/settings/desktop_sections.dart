@@ -358,7 +358,10 @@ class _AutoBackupSectionState extends ConsumerState<AutoBackupSection> {
 /// Aviso en la parte de arriba de COROC Escritorio cuando pasan 7 días sin copia (ADR-066). Se vuelve a consultar cada
 /// 10 minutos: la copia diaria la hace el servidor por su cuenta y el aviso se quita solo cuando termina.
 class BackupReminder extends ConsumerStatefulWidget {
-  const BackupReminder({super.key});
+  const BackupReminder({super.key, this.settingsRoute = '/settings'});
+
+  /// Dónde se configura la copia diaria.
+  final String settingsRoute;
   @override
   ConsumerState<BackupReminder> createState() => _BackupReminderState();
 }
@@ -397,7 +400,7 @@ class _BackupReminderState extends ConsumerState<BackupReminder> {
             ),
             TextButton(
               onPressed: () async {
-                if (!a.configured) return GoRouter.of(context).go('/settings');
+                if (!a.configured) return GoRouter.of(context).go(widget.settingsRoute);
                 try {
                   await ref.read(apiProvider).runAutoBackup();
                   ref.invalidate(autoBackupProvider);

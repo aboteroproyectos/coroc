@@ -351,6 +351,10 @@ class CorocApi {
       AutoBackup.fromJson(await client.put('/company/auto-backup', body: {'folder': folder, 'password': ?password, 'keep': ?keep, 'enabled': ?enabled}) as Json);
   Future<AutoBackup> runAutoBackup() async => AutoBackup.fromJson(await client.post('/company/auto-backup/run') as Json);
 
+  // ─── Nuevo COROC (Fase 11) ───
+  /// Últimos pagos de la cartera, como el extracto de un banco.
+  Future<List<RecentPayment>> recentPayments({int limit = 20}) async => _list((await client.get('/payments/recent', query: {'limit': limit}) as Json)['items'], RecentPayment.fromJson);
+
   // ─── Eliminación de cuentas (App Store 5.1.1(v), Google Play) ───
   Future<void> deleteMyAccount(String password) async => client.delete('/me', body: {'password': password});
   Future<void> deleteUser(String id) async => client.delete('/users/$id');

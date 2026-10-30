@@ -15,7 +15,10 @@ import 'gmail_connect.dart' show ResultBox;
 /// «¿Olvidó su contraseña?» en COROC Escritorio (ADR-063): sin correo de por medio. La persona confirma que es ella con
 /// Windows Hello (rostro, huella o PIN) en este PC y elige una contraseña nueva; sus sesiones abiertas se cierran.
 class DesktopPasswordReset extends ConsumerStatefulWidget {
-  const DesktopPasswordReset({super.key});
+  const DesktopPasswordReset({super.key, this.backRoute = '/login'});
+
+  /// Pantalla de ingreso de la app que la usa.
+  final String backRoute;
   @override
   ConsumerState<DesktopPasswordReset> createState() => _DesktopPasswordResetState();
 }
@@ -86,7 +89,7 @@ class _DesktopPasswordResetState extends ConsumerState<DesktopPasswordReset> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final back = TextButton(onPressed: () => context.go('/login'), child: Text(l.forgotBack));
+    final back = TextButton(onPressed: () => context.go(widget.backRoute), child: Text(l.forgotBack));
     if (_done) {
       return AuthFrame(
         title: l.forgotTitle,

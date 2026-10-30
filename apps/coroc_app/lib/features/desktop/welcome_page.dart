@@ -163,7 +163,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    if (_restoring) return _Frame(step: null, child: _RestorePanel(onBack: () => setState(() => _restoring = false)));
+    if (_restoring) return _Frame(step: null, child: RestorePanel(onBack: () => setState(() => _restoring = false)));
     return switch (_step) {
       0 => _Frame(
         step: 0,
@@ -452,14 +452,14 @@ class _WhatsAppStepState extends ConsumerState<_WhatsAppStep> {
 
 /// Restaurar en este PC la copia `.coroc` de otro (E-7): se elige el archivo, se escribe la contraseña de la copia y
 /// se ingresa con el usuario de siempre.
-class _RestorePanel extends ConsumerStatefulWidget {
-  const _RestorePanel({required this.onBack});
+class RestorePanel extends ConsumerStatefulWidget {
+  const RestorePanel({super.key, required this.onBack});
   final VoidCallback onBack;
   @override
-  ConsumerState<_RestorePanel> createState() => _RestorePanelState();
+  ConsumerState<RestorePanel> createState() => RestorePanelState();
 }
 
-class _RestorePanelState extends ConsumerState<_RestorePanel> {
+class RestorePanelState extends ConsumerState<RestorePanel> {
   final _password = TextEditingController();
   DesktopRestore? _upload;
   double? _progress;

@@ -413,7 +413,9 @@
       "noPayments": "No payments recorded yet.",
       "allPaid": "No installments due.",
       "cash": "Cash",
-      "manual": "Manual entry"
+      "manual": "Manual entry",
+      "earlierPayments": "Plus {n} earlier payments, in the full statement.",
+      "morePending": "Plus {n} more installments, through {fecha}."
     },
     "payoff": {
       "title": "Payoff letter",

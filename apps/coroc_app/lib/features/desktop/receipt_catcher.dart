@@ -43,8 +43,16 @@ final watchDownloadsProvider = NotifierProvider<WatchDownloadsController, bool>(
 /// Explorador) o aceptar «¿Es un comprobante?» cuando llega uno a Descargas. Cada uno va a la Bandeja, donde COROC lo
 /// lee e identifica al cliente (Fase 3); si se registra solo, se ofrece enviar el recibo.
 class ReceiptCatcher extends ConsumerStatefulWidget {
-  const ReceiptCatcher({super.key, required this.child});
+  const ReceiptCatcher({super.key, required this.child, this.revealRoute = _inbox, this.onUploaded});
   final Widget child;
+
+  /// Dónde se muestra el comprobante recién subido (la Bandeja, o «Comprobantes» en el nuevo COROC).
+  final String Function(String intakeId) revealRoute;
+
+  /// Para que la pantalla que lo usa refresque sus listas.
+  final VoidCallback? onUploaded;
+
+  static String _inbox(String id) => '/inbox?id=$id';
   @override
   ConsumerState<ReceiptCatcher> createState() => ReceiptCatcherState();
 }
@@ -134,9 +142,10 @@ class ReceiptCatcherState extends ConsumerState<ReceiptCatcher> {
       }
       ref.invalidate(inboxProvider);
       ref.invalidate(intakeSummaryProvider);
+      widget.onUploaded?.call();
       if (!mounted || last == null) return;
       _toast(l.intakeSent);
-      GoRouter.of(context).go('/inbox?id=${last.id}');
+      GoRouter.of(context).go(widget.revealRoute(last.id));
       if (files.length == 1) unawaited(_watchResult(last.id));
     } catch (e) {
       if (mounted) _toast(errorText(context, e));

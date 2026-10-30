@@ -413,7 +413,9 @@
       "noPayments": "Ainda não há pagamentos registrados.",
       "allPaid": "Não há parcelas pendentes.",
       "cash": "Dinheiro",
-      "manual": "Registro manual"
+      "manual": "Registro manual",
+      "earlierPayments": "E mais {n} pagamentos anteriores, no extrato completo.",
+      "morePending": "E mais {n} parcelas, até {fecha}."
     },
     "payoff": {
       "title": "Termo de quitação",

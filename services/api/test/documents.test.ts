@@ -74,6 +74,12 @@ describe('Documentos del préstamo, carpeta COROC y verificación (CA-15, CA-18)
       expect(text).toContain(s);
     }
     expect(text).toMatch(/Cuotas restantes\s+19/);
+    // Fase 11: en la segunda hoja va el estado de cuenta a la fecha, para responder al cliente con todo junto.
+    for (const s of ['Estado de cuenta', 'Pagos recibidos', 'Cuotas por pagar', '19 / 20', '09/10/2026 RC-000001 Nequi $ 60.000', 'Y 9 cuotas más, hasta el 2 de noviembre de 2026']) expect(text).toContain(s);
+    // Movimientos recientes (Inicio): el pago con su cliente, su recibo y el canal.
+    const recent = (await t.http().get('/v1/payments/recent').set(auth(token)).expect(200)).body;
+    expectContract('recentPayments', 200, recent);
+    expect(recent.items[0]).toMatchObject({ clientName: 'María José Pérez Gómez', amount: 60_000, contract: 'CT-000001', receiptNumber: 'RC-000001', channel: 'manual', auto: false, reversed: false, method: 'Nequi' });
     const docs = (await t.http().get('/v1/documents').set(auth(token)).query({ clientId, kind: 'schedule', includeSuperseded: true }).expect(200)).body;
     expectContract('listDocuments', 200, docs);
     expect(docs.items.map((d: { version: number; superseded: boolean }) => [d.version, d.superseded])).toEqual([[2, false], [1, true]]);

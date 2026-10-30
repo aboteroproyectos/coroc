@@ -125,6 +125,44 @@ export class DashboardService {
       };
     });
   }
+
+  /**
+   * Movimientos recientes (Fase 11): los últimos pagos de la cartera, como el extracto de un banco, con el cliente, por
+   * dónde llegó el comprobante, su recibo y si la respuesta con el recibo ya salió (o espera en «Para enviar»).
+   */
+  async recent(auth: AuthContext, q: { limit?: number }) {
+    const ctx = { tenantId: auth.tenantId, userId: auth.userId, role: auth.role };
+    return this.db.tx(ctx, async (tx) => {
+      const rows = await tx.many<Record<string, any>>(
+        `SELECT e.id, e.loan_id, e.amount, e.entry_date, e.recorded_at, e.source, e.method, e.institution, e.auto, l.contract, l.currency,
+                c.id AS client_id, c.first_name, c.last_name, i.channel AS intake_channel,
+                r.number AS receipt_number, r.document_id AS receipt_document_id,
+                EXISTS (SELECT 1 FROM ledger_entries x WHERE x.reverses_id = e.id) AS reversed,
+                (SELECT json_build_object('channel', m.channel, 'status', m.status)
+                   FROM messages m WHERE m.entry_id = e.id AND m.event = 'receipt'
+                  ORDER BY (m.status IN ('sent', 'delivered', 'read')) DESC, m.created_at DESC LIMIT 1) AS reply
+           FROM ledger_entries e
+           JOIN loans l ON l.id = e.loan_id
+           JOIN clients c ON c.id = l.client_id
+           LEFT JOIN intake_events i ON i.id = e.intake_id
+           LEFT JOIN receipts r ON r.entry_id = e.id
+          WHERE e.type = 'payment'
+          ORDER BY e.recorded_at DESC, e.id
+          LIMIT $1`,
+        [Math.min(100, Math.max(1, Number(q.limit) || 20))],
+      );
+      return {
+        items: rows.map((r) => ({
+          entryId: r.id, loanId: r.loan_id, contract: r.contract, clientId: r.client_id, clientName: `${r.first_name} ${r.last_name}`,
+          amount: Number(r.amount), currency: r.currency, date: r.entry_date, recordedAt: new Date(r.recorded_at).toISOString(),
+          // Por dónde llegó: el canal del comprobante, o «efectivo» / «registro manual».
+          channel: r.intake_channel ?? (r.source === 'cash' ? 'cash' : r.source === 'email' || r.source === 'whatsapp' ? r.source : 'manual'),
+          auto: !!r.auto, method: r.method ?? r.institution ?? null, receiptNumber: r.receipt_number ?? null,
+          receiptDocumentId: r.receipt_document_id ?? null, reversed: !!r.reversed, reply: r.reply ?? null,
+        })),
+      };
+    });
+  }
 }
 
 @Controller()
@@ -143,6 +181,13 @@ export class DashboardController {
   @Op('todayCollections')
   today(@Auth() a: AuthContext, @Query() q: { collectorId?: string; limit?: number }) {
     return this.dashboard.today(a, q);
+  }
+
+  @Get('payments/recent')
+  @Requires('dashboard.view')
+  @Op('recentPayments')
+  recentPayments(@Auth() a: AuthContext, @Query() q: { limit?: number }) {
+    return this.dashboard.recent(a, q);
   }
 
   /**

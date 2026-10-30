@@ -1062,3 +1062,39 @@ abstract class AutoBackup with _$AutoBackup {
   }) = _AutoBackup;
   factory AutoBackup.fromJson(Map<String, dynamic> json) => _$AutoBackupFromJson(json);
 }
+
+// ─────────────────────────── Fase 11 · Nuevo COROC ───────────────────────────
+
+/// La respuesta al cliente con su recibo y estado de cuenta: por qué canal y cómo va.
+@freezed
+abstract class PaymentReply with _$PaymentReply {
+  const factory PaymentReply({required String channel, required String status}) = _PaymentReply;
+  factory PaymentReply.fromJson(Map<String, dynamic> json) => _$PaymentReplyFromJson(json);
+}
+
+/// Un movimiento del extracto de Inicio: un pago con su cliente, por dónde llegó y su recibo.
+@freezed
+abstract class RecentPayment with _$RecentPayment {
+  const RecentPayment._();
+  const factory RecentPayment({
+    required String entryId,
+    required String loanId,
+    required String contract,
+    required String clientId,
+    required String clientName,
+    required int amount,
+    required String currency,
+    required String date,
+    required String recordedAt,
+    required String channel,
+    @Default(false) bool auto,
+    String? method,
+    String? receiptNumber,
+    String? receiptDocumentId,
+    @Default(false) bool reversed,
+    PaymentReply? reply,
+  }) = _RecentPayment;
+  factory RecentPayment.fromJson(Map<String, dynamic> json) => _$RecentPaymentFromJson(json);
+
+  bool get replied => const ['sent', 'delivered', 'read'].contains(reply?.status);
+}
